@@ -124,7 +124,7 @@ describe('database query builder test', () => {
   });
 
   it('test basic select with get columns', () => {
-    const spySelect = spyOn(builder._connection, 'select');
+    const spySelect = jest.spyOn(builder._connection, 'select');
 
     builder.from('users').get();
 
@@ -144,7 +144,7 @@ describe('database query builder test', () => {
   });
 
   it('test basic select use write connection', () => {
-    const spySelect = spyOn(builder._connection, 'select');
+    const spySelect = jest.spyOn(builder._connection, 'select');
 
     builder.useWriteConnection().select('*').from('users').get();
     expect(spySelect).toHaveBeenLastCalledWith('SELECT * FROM `users`', [], false);
@@ -1129,7 +1129,7 @@ describe('database query builder test', () => {
 
     expected = 'SELECT count(*) AS aggregate FROM ((SELECT * FROM `posts`) UNION (SELECT * FROM `videos`)) AS `temp_table`';
     builder  = getMySqlBuilder();
-    spySelect = spyOn(builder._connection, 'select'), spyProcessSelect = spyOn(builder._processor, 'processSelect');
+    spySelect = jest.spyOn(builder._connection, 'select'), spyProcessSelect = jest.spyOn(builder._processor, 'processSelect');
     builder.from('posts').union(getMySqlBuilder().from('videos')).count();
     expect(spySelect).toBeCalledTimes(1);
     expect(spySelect).toBeCalledWith(expected, [], true);
@@ -1137,7 +1137,7 @@ describe('database query builder test', () => {
 
     expected = 'SELECT count(*) AS aggregate FROM ((SELECT `id` FROM `posts`) UNION (SELECT `id` FROM `videos`)) AS `temp_table`';
     builder  = getMySqlBuilder();
-    spySelect = spyOn(builder._connection, 'select'), spyProcessSelect = spyOn(builder._processor, 'processSelect');
+    spySelect = jest.spyOn(builder._connection, 'select'), spyProcessSelect = jest.spyOn(builder._processor, 'processSelect');
     builder.from('posts').select('id').union(getMySqlBuilder().from('videos').select('id')).count();
     expect(spySelect).toBeCalledTimes(1);
     expect(spySelect).toBeCalledWith(expected, [], true);
@@ -1145,7 +1145,7 @@ describe('database query builder test', () => {
 
     expected = 'SELECT count(*) AS aggregate FROM ((SELECT * FROM "posts") UNION (SELECT * FROM "videos")) AS "temp_table"';
     builder  = getPostgresBuilder();
-    spySelect = spyOn(builder._connection, 'select'), spyProcessSelect = spyOn(builder._processor, 'processSelect');
+    spySelect = jest.spyOn(builder._connection, 'select'), spyProcessSelect = jest.spyOn(builder._processor, 'processSelect');
     builder.from('posts').union(getPostgresBuilder().from('videos')).count();
     expect(spySelect).toBeCalledTimes(1);
     expect(spySelect).toBeCalledWith(expected, [], true);
@@ -1153,7 +1153,7 @@ describe('database query builder test', () => {
 
     expected = 'SELECT count(*) AS aggregate FROM (SELECT * FROM (SELECT * FROM "posts") UNION SELECT * FROM (SELECT * FROM "videos")) AS "temp_table"';
     builder  = getSQLiteBuilder();
-    spySelect = spyOn(builder._connection, 'select'), spyProcessSelect = spyOn(builder._processor, 'processSelect');
+    spySelect = jest.spyOn(builder._connection, 'select'), spyProcessSelect = jest.spyOn(builder._processor, 'processSelect');
     builder.from('posts').union(getSQLiteBuilder().from('videos')).count();
     expect(spySelect).toBeCalledTimes(1);
     expect(spySelect).toBeCalledWith(expected, [], true);
@@ -1161,7 +1161,7 @@ describe('database query builder test', () => {
 
     expected = 'SELECT count(*) AS aggregate FROM (SELECT * FROM (SELECT * FROM [posts]) AS [temp_table] UNION SELECT * FROM (SELECT * FROM [videos]) AS [temp_table]) AS [temp_table]';
     builder  = getSqlServerBuilder();
-    spySelect = spyOn(builder._connection, 'select'), spyProcessSelect = spyOn(builder._processor, 'processSelect');
+    spySelect = jest.spyOn(builder._connection, 'select'), spyProcessSelect = jest.spyOn(builder._processor, 'processSelect');
     builder.from('posts').union(getSqlServerBuilder().from('videos')).count();
     expect(spySelect).toBeCalledTimes(1);
     expect(spySelect).toBeCalledWith(expected, [], true);
@@ -1408,13 +1408,13 @@ describe('database query builder test', () => {
   it('test having followed by select get', () => {
     let spySelect, spyProcessSelect, result, query;
     builder          = getBuilder();
-    spySelect        = spyOn(builder._connection, 'select').and.callFake(() => {
+    spySelect        = jest.spyOn(builder._connection, 'select').mockImplementation(() => {
       return [{
         'category': 'rock',
         'total'   : 5
       }];
     });
-    spyProcessSelect = spyOn(builder._processor, 'processSelect').and.callFake((builder, results) => {
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
       return results;
     });
     query            = 'SELECT `category`, count(*) as `total` FROM `item` WHERE `department` = ? GROUP BY `category` HAVING `total` > ?';
@@ -1433,13 +1433,13 @@ describe('database query builder test', () => {
     }]);
 
     builder          = getBuilder();
-    spySelect        = spyOn(builder._connection, 'select').and.callFake(() => {
+    spySelect        = jest.spyOn(builder._connection, 'select').mockImplementation(() => {
       return [{
         'category': 'rock',
         'total'   : 5
       }];
     });
-    spyProcessSelect = spyOn(builder._processor, 'processSelect').and.callFake((builder, results) => {
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
       return results;
     });
     query            = 'SELECT `category`, count(*) as `total` FROM `item` WHERE `department` = ? GROUP BY `category` HAVING `total` > 3';
@@ -1515,7 +1515,7 @@ describe('database query builder test', () => {
       q.select('body').from('posts').where('id', 4);
     }, 'post');
 
-    spySelector = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelector = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'aggregate': 1
     }]);
 
@@ -1523,7 +1523,7 @@ describe('database query builder test', () => {
     //   return results;
     // });
 
-    spyProcessSelector = spyOn(builder._processor, 'processSelect').and.callFake((builder, results) => {
+    spyProcessSelector = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
       return results;
     });
 
@@ -1537,10 +1537,10 @@ describe('database query builder test', () => {
     let spySelector, spyProcessSelector;
     builder = getBuilder();
 
-    spySelector        = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelector        = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'aggregate': 1
     }]);
-    spyProcessSelector = spyOn(builder._processor, 'processSelect').and.callFake((builder, results) => {
+    spyProcessSelector = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
       return results;
     });
     const columns      = ['body as post_body', 'teaser', 'posts.created as published'];
@@ -1557,10 +1557,10 @@ describe('database query builder test', () => {
     let spySelector, spyProcessSelector;
     builder = getBuilder();
     builder.from('posts').select('id').union(getBuilder().from('videos').select('id'));
-    spySelector        = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelector        = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'aggregate': 1
     }]);
-    spyProcessSelector = spyOn(builder._processor, 'processSelect').and.callFake((builder, results) => {
+    spyProcessSelector = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
       return results;
     });
     const count        = builder.getCountForPagination();
@@ -2020,11 +2020,11 @@ describe('database query builder test', () => {
   it('test find returns first result by i d', () => {
     let spySelect, spyProcessSelect;
     builder   = getBuilder();
-    spySelect = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'foo': 'bar'
     }]);
 
-    spyProcessSelect = spyOn(builder._processor, 'processSelect').and.callFake((query, results) => {
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((query, results) => {
       expect(query).toBe(builder);
       expect(results).toStrictEqual([{
         'foo': 'bar'
@@ -2046,11 +2046,11 @@ describe('database query builder test', () => {
     let spySelect, spyProcessSelect;
     builder = getBuilder();
 
-    spySelect = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'foo': 'bar'
     }]);
 
-    spyProcessSelect = spyOn(builder._processor, 'processSelect').and.callFake((query, results) => {
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((query, results) => {
       expect(query).toBe(builder);
       expect(results).toStrictEqual([{
         'foo': 'bar'
@@ -2068,12 +2068,12 @@ describe('database query builder test', () => {
   it('test pluck method gets collection of column values', () => {
     let spySelect, spyProcessSelect, results;
     builder          = getBuilder();
-    spySelect        = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect        = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'foo': 'bar'
     }, {
       'foo': 'baz'
     }]);
-    spyProcessSelect = spyOn(builder._processor, 'processSelect').and.callFake((query, results) => {
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((query, results) => {
       expect(query).toBe(builder);
       expect(results).toStrictEqual([{
         'foo': 'bar'
@@ -2088,14 +2088,14 @@ describe('database query builder test', () => {
 
 
     builder          = getBuilder();
-    spySelect        = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect        = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'id' : 1,
       'foo': 'bar'
     }, {
       'id' : 10,
       'foo': 'baz'
     }]);
-    spyProcessSelect = spyOn(builder._processor, 'processSelect').and.callFake((query, results) => {
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((query, results) => {
       expect(query).toBe(builder);
       expect(results).toStrictEqual([{
         'id' : 1,
@@ -2171,11 +2171,11 @@ describe('database query builder test', () => {
   it('test aggregate functions', () => {
     let spySelect, spyProcessSelect, results;
     builder   = getBuilder();
-    spySelect = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'aggregate': 1
     }]);
 
-    spyProcessSelect = spyOn(builder._processor, 'processSelect').and.callFake((builder, results) => {
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
       return results;
     });
 
@@ -2183,7 +2183,7 @@ describe('database query builder test', () => {
     expect(spySelect).toBeCalledWith('SELECT count(*) AS aggregate FROM `users`', [], true);
     expect(results).toBe(1);
     builder   = getBuilder();
-    spySelect = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'exists': 1
     }]);
 
@@ -2191,37 +2191,37 @@ describe('database query builder test', () => {
     expect(spySelect).toBeCalledWith('SELECT exists(SELECT * FROM `users`) AS `exists`', [], true);
     expect(results).toBeTruthy();
     builder   = getBuilder();
-    spySelect = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'exists': 0
     }]);
     results   = builder.from('users').doesntExist();
     expect(spySelect).toBeCalledWith('SELECT exists(SELECT * FROM `users`) AS `exists`', [], true);
     expect(results).toBeTruthy();
     builder          = getBuilder();
-    spySelect        = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect        = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'aggregate': 1
     }]);
-    spyProcessSelect = spyOn(builder._processor, 'processSelect').and.callFake((builder, results) => {
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
       return results;
     });
     results          = builder.from('users').max('id');
     expect(spySelect).toBeCalledWith('SELECT max(`id`) AS aggregate FROM `users`', [], true);
     expect(results).toBeTruthy();
     builder          = getBuilder();
-    spySelect        = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect        = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'aggregate': 1
     }]);
-    spyProcessSelect = spyOn(builder._processor, 'processSelect').and.callFake((query, results) => {
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((query, results) => {
       return results;
     });
     results          = builder.from('users').min('id');
     expect(spySelect).toBeCalledWith('SELECT min(`id`) AS aggregate FROM `users`', [], true);
     expect(results).toBeTruthy();
     builder          = getBuilder();
-    spySelect        = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect        = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'aggregate': 1
     }]);
-    spyProcessSelect = spyOn(builder._processor, 'processSelect').and.callFake((query, results) => {
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((query, results) => {
       return results;
     });
     results          = builder.from('users').sum('id');
@@ -2285,7 +2285,7 @@ describe('database query builder test', () => {
   it('test aggregate reset followed by get', () => {
     let spySelect, spyProcessSelect, count, result, sum;
     builder   = getBuilder();
-    spySelect = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'aggregate': 1
     }]);
     builder.from('users').select('column1', 'column2');
@@ -2295,7 +2295,7 @@ describe('database query builder test', () => {
 
 
     builder   = getBuilder();
-    spySelect = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'aggregate': 2
     }]);
     builder.from('users').select('column1', 'column2');
@@ -2305,7 +2305,7 @@ describe('database query builder test', () => {
 
 
     builder   = getBuilder();
-    spySelect = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'column1': 'foo',
       'column2': 'bar'
     }]);
@@ -2322,7 +2322,7 @@ describe('database query builder test', () => {
   it('test aggregate reset followed by select get', () => {
     let spySelect, spyProcessSelect, result;
     builder   = getBuilder();
-    spySelect = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'aggregate': 1
     }]);
     builder.from('users');
@@ -2332,7 +2332,7 @@ describe('database query builder test', () => {
 
 
     builder   = getBuilder();
-    spySelect = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'column2': 'foo',
       'column3': 'bar'
     }]);
@@ -2350,7 +2350,7 @@ describe('database query builder test', () => {
     builder = getBuilder();
 
     builder   = getBuilder();
-    spySelect = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'aggregate': 1
     }]);
     builder.from('users');
@@ -2360,7 +2360,7 @@ describe('database query builder test', () => {
 
 
     builder   = getBuilder();
-    spySelect = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'column2': 'foo',
       'column3': 'bar'
     }]);
@@ -2376,7 +2376,7 @@ describe('database query builder test', () => {
   it('test aggregate with sub select', () => {
     let spySelect, count;
     builder   = getBuilder();
-    spySelect = spyOn(builder._connection, 'select').and.returnValue([{
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue([{
       'aggregate': 1
     }]);
 
@@ -2421,7 +2421,7 @@ describe('database query builder test', () => {
   it('test insert method', () => {
     let spyInsert, result;
     builder   = getBuilder();
-    spyInsert = spyOn(builder._connection, 'insert').and.returnValue(true);
+    spyInsert = jest.spyOn(builder._connection, 'insert').mockReturnValue(true);
 
     result = builder.from('users').insert({
       'email': 'foo'
@@ -2434,7 +2434,7 @@ describe('database query builder test', () => {
   it('test insert using method', () => {
     let spyInsert, result;
     builder   = getBuilder();
-    spyInsert = spyOn(builder._connection, 'affectingStatement').and.returnValue(1);
+    spyInsert = jest.spyOn(builder._connection, 'affectingStatement').mockReturnValue(1);
 
     result = builder.from('table1').insertUsing(['foo'], query => {
       query.select(['bar']).from('table2').where('foreign_id', '=', 5);
@@ -2464,7 +2464,7 @@ describe('database query builder test', () => {
   it('test my sql insert or ignore method', () => {
     let spyInsert, result;
     builder   = getMySqlBuilder();
-    spyInsert = spyOn(builder._connection, 'affectingStatement').and.returnValue(1);
+    spyInsert = jest.spyOn(builder._connection, 'affectingStatement').mockReturnValue(1);
 
 
     result = builder.from('users').insertOrIgnore({
@@ -2477,7 +2477,7 @@ describe('database query builder test', () => {
   it('test postgres insert or ignore method', () => {
     let spyInsert, result;
     builder   = getPostgresBuilder();
-    spyInsert = spyOn(builder._connection, 'affectingStatement').and.returnValue(1);
+    spyInsert = jest.spyOn(builder._connection, 'affectingStatement').mockReturnValue(1);
 
     result = builder.from('users').insertOrIgnore({
       'email': 'foo'
@@ -2489,7 +2489,7 @@ describe('database query builder test', () => {
   it('test sqlite insert or ignore method', () => {
     let spyInsert, result;
     builder   = getSQLiteBuilder();
-    spyInsert = spyOn(builder._connection, 'affectingStatement').and.returnValue(1);
+    spyInsert = jest.spyOn(builder._connection, 'affectingStatement').mockReturnValue(1);
 
     result = builder.from('users').insertOrIgnore({
       'email': 'foo'
@@ -2514,7 +2514,7 @@ describe('database query builder test', () => {
   it('test insert get id method', () => {
     let spyInsert, result;
     builder   = getBuilder();
-    spyInsert = spyOn(builder._processor, 'processInsertGetId').and.returnValue(1);
+    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId').mockReturnValue(1);
 
     result = builder.from('users').insertGetId({
       'email': 'foo'
@@ -2526,7 +2526,7 @@ describe('database query builder test', () => {
   it('test insert get id method removes expressions', () => {
     let spyInsert, result;
     builder   = getBuilder();
-    spyInsert = spyOn(builder._processor, 'processInsertGetId').and.returnValue(1);
+    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId').mockReturnValue(1);
 
     result = builder.from('users').insertGetId({
       'email': 'foo',
@@ -2540,24 +2540,24 @@ describe('database query builder test', () => {
   it('test insert get id with empty values', () => {
     let spyInsert, result;
     builder   = getMySqlBuilder();
-    spyInsert = spyOn(builder._processor, 'processInsertGetId');
+    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId');
     builder.from('users').insertGetId([]);
     expect(spyInsert).toBeCalledWith('INSERT INTO `users` () VALUES ()', [], 'id');
 
 
     builder   = getPostgresBuilder();
-    spyInsert = spyOn(builder._processor, 'processInsertGetId');
+    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId');
     builder.from('users').insertGetId([]);
     expect(spyInsert).toBeCalledWith('INSERT INTO "users" DEFAULT VALUES returning "id"', [], 'id');
 
 
     builder   = getSQLiteBuilder();
-    spyInsert = spyOn(builder._processor, 'processInsertGetId');
+    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId');
     builder.from('users').insertGetId([]);
     expect(spyInsert).toBeCalledWith('INSERT INTO "users" DEFAULT VALUES', [], 'id');
 
     builder   = getSqlServerBuilder();
-    spyInsert = spyOn(builder._processor, 'processInsertGetId');
+    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId');
     builder.from('users').insertGetId([]);
     expect(spyInsert)
       .toBeCalledWith('set nocount on;INSERT INTO [users] DEFAULT VALUES;select scope_identity() as [id]', [], 'id');
@@ -2567,7 +2567,7 @@ describe('database query builder test', () => {
   it('test insert method respects raw bindings', () => {
     let spyInsert, result;
     builder   = getBuilder();
-    spyInsert = spyOn(builder._connection, 'insert').and.returnValue(true);
+    spyInsert = jest.spyOn(builder._connection, 'insert').mockReturnValue(true);
 
     result = builder.from('users').insert({
       'email': raw('CURRENT TIMESTAMP')
@@ -2579,7 +2579,7 @@ describe('database query builder test', () => {
   it('test multiple inserts with expression values', () => {
     let spyInsert, result;
     builder   = getBuilder();
-    spyInsert = spyOn(builder._connection, 'insert').and.returnValue(true);
+    spyInsert = jest.spyOn(builder._connection, 'insert').mockReturnValue(true);
 
     expect(() => {
       result = builder.from('users').insert([{
@@ -2596,7 +2596,7 @@ describe('database query builder test', () => {
   it('test update method', () => {
     let spyUpdate, result;
     builder   = getBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
 
     result = builder.from('users').where('id', '=', 1).update({
       'email': 'foo',
@@ -2605,7 +2605,7 @@ describe('database query builder test', () => {
     expect(spyUpdate).toBeCalledWith('UPDATE `users` SET `email` = ?, `name` = ? WHERE `id` = ?', ['foo', 'bar', 1]);
     expect(result).toBe(1);
     builder   = getMySqlBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users').where('id', '=', 1).orderBy('foo', 'desc').limit(5).update({
       'email': 'foo',
       'name' : 'bar'
@@ -2619,7 +2619,7 @@ describe('database query builder test', () => {
   it('test update method with joins', () => {
     let spyUpdate, result;
     builder   = getBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
 
     result = builder.from('users')
       .join('orders', 'users.id', '=', 'orders.user_id')
@@ -2635,7 +2635,7 @@ describe('database query builder test', () => {
 
     expect(result).toBe(1);
     builder   = getBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
 
     result = builder.from('users').join('orders', join => {
       join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
@@ -2653,7 +2653,7 @@ describe('database query builder test', () => {
   it('test update method with joins on sql server', () => {
     let spyUpdate, result;
     builder   = getSqlServerBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users')
       .join('orders', 'users.id', '=', 'orders.user_id')
       .where('users.id', '=', 1)
@@ -2668,7 +2668,7 @@ describe('database query builder test', () => {
     expect(result).toBe(1);
 
     builder   = getSqlServerBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users').join('orders', join => {
       join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
     }).update({
@@ -2685,7 +2685,7 @@ describe('database query builder test', () => {
   it('test update method with joins on my sql', () => {
     let spyUpdate, result;
     builder   = getMySqlBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users')
       .join('orders', 'users.id', '=', 'orders.user_id')
       .where('users.id', '=', 1)
@@ -2700,7 +2700,7 @@ describe('database query builder test', () => {
     expect(result).toBe(1);
 
     builder   = getMySqlBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users').join('orders', join => {
       join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
     }).update({
@@ -2717,7 +2717,7 @@ describe('database query builder test', () => {
   xit('test update method with joins on sqlite', () => {
     let spyUpdate, result;
     builder   = getSQLiteBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users').where('users.id', '>', 1).limit(3).oldest('id').update({
       'email': 'foo',
       'name' : 'bar'
@@ -2729,7 +2729,7 @@ describe('database query builder test', () => {
     expect(result).toBe(1);
 
     builder   = getSQLiteBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users')
       .join('orders', 'users.id', '=', 'orders.user_id')
       .where('users.id', '=', 1)
@@ -2744,7 +2744,7 @@ describe('database query builder test', () => {
     expect(result).toBe(1);
 
     builder   = getSQLiteBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users').join('orders', join => {
       join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
     }).update({
@@ -2758,7 +2758,7 @@ describe('database query builder test', () => {
     expect(result).toBe(1);
 
     builder   = getSQLiteBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users as u').join('orders as o', 'u.id', '=', 'o.user_id').update({
       'email': 'foo',
       'name' : 'bar'
@@ -2773,7 +2773,7 @@ describe('database query builder test', () => {
   it('test update method with joins and aliases on sql server', () => {
     let spyUpdate, result;
     builder   = getSqlServerBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users as u').join('orders', 'u.id', '=', 'orders.user_id').where('u.id', '=', 1).update({
       'email': 'foo',
       'name' : 'bar'
@@ -2788,7 +2788,7 @@ describe('database query builder test', () => {
   it('test update method without joins on postgres', () => {
     let spyUpdate, result;
     builder   = getPostgresBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users').where('id', '=', 1).update({
       'users.email': 'foo',
       'name'       : 'bar'
@@ -2798,7 +2798,7 @@ describe('database query builder test', () => {
 
 
     builder   = getPostgresBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users').where('id', '=', 1).selectRaw('?', ['ignore']).update({
       'users.email': 'foo',
       'name'       : 'bar'
@@ -2808,7 +2808,7 @@ describe('database query builder test', () => {
 
 
     builder   = getPostgresBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users.users').where('id', '=', 1).selectRaw('?', ['ignore']).update({
       'users.users.email': 'foo',
       'name'             : 'bar'
@@ -2821,7 +2821,7 @@ describe('database query builder test', () => {
   it('test update method with joins on postgres', () => {
     let spyUpdate, result;
     builder   = getPostgresBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users')
       .join('orders', 'users.id', '=', 'orders.user_id')
       .where('users.id', '=', 1)
@@ -2837,7 +2837,7 @@ describe('database query builder test', () => {
 
 
     builder   = getPostgresBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users').join('orders', join => {
       join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
     }).update({
@@ -2852,7 +2852,7 @@ describe('database query builder test', () => {
 
 
     builder   = getPostgresBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users').join('orders', join => {
       join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
     }).where('name', 'baz').update({
@@ -2869,7 +2869,7 @@ describe('database query builder test', () => {
   it('test update method respects raw', () => {
     let spyUpdate, result;
     builder   = getBuilder();
-    spyUpdate = spyOn(builder._connection, 'update').and.returnValue(1);
+    spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(1);
     result    = builder.from('users').where('id', '=', 1).update({
       'email': raw('foo'),
       'name' : 'bar'
@@ -2915,10 +2915,10 @@ describe('database query builder test', () => {
   it('test update or insert method works with empty update values without from', () => {
     let spyUpdate, spyExists, spyWhere;
     builder = getBuilder();
-    spyOn(builder._connection, 'select').and.returnValue([{ exists: 0 }]);
-    spyUpdate = spyOn(builder, 'update').and.callThrough();
-    spyExists = spyOn(builder, 'exists').and.callThrough();
-    spyWhere  = spyOn(builder, 'where').and.callThrough();
+    jest.spyOn(builder._connection, 'select').mockReturnValue([{ exists: 0 }]);
+    spyUpdate = jest.spyOn(builder, 'update').mockRestore();
+    spyExists = jest.spyOn(builder, 'exists').mockRestore();
+    spyWhere  = jest.spyOn(builder, 'where').mockRestore();
 
     expect(() => {
       builder.updateOrInsert({
@@ -2931,11 +2931,11 @@ describe('database query builder test', () => {
   it('test update or insert method works with empty update values', () => {
     let spyUpdate, spyExists, spyWhere;
     builder = getBuilder();
-    spyOn(builder._connection, 'select').and.returnValue([{ exists: 0 }]);
-    spyOn(builder._connection, 'insert').and.returnValue(true);
-    spyUpdate = spyOn(builder, 'update').and.callThrough();
-    spyExists = spyOn(builder, 'exists').and.callThrough();
-    spyWhere  = spyOn(builder, 'where').and.callThrough();
+    jest.spyOn(builder._connection, 'select').mockReturnValue([{ exists: 0 }]);
+    jest.spyOn(builder._connection, 'insert').mockReturnValue(true);
+    spyUpdate = jest.spyOn(builder, 'update');
+    spyExists = jest.spyOn(builder, 'exists');
+    spyWhere  = jest.spyOn(builder, 'where');
 
     expect(builder.from('users').updateOrInsert({
       'email': 'foo'
@@ -2948,7 +2948,7 @@ describe('database query builder test', () => {
   it('test delete method', () => {
     let spyDelete, result;
     builder   = getBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users').where('email', '=', 'foo').delete();
     expect(spyDelete)
       .toBeCalledWith('DELETE FROM `users` WHERE `email` = ?', ['foo']);
@@ -2956,7 +2956,7 @@ describe('database query builder test', () => {
 
 
     builder   = getBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users').delete(1);
     expect(spyDelete)
       .toBeCalledWith('DELETE FROM `users` WHERE `users`.`id` = ?', [1]);
@@ -2964,7 +2964,7 @@ describe('database query builder test', () => {
 
 
     builder   = getBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users').selectRaw('?', ['ignore']).delete(1);
     expect(spyDelete)
       .toBeCalledWith('DELETE FROM `users` WHERE `users`.`id` = ?', [1]);
@@ -2972,7 +2972,7 @@ describe('database query builder test', () => {
 
 
     builder   = getSQLiteBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users').where('email', '=', 'foo').orderBy('id').take(1).delete();
     expect(spyDelete)
       .toBeCalledWith(
@@ -2982,7 +2982,7 @@ describe('database query builder test', () => {
 
 
     builder   = getMySqlBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users').where('email', '=', 'foo').orderBy('id').take(1).delete();
     expect(spyDelete)
       .toBeCalledWith('DELETE FROM `users` WHERE `email` = ? ORDER BY `id` ASC LIMIT 1', ['foo']);
@@ -2990,7 +2990,7 @@ describe('database query builder test', () => {
 
 
     builder   = getSqlServerBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users').where('email', '=', 'foo').delete();
     expect(spyDelete)
       .toBeCalledWith('DELETE FROM [users] WHERE [email] = ?', ['foo']);
@@ -2998,7 +2998,7 @@ describe('database query builder test', () => {
 
 
     builder   = getSqlServerBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users').where('email', '=', 'foo').orderBy('id').take(1).delete();
     expect(spyDelete)
       .toBeCalledWith('DELETE top (1) FROM [users] WHERE [email] = ?', ['foo']);
@@ -3008,7 +3008,7 @@ describe('database query builder test', () => {
   it('test delete with join method', () => {
     let spyDelete, result;
     builder   = getSQLiteBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users')
       .join('contacts', 'users.id', '=', 'contacts.id')
       .where('users.email', '=', 'foo')
@@ -3023,7 +3023,7 @@ describe('database query builder test', () => {
 
 
     builder   = getSQLiteBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users as u').join('contacts as c', 'u.id', '=', 'c.id').delete();
     expect(spyDelete)
       .toBeCalledWith(
@@ -3033,7 +3033,7 @@ describe('database query builder test', () => {
 
 
     builder   = getMySqlBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users')
       .join('contacts', 'users.id', '=', 'contacts.id')
       .where('email', '=', 'foo')
@@ -3048,7 +3048,7 @@ describe('database query builder test', () => {
 
 
     builder   = getMySqlBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users AS a')
       .join('users AS b', 'a.id', '=', 'b.user_id')
       .where('email', '=', 'foo')
@@ -3063,7 +3063,7 @@ describe('database query builder test', () => {
 
 
     builder   = getMySqlBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users').join('contacts', 'users.id', '=', 'contacts.id').orderBy('id').take(1).delete(1);
     expect(spyDelete)
       .toBeCalledWith(
@@ -3073,7 +3073,7 @@ describe('database query builder test', () => {
 
 
     builder   = getSqlServerBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users')
       .join('contacts', 'users.id', '=', 'contacts.id')
       .where('email', '=', 'foo')
@@ -3086,7 +3086,7 @@ describe('database query builder test', () => {
 
 
     builder   = getSqlServerBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users AS a')
       .join('users AS b', 'a.id', '=', 'b.user_id')
       .where('email', '=', 'foo')
@@ -3101,7 +3101,7 @@ describe('database query builder test', () => {
 
 
     builder   = getSqlServerBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users').join('contacts', 'users.id', '=', 'contacts.id').delete(1);
     expect(spyDelete)
       .toBeCalledWith(
@@ -3111,7 +3111,7 @@ describe('database query builder test', () => {
 
 
     builder   = getPostgresBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users')
       .join('contacts', 'users.id', '=', 'contacts.id')
       .where('users.email', '=', 'foo')
@@ -3124,7 +3124,7 @@ describe('database query builder test', () => {
 
 
     builder   = getPostgresBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users AS a')
       .join('users AS b', 'a.id', '=', 'b.user_id')
       .where('email', '=', 'foo')
@@ -3139,7 +3139,7 @@ describe('database query builder test', () => {
 
 
     builder   = getPostgresBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users').join('contacts', 'users.id', '=', 'contacts.id').orderBy('id').take(1).delete(1);
     expect(spyDelete)
       .toBeCalledWith(
@@ -3149,7 +3149,7 @@ describe('database query builder test', () => {
 
 
     builder   = getPostgresBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users').join('contacts', join => {
       join.on('users.id', '=', 'contacts.user_id').where('users.id', '=', 1);
     }).where('name', 'baz').delete();
@@ -3161,7 +3161,7 @@ describe('database query builder test', () => {
 
 
     builder   = getPostgresBuilder();
-    spyDelete = spyOn(builder._connection, 'delete').and.returnValue(1);
+    spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(1);
     result    = builder.from('users').join('contacts', 'users.id', '=', 'contacts.id').delete();
     expect(spyDelete)
       .toBeCalledWith(
@@ -3174,7 +3174,7 @@ describe('database query builder test', () => {
   it('test truncate method', () => {
     let spyStatement;
     builder = getBuilder();
-    spyStatement              = spyOn(builder._connection, 'statement').and.returnValue(1);
+    spyStatement              = jest.spyOn(builder._connection, 'statement').mockReturnValue(1);
     builder.from('users').truncate();
     expect(spyStatement).toBeCalledWith('TRUNCATE TABLE `users`', []);
 
@@ -3190,7 +3190,7 @@ describe('database query builder test', () => {
   it('test postgres insert get id', () => {
     let spyInsertGetId, result;
     builder = getPostgresBuilder();
-    spyInsertGetId = spyOn(builder._processor, 'processInsertGetId').and.returnValue(1);
+    spyInsertGetId = jest.spyOn(builder._processor, 'processInsertGetId').mockReturnValue(1);
     result = builder.from('users').insertGetId({
       'email': 'foo'
     }, 'id');
@@ -3201,7 +3201,7 @@ describe('database query builder test', () => {
   it('test sql server insert get id', () => {
     let spyInsertGetId, result;
     builder = getSqlServerBuilder();
-    spyInsertGetId = spyOn(builder._processor, 'processInsertGetId').and.returnValue(1);
+    spyInsertGetId = jest.spyOn(builder._processor, 'processInsertGetId').mockReturnValue(1);
     result = builder.from('users').insertGetId({
       'email': 'foo'
     }, 'id');

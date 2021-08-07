@@ -324,6 +324,11 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@gradii/check-type@^1.1.2":
+  version "1.1.2"
+  resolved "https://npm.pkg.github.com/download/@gradii/check-type/1.1.2/b5898ea374fed685241a9961e2dc54cb54e8eec18a65053ced3d042a88e0cad7#eba51f9fd39d4b5ad1bf60857ad478c698c111f4"
+  integrity sha512-e+SD3GcPS7RklgH8cM4ErdQjjpXlCZRvTw0bg/qSxsIrrEfEp1vfA7Rv8vejF5VgGtAngHHnitT/pj4zJ0cbFQ==
+
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz#fd3db1d59ecf7cf121e80650bb86712f9b55eced"
@@ -2046,6 +2051,11 @@ data-urls@^2.0.0:
     abab "^2.0.3"
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
+
+date-fns@^2.23.0:
+  version "2.23.0"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.23.0.tgz#4e886c941659af0cf7b30fafdd1eaa37e88788a9"
+  integrity sha512-5ycpauovVyAk0kXNZz6ZoB9AYMZB4DObse7P3BPWmyEjXNORTI8EJ6X0uaSAq4sCHzM1uajzrkr6HnsLQpxGXA==
 
 debug@4, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1, debug@^4.3.1:
   version "4.3.2"

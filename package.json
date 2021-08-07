@@ -27,6 +27,8 @@
   },
   "private": true,
   "dependencies": {
+    "@gradii/check-type": "^1.1.2",
+    "date-fns": "^2.23.0",
     "tslib": "^2.0.0"
   },
   "devDependencies": {

@@ -92,7 +92,7 @@ export function mixinAggregate<T extends Constructor<any>>(base: T): QueryBuilde
       if (results[0] === undefined) {
         return 0;
       } else if (isObject(results[0])) {
-        return results[0].aggregate;
+        return (results[0] as any).aggregate;
       }
       return results[0].aggregate;
     }
