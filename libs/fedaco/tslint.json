@@ -1,0 +1,14 @@
+{
+  "extends": "../../tslint.json",
+  "linterOptions": {
+    "exclude": [
+      "!**/*"
+    ]
+  },
+  "rules": {
+    "triple-equals": false,
+    "no-inferrable-types": false,
+    "class-name": false,
+    "unified-signatures": false
+  }
+}

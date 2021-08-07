@@ -1,0 +1,20 @@
+{
+  sdf = ""
+}
+
+identifier ::= regexp
+
+join_stmt ::= "join" table_definition where_condition
+private table_definition ::= table_simple_definition | table_alias_definition
+// table expresion
+table_simple_definition ::= identifier {
+
+}
+
+// table as expresion
+table_alias_definition ::= identifier "as" identifier {
+
+}
+
+where_condition ::= identifier "=" identifier
+column_definition ::= identifier
