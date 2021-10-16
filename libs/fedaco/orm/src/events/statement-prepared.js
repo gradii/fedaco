@@ -1,7 +1,6 @@
 export class StatementPrepared {
-
   constructor(connection, statement) {
-    this.statement = statement;
-    this.connection = connection;
+    this.statement = statement
+    this.connection = connection
   }
 }

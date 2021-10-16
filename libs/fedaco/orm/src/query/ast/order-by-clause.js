@@ -1,12 +1,10 @@
-import { SqlNode } from '../sql-node';
-
+import { SqlNode } from '../sql-node'
 export class OrderByClause extends SqlNode {
   constructor(elements) {
-    super();
-    this.elements = elements;
+    super()
+    this.elements = elements
   }
-
   accept(visitor) {
-    return visitor.visitOrderByClause(this);
+    return visitor.visitOrderByClause(this)
   }
 }

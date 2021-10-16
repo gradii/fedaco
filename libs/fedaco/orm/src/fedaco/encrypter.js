@@ -1,10 +1,8 @@
 export class Crypt {
   static getCryptor() {
-    return new Encrypter;
+    return new Encrypter()
   }
 }
-
 export class Encrypter {
-  encrypt(value) {
-  }
+  encrypt(value) {}
 }

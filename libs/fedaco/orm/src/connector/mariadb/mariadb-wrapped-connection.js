@@ -1,12 +1,10 @@
-import { MariadbWrappedStmt } from './mariadb-wrapped-stmt';
-
+import { MariadbWrappedStmt } from './mariadb-wrapped-stmt'
 export class MariadbWrappedConnection {
   constructor(driver) {
-    this.driver = driver;
+    this.driver = driver
   }
-
   prepare(sql) {
-    const stmt = this.driver.prepare(sql);
-    return new MariadbWrappedStmt(stmt);
+    const stmt = this.driver.prepare(sql)
+    return new MariadbWrappedStmt(stmt)
   }
 }

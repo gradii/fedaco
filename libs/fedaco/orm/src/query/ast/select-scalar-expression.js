@@ -1,14 +1,15 @@
-import { SqlNode } from '../sql-node';
-
+import { SqlNode } from '../sql-node'
 export class SelectScalarExpression extends SqlNode {
-  constructor(expression,
-              columnName) {
-    super();
-    this.expression = expression;
-    this.columnName = columnName;
-  }
+  constructor(
+    expression,
 
+    columnName
+  ) {
+    super()
+    this.expression = expression
+    this.columnName = columnName
+  }
   accept(visitor) {
-    return visitor.visitSelectScalarExpression(this);
+    return visitor.visitSelectScalarExpression(this)
   }
 }

@@ -1,12 +1,5 @@
 export class SqlNode {
-  __toString() {
-
-  }
-
-  accept(visitor, ctx) {
-
-  }
-
-  dump(obj) {
-  }
+  __toString() {}
+  accept(visitor, ctx) {}
+  dump(obj) {}
 }

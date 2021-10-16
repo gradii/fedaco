@@ -1,10 +1,8 @@
-import { Processor } from '../processor';
-
+import { Processor } from '../processor'
 export class SqliteProcessor extends Processor {
-
   processColumnListing(results) {
-    return results.map(result => {
-      return result.name;
-    });
+    return results.map((result) => {
+      return result.name
+    })
   }
 }

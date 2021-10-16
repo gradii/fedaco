@@ -1,11 +1,9 @@
-import { SqlNode } from '../../sql-node';
-
+import { SqlNode } from '../../sql-node'
 export class ConditionFactorExpression extends SqlNode {
   constructor() {
-    super();
+    super()
   }
-
   accept(visitor) {
-    super.accept(visitor);
+    super.accept(visitor)
   }
 }

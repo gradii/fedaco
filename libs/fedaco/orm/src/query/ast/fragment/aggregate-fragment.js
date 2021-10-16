@@ -1,13 +1,11 @@
-import { SqlNode } from '../../sql-node';
-
+import { SqlNode } from '../../sql-node'
 export class AggregateFragment extends SqlNode {
   constructor(aggregateFunctionName, aggregateColumns) {
-    super();
-    this.aggregateFunctionName = aggregateFunctionName;
-    this.aggregateColumns = aggregateColumns;
+    super()
+    this.aggregateFunctionName = aggregateFunctionName
+    this.aggregateColumns = aggregateColumns
   }
-
   accept(visitor) {
-    return visitor.visitAggregateFragment(this);
+    return visitor.visitAggregateFragment(this)
   }
 }

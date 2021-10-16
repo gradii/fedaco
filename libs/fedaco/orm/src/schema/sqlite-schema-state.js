@@ -1,4 +1,2 @@
-import { SchemaState } from './schema-state';
-
-export class SqliteSchemaState extends SchemaState {
-}
+import { SchemaState } from './schema-state'
+export class SqliteSchemaState extends SchemaState {}

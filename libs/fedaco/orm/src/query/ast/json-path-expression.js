@@ -1,12 +1,11 @@
-import { SqlNode } from '../sql-node';
+import { SqlNode } from '../sql-node'
 
 export class JsonPathExpression extends SqlNode {
   constructor(paths) {
-    super();
-    this.paths = paths;
+    super()
+    this.paths = paths
   }
-
   accept(visitor) {
-    return visitor.visitJsonPathExpression(this);
+    return visitor.visitJsonPathExpression(this)
   }
 }

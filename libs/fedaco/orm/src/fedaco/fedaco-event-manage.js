@@ -1,6 +1,3 @@
 export class FedacoEventManage {
-  _registerModelEvent(model, event, callback) {
-
-
-  }
+  _registerModelEvent(model, event, callback) {}
 }

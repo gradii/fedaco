@@ -1,13 +1,11 @@
-import { SqlNode } from '../../../sql-node';
-
+import { SqlNode } from '../../../sql-node'
 export class RejectOrderElementExpression extends SqlNode {
   constructor(columns, orderByElements) {
-    super();
-    this.columns = columns;
-    this.orderByElements = orderByElements;
+    super()
+    this.columns = columns
+    this.orderByElements = orderByElements
   }
-
   accept(visitor) {
-    return visitor.visitRejectOrderElementExpression(this);
+    return visitor.visitRejectOrderElementExpression(this)
   }
 }

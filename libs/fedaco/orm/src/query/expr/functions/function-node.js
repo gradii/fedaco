@@ -1,2 +1,1 @@
-export class FunctionNode {
-}
+export class FunctionNode {}

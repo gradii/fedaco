@@ -1,11 +1,9 @@
-import { SqlNode } from '../sql-node';
-
+import { SqlNode } from '../sql-node'
 export class SelectInsertSource extends SqlNode {
   constructor() {
-    super();
+    super()
   }
-
   accept(visitor) {
-    return visitor.visitSelectInsertSource(this);
+    return visitor.visitSelectInsertSource(this)
   }
 }

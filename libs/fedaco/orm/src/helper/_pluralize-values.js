@@ -41,8 +41,8 @@ export const defaultIrregularPlurals = {
   thieves: 'thief',
   grooves: 'groove',
   pickaxes: 'pickaxe',
-  passersby: 'passerby'
-};
+  passersby: 'passerby',
+}
 export const defaultIrregularSingles = {
   i: 'we',
   me: 'us',
@@ -90,24 +90,31 @@ export const defaultIrregularSingles = {
   thief: 'thieves',
   groove: 'grooves',
   pickaxe: 'pickaxes',
-  passerby: 'passersby'
-};
-export const defaultPluralRules = [[/s?$/i, 's'],
+  passerby: 'passersby',
+}
+export const defaultPluralRules = [
+  [/s?$/i, 's'],
   [/[^\u0000-\u007F]$/i, '$0'],
   [/([^aeiou]ese)$/i, '$1'],
   [/(ax|test)is$/i, '$1es'],
   [/(alias|[^aou]us|t[lm]as|gas|ris)$/i, '$1es'],
   [/(e[mn]u)s?$/i, '$1s'],
   [/([^l]ias|[aeiou]las|[ejzr]as|[iu]am)$/i, '$1'],
-  [/(alumn|syllab|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i,
-    '$1i'],
+  [
+    /(alumn|syllab|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i,
+    '$1i',
+  ],
   [/(alumn|alg|vertebr)(?:a|ae)$/i, '$1ae'],
   [/(seraph|cherub)(?:im)?$/i, '$1im'],
   [/(her|at|gr)o$/i, '$1oes'],
-  [/(agend|addend|millenni|dat|extrem|bacteri|desiderat|strat|candelabr|errat|ov|symposi|curricul|automat|quor)(?:a|um)$/i,
-    '$1a'],
-  [/(apheli|hyperbat|periheli|asyndet|noumen|phenomen|criteri|organ|prolegomen|hedr|automat)(?:a|on)$/i,
-    '$1a'],
+  [
+    /(agend|addend|millenni|dat|extrem|bacteri|desiderat|strat|candelabr|errat|ov|symposi|curricul|automat|quor)(?:a|um)$/i,
+    '$1a',
+  ],
+  [
+    /(apheli|hyperbat|periheli|asyndet|noumen|phenomen|criteri|organ|prolegomen|hedr|automat)(?:a|on)$/i,
+    '$1a',
+  ],
   [/sis$/i, 'ses'],
   [/(?:(kni|wi|li)fe|(ar|l|ea|eo|oa|hoo)f)$/i, '$1$2ves'],
   [/([^aeiouy]|qu)y$/i, '$1ies'],
@@ -127,30 +134,43 @@ export const defaultPluralRules = [[/s?$/i, 's'],
   [/measles$/i, '$0'],
   [/o[iu]s$/i, '$0'],
   [/pox$/i, '$0'],
-  [/sheep$/i, '$0']];
-export const defaultSingularRules = [[/s$/i, ''],
+  [/sheep$/i, '$0'],
+]
+export const defaultSingularRules = [
+  [/s$/i, ''],
   [/(ss)$/i, '$1'],
-  [/(wi|kni|(?:after|half|high|low|mid|non|night|[^\w]|^)li)ves$/i,
-    '$1fe'],
+  [/(wi|kni|(?:after|half|high|low|mid|non|night|[^\w]|^)li)ves$/i, '$1fe'],
   [/(ar|(?:wo|[ae])l|[eo][ao])ves$/i, '$1f'],
   [/ies$/i, 'y'],
-  [/\b([pl]|zomb|(?:neck|cross)?t|coll|faer|food|gen|goon|group|lass|talk|goal|cut)ies$/i,
-    '$1ie'],
+  [
+    /\b([pl]|zomb|(?:neck|cross)?t|coll|faer|food|gen|goon|group|lass|talk|goal|cut)ies$/i,
+    '$1ie',
+  ],
   [/\b(mon|smil)ies$/i, '$1ey'],
   [/\b((?:tit)?m|l)ice$/i, '$1ouse'],
   [/(seraph|cherub)im$/i, '$1'],
-  [/(x|ch|ss|sh|zz|tto|go|cho|alias|[^aou]us|t[lm]as|gas|(?:her|at|gr)o|[aeiou]ris)(?:es)?$/i,
-    '$1'],
-  [/(analy|diagno|parenthe|progno|synop|the|empha|cri|ne)(?:sis|ses)$/i,
-    '$1sis'],
+  [
+    /(x|ch|ss|sh|zz|tto|go|cho|alias|[^aou]us|t[lm]as|gas|(?:her|at|gr)o|[aeiou]ris)(?:es)?$/i,
+    '$1',
+  ],
+  [
+    /(analy|diagno|parenthe|progno|synop|the|empha|cri|ne)(?:sis|ses)$/i,
+    '$1sis',
+  ],
   [/(movie|twelve|abuse|e[mn]u)s$/i, '$1'],
   [/(test)(?:is|es)$/i, '$1is'],
-  [/(alumn|syllab|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i,
-    '$1us'],
-  [/(agend|addend|millenni|dat|extrem|bacteri|desiderat|strat|candelabr|errat|ov|symposi|curricul|quor)a$/i,
-    '$1um'],
-  [/(apheli|hyperbat|periheli|asyndet|noumen|phenomen|criteri|organ|prolegomen|hedr|automat)a$/i,
-    '$1on'],
+  [
+    /(alumn|syllab|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i,
+    '$1us',
+  ],
+  [
+    /(agend|addend|millenni|dat|extrem|bacteri|desiderat|strat|candelabr|errat|ov|symposi|curricul|quor)a$/i,
+    '$1um',
+  ],
+  [
+    /(apheli|hyperbat|periheli|asyndet|noumen|phenomen|criteri|organ|prolegomen|hedr|automat)a$/i,
+    '$1on',
+  ],
   [/(alumn|alg|vertebr)ae$/i, '$1a'],
   [/(cod|mur|sil|vert|ind)ices$/i, '$1ex'],
   [/(matr|append)ices$/i, '$1ix'],
@@ -165,7 +185,8 @@ export const defaultSingularRules = [[/s$/i, ''],
   [/measles$/i, '$0'],
   [/o[iu]s$/i, '$0'],
   [/pox$/i, '$0'],
-  [/sheep$/i, '$0']];
+  [/sheep$/i, '$0'],
+]
 export const defaultUncountables = {
   adulthood: true,
   advice: true,
@@ -260,5 +281,5 @@ export const defaultUncountables = {
   whiting: true,
   wildebeest: true,
   wildlife: true,
-  you: true
-};
+  you: true,
+}

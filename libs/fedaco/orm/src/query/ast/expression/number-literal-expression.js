@@ -1,16 +1,13 @@
-import { SqlNode } from '../../sql-node';
-
+import { SqlNode } from '../../sql-node'
 export class NumberLiteralExpression extends SqlNode {
   constructor(value) {
-    super();
-    this.value = value;
+    super()
+    this.value = value
   }
-
   get text() {
-    return this.value.toString();
+    return this.value.toString()
   }
-
   accept(visitor) {
-    return visitor.visitNumberLiteralExpression(this);
+    return visitor.visitNumberLiteralExpression(this)
   }
 }

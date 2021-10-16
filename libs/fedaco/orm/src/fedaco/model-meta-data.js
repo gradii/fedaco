@@ -1,4 +1,3 @@
 export class ModelMetaData {
-  read(model) {
-  }
+  read(model) {}
 }

@@ -1,12 +1,10 @@
-import { SqlNode } from '../sql-node';
-
+import { SqlNode } from '../sql-node'
 export class LockClause extends SqlNode {
   constructor(value) {
-    super();
-    this.value = value;
+    super()
+    this.value = value
   }
-
   accept(visitor) {
-    return visitor.visitLockClause(this);
+    return visitor.visitLockClause(this)
   }
 }

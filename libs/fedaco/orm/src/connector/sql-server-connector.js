@@ -1,22 +1,17 @@
-import { Connector } from './connector';
-
+import { Connector } from './connector'
 export class SqlServerConnector extends Connector {
   constructor() {
-    super(...arguments);
+    super(...arguments)
 
-    this.options = {};
-
-
+    this.options = {}
   }
 
   connect(config) {
-    const options = this.getOptions(config);
-    return this.createConnection(this.getDsn(config), config, options);
+    const options = this.getOptions(config)
+    return this.createConnection(this.getDsn(config), config, options)
   }
 
   getDsn(config) {
-    return `${config.host}`;
-
-
+    return `${config.host}`
   }
 }

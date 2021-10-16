@@ -1,8 +1,7 @@
-import { FunctionNode } from './function-node';
-
+import { FunctionNode } from './function-node'
 export class AbsFunction extends FunctionNode {
   constructor(aggregateExpression) {
-    super();
-    this.aggregateExpression = aggregateExpression;
+    super()
+    this.aggregateExpression = aggregateExpression
   }
 }

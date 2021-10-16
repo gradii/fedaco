@@ -1,11 +1,9 @@
-import { SqlNode } from '../sql-node';
-
+import { SqlNode } from '../sql-node'
 export class SetClause extends SqlNode {
   constructor() {
-    super();
+    super()
   }
-
   accept(visitor) {
-    return visitor.visitSetClause(this);
+    return visitor.visitSetClause(this)
   }
 }

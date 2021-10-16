@@ -1,267 +1,333 @@
-import { __awaiter } from 'tslib';
-import { isArray, isBlank } from '@gradii/check-type';
-import { uniq } from 'ramda';
-import { mixinInteractsWithDictionary } from './concerns/interacts-with-dictionary';
-import { Relation } from './relation';
-
+import { __awaiter } from 'tslib'
+import { isArray, isBlank } from '@gradii/check-type'
+import { uniq } from 'ramda'
+import { mixinInteractsWithDictionary } from './concerns/interacts-with-dictionary'
+import { Relation } from './relation'
 export class HasManyThrough extends mixinInteractsWithDictionary(Relation) {
-
-  constructor(query, farParent, throughParent, firstKey, secondKey, localKey, secondLocalKey) {
-    super(query, throughParent);
-    this._localKey = localKey;
-    this._firstKey = firstKey;
-    this._secondKey = secondKey;
-    this._farParent = farParent;
-    this._throughParent = throughParent;
-    this._secondLocalKey = secondLocalKey;
-    this.addConstraints();
+  constructor(
+    query,
+    farParent,
+    throughParent,
+    firstKey,
+    secondKey,
+    localKey,
+    secondLocalKey
+  ) {
+    super(query, throughParent)
+    this._localKey = localKey
+    this._firstKey = firstKey
+    this._secondKey = secondKey
+    this._farParent = farParent
+    this._throughParent = throughParent
+    this._secondLocalKey = secondLocalKey
+    this.addConstraints()
   }
 
   addConstraints() {
-
-    const localValue = this._farParent.getAttribute(this._localKey);
-    this._performJoin();
+    const localValue = this._farParent.getAttribute(this._localKey)
+    this._performJoin()
     if (HasManyThrough.constraints) {
-      this._query.where(this.getQualifiedFirstKeyName(), '=', localValue);
+      this._query.where(this.getQualifiedFirstKeyName(), '=', localValue)
     }
   }
 
   _performJoin(query = null) {
-    query = query || this._query;
-    const farKey = this.getQualifiedFarKeyName();
-    query.join(this._throughParent.getTable(), this.getQualifiedParentKeyName(), '=', farKey);
+    query = query || this._query
+    const farKey = this.getQualifiedFarKeyName()
+    query.join(
+      this._throughParent.getTable(),
+      this.getQualifiedParentKeyName(),
+      '=',
+      farKey
+    )
     if (this.throughParentSoftDeletes()) {
       query.withGlobalScope('SoftDeletableHasManyThrough', (q) => {
-
-        q.whereNull(this._throughParent.getQualifiedDeletedAtColumn());
-      });
+        q.whereNull(this._throughParent.getQualifiedDeletedAtColumn())
+      })
     }
   }
 
   getQualifiedParentKeyName() {
-    return this._parent.qualifyColumn(this._secondLocalKey);
+    return this._parent.qualifyColumn(this._secondLocalKey)
   }
 
   throughParentSoftDeletes() {
-
-    return this._throughParent.isTypeofSoftDeletes;
-
+    return this._throughParent.isTypeofSoftDeletes
   }
 
   withTrashedParents() {
-    this._query.withoutGlobalScope('SoftDeletableHasManyThrough');
-    return this;
+    this._query.withoutGlobalScope('SoftDeletableHasManyThrough')
+    return this
   }
 
   addEagerConstraints(models) {
-    const whereIn = this.whereInMethod(this._farParent, this._localKey);
-    this._query[whereIn](this.getQualifiedFirstKeyName(), this.getKeys(models, this._localKey));
+    const whereIn = this.whereInMethod(this._farParent, this._localKey)
+    this._query[whereIn](
+      this.getQualifiedFirstKeyName(),
+      this.getKeys(models, this._localKey)
+    )
   }
 
   initRelation(models, relation) {
     for (const model of models) {
-      model.setRelation(relation, this._related.newCollection());
+      model.setRelation(relation, this._related.newCollection())
     }
-    return models;
+    return models
   }
 
   match(models, results, relation) {
-    const dictionary = this._buildDictionary(results);
+    const dictionary = this._buildDictionary(results)
     for (const model of models) {
-      const key = this._getDictionaryKey(model.getAttribute(this._localKey));
+      const key = this._getDictionaryKey(model.getAttribute(this._localKey))
       if (dictionary[key] !== undefined) {
-        model.setRelation(relation, this._related.newCollection(dictionary[key]));
+        model.setRelation(
+          relation,
+          this._related.newCollection(dictionary[key])
+        )
       }
     }
-    return models;
+    return models
   }
 
   _buildDictionary(results) {
-    const dictionary = {};
+    const dictionary = {}
     for (const result of results) {
       if (!dictionary[result.getAttribute('laravel_through_key')]) {
-        dictionary[result.getAttribute('laravel_through_key')] = [];
+        dictionary[result.getAttribute('laravel_through_key')] = []
       }
-      dictionary[result.getAttribute('laravel_through_key')].push(result);
+      dictionary[result.getAttribute('laravel_through_key')].push(result)
     }
-    return dictionary;
+    return dictionary
   }
 
   firstOrNew(attributes) {
     return __awaiter(this, void 0, void 0, function* () {
-      let instance = yield this.where(attributes).first();
+      let instance = yield this.where(attributes).first()
       if (isBlank(instance)) {
-        instance = this._related.newInstance(attributes);
+        instance = this._related.newInstance(attributes)
       }
-      return instance;
-    });
+      return instance
+    })
   }
 
   updateOrCreate(attributes, values = []) {
     return __awaiter(this, void 0, void 0, function* () {
-      const instance = yield this.firstOrNew(attributes);
-      yield instance.fill(values).save();
-      return instance;
-    });
+      const instance = yield this.firstOrNew(attributes)
+      yield instance.fill(values).save()
+      return instance
+    })
   }
 
   firstWhere(column, operator = null, value = null, conjunction = 'and') {
     return __awaiter(this, void 0, void 0, function* () {
-      return this.where(column, operator, value, conjunction).first();
-    });
+      return this.where(column, operator, value, conjunction).first()
+    })
   }
 
   first(columns = ['*']) {
     return __awaiter(this, void 0, void 0, function* () {
-      const results = yield this.take(1).get(columns);
-      return results.length > 0 ? results[0] : null;
-    });
+      const results = yield this.take(1).get(columns)
+      return results.length > 0 ? results[0] : null
+    })
   }
 
   firstOrFail(columns = ['*']) {
     return __awaiter(this, void 0, void 0, function* () {
-      const model = yield this.first(columns);
+      const model = yield this.first(columns)
       if (!isBlank(model)) {
-        return model;
+        return model
       }
-      throw new Error(`ModelNotFoundException No query results for model [${this._related.constructor.name}].`);
-    });
+      throw new Error(
+        `ModelNotFoundException No query results for model [${this._related.constructor.name}].`
+      )
+    })
   }
 
   find(id, columns = ['*']) {
     return __awaiter(this, void 0, void 0, function* () {
       if (isArray(id)) {
-        return this.findMany(id, columns);
+        return this.findMany(id, columns)
       }
-      return yield this
-        .where(this.getRelated().getQualifiedKeyName(), '=', id)
-        .first(columns);
-    });
+      return yield this.where(
+        this.getRelated().getQualifiedKeyName(),
+        '=',
+        id
+      ).first(columns)
+    })
   }
 
   findMany(ids, columns = ['*']) {
     return __awaiter(this, void 0, void 0, function* () {
-
       if (!ids.length) {
-        return this.getRelated().newCollection();
+        return this.getRelated().newCollection()
       }
-      return yield this.whereIn(this.getRelated().getQualifiedKeyName(), ids).get(columns);
-    });
+      return yield this.whereIn(
+        this.getRelated().getQualifiedKeyName(),
+        ids
+      ).get(columns)
+    })
   }
 
   findOrFail(id, columns = ['*']) {
     return __awaiter(this, void 0, void 0, function* () {
-      const result = yield this.find(id, columns);
+      const result = yield this.find(id, columns)
 
       if (isArray(id)) {
         if (result.length === uniq(id).length) {
-          return result;
+          return result
         }
       } else if (!isBlank(result)) {
-        return result;
+        return result
       }
-      throw new Error(`ModelNotFoundException No query results for model [${this._related.constructor.name}] [${id}]`);
-    });
+      throw new Error(
+        `ModelNotFoundException No query results for model [${this._related.constructor.name}] [${id}]`
+      )
+    })
   }
 
   getResults() {
     return __awaiter(this, void 0, void 0, function* () {
-
-      return !isBlank(this._farParent.getAttribute(this._localKey)) ?
-        yield this.get() :
-        this._related.newCollection();
-    });
+      return !isBlank(this._farParent.getAttribute(this._localKey))
+        ? yield this.get()
+        : this._related.newCollection()
+    })
   }
 
   get(columns = ['*']) {
     return __awaiter(this, void 0, void 0, function* () {
-      const builder = this._prepareQueryBuilder(columns);
-      let models = yield builder.getModels();
+      const builder = this._prepareQueryBuilder(columns)
+      let models = yield builder.getModels()
       if (models.length > 0) {
-        models = yield builder.eagerLoadRelations(models);
+        models = yield builder.eagerLoadRelations(models)
       }
-      return this._related.newCollection(models);
-    });
+      return this._related.newCollection(models)
+    })
   }
-
 
   _shouldSelect(columns = ['*']) {
     if (columns.includes('*')) {
-      columns = [this._related.getTable() + '.*'];
+      columns = [this._related.getTable() + '.*']
     }
-    return [...columns, ...[this.getQualifiedFirstKeyName() + ' as laravel_through_key']];
+    return [
+      ...columns,
+      ...[this.getQualifiedFirstKeyName() + ' as laravel_through_key'],
+    ]
   }
 
-
   _prepareQueryBuilder(columns = ['*']) {
-    const builder = this._query.applyScopes();
-    builder.addSelect(this._shouldSelect(builder.getQuery()._columns.length ? [] : columns));
-    return builder;
+    const builder = this._query.applyScopes()
+    builder.addSelect(
+      this._shouldSelect(builder.getQuery()._columns.length ? [] : columns)
+    )
+    return builder
   }
 
   getRelationExistenceQuery(query, parentQuery, columns = ['*']) {
-
     if (parentQuery.getModel().getTable() === query.getModel().getTable()) {
-      return this.getRelationExistenceQueryForSelfRelation(query, parentQuery, columns);
+      return this.getRelationExistenceQueryForSelfRelation(
+        query,
+        parentQuery,
+        columns
+      )
     }
 
     if (parentQuery.getModel().getTable() === this._throughParent.getTable()) {
-      return this.getRelationExistenceQueryForThroughSelfRelation(query, parentQuery, columns);
+      return this.getRelationExistenceQueryForThroughSelfRelation(
+        query,
+        parentQuery,
+        columns
+      )
     }
-    this._performJoin(query);
-    return query.select(columns).whereColumn(this.getQualifiedLocalKeyName(), '=', this.getQualifiedFirstKeyName());
+    this._performJoin(query)
+    return query
+      .select(columns)
+      .whereColumn(
+        this.getQualifiedLocalKeyName(),
+        '=',
+        this.getQualifiedFirstKeyName()
+      )
   }
 
-  getRelationExistenceQueryForSelfRelation(query, parentQuery, columns = ['*']) {
-    const hash = this.getRelationCountHash();
-    query.from(`${query.getModel().getTable()} as ${hash}`);
-    query.join(this._throughParent.getTable(), this.getQualifiedParentKeyName(), '=', hash + '.' + this._secondKey);
+  getRelationExistenceQueryForSelfRelation(
+    query,
+    parentQuery,
+    columns = ['*']
+  ) {
+    const hash = this.getRelationCountHash()
+    query.from(`${query.getModel().getTable()} as ${hash}`)
+    query.join(
+      this._throughParent.getTable(),
+      this.getQualifiedParentKeyName(),
+      '=',
+      hash + '.' + this._secondKey
+    )
     if (this.throughParentSoftDeletes()) {
-      query.whereNull(this._throughParent.getQualifiedDeletedAtColumn());
+      query.whereNull(this._throughParent.getQualifiedDeletedAtColumn())
     }
-    query.getModel().setTable(hash);
-    return query.select(columns).whereColumn(parentQuery.getQuery().from + '.' + this._localKey, '=', this.getQualifiedFirstKeyName());
+    query.getModel().setTable(hash)
+    return query
+      .select(columns)
+      .whereColumn(
+        parentQuery.getQuery().from + '.' + this._localKey,
+        '=',
+        this.getQualifiedFirstKeyName()
+      )
   }
 
-  getRelationExistenceQueryForThroughSelfRelation(query, parentQuery, columns = ['*']) {
-    const hash = this.getRelationCountHash();
-    const table = `${this._throughParent.getTable()} as ${hash}`;
-    query.join(table, `${hash}.${this._secondLocalKey}`, '=', this.getQualifiedFarKeyName());
+  getRelationExistenceQueryForThroughSelfRelation(
+    query,
+    parentQuery,
+    columns = ['*']
+  ) {
+    const hash = this.getRelationCountHash()
+    const table = `${this._throughParent.getTable()} as ${hash}`
+    query.join(
+      table,
+      `${hash}.${this._secondLocalKey}`,
+      '=',
+      this.getQualifiedFarKeyName()
+    )
     if (this.throughParentSoftDeletes()) {
-      query.whereNull(`${hash}.${this._throughParent.getDeletedAtColumn()}`);
+      query.whereNull(`${hash}.${this._throughParent.getDeletedAtColumn()}`)
     }
-    return query.select(columns).whereColumn(`${parentQuery.getQuery().from}.${this._localKey}`, '=', `${hash}.${this._firstKey}`);
+    return query
+      .select(columns)
+      .whereColumn(
+        `${parentQuery.getQuery().from}.${this._localKey}`,
+        '=',
+        `${hash}.${this._firstKey}`
+      )
   }
 
   getQualifiedFarKeyName() {
-    return this.getQualifiedForeignKeyName();
+    return this.getQualifiedForeignKeyName()
   }
 
   getFirstKeyName() {
-    return this._firstKey;
+    return this._firstKey
   }
 
   getQualifiedFirstKeyName() {
-    return this._throughParent.qualifyColumn(this._firstKey);
+    return this._throughParent.qualifyColumn(this._firstKey)
   }
 
   getForeignKeyName() {
-    return this._secondKey;
+    return this._secondKey
   }
 
   getQualifiedForeignKeyName() {
-    return this._related.qualifyColumn(this._secondKey);
+    return this._related.qualifyColumn(this._secondKey)
   }
 
   getLocalKeyName() {
-    return this._localKey;
+    return this._localKey
   }
 
   getQualifiedLocalKeyName() {
-    return this._farParent.qualifyColumn(this._localKey);
+    return this._farParent.qualifyColumn(this._localKey)
   }
 
   getSecondLocalKeyName() {
-    return this._secondLocalKey;
+    return this._secondLocalKey
   }
 }

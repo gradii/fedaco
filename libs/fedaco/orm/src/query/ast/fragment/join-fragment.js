@@ -1,12 +1,10 @@
-import { SqlNode } from '../../sql-node';
-
+import { SqlNode } from '../../sql-node'
 export class JoinFragment extends SqlNode {
   constructor(joinQueryBuilder) {
-    super();
-    this.joinQueryBuilder = joinQueryBuilder;
+    super()
+    this.joinQueryBuilder = joinQueryBuilder
   }
-
   accept(visitor) {
-    return visitor.visitJoinFragment(this);
+    return visitor.visitJoinFragment(this)
   }
 }

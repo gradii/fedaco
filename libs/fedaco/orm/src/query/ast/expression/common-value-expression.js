@@ -1,11 +1,9 @@
-import { Expression } from './expression';
-
+import { Expression } from './expression'
 export class CommonValueExpression extends Expression {
   constructor() {
-    super();
+    super()
   }
-
   accept(visitor) {
-    return visitor.visitCommonValueExpression(this);
+    return visitor.visitCommonValueExpression(this)
   }
 }

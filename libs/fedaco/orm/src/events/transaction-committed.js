@@ -1,7 +1,6 @@
-import { ConnectionEvent } from './connection-event';
-
+import { ConnectionEvent } from './connection-event'
 export class TransactionCommitted extends ConnectionEvent {
   constructor(connection) {
-    super(connection);
+    super(connection)
   }
 }

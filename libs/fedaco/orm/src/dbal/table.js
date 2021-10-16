@@ -1,20 +1,16 @@
 export class Table {
-
-
   constructor(tableName, columns, indexes, foreignKeys) {
-    this.tableName = tableName;
-    this.columns = columns;
-    this.indexes = indexes;
-    this.foreignKeys = foreignKeys;
+    this.tableName = tableName
+    this.columns = columns
+    this.indexes = indexes
+    this.foreignKeys = foreignKeys
   }
-
 
   getColumns() {
-    return [];
+    return []
   }
 
-
   getColumn(columnName) {
-    return {};
+    return {}
   }
 }

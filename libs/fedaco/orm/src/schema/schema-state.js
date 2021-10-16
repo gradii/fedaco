@@ -1,8 +1,3 @@
 export class SchemaState {
-
-
-  constructor(connection, files, processFactory) {
-
-
-  }
+  constructor(connection, files, processFactory) {}
 }

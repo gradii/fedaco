@@ -1,358 +1,348 @@
-import { createIdentifier } from '../../query-builder/ast-factory';
-import { ColumnReferenceExpression } from '../ast/column-reference-expression';
-import { NumberLiteralExpression } from '../ast/expression/number-literal-expression';
-import { StringLiteralExpression } from '../ast/expression/string-literal-expression';
-import { JsonPathColumn } from '../ast/fragment/json-path-column';
-import { JoinClause } from '../ast/join-clause';
-import { JoinExpression } from '../ast/join-expression';
-import { JoinOnExpression } from '../ast/join-on-expression';
-import { JsonPathExpression } from '../ast/json-path-expression';
-import { PathExpression } from '../ast/path-expression';
-import { TableName } from '../ast/table-name';
-import { TableReferenceExpression } from '../ast/table-reference-expression';
-import * as asciiChars from './ascii-chars';
-import { EOF, SyntaxKind } from './sql-lexer';
-
+import { createIdentifier } from '../../query-builder/ast-factory'
+import { ColumnReferenceExpression } from '../ast/column-reference-expression'
+import { NumberLiteralExpression } from '../ast/expression/number-literal-expression'
+import { StringLiteralExpression } from '../ast/expression/string-literal-expression'
+import { JsonPathColumn } from '../ast/fragment/json-path-column'
+import { JoinClause } from '../ast/join-clause'
+import { JoinExpression } from '../ast/join-expression'
+import { JoinOnExpression } from '../ast/join-on-expression'
+import { JsonPathExpression } from '../ast/json-path-expression'
+import { PathExpression } from '../ast/path-expression'
+import { TableName } from '../ast/table-name'
+import { TableReferenceExpression } from '../ast/table-reference-expression'
+import * as asciiChars from './ascii-chars'
+import { EOF, SyntaxKind } from './sql-lexer'
 export class _SqlParserAst {
-  constructor(input, location, absoluteOffset, tokens, inputLength, parseAction, errors, offset) {
-    this.input = input;
-    this.location = location;
-    this.absoluteOffset = absoluteOffset;
-    this.tokens = tokens;
-    this.inputLength = inputLength;
-    this.parseAction = parseAction;
-    this.errors = errors;
-    this.offset = offset;
-    this.index = 0;
-    this.rparensExpected = 0;
-    this.rbracketsExpected = 0;
-    this.rbracesExpected = 0;
+  constructor(
+    input,
+    location,
+    absoluteOffset,
+    tokens,
+    inputLength,
+    parseAction,
+    errors,
+    offset
+  ) {
+    this.input = input
+    this.location = location
+    this.absoluteOffset = absoluteOffset
+    this.tokens = tokens
+    this.inputLength = inputLength
+    this.parseAction = parseAction
+    this.errors = errors
+    this.offset = offset
+    this.index = 0
+    this.rparensExpected = 0
+    this.rbracketsExpected = 0
+    this.rbracesExpected = 0
   }
-
   get next() {
-    return this.peek(0);
+    return this.peek(0)
   }
 
   get atEOF() {
-    return this.index >= this.tokens.length;
+    return this.index >= this.tokens.length
   }
 
   get inputIndex() {
-    return this.atEOF ? this.currentEndIndex : this.next.index + this.offset;
+    return this.atEOF ? this.currentEndIndex : this.next.index + this.offset
   }
 
   get currentEndIndex() {
     if (this.index > 0) {
-      const curToken = this.peek(-1);
-      return curToken.end + this.offset;
+      const curToken = this.peek(-1)
+      return curToken.end + this.offset
     }
-
 
     if (this.tokens.length === 0) {
-      return this.inputLength + this.offset;
+      return this.inputLength + this.offset
     }
-    return this.next.index + this.offset;
+    return this.next.index + this.offset
   }
 
   get currentAbsoluteOffset() {
-    return this.absoluteOffset + this.inputIndex;
+    return this.absoluteOffset + this.inputIndex
   }
-
   advance() {
-    this.index++;
+    this.index++
   }
-
   consumeOptionalCharacter(code) {
     if (this.next.isCharacter(code)) {
-      this.advance();
-      return true;
+      this.advance()
+      return true
     } else {
-      return undefined;
+      return undefined
     }
   }
-
   consumeOptionalOperator(op) {
     if (this.next.isOperator(op)) {
-      this.advance();
-      return true;
+      this.advance()
+      return true
     } else {
-      return undefined;
+      return undefined
     }
   }
-
   eat() {
-    const next = this.next;
-    this.advance();
-    return next;
+    const next = this.next
+    this.advance()
+    return next
   }
-
   error(message, index = null) {
-    this.errors.push(new Error(`${message}, ${this.input}, ${index}, ${this.location}`));
-    this.skip();
+    this.errors.push(
+      new Error(`${message}, ${this.input}, ${index}, ${this.location}`)
+    )
+    this.skip()
   }
-
   expectCharacter(code) {
     if (this.consumeOptionalCharacter(code)) {
-      return;
+      return
     }
-    this.error(`Missing expected ${String.fromCharCode(code)}`);
+    this.error(`Missing expected ${String.fromCharCode(code)}`)
   }
-
   expectIdentifierOrKeyword() {
-    const n = this.next;
+    const n = this.next
     if (!n.isIdentifier() && !n.isKeyword()) {
-      this.error(`Unexpected token ${n}, expected identifier or keyword`);
-      return '';
+      this.error(`Unexpected token ${n}, expected identifier or keyword`)
+      return ''
     }
-    this.advance();
-    return n.toString();
+    this.advance()
+    return n.toString()
   }
-
   expectIdentifierOrKeywordOrString() {
-    const n = this.next;
+    const n = this.next
     if (!n.isIdentifier() && !n.isKeyword() && !n.isString()) {
-      this.error(`Unexpected token ${n}, expected identifier, keyword, or string`);
-      return '';
+      this.error(
+        `Unexpected token ${n}, expected identifier, keyword, or string`
+      )
+      return ''
     }
-    this.advance();
-    return n.toString();
+    this.advance()
+    return n.toString()
   }
-
   expectOperator(operator) {
     if (this.consumeOptionalOperator(operator)) {
-      return;
+      return
     }
-    this.error(`Missing expected operator ${operator}`);
+    this.error(`Missing expected operator ${operator}`)
   }
-
-  parseBraceCondition() {
-  }
-
+  parseBraceCondition() {}
   parseColumnAlias() {
-    return this._parseColumnAsName();
+    return this._parseColumnAsName()
   }
-
   _parseColumnAsName() {
-    const columnName = this._parseColumnName();
+    const columnName = this._parseColumnName()
     if (!columnName) {
-      throw new Error('columnName error');
+      throw new Error('columnName error')
     }
-    let alias;
+    let alias
     if (this.peekKeywordAs()) {
-      this.advance();
-      alias = this._parseClainName().map(it => it.name).join('.');
+      this.advance()
+      alias = this._parseClainName()
+        .map((it) => it.name)
+        .join('.')
     }
-    return new ColumnReferenceExpression(columnName, alias ? createIdentifier(alias) : undefined);
+    return new ColumnReferenceExpression(
+      columnName,
+      alias ? createIdentifier(alias) : undefined
+    )
   }
-
   _parseColumnName() {
-    const clainNamePaths = this._parseClainName();
+    const clainNamePaths = this._parseClainName()
     if (clainNamePaths.length > 0) {
-      const ast = new PathExpression(clainNamePaths);
+      const ast = new PathExpression(clainNamePaths)
 
       if (this.consumeOptionalOperator('-')) {
         if (this.consumeOptionalOperator('>')) {
-          const name = this.expectIdentifierOrKeywordOrString();
-          return new JsonPathColumn(ast, new JsonPathExpression([
-            createIdentifier(name)
-          ]));
+          const name = this.expectIdentifierOrKeywordOrString()
+          return new JsonPathColumn(
+            ast,
+            new JsonPathExpression([createIdentifier(name)])
+          )
         }
       }
-      return ast;
+      return ast
     }
 
-
-    return undefined;
+    return undefined
   }
 
-  parseEqCondition() {
-  }
-
+  parseEqCondition() {}
   parseExpression() {
     if (this.next.isNumber()) {
-      const num = this.eat();
-      return new NumberLiteralExpression(num.numValue);
+      const num = this.eat()
+      return new NumberLiteralExpression(num.numValue)
     } else if (this.next.isString()) {
-      const value = this.eat();
-      return new StringLiteralExpression(value.strValue);
+      const value = this.eat()
+      return new StringLiteralExpression(value.strValue)
     } else if (this.next.isIdentifier()) {
-      const value = this.eat();
-      return new StringLiteralExpression(value.strValue);
+      const value = this.eat()
+      return new StringLiteralExpression(value.strValue)
     }
-    throw new Error('unexpected expression');
+    throw new Error('unexpected expression')
   }
-
-  parseGtCondition() {
-  }
-
+  parseGtCondition() {}
   parseJoin() {
-    const ast = this._parseTableAsName();
-    let condition;
+    const ast = this._parseTableAsName()
+    let condition
     if (this.peekKeyword('on')) {
-      this.advance();
-      condition = this.parseWhereCondition();
+      this.advance()
+      condition = this.parseWhereCondition()
     }
     if (ast instanceof TableReferenceExpression) {
-      return new JoinExpression(undefined, ast, condition);
+      return new JoinExpression(undefined, ast, condition)
     } else {
-      return undefined;
+      return undefined
     }
   }
-
   parseJoinClause() {
     if (this.next.isKeywordJoin()) {
-      this.advance();
-      return new JoinClause(this.parseJoin());
+      this.advance()
+      return new JoinClause(this.parseJoin())
     }
-    return undefined;
+    return undefined
   }
-
-  parseLtCondition() {
-  }
-
+  parseLtCondition() {}
   parseTableAlias() {
-    return this._parseTableAsName();
+    return this._parseTableAsName()
   }
 
   _parseTableAsName() {
-    const tableName = this._parseTableName();
+    const tableName = this._parseTableName()
     if (!tableName) {
-      throw new Error(`tableName error. table name can't be keyword like "select", "table", "join" etc`);
+      throw new Error(
+        `tableName error. table name can't be keyword like "select", "table", "join" etc`
+      )
     }
-    let alias;
+    let alias
     if (this.peekKeywordAs()) {
-      this.advance();
-      alias = this.next;
-      this.advance();
+      this.advance()
+      alias = this.next
+      this.advance()
     }
-    return new TableReferenceExpression(tableName, alias ? createIdentifier(alias.strValue) : undefined);
+    return new TableReferenceExpression(
+      tableName,
+      alias ? createIdentifier(alias.strValue) : undefined
+    )
   }
-
   parseTableColumn() {
     if (this.next.isIdentifier()) {
-      const column = this.next;
-      this.advance();
-      return column;
+      const column = this.next
+      this.advance()
+      return column
     }
-    return undefined;
+    return undefined
   }
-
   _parseClainName() {
-    const paths = [];
+    const paths = []
     if (this.consumeOptionalOperator('*')) {
-      return [createIdentifier('*')];
+      return [createIdentifier('*')]
     }
     if (this.next.isIdentifier()) {
-      paths.push(createIdentifier(this.next.strValue));
-      this.advance();
+      paths.push(createIdentifier(this.next.strValue))
+      this.advance()
       while (this.consumeOptionalCharacter(asciiChars.$PERIOD)) {
         if (this.next.isIdentifier()) {
-          const t = this.next;
-          this.advance();
-          paths.push(createIdentifier(t.strValue));
+          const t = this.next
+          this.advance()
+          paths.push(createIdentifier(t.strValue))
         } else if (this.next.isOperator('*')) {
-          paths.push(createIdentifier('*'));
+          paths.push(createIdentifier('*'))
         } else {
-          throw new Error('invalid table name after period');
+          throw new Error('invalid table name after period')
         }
       }
-
-
     }
-    return paths;
+    return paths
   }
-
   _parseTableName() {
-    const clainNamePaths = this._parseClainName();
+    const clainNamePaths = this._parseClainName()
     if (clainNamePaths.length > 0) {
-      return new TableName(clainNamePaths);
+      return new TableName(clainNamePaths)
     }
-    return undefined;
+    return undefined
   }
-
   parseUnaryExpression() {
-
-
-    return this.parseExpression();
-
+    return this.parseExpression()
   }
-
   parseAsName() {
-    let columnName = '';
+    let columnName = ''
     if (this.next.isIdentifier() || this.next.isCharacter(asciiChars.$PERIOD)) {
-      const column = this.next;
-      this.advance();
-      columnName += column.strValue;
+      const column = this.next
+      this.advance()
+      columnName += column.strValue
     }
     if (columnName) {
-      return createIdentifier(columnName);
+      return createIdentifier(columnName)
     }
-    return undefined;
+    return undefined
   }
 
   parseUnaryTableColumn() {
-    const table = this.parseTableColumn();
+    const table = this.parseTableColumn()
     if (table) {
       if (this.consumeOptionalCharacter(asciiChars.$PERIOD)) {
-        const column = this.next;
-        this.advance();
+        const column = this.next
+        this.advance()
 
         return new PathExpression([
           createIdentifier(table.strValue),
-          createIdentifier(column.strValue)
-        ]);
+          createIdentifier(column.strValue),
+        ])
       } else {
-        return new PathExpression([createIdentifier(table.strValue)]);
+        return new PathExpression([createIdentifier(table.strValue)])
       }
     }
-    return undefined;
+    return undefined
   }
-
   parseWhereCondition() {
-    const tableColumn = this.parseUnaryTableColumn();
+    const tableColumn = this.parseUnaryTableColumn()
 
     if (tableColumn) {
       if (this.consumeOptionalOperator('=')) {
-        const rightExpression = this.parseUnaryTableColumn();
-        this.advance();
-        return new JoinOnExpression(tableColumn, '=', rightExpression);
+        const rightExpression = this.parseUnaryTableColumn()
+        this.advance()
+        return new JoinOnExpression(tableColumn, '=', rightExpression)
       }
     }
-    return undefined;
+    return undefined
   }
-
   peek(offset) {
-    const i = this.index + offset;
-    return i < this.tokens.length ? this.tokens[i] : EOF;
+    const i = this.index + offset
+    return i < this.tokens.length ? this.tokens[i] : EOF
   }
-
   peekKeyword(keyword) {
-    return this.next.kind == SyntaxKind.Keyword && this.next.strValue == keyword.toLowerCase();
+    return (
+      this.next.kind == SyntaxKind.Keyword &&
+      this.next.strValue == keyword.toLowerCase()
+    )
   }
-
   peekKeywordAs() {
-    return this.next.isKeywordAs();
+    return this.next.isKeywordAs()
   }
-
   peekKeywordJoin() {
-    return this.next.isKeywordJoin();
+    return this.next.isKeywordJoin()
   }
-
   peekKeywordLet() {
-    return this.next.isKeywordLet();
+    return this.next.isKeywordLet()
   }
-
   skip() {
-    let n = this.next;
-    while (this.index < this.tokens.length && !n.isCharacter(asciiChars.$SEMICOLON) &&
-    (this.rparensExpected <= 0 || !n.isCharacter(asciiChars.$RPAREN)) &&
-    (this.rbracesExpected <= 0 || !n.isCharacter(asciiChars.$RBRACE)) &&
-    (this.rbracketsExpected <= 0 || !n.isCharacter(asciiChars.$RBRACKET))) {
+    let n = this.next
+    while (
+      this.index < this.tokens.length &&
+      !n.isCharacter(asciiChars.$SEMICOLON) &&
+      (this.rparensExpected <= 0 || !n.isCharacter(asciiChars.$RPAREN)) &&
+      (this.rbracesExpected <= 0 || !n.isCharacter(asciiChars.$RBRACE)) &&
+      (this.rbracketsExpected <= 0 || !n.isCharacter(asciiChars.$RBRACKET))
+    ) {
       if (this.next.isError()) {
-        this.errors.push(new Error(`this.next.toString()!, this.input, this.locationText(), this.location`));
+        this.errors.push(
+          new Error(
+            `this.next.toString()!, this.input, this.locationText(), this.location`
+          )
+        )
       }
-      this.advance();
-      n = this.next;
+      this.advance()
+      n = this.next
     }
   }
 }

@@ -1,16 +1,10 @@
-import { Connector } from './connector';
-
+import { Connector } from './connector'
 export class PostgresConnector extends Connector {
   constructor() {
-    super(...arguments);
+    super(...arguments)
 
-    this.options = {};
-
-
+    this.options = {}
   }
 
-  connect(config) {
-
-
-  }
+  connect(config) {}
 }

@@ -1,381 +1,427 @@
-import { __awaiter } from 'tslib';
-import { isBlank } from '@gradii/check-type';
-import { SchemaGrammar } from './schema-grammar';
-
+import { __awaiter } from 'tslib'
+import { isBlank } from '@gradii/check-type'
+import { SchemaGrammar } from './schema-grammar'
 export class SqliteSchemaGrammar extends SchemaGrammar {
   constructor() {
-    super(...arguments);
+    super(...arguments)
 
-    this.modifiers = ['VirtualAs', 'StoredAs', 'Nullable', 'Default', 'Increment'];
+    this.modifiers = [
+      'VirtualAs',
+      'StoredAs',
+      'Nullable',
+      'Default',
+      'Increment',
+    ]
 
     this.serials = [
-      'bigInteger', 'integer', 'mediumInteger', 'smallInteger', 'tinyInteger'
-    ];
+      'bigInteger',
+      'integer',
+      'mediumInteger',
+      'smallInteger',
+      'tinyInteger',
+    ]
   }
 
   compileTableExists() {
-    return 'select * from sqlite_master where type = \'table\' and name = ?';
+    return "select * from sqlite_master where type = 'table' and name = ?"
   }
 
   compileColumnListing(table) {
-    return 'pragma table_info(' + this.wrap(table.replace(/\./g, '__')) + ')';
+    return 'pragma table_info(' + this.wrap(table.replace(/\./g, '__')) + ')'
   }
 
   compileCreate(blueprint, command) {
-    return `${blueprint._temporary ? 'create temporary' : 'create'} table ${this.wrapTable(blueprint)} (${this.getColumns(blueprint).join(', ')}${this.addForeignKeys(blueprint)}${this.addPrimaryKeys(blueprint)})`;
+    return `${
+      blueprint._temporary ? 'create temporary' : 'create'
+    } table ${this.wrapTable(blueprint)} (${this.getColumns(blueprint).join(
+      ', '
+    )}${this.addForeignKeys(blueprint)}${this.addPrimaryKeys(blueprint)})`
   }
 
   addForeignKeys(blueprint) {
-    const foreigns = this.getCommandsByName(blueprint, 'foreign');
+    const foreigns = this.getCommandsByName(blueprint, 'foreign')
     return foreigns.reduce((sql, foreign) => {
-      sql += this.getForeignKey(foreign);
+      sql += this.getForeignKey(foreign)
       if (!isBlank(foreign.onDelete)) {
-        sql += '" on delete {$foreign->onDelete}"';
+        sql += '" on delete {$foreign->onDelete}"'
       }
       if (!isBlank(foreign.onUpdate)) {
-        sql += '" on update {$foreign->onUpdate}"';
+        sql += '" on update {$foreign->onUpdate}"'
       }
-      return sql;
-    }, '');
+      return sql
+    }, '')
   }
 
   getForeignKey(foreign) {
-    return `, foreign key(${this.columnize(foreign.columns)}) references ${this.wrapTable(foreign.on)}(${this.columnize(foreign.references)})`;
+    return `, foreign key(${this.columnize(
+      foreign.columns
+    )}) references ${this.wrapTable(foreign.on)}(${this.columnize(
+      foreign.references
+    )})`
   }
 
   addPrimaryKeys(blueprint) {
-    const primary = this.getCommandByName(blueprint, 'primary');
+    const primary = this.getCommandByName(blueprint, 'primary')
     if (!isBlank(primary)) {
-      return `, primary key (${this.columnize(primary.columns)})`;
+      return `, primary key (${this.columnize(primary.columns)})`
     }
-    return '';
+    return ''
   }
 
   compileAdd(blueprint, command) {
-    const columns = this.prefixArray('add column', this.getColumns(blueprint));
-    return columns.filter(column => {
-      return !(/as \(.*\) stored/.exec(column));
-    }).map(column => {
-      return `alter table ${this.wrapTable(blueprint)} ${column}`;
-    });
+    const columns = this.prefixArray('add column', this.getColumns(blueprint))
+    return columns
+      .filter((column) => {
+        return !/as \(.*\) stored/.exec(column)
+      })
+      .map((column) => {
+        return `alter table ${this.wrapTable(blueprint)} ${column}`
+      })
   }
 
   compileUnique(blueprint, command) {
-    return 'create unique index ' + `${this.wrap(command.index)} on ${this.wrapTable(blueprint)} (${this.columnize(command.columns)})`;
+    return (
+      'create unique index ' +
+      `${this.wrap(command.index)} on ${this.wrapTable(
+        blueprint
+      )} (${this.columnize(command.columns)})`
+    )
   }
 
   compileIndex(blueprint, command) {
-    return 'create index ' + `${this.wrap(command.index)} on ${this.wrapTable(blueprint)} (${this.columnize(command.columns)})`;
+    return (
+      'create index ' +
+      `${this.wrap(command.index)} on ${this.wrapTable(
+        blueprint
+      )} (${this.columnize(command.columns)})`
+    )
   }
 
   compileSpatialIndex(blueprint, command) {
-    throw new Error('RuntimeException The database driver in use does not support spatial indexes.');
+    throw new Error(
+      'RuntimeException The database driver in use does not support spatial indexes.'
+    )
   }
 
   compileForeign(blueprint, command) {
-    return '';
+    return ''
   }
 
   compileDrop(blueprint, command) {
-    return `drop table ${this.wrapTable(blueprint)}`;
+    return `drop table ${this.wrapTable(blueprint)}`
   }
 
   compileDropIfExists(blueprint, command) {
-    return `drop table if exists ${this.wrapTable(blueprint)}`;
+    return `drop table if exists ${this.wrapTable(blueprint)}`
   }
 
   compileDropAllTables() {
-    return 'delete from sqlite_master where type in ' + `('table', 'index', 'trigger')`;
+    return (
+      'delete from sqlite_master where type in ' +
+      `('table', 'index', 'trigger')`
+    )
   }
 
   compileDropAllViews() {
-    return 'delete from sqlite_master where type in ' + `('view')`;
+    return 'delete from sqlite_master where type in ' + `('view')`
   }
 
   compileRebuild() {
-    return 'vacuum';
+    return 'vacuum'
   }
 
   compileDropColumn(blueprint, command, connection) {
     return __awaiter(this, void 0, void 0, function* () {
-      const schema = connection.getSchemaBuilder();
-      const tableDiff = yield this.getTableDiff(blueprint, schema);
+      const schema = connection.getSchemaBuilder()
+      const tableDiff = yield this.getTableDiff(blueprint, schema)
       for (const name of command.columns) {
-        tableDiff.removedColumns[name] = connection.getDoctrineColumn(this.getTablePrefix() + blueprint.getTable(), name);
+        tableDiff.removedColumns[name] = connection.getDoctrineColumn(
+          this.getTablePrefix() + blueprint.getTable(),
+          name
+        )
       }
-      return this.getAlterTableSQL(tableDiff);
-    });
+      return this.getAlterTableSQL(tableDiff)
+    })
   }
 
   compileDropUnique(blueprint, command) {
-    const index = this.wrap(command.index);
-    return 'drop index ' + `${index}`;
+    const index = this.wrap(command.index)
+    return 'drop index ' + `${index}`
   }
 
   compileDropIndex(blueprint, command) {
-    const index = this.wrap(command.index);
-    return 'drop index ' + `${index}`;
+    const index = this.wrap(command.index)
+    return 'drop index ' + `${index}`
   }
-
   compilePrimary(blueprint, command) {
-    return null;
+    return null
   }
 
   compileDropSpatialIndex(blueprint, command) {
-    throw new Error('RuntimeException The database driver in use does not support spatial indexes.');
+    throw new Error(
+      'RuntimeException The database driver in use does not support spatial indexes.'
+    )
   }
 
   compileRename(blueprint, command) {
-    const from = this.wrapTable(blueprint);
-    return `alter table ${from} rename to ${this.wrapTable(command.to)}`;
+    const from = this.wrapTable(blueprint)
+    return `alter table ${from} rename to ${this.wrapTable(command.to)}`
   }
 
-  compileRenameIndex(blueprint, command, connection) {
-
-
-  }
+  compileRenameIndex(blueprint, command, connection) {}
 
   compileEnableForeignKeyConstraints() {
-    return 'PRAGMA foreign_keys = ON;';
+    return 'PRAGMA foreign_keys = ON;'
   }
 
   compileDisableForeignKeyConstraints() {
-    return 'PRAGMA foreign_keys = OFF;';
+    return 'PRAGMA foreign_keys = OFF;'
   }
 
   compileEnableWriteableSchema() {
-    return 'PRAGMA writable_schema = 1;';
+    return 'PRAGMA writable_schema = 1;'
   }
 
   compileDisableWriteableSchema() {
-    return 'PRAGMA writable_schema = 0;';
+    return 'PRAGMA writable_schema = 0;'
   }
 
   typeChar(column) {
-    return 'varchar';
+    return 'varchar'
   }
 
   typeString(column) {
-    return 'varchar';
+    return 'varchar'
   }
 
   typeTinyText(column) {
-    return 'text';
+    return 'text'
   }
 
   typeText(column) {
-    return 'text';
+    return 'text'
   }
 
   typeMediumText(column) {
-    return 'text';
+    return 'text'
   }
 
   typeLongText(column) {
-    return 'text';
+    return 'text'
   }
 
   typeInteger(column) {
-    return 'integer';
+    return 'integer'
   }
 
   typeBigInteger(column) {
-    return 'integer';
+    return 'integer'
   }
 
   typeMediumInteger(column) {
-    return 'integer';
+    return 'integer'
   }
 
   typeTinyInteger(column) {
-    return 'integer';
+    return 'integer'
   }
 
   typeSmallInteger(column) {
-    return 'integer';
+    return 'integer'
   }
 
   typeFloat(column) {
-    return 'float';
+    return 'float'
   }
 
   typeDouble(column) {
-    return 'float';
+    return 'float'
   }
 
   typeDecimal(column) {
-    return 'numeric';
+    return 'numeric'
   }
 
   typeBoolean(column) {
-    return 'tinyint(1)';
+    return 'tinyint(1)'
   }
 
   typeEnum(column) {
-    return `varchar check ("${column.name}" in (${this.quoteString(column.allowed)}))`;
+    return `varchar check ("${column.name}" in (${this.quoteString(
+      column.allowed
+    )}))`
   }
 
   typeJson(column) {
-    return 'text';
+    return 'text'
   }
 
   typeJsonb(column) {
-    return 'text';
+    return 'text'
   }
 
   typeDate(column) {
-    return 'date';
+    return 'date'
   }
 
   typeDateTime(column) {
-    return this.typeTimestamp(column);
+    return this.typeTimestamp(column)
   }
 
   typeDateTimeTz(column) {
-    return this.typeDateTime(column);
+    return this.typeDateTime(column)
   }
 
   typeTime(column) {
-    return 'time';
+    return 'time'
   }
 
   typeTimeTz(column) {
-    return this.typeTime(column);
+    return this.typeTime(column)
   }
 
   typeTimestamp(column) {
-    return column.useCurrent ? 'datetime default CURRENT_TIMESTAMP' : 'datetime';
+    return column.useCurrent ? 'datetime default CURRENT_TIMESTAMP' : 'datetime'
   }
 
   typeTimestampTz(column) {
-    return this.typeTimestamp(column);
+    return this.typeTimestamp(column)
   }
 
   typeYear(column) {
-    return this.typeInteger(column);
+    return this.typeInteger(column)
   }
 
   typeBinary(column) {
-    return 'blob';
+    return 'blob'
   }
 
   typeUuid(column) {
-    return 'varchar';
+    return 'varchar'
   }
 
   typeIpAddress(column) {
-    return 'varchar';
+    return 'varchar'
   }
 
   typeMacAddress(column) {
-    return 'varchar';
+    return 'varchar'
   }
 
   typeGeometry(column) {
-    return 'geometry';
+    return 'geometry'
   }
 
   typePoint(column) {
-    return 'point';
+    return 'point'
   }
 
   typeLineString(column) {
-    return 'linestring';
+    return 'linestring'
   }
 
   typePolygon(column) {
-    return 'polygon';
+    return 'polygon'
   }
 
   typeGeometryCollection(column) {
-    return 'geometrycollection';
+    return 'geometrycollection'
   }
 
   typeMultiPoint(column) {
-    return 'multipoint';
+    return 'multipoint'
   }
 
   typeMultiLineString(column) {
-    return 'multilinestring';
+    return 'multilinestring'
   }
 
   typeMultiPolygon(column) {
-    return 'multipolygon';
+    return 'multipolygon'
   }
 
   typeComputed(column) {
-    throw new Error('RuntimeException This database driver requires a type, see the virtualAs / storedAs modifiers.');
+    throw new Error(
+      'RuntimeException This database driver requires a type, see the virtualAs / storedAs modifiers.'
+    )
   }
 
   modifyVirtualAs(blueprint, column) {
-    let virtualAs = column.virtualAsJson;
+    let virtualAs = column.virtualAsJson
     if (!isBlank(virtualAs)) {
       if (this.isJsonSelector(virtualAs)) {
-        virtualAs = this.wrapJsonSelector(virtualAs);
+        virtualAs = this.wrapJsonSelector(virtualAs)
       }
-      return ` as (${virtualAs})`;
+      return ` as (${virtualAs})`
     }
-    virtualAs = column.virtualAs;
+    virtualAs = column.virtualAs
     if (!isBlank(virtualAs)) {
-      return ` as (${virtualAs})`;
+      return ` as (${virtualAs})`
     }
-    return '';
+    return ''
   }
 
   modifyStoredAs(blueprint, column) {
-    let storedAs = column.storedAsJson;
+    let storedAs = column.storedAsJson
     if (!isBlank(storedAs)) {
       if (this.isJsonSelector(storedAs)) {
-        storedAs = this.wrapJsonSelector(storedAs);
+        storedAs = this.wrapJsonSelector(storedAs)
       }
-      return ` as (${storedAs}) stored`;
+      return ` as (${storedAs}) stored`
     }
-    storedAs = column.storedAs;
+    storedAs = column.storedAs
     if (!isBlank(storedAs)) {
-      return ` as (${column.storedAs}) stored`;
+      return ` as (${column.storedAs}) stored`
     }
-    return '';
+    return ''
   }
 
   modifyNullable(blueprint, column) {
-    if (isBlank(column.virtualAs) && isBlank(column.virtualAsJson) && isBlank(column.storedAs) && isBlank(column.storedAsJson)) {
-      return column.nullable ? '' : ' not null';
+    if (
+      isBlank(column.virtualAs) &&
+      isBlank(column.virtualAsJson) &&
+      isBlank(column.storedAs) &&
+      isBlank(column.storedAsJson)
+    ) {
+      return column.nullable ? '' : ' not null'
     }
     if (column.nullable === false) {
-      return ' not null';
+      return ' not null'
     }
-    return '';
+    return ''
   }
 
   modifyDefault(blueprint, column) {
-    if (!isBlank(column.default) && isBlank(column.virtualAs) && isBlank(column.virtualAsJson) && isBlank(column.storedAs)) {
-      return ' default ' + this.getDefaultValue(column.default);
+    if (
+      !isBlank(column.default) &&
+      isBlank(column.virtualAs) &&
+      isBlank(column.virtualAsJson) &&
+      isBlank(column.storedAs)
+    ) {
+      return ' default ' + this.getDefaultValue(column.default)
     }
-    return '';
+    return ''
   }
 
   modifyIncrement(blueprint, column) {
     if (this.serials.includes(column.type) && column.autoIncrement) {
-      return ' primary key autoincrement';
+      return ' primary key autoincrement'
     }
-    return '';
+    return ''
   }
 
   wrapJsonSelector(value) {
-    const [field, path] = this.wrapJsonFieldAndPath(value);
-    return 'json_extract(' + field + path + ')';
+    const [field, path] = this.wrapJsonFieldAndPath(value)
+    return 'json_extract(' + field + path + ')'
   }
-
   getListTableColumnsSQL(table, database) {
-    table = table.replace(/\./g, '__');
-    return `PRAGMA table_info(${this.quoteStringLiteral(table)})`;
+    table = table.replace(/\./g, '__')
+    return `PRAGMA table_info(${this.quoteStringLiteral(table)})`
   }
-
   getListTableForeignKeysSQL(table, database) {
-    table = table.replace(/\./g, '__');
-    return `PRAGMA foreign_key_list(${this.quoteStringLiteral(table)})`;
+    table = table.replace(/\./g, '__')
+    return `PRAGMA foreign_key_list(${this.quoteStringLiteral(table)})`
   }
-
   getListTablesSQL() {
     return `SELECT name
             FROM sqlite_master
@@ -387,10 +433,9 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
     SELECT name
     FROM sqlite_temp_master
     WHERE type = 'table'
-    ORDER BY name`;
+    ORDER BY name`
   }
-
   getAlterTableSQL(tableDiff) {
-    return 'undo sql';
+    return 'undo sql'
   }
 }
