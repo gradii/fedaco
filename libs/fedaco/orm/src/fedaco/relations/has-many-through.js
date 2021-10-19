@@ -61,7 +61,7 @@ export class HasManyThrough extends mixinInteractsWithDictionary(Relation) {
   }
 
   addEagerConstraints(models) {
-    const whereIn = this.whereInMethod(this._farParent, this._localKey)
+    const whereIn = this._whereInMethod(this._farParent, this._localKey)
     this._query[whereIn](
       this.getQualifiedFirstKeyName(),
       this.getKeys(models, this._localKey)

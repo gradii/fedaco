@@ -40,11 +40,11 @@ export class MorphOne extends mixinCanBeOneOfMany(
   }
 
   addOneOfManySubQueryConstraints(query, column = null, aggregate = null) {
-    query.addSelect(this.foreignKey, this.morphType)
+    query.addSelect(this._foreignKey, this.morphType)
   }
 
   getOneOfManySubQuerySelectColumns() {
-    return [this.foreignKey, this.morphType]
+    return [this._foreignKey, this.morphType]
   }
 
   addOneOfManyJoinSubQueryConstraints(join) {
@@ -55,16 +55,16 @@ export class MorphOne extends mixinCanBeOneOfMany(
         this.qualifyRelatedColumn(this.morphType)
       )
       .on(
-        this._qualifySubSelectColumn(this.foreignKey),
+        this._qualifySubSelectColumn(this._foreignKey),
         '=',
-        this.qualifyRelatedColumn(this.foreignKey)
+        this.qualifyRelatedColumn(this._foreignKey)
       )
   }
 
   newRelatedInstanceFor(parent) {
     return this._related
       .newInstance()
-      .setAttribute(this.getForeignKeyName(), parent[this.localKey])
+      .setAttribute(this.getForeignKeyName(), parent[this._localKey])
       .setAttribute(this.getMorphType(), this.morphClass)
   }
 

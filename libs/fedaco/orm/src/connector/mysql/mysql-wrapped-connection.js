@@ -47,4 +47,13 @@ export class MysqlWrappedConnection {
       })
     })
   }
+  beginTransaction() {
+    return Promise.resolve(undefined)
+  }
+  commit() {
+    return Promise.resolve(undefined)
+  }
+  rollBack() {
+    return Promise.resolve(undefined)
+  }
 }

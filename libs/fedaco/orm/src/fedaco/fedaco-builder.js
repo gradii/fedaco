@@ -16,7 +16,6 @@ import { mixinForwardCallToQueryBuilder } from './mixins/forward-call-to-query-b
 import { mixinGuardsAttributes } from './mixins/guards-attributes'
 import { mixinQueriesRelationShips } from './mixins/queries-relationships'
 import { Model } from './model'
-
 import { Relation } from './relations/relation'
 import { Scope } from './scope'
 export class FedacoBuilder extends mixinGuardsAttributes(
@@ -124,7 +123,7 @@ export class FedacoBuilder extends mixinGuardsAttributes(
     return this.where(column, operator, value, 'or')
   }
 
-  latest(column = null) {
+  latest(column) {
     var _a
     if (isBlank(column)) {
       column =
@@ -136,7 +135,7 @@ export class FedacoBuilder extends mixinGuardsAttributes(
     return this
   }
 
-  oldest(column = null) {
+  oldest(column) {
     var _a
     if (isBlank(column)) {
       column =
@@ -183,7 +182,6 @@ export class FedacoBuilder extends mixinGuardsAttributes(
       return yield this.whereKey(ids).get(columns)
     })
   }
-
   findOrFail(id, columns = ['*']) {
     return __awaiter(this, void 0, void 0, function* () {
       const result = yield this.find(id, columns)
@@ -303,14 +301,14 @@ export class FedacoBuilder extends mixinGuardsAttributes(
     return __awaiter(this, void 0, void 0, function* () {
       for (const [name, constraints] of Object.entries(this._eagerLoad)) {
         if (!name.includes('.')) {
-          models = yield this.eagerLoadRelation(models, name, constraints)
+          models = yield this._eagerLoadRelation(models, name, constraints)
         }
       }
       return models
     })
   }
 
-  eagerLoadRelation(models, name, constraints) {
+  _eagerLoadRelation(models, name, constraints) {
     return __awaiter(this, void 0, void 0, function* () {
       const relation = this.getRelation(name)
       relation.addEagerConstraints(models)
@@ -336,7 +334,7 @@ export class FedacoBuilder extends mixinGuardsAttributes(
       }
       return _relation
     })
-    const nested = this.relationsNestedUnder(name)
+    const nested = this._relationsNestedUnder(name)
 
     if (!isAnyEmpty(nested)) {
       relation.getQuery().with(nested)
@@ -344,21 +342,21 @@ export class FedacoBuilder extends mixinGuardsAttributes(
     return relation
   }
 
-  relationsNestedUnder(relation) {
+  _relationsNestedUnder(relation) {
     const nested = {}
     for (const [name, constraints] of Object.entries(this._eagerLoad)) {
-      if (this.isNestedUnder(relation, name)) {
+      if (this._isNestedUnder(relation, name)) {
         nested[name.substr((relation + '.').length)] = constraints
       }
     }
     return nested
   }
 
-  isNestedUnder(relation, name) {
+  _isNestedUnder(relation, name) {
     return name.includes('.') && name.startsWith(relation + '.')
   }
 
-  enforceOrderBy() {
+  _enforceOrderBy() {
     if (!this._query._orders.length && !this._query._unionOrders.length) {
       this.orderBy(this._model.getQualifiedKeyName(), 'asc')
     }
@@ -422,18 +420,20 @@ export class FedacoBuilder extends mixinGuardsAttributes(
   }
 
   forceCreate(attributes) {
-    return this._model.constructor.unguarded(() => {
-      return this.newModelInstance().newQuery().create(attributes)
+    return __awaiter(this, void 0, void 0, function* () {
+      return this._model.constructor.unguarded(() => {
+        return this.newModelInstance().newQuery().create(attributes)
+      })
     })
   }
 
   update(values) {
     return __awaiter(this, void 0, void 0, function* () {
-      return this.toBase().update(this.addUpdatedAtColumn(values))
+      return this.toBase().update(this._addUpdatedAtColumn(values))
     })
   }
 
-  upsert(values, uniqueBy, update = null) {
+  upsert(values, uniqueBy, update) {
     if (!values.length) {
       return 0
     }
@@ -454,7 +454,7 @@ export class FedacoBuilder extends mixinGuardsAttributes(
     return this.toBase().increment(
       column,
       amount,
-      this.addUpdatedAtColumn(extra)
+      this._addUpdatedAtColumn(extra)
     )
   }
 
@@ -462,11 +462,11 @@ export class FedacoBuilder extends mixinGuardsAttributes(
     return this.toBase().decrement(
       column,
       amount,
-      this.addUpdatedAtColumn(extra)
+      this._addUpdatedAtColumn(extra)
     )
   }
 
-  addUpdatedAtColumn(values) {
+  _addUpdatedAtColumn(values) {
     if (
       !this._model.usesTimestamps() ||
       isBlank(this._model.getUpdatedAtColumn())
@@ -537,7 +537,7 @@ export class FedacoBuilder extends mixinGuardsAttributes(
       if (isNumber(scope)) {
         ;[scope, parameters] = [parameters, []]
       }
-      builder = builder._callNamedScope(scope, wrap(parameters))
+      builder = builder.callNamedScope(scope, wrap(parameters))
     }
     return builder
   }
@@ -551,7 +551,7 @@ export class FedacoBuilder extends mixinGuardsAttributes(
       if (builder._scopes[identifier] == null) {
         continue
       }
-      builder._callScope((_builder) => {
+      builder.callScope((_builder) => {
         if (isFunction(scope)) {
           scope(_builder)
         }
@@ -563,7 +563,7 @@ export class FedacoBuilder extends mixinGuardsAttributes(
     return builder
   }
 
-  _callScope(scope, parameters = []) {
+  callScope(scope, parameters = []) {
     var _a
     parameters.unshift(this)
     const query = this.getQuery()
@@ -571,18 +571,18 @@ export class FedacoBuilder extends mixinGuardsAttributes(
     const result =
       (_a = scope(...parameters)) !== null && _a !== void 0 ? _a : this
     if (query._wheres.length > originalWhereCount) {
-      this.addNewWheresWithinGroup(query, originalWhereCount)
+      this._addNewWheresWithinGroup(query, originalWhereCount)
     }
     return result
   }
 
-  _callNamedScope(scope, parameters = []) {
-    return this._callScope((params) => {
+  callNamedScope(scope, parameters = []) {
+    return this.callScope((params) => {
       return this._model.callNamedScope(scope, params)
     }, parameters)
   }
 
-  addNewWheresWithinGroup(query, originalWhereCount) {
+  _addNewWheresWithinGroup(query, originalWhereCount) {
     const allWheres = query._wheres
     query._wheres = []
     this._groupWhereSliceForScope(query, allWheres.slice(0, originalWhereCount))
@@ -616,10 +616,10 @@ export class FedacoBuilder extends mixinGuardsAttributes(
     return this
   }
   scope(scopeFn, ...args) {
-    return this._callNamedScope(scopeFn, args)
+    return this.callNamedScope(scopeFn, args)
   }
   whereScope(key, ...args) {
-    const metadata = this._model._columnInfo(`scope${pascalCase(key)}`)
+    const metadata = this._model._scopeInfo(`scope${pascalCase(key)}`)
     if (metadata && metadata.isScope) {
       metadata.query(this, ...args)
       return this
@@ -666,13 +666,13 @@ export class FedacoBuilder extends mixinGuardsAttributes(
     for (const relation of relations) {
       if (isString(relation)) {
         const [name, constraints] = relation.includes(':')
-          ? this.createSelectWithConstraint(relation)
+          ? this._createSelectWithConstraint(relation)
           : [relation, () => {}]
-        results = this.addNestedWiths(name, results)
+        results = this._addNestedWiths(name, results)
         results[name] = constraints
       } else {
         for (const [name, constraints] of Object.entries(relation)) {
-          this.addNestedWiths(name, results)
+          this._addNestedWiths(name, results)
           results[name] = constraints
         }
       }
@@ -680,7 +680,7 @@ export class FedacoBuilder extends mixinGuardsAttributes(
     return results
   }
 
-  createSelectWithConstraint(name) {
+  _createSelectWithConstraint(name) {
     return [
       name.split(':')[0],
       (query) => {
@@ -693,7 +693,8 @@ export class FedacoBuilder extends mixinGuardsAttributes(
                 return column
               }
 
-              return query instanceof Relation.BelongsToMany
+              return Relation.BelongsToMany &&
+                query instanceof Relation.BelongsToMany
                 ? query.getRelated().getTable() + '.' + column
                 : column
             })
@@ -702,7 +703,7 @@ export class FedacoBuilder extends mixinGuardsAttributes(
     ]
   }
 
-  addNestedWiths(name, results) {
+  _addNestedWiths(name, results) {
     const progress = []
     for (const segment of name.split('.')) {
       progress.push(segment)
@@ -741,7 +742,7 @@ export class FedacoBuilder extends mixinGuardsAttributes(
     return this
   }
 
-  defaultKeyName() {
+  _defaultKeyName() {
     return this.getModel().getKeyName()
   }
 
@@ -763,14 +764,6 @@ export class FedacoBuilder extends mixinGuardsAttributes(
     return this._model.qualifyColumns(columns)
   }
 
-  __noSuchMethod__(methodName, args) {
-    const metadata = this._model._columnInfo(`scope${pascalCase(methodName)}`)
-    if (metadata && metadata.isScope) {
-      metadata.query(this, ...args)
-      return this
-    }
-    throw new Error('no method found')
-  }
   clone() {
     const builder = new FedacoBuilder(this._query.clone())
     builder._scopes = Object.assign({}, this._scopes)

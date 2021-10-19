@@ -4,6 +4,7 @@ export function mixinForwardCallToQueryBuilder(base) {
     __Self_passThroughToQueryBuilder,
     __Self_forwardCallToQueryBuilder,
     __Self_directToQueryBuilder,
+    __Self_directToBuilder,
     _a
   return (
     (_a = class _Self extends base {
@@ -27,7 +28,6 @@ export function mixinForwardCallToQueryBuilder(base) {
           __Self_forwardCallToQueryBuilder
         ).call(this, 'avg', args)
       }
-
       pluck(...args) {
         return __classPrivateFieldGet(
           this,
@@ -210,9 +210,18 @@ export function mixinForwardCallToQueryBuilder(base) {
           this,
           __Self_instances,
           'm',
-          __Self_directToQueryBuilder
+          __Self_directToBuilder
         ).call(this, 'delete', args)
       }
+      forceDelete(...args) {
+        return __classPrivateFieldGet(
+          this,
+          __Self_instances,
+          'm',
+          __Self_directToBuilder
+        ).call(this, 'forceDelete', args)
+      }
+
       truncate(...args) {
         return __classPrivateFieldGet(
           this,
@@ -261,6 +270,14 @@ export function mixinForwardCallToQueryBuilder(base) {
         const _query = this.toBase()
         const result = _query.toSql.apply(_query, args)
         return { result, bindings: _query.getBindings() }
+      }
+      find(...args) {
+        return __classPrivateFieldGet(
+          this,
+          __Self_instances,
+          'm',
+          __Self_forwardCallToQueryBuilder
+        ).call(this, 'find', args)
       }
 
       useReadConnection(...args) {
@@ -1008,6 +1025,14 @@ export function mixinForwardCallToQueryBuilder(base) {
           __Self_forwardCallToQueryBuilder
         ).call(this, 'unless', args)
       }
+      pipe(...args) {
+        return __classPrivateFieldGet(
+          this,
+          __Self_instances,
+          'm',
+          __Self_forwardCallToQueryBuilder
+        ).call(this, 'pipe', args)
+      }
 
       beforeQuery(...args) {
         return __classPrivateFieldGet(
@@ -1050,6 +1075,12 @@ export function mixinForwardCallToQueryBuilder(base) {
     ) {
       const _query = this.toBase()
       return _query[method].apply(_query, parameters)
+    }),
+    (__Self_directToBuilder = function __Self_directToBuilder(
+      method,
+      parameters
+    ) {
+      return this._query[method](...parameters)
     }),
     _a
   )

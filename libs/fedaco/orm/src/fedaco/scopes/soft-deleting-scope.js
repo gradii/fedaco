@@ -2,7 +2,9 @@ import { Scope } from '../scope'
 export function restore() {
   return (builder) => {
     builder.pipe(withTrashed())
-    return builder.update({})
+    return builder.update({
+      [builder.getModel().getDeletedAtColumn()]: null,
+    })
   }
 }
 export function withTrashed(withTrashed = true) {
@@ -46,6 +48,15 @@ export class SoftDeletingScope extends Scope {
 
   apply(builder, model) {
     builder.whereNull(model.getQualifiedDeletedAtColumn())
+  }
+
+  extend(builder) {
+    builder.onDelete((builder) => {
+      const column = this.getDeletedAtColumn(builder)
+      return builder.update({
+        [column]: builder.getModel().freshTimestampString(),
+      })
+    })
   }
 
   getDeletedAtColumn(builder) {

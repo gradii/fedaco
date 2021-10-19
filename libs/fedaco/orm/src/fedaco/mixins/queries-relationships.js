@@ -15,13 +15,7 @@ import { MorphTo } from '../relations/morph-to'
 import { Relation } from '../relations/relation'
 export function mixinQueriesRelationShips(base) {
   return class _Self extends base {
-    has(
-      relation,
-      operator = '>=',
-      count = 1,
-      conjunction = 'and',
-      callback = null
-    ) {
+    has(relation, operator = '>=', count = 1, conjunction = 'and', callback) {
       if (isString(relation)) {
         if (relation.includes('.')) {
           return this._hasNested(
@@ -59,7 +53,7 @@ public readonly ${relation};
         this
       )
       if (callback) {
-        hasQuery._callScope(callback)
+        hasQuery.callScope(callback)
       }
       return this._addHasWhere(hasQuery, relation, operator, count, conjunction)
     }
@@ -263,7 +257,7 @@ public readonly ${relation};
           this,
           raw(expression)
         )
-        query._callScope(constraints)
+        query.callScope(constraints)
         const queryBuilder = query
           .mergeConstraintsFrom(relation.getQuery())
           .toBase()

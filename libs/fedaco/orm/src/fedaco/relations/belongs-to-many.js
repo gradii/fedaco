@@ -72,7 +72,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
   }
 
   addEagerConstraints(models) {
-    const whereIn = this.whereInMethod(this._parent, this._parentKey)
+    const whereIn = this._whereInMethod(this._parent, this._parentKey)
     this._query[whereIn](
       this.getQualifiedForeignPivotKeyName(),
       this.getKeys(models, this._parentKey)
@@ -243,11 +243,15 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
     })
   }
 
-  firstOrCreate(attributes = [], values = [], joining = [], touch = true) {
+  firstOrCreate(attributes = {}, values = {}, joining = [], touch = true) {
     return __awaiter(this, void 0, void 0, function* () {
       let instance = yield this._related.newQuery().where(attributes).first()
       if (isBlank(instance)) {
-        instance = this.create([...attributes, ...values], joining, touch)
+        instance = yield this.create(
+          Object.assign(Object.assign({}, attributes), values),
+          joining,
+          touch
+        )
       }
       return instance
     })
@@ -437,12 +441,14 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
   }
 
   touchIfTouching() {
-    if (this._touchingParent()) {
-      this.getParent().touch()
-    }
-    if (this.getParent().touches(this._relationName)) {
-      this.touch()
-    }
+    return __awaiter(this, void 0, void 0, function* () {
+      if (this._touchingParent()) {
+        yield this.getParent().touch()
+      }
+      if (this.getParent().touches(this._relationName)) {
+        yield this.touch()
+      }
+    })
   }
 
   _touchingParent() {

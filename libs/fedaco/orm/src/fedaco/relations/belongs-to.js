@@ -40,7 +40,7 @@ export class BelongsTo extends mixinComparesRelatedModels(
 
   addEagerConstraints(models) {
     const key = `${this._related.getTable()}.${this._ownerKey}`
-    const whereIn = this.whereInMethod(this._related, this._ownerKey)
+    const whereIn = this._whereInMethod(this._related, this._ownerKey)
     this._query[whereIn](key, this.getEagerModelKeys(models))
   }
 

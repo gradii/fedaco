@@ -61,12 +61,11 @@ export function mixinWherePredicate(base) {
     whereBetween(column, values, conjunction = 'and', not = false) {
       const expression = SqlParser.createSqlParser(column).parseColumnAlias()
       const [left, right] = values
-      let leftBetween, rightBetween
-      leftBetween =
+      const leftBetween =
         left instanceof RawExpression
           ? left
           : new BindingVariable(new RawExpression(left), 'where')
-      rightBetween =
+      const rightBetween =
         right instanceof RawExpression
           ? right
           : new BindingVariable(new RawExpression(right), 'where')

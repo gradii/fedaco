@@ -40,25 +40,28 @@ export class HasOne extends mixinComparesRelatedModels(
   }
 
   addOneOfManySubQueryConstraints(query, column = null, aggregate = null) {
-    query.addSelect(this.foreignKey)
+    query.addSelect(this._foreignKey)
   }
 
   getOneOfManySubQuerySelectColumns() {
-    return this.foreignKey
+    return this._foreignKey
   }
 
   addOneOfManyJoinSubQueryConstraints(join) {
     join.on(
-      this._qualifySubSelectColumn(this.foreignKey),
+      this._qualifySubSelectColumn(this._foreignKey),
       '=',
-      this._qualifyRelatedColumn(this.foreignKey)
+      this._qualifyRelatedColumn(this._foreignKey)
     )
   }
 
   newRelatedInstanceFor(parent) {
     return this._related
       .newInstance()
-      .setAttribute(this.getForeignKeyName(), parent[this.localKey])
+      .setAttribute(
+        this.getForeignKeyName(),
+        parent.getAttribute(this._localKey)
+      )
   }
 
   _getRelatedKeyFrom(model) {

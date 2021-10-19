@@ -27,6 +27,7 @@ import { PrimaryColumn } from '../../annotation/column/primary.column'
 import { TextColumn } from '../../annotation/column/text.column'
 import { TimestampColumn } from '../../annotation/column/timestamp.column'
 import { FedacoRelationColumn } from '../../annotation/relation-column'
+import { Scope } from '../../annotation/scope'
 import { wrap } from '../../helper/arr'
 import { get, set } from '../../helper/obj'
 import { snakeCase } from '../../helper/str'
@@ -343,6 +344,16 @@ export function mixinHasAttributes(base) {
         return this
       }
 
+      _scopeInfo(key) {
+        const typeOfClazz = this.constructor
+        const meta = reflector.propMetadata(typeOfClazz)
+        if (meta[key] && isArray(meta[key])) {
+          return findLast((it) => {
+            return Scope.isTypeOf(it)
+          }, meta[key])
+        }
+        return undefined
+      }
       _columnInfo(key) {
         const typeOfClazz = this.constructor
         const meta = reflector.propMetadata(typeOfClazz)

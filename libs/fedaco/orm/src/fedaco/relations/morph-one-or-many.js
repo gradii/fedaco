@@ -22,7 +22,7 @@ export class MorphOneOrMany extends HasOneOrMany {
     this._getRelationQuery().where(this.morphType, this.morphClass)
   }
 
-  setForeignAttributesForCreate(model) {
+  _setForeignAttributesForCreate(model) {
     model.setAttribute(this.getForeignKeyName(), this.getParentKey())
     model.setAttribute(this.getMorphType(), this.morphClass)
   }

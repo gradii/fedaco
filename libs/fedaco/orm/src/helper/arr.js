@@ -12,3 +12,5 @@ export function mapWithKeys(items, callback) {
   }
   return result
 }
+function valueRetriever() {}
+function operatorForWhere() {}

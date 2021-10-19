@@ -40,4 +40,13 @@ export class SqliteWrappedConnection {
       })
     })
   }
+  beginTransaction() {
+    return Promise.resolve(undefined)
+  }
+  commit() {
+    return Promise.resolve(undefined)
+  }
+  rollBack() {
+    return Promise.resolve(undefined)
+  }
 }

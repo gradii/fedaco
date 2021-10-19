@@ -28,7 +28,7 @@ export class SqliteQueryGrammar extends QueryGrammar {
       'DELETE FROM sqlite_sequence WHERE name = ?': [
         this.unQuoteTableName(table),
       ],
-      [`DELETE FROM ${table}`]: [],
+      ['DELETE FROM ' + `${table}`]: [],
     }
   }
   compileSelect(builder) {

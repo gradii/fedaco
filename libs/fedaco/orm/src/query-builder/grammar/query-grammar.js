@@ -357,4 +357,15 @@ export class QueryGrammar extends BaseGrammar {
   getDateFormat() {
     return 'yyyy-MM-dd HH:mm:ss'
   }
+
+  supportsSavepoints() {
+    return true
+  }
+  compileSavepoint(name) {
+    return 'SAVEPOINT ' + name
+  }
+
+  compileSavepointRollBack(name) {
+    return `ROLLBACK TO SAVEPOINT ${name}`
+  }
 }

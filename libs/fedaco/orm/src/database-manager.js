@@ -50,6 +50,29 @@ class Conn {
   insertGetId(sql, bindings, sequence) {
     return undefined
   }
+  afterCommit(callback) {
+    return Promise.resolve(undefined)
+  }
+  beginTransaction() {
+    return Promise.resolve(undefined)
+  }
+  commit() {
+    return Promise.resolve(undefined)
+  }
+  rollBack(toLevel) {
+    return Promise.resolve(undefined)
+  }
+  setTransactionManager(manager) {
+    return undefined
+  }
+  transaction(callback, attempts) {
+    return Promise.resolve(undefined)
+  }
+  transactionLevel() {
+    return 0
+  }
+  unsetTransactionManager() {}
+  setTablePrefix(prefix) {}
 }
 export class DatabaseManager {
   constructor(factory) {

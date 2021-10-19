@@ -6,14 +6,14 @@ import { Relation } from './relation'
 export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
   constructor(query, parent, foreignKey, localKey) {
     super(query, parent)
-    this.localKey = localKey
-    this.foreignKey = foreignKey
+    this._localKey = localKey
+    this._foreignKey = foreignKey
     this.addConstraints()
   }
 
   make(attributes = {}) {
     return tap((instance) => {
-      this.setForeignAttributesForCreate(instance)
+      this._setForeignAttributesForCreate(instance)
     }, this._related.newInstance(attributes))
   }
 
@@ -28,16 +28,16 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
   addConstraints() {
     if (this.constructor.constraints) {
       const query = this._getRelationQuery()
-      query.where(this.foreignKey, '=', this.getParentKey())
-      query.whereNotNull(this.foreignKey)
+      query.where(this._foreignKey, '=', this.getParentKey())
+      query.whereNotNull(this._foreignKey)
     }
   }
 
   addEagerConstraints(models) {
-    const whereIn = this.whereInMethod(this._parent, this.localKey)
+    const whereIn = this._whereInMethod(this._parent, this._localKey)
     this._getRelationQuery()[whereIn](
-      this.foreignKey,
-      this.getKeys(models, this.localKey)
+      this._foreignKey,
+      this.getKeys(models, this._localKey)
     )
   }
 
@@ -52,7 +52,7 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
   matchOneOrMany(models, results, relation, type) {
     const dictionary = this.buildDictionary(results)
     for (const model of models) {
-      const key = this._getDictionaryKey(model.getAttribute(this.localKey))
+      const key = this._getDictionaryKey(model.getAttribute(this._localKey))
       if (dictionary[key] !== undefined) {
         model.setRelation(
           relation,
@@ -85,7 +85,7 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
       let instance = yield this.find(id, columns)
       if (isBlank(instance)) {
         instance = this._related.newInstance()
-        this.setForeignAttributesForCreate(instance)
+        this._setForeignAttributesForCreate(instance)
       }
       return instance
     })
@@ -95,24 +95,28 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
     return __awaiter(this, void 0, void 0, function* () {
       let instance = yield this.where(attributes).first()
       if (isBlank(instance)) {
-        instance = this._related.newInstance([...attributes, ...values])
-        this.setForeignAttributesForCreate(instance)
+        instance = this._related.newInstance(
+          Object.assign(Object.assign({}, attributes), values)
+        )
+        this._setForeignAttributesForCreate(instance)
       }
       return instance
     })
   }
 
-  firstOrCreate(attributes = [], values = []) {
+  firstOrCreate(attributes = {}, values = {}) {
     return __awaiter(this, void 0, void 0, function* () {
       let instance = yield this.where(attributes).first()
       if (isBlank(instance)) {
-        instance = yield this.create([...attributes, ...values])
+        instance = yield this.create(
+          Object.assign(Object.assign({}, attributes), values)
+        )
       }
       return instance
     })
   }
 
-  updateOrCreate(attributes, values = []) {
+  updateOrCreate(attributes, values = {}) {
     return __awaiter(this, void 0, void 0, function* () {
       const instance = yield this.firstOrNew(attributes)
       yield instance.fill(values)
@@ -123,7 +127,7 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
 
   save(model) {
     return __awaiter(this, void 0, void 0, function* () {
-      this.setForeignAttributesForCreate(model)
+      this._setForeignAttributesForCreate(model)
       return (yield model.save()) ? model : false
     })
   }
@@ -140,7 +144,7 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
   create(attributes = {}) {
     return __awaiter(this, void 0, void 0, function* () {
       const instance = this._related.newInstance(attributes)
-      this.setForeignAttributesForCreate(instance)
+      this._setForeignAttributesForCreate(instance)
       yield instance.save()
       return instance
     })
@@ -156,7 +160,7 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
     })
   }
 
-  setForeignAttributesForCreate(model) {
+  _setForeignAttributesForCreate(model) {
     model.setAttribute(this.getForeignKeyName(), this.getParentKey())
   }
 
@@ -193,11 +197,11 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
   }
 
   getParentKey() {
-    return this._parent.getAttribute(this.localKey)
+    return this._parent.getAttribute(this._localKey)
   }
 
   getQualifiedParentKeyName() {
-    return this._parent.qualifyColumn(this.localKey)
+    return this._parent.qualifyColumn(this._localKey)
   }
 
   getForeignKeyName() {
@@ -206,10 +210,10 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
   }
 
   getQualifiedForeignKeyName() {
-    return this.foreignKey
+    return this._foreignKey
   }
 
   getLocalKeyName() {
-    return this.localKey
+    return this._localKey
   }
 }

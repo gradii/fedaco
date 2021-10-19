@@ -130,7 +130,7 @@ export class MorphTo extends BelongsTo {
       if (callback) {
         callback(query)
       }
-      const whereIn = this.whereInMethod(instance, ownerKey)
+      const whereIn = this._whereInMethod(instance, ownerKey)
       return query[whereIn](
         instance.getTable() + '.' + ownerKey,
         this.gatherKeysByType(clazz, instance.getKeyType())

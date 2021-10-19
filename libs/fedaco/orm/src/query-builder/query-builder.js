@@ -17,6 +17,7 @@ import { NestedPredicateExpression } from '../query/ast/fragment/expression/nest
 import { NestedExpression } from '../query/ast/fragment/nested-expression'
 import { FromTable } from '../query/ast/from-table'
 import { PathExpression } from '../query/ast/path-expression'
+import { TableReferenceExpression } from '../query/ast/table-reference-expression'
 import { SqlParser } from '../query/parser/sql-parser'
 import {
   bindingVariable,
@@ -292,6 +293,18 @@ export class QueryBuilder extends Builder {
     return this
   }
   fromSub(table, as) {
+    if (table instanceof QueryBuilder || isFunction(table)) {
+      this._from = new FromTable(
+        new TableReferenceExpression(
+          this._createSubQuery('from', table),
+          createIdentifier(as)
+        )
+      )
+    } else if (isString(table)) {
+      this.from(table)
+    } else {
+      throw new Error('InvalidArgumentException')
+    }
     return this
   }
 
@@ -394,7 +407,7 @@ export class QueryBuilder extends Builder {
     })
   }
 
-  increment(column, amount = 1, extra = []) {
+  increment(column, amount = 1, extra = {}) {
     if (!isNumber(amount)) {
       throw new Error(
         'InvalidArgumentException Non-numeric value passed to increment method.'
@@ -408,7 +421,7 @@ export class QueryBuilder extends Builder {
     return this.update(columns)
   }
 
-  decrement(column, amount = 1, extra = []) {
+  decrement(column, amount = 1, extra = {}) {
     if (!isNumber(amount)) {
       throw new Error(
         'InvalidArgumentException Non-numeric value passed to decrement method.'
@@ -423,24 +436,22 @@ export class QueryBuilder extends Builder {
   }
 
   delete(id) {
-    return __awaiter(this, void 0, void 0, function* () {
-      if (!isBlank(id)) {
-        this.addWhere(
-          new ComparisonPredicateExpression(
-            new ColumnReferenceExpression(
-              new PathExpression([this._from, createIdentifier('id')])
-            ),
-            '=',
-            bindingVariable(id)
-          )
+    if (!isBlank(id)) {
+      this.addWhere(
+        new ComparisonPredicateExpression(
+          new ColumnReferenceExpression(
+            new PathExpression([this._from, createIdentifier('id')])
+          ),
+          '=',
+          bindingVariable(id)
         )
-      }
-      this.applyBeforeQueryCallbacks()
-      return this._connection.delete(
-        this._grammar.compileDelete(this),
-        this.getBindings()
       )
-    })
+    }
+    this.applyBeforeQueryCallbacks()
+    return this._connection.delete(
+      this._grammar.compileDelete(this),
+      this.getBindings()
+    )
   }
 
   truncate() {

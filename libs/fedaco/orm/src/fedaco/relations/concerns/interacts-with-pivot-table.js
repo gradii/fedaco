@@ -32,7 +32,7 @@ export function mixinInteractsWithPivotTable(base) {
           touch &&
           (changes['attached'].length || changes['detached'].length)
         ) {
-          this.touchIfTouching()
+          yield this.touchIfTouching()
         }
         return changes
       })
@@ -43,38 +43,42 @@ export function mixinInteractsWithPivotTable(base) {
     }
 
     sync(ids, detaching = true) {
-      let changes = {
-        attached: [],
-        detached: [],
-        updated: [],
-      }
-      const current = this._getCurrentlyAttachedPivots().pluck(
-        this.relatedPivotKey
-      )
-      const records = this._formatRecordsList(this._parseIds(ids))
-      const detach = difference(current, Object.keys(records))
-      if (detaching && detach.length > 0) {
-        this.detach(detach)
-        changes['detached'] = this._castKeys(detach)
-      }
-      changes = [...changes, ...this._attachNew(records, current, false)]
-      if (
-        changes['attached'].length ||
-        changes['updated'].length ||
-        changes['detached'].length
-      ) {
-        this.touchIfTouching()
-      }
-      return changes
+      return __awaiter(this, void 0, void 0, function* () {
+        let changes = {
+          attached: [],
+          detached: [],
+          updated: [],
+        }
+        const current = this._getCurrentlyAttachedPivots().pluck(
+          this.relatedPivotKey
+        )
+        const records = this._formatRecordsList(this._parseIds(ids))
+        const detach = difference(current, Object.keys(records))
+        if (detaching && detach.length > 0) {
+          this.detach(detach)
+          changes['detached'] = this._castKeys(detach)
+        }
+        changes = [...changes, ...this._attachNew(records, current, false)]
+        if (
+          changes['attached'].length ||
+          changes['updated'].length ||
+          changes['detached'].length
+        ) {
+          yield this.touchIfTouching()
+        }
+        return changes
+      })
     }
 
     syncWithPivotValues(ids, values, detaching = true) {
-      return this.sync(
-        mapWithKeys(this._parseIds(ids), (id) => {
-          return { id: values }
-        }),
-        detaching
-      )
+      return __awaiter(this, void 0, void 0, function* () {
+        return this.sync(
+          mapWithKeys(this._parseIds(ids), (id) => {
+            return { [id]: values }
+          }),
+          detaching
+        )
+      })
     }
 
     _formatRecordsList(records) {
@@ -127,21 +131,23 @@ export function mixinInteractsWithPivotTable(base) {
     }
 
     _updateExistingPivotUsingCustomClass(id, attributes, touch) {
-      const pivot = this._getCurrentlyAttachedPivots()
-        .where(
-          this._foreignPivotKey,
-          this._parent.getAttribute(this._parentKey)
-        )
-        .where(this._relatedPivotKey, this._parseId(id))
-        .first()
-      const updated = pivot ? pivot.fill(attributes).isDirty() : false
-      if (updated) {
-        pivot.save()
-      }
-      if (touch) {
-        this.touchIfTouching()
-      }
-      return updated
+      return __awaiter(this, void 0, void 0, function* () {
+        const pivot = this._getCurrentlyAttachedPivots()
+          .where(
+            this._foreignPivotKey,
+            this._parent.getAttribute(this._parentKey)
+          )
+          .where(this._relatedPivotKey, this._parseId(id))
+          .first()
+        const updated = pivot ? pivot.fill(attributes).isDirty() : false
+        if (updated) {
+          yield pivot.save()
+        }
+        if (touch) {
+          yield this.touchIfTouching()
+        }
+        return updated
+      })
     }
 
     attach(id, attributes = {}, touch = true) {
@@ -154,7 +160,7 @@ export function mixinInteractsWithPivotTable(base) {
           )
         }
         if (touch) {
-          this.touchIfTouching()
+          yield this.touchIfTouching()
         }
       })
     }

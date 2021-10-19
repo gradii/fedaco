@@ -400,7 +400,7 @@ export class QueryBuilderVisitor {
   }
   visitRawExpression(node) {
     if (isBoolean(node.value)) {
-      return node.value ? 1 : 0
+      return node.value
     } else if (isNumber(node.value)) {
       return +node.value
     } else if (isArray(node.value)) {

@@ -191,10 +191,11 @@ export class Model extends mixinHasAttributes(
     if (!this[relation]) {
       return this
     }
-    const className = this[relation].constructor
+
+    const className = this[relation].constructor.name
     loadAggregate(
       this[relation],
-      (_a = relations.get(className)) !== null && _a !== void 0 ? _a : [],
+      (_a = relations[className]) !== null && _a !== void 0 ? _a : [],
       column,
       func
     )
@@ -234,9 +235,12 @@ export class Model extends mixinHasAttributes(
     if (!this._exists) {
       return query[method](column, amount, extra)
     }
-    this[column] = this.isClassDeviable(column)
-      ? this.deviateClassCastableAttribute(method, column, amount)
-      : this[column] + (method === 'increment' ? amount : amount * -1)
+    if (this.isClassDeviable(column)) {
+      this[column] = this.deviateClassCastableAttribute(method, column, amount)
+    } else {
+      this[column] =
+        this[column] + (method === 'increment' ? amount : amount * -1)
+    }
     this.forceFill(extra)
     if (this._fireModelEvent('updating') === false) {
       return false
@@ -363,7 +367,7 @@ export class Model extends mixinHasAttributes(
 
   _getKeyForSelectQuery() {
     var _a
-    return (_a = this.original[this.getKeyName()]) !== null && _a !== void 0
+    return (_a = this._original[this.getKeyName()]) !== null && _a !== void 0
       ? _a
       : this.getKey()
   }
@@ -510,6 +514,15 @@ export class Model extends mixinHasAttributes(
 
   jsonSerialize() {
     return this.toArray()
+  }
+
+  fresh(_with = []) {
+    if (!this._exists) {
+      return void 0
+    }
+    return this._setKeysForSelectQuery(this.newQueryWithoutScopes())
+      .with(isString(_with) ? [...arguments] : _with)
+      .first()
   }
 
   refresh() {

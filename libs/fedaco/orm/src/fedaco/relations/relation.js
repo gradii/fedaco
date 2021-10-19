@@ -157,7 +157,7 @@ export class Relation extends mixinForwardCallToQueryBuilder(class {}) {
     return this._related.getUpdatedAtColumn()
   }
 
-  whereInMethod(model, key) {
+  _whereInMethod(model, key) {
     return model.getKeyName() === last(key.split('.')) &&
       ['int', 'integer'].includes(model.getKeyType())
       ? 'whereIntegerInRaw'

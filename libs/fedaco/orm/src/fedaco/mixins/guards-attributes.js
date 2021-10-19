@@ -1,5 +1,6 @@
+import { __awaiter } from 'tslib'
 import { reflector } from '@gradii/annotation'
-import { isArray } from '@gradii/check-type'
+import { isArray, isPromise } from '@gradii/check-type'
 import { findLast } from 'ramda'
 import { FedacoColumn } from '../../annotation/column'
 function isAnyGuarded(guarded) {
@@ -58,15 +59,24 @@ export function mixinGuardsAttributes(base) {
       }
 
       static unguarded(callback) {
-        if (this._unguarded) {
-          return callback()
-        }
-        this.unguard()
-        try {
-          return callback()
-        } finally {
-          this.reguard()
-        }
+        return __awaiter(this, void 0, void 0, function* () {
+          if (this._unguarded) {
+            return callback()
+          }
+          this.unguard()
+          try {
+            const rst = callback()
+            if (isPromise(rst)) {
+              return rst.finally(() => {
+                this.reguard()
+              })
+            } else {
+              return rst
+            }
+          } finally {
+            this.reguard()
+          }
+        })
       }
 
       isFillable(key) {

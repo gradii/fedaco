@@ -14,20 +14,21 @@ import { TransactionBeginning } from './events/transaction-beginning'
 import { TransactionCommitted } from './events/transaction-committed'
 import { TransactionRolledBack } from './events/transaction-rolled-back'
 import { get } from './helper/obj'
+import { mixinManagesTransactions } from './manages-transactions'
 import { raw } from './query-builder/ast-factory'
 import { Processor } from './query-builder/processor'
 import { QueryBuilder } from './query-builder/query-builder'
 import { QueryException } from './query-exception'
 import { SchemaBuilder } from './schema/schema-builder'
-export class Connection {
+export class Connection extends mixinManagesTransactions(class {}) {
   constructor(pdo, database = '', tablePrefix = '', config = {}) {
+    super()
+
     this.tablePrefix = ''
 
     this.config = []
 
     this.fetchMode = -1
-
-    this.transactions = 0
 
     this.recordsModified = false
 
@@ -47,7 +48,7 @@ export class Connection {
   }
 
   useDefaultQueryGrammar() {
-    this.queryGrammar = this.getDefaultQueryGrammar()
+    this._queryGrammar = this.getDefaultQueryGrammar()
   }
 
   getDefaultQueryGrammar() {
@@ -227,7 +228,7 @@ export class Connection {
 
   run(query, bindings, callback) {
     return __awaiter(this, void 0, void 0, function* () {
-      this.reconnectIfMissingConnection()
+      this._reconnectIfMissingConnection()
       const start = +new Date()
       let result
       try {
@@ -266,7 +267,7 @@ export class Connection {
   }
 
   handleQueryException(e, query, bindings, callback) {
-    if (this.transactions >= 1) {
+    if (this._transactions >= 1) {
       throw e
     }
     return this.tryAgainIfCausedByLostConnection(e, query, bindings, callback)
@@ -295,7 +296,7 @@ export class Connection {
     )
   }
 
-  reconnectIfMissingConnection() {
+  _reconnectIfMissingConnection() {
     if (isBlank(this.pdo)) {
       this.reconnect()
     }
@@ -307,7 +308,7 @@ export class Connection {
 
   listen(callback) {}
 
-  fireConnectionEvent(event) {
+  _fireConnectionEvent(event) {
     if (!(this.events !== undefined)) {
       return
     }
@@ -386,7 +387,7 @@ export class Connection {
   }
 
   getReadPdo() {
-    if (this.transactions > 0) {
+    if (this._transactions > 0) {
       return this.getPdo()
     }
     if (
@@ -406,7 +407,7 @@ export class Connection {
   }
 
   setPdo(pdo) {
-    this.transactions = 0
+    this._transactions = 0
     this.pdo = pdo
     return this
   }
@@ -440,11 +441,11 @@ export class Connection {
   }
 
   getQueryGrammar() {
-    return this.queryGrammar
+    return this._queryGrammar
   }
 
   setQueryGrammar(grammar) {
-    this.queryGrammar = grammar
+    this._queryGrammar = grammar
     return this
   }
 
@@ -531,6 +532,26 @@ export class Connection {
     grammar.setTablePrefix(this.tablePrefix)
     return grammar
   }
+  causedByConcurrencyError(e) {
+    console.warn(`catch an error check whether is concurrency error.
+    if it's raised in transaction you can report this error ${e.message} to make this function more better.`)
+
+    if (e.code === '40001') {
+      return true
+    }
+    const msgs = [
+      'Deadlock found when trying to get lock',
+      'deadlock detected',
+      'The database file is locked',
+      'database is locked',
+      'database table is locked',
+      'A table in the database is locked',
+      'has been chosen as the deadlock victim',
+      'Lock wait timeout exceeded; try restarting transaction',
+      'WSREP detected deadlock/conflict and aborted the transaction. Try restarting the transaction',
+    ]
+    return msgs.find((it) => e.message.includes(it))
+  }
 
   static resolverFor(driver, callback) {
     Connection.resolvers[driver] = callback
@@ -541,9 +562,6 @@ export class Connection {
     return (_a = Connection.resolvers[driver]) !== null && _a !== void 0
       ? _a
       : null
-  }
-  transaction(callback) {
-    return __awaiter(this, void 0, void 0, function* () {})
   }
 }
 

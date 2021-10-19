@@ -2,12 +2,12 @@ import { isArray } from '@gradii/check-type'
 import { tap } from 'ramda'
 import { Pivot } from './pivot'
 export class MorphPivot extends Pivot {
-  setKeysForSaveQuery(query) {
+  _setKeysForSaveQuery(query) {
     query.where(this.morphType, this.morphClass)
     return super._setKeysForSaveQuery(query)
   }
 
-  setKeysForSelectQuery(query) {
+  _setKeysForSelectQuery(query) {
     query.where(this.morphType, this.morphClass)
     return super._setKeysForSelectQuery(query)
   }
@@ -44,9 +44,9 @@ export class MorphPivot extends Pivot {
     if (this._attributes[this.getKeyName()] !== undefined) {
       return this.getKey()
     }
-    return `${this.foreignKey}:${this.getAttribute(this.foreignKey)}:${
-      this.relatedKey
-    }:${this.getAttribute(this.relatedKey)}:${this.morphType}:${
+    return `${this._foreignKey}:${this.getAttribute(this._foreignKey)}:${
+      this._relatedKey
+    }:${this.getAttribute(this._relatedKey)}:${this.morphType}:${
       this.morphClass
     }`
   }

@@ -58,8 +58,11 @@ export function mixinWhereCommon(base) {
       )
       return this.where(column, operator, value, 'or')
     }
-
     orWhereColumn(first, operator, second) {
+      if (arguments.length === 2) {
+        second = operator
+        operator = '='
+      }
       return this.whereColumn(first, operator, second, 'or')
     }
     orWhereRaw(sql, bindings) {
@@ -106,6 +109,7 @@ export function mixinWhereCommon(base) {
         return this._addArrayOfWheres(first, conjunction, 'whereColumn')
       }
       if (this._invalidOperator(operator)) {
+        conjunction = second
         ;[second, operator] = [operator, '=']
       }
       const leftNode =

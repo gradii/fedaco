@@ -48,8 +48,7 @@ export class MysqlQueryGrammar extends QueryGrammar {
   compileInsert(builder, values, insertOption = 'into') {
     if (isAnyEmpty(values)) {
       const visitor = new QueryBuilderVisitor(builder._grammar, builder)
-      return `INSERT INTO ${builder._from.accept(visitor)} ()
-              VALUES ()`
+      return 'INSERT INTO ' + `${builder._from.accept(visitor)} () VALUES ()`
     }
     return super.compileInsert(builder, values, insertOption)
   }
