@@ -2,9 +2,13 @@
 
 ```typescript
 const user = await FedacoTestUser.createQuery().create({
-      'email': 'linbolen@gradii.com'
-    });
+  email: 'linbolen@gradii.com'
+});
 await user.newRelation('post').create({
-      'name': 'First Post'
-    });
+  name: 'First Post'
+});
 ```
+
+
+----
+see also [prerequisites](./prerequisite.md)

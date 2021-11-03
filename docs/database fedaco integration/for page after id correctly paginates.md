@@ -2,22 +2,27 @@
 
 ```typescript
 await FedacoTestUser.createQuery().create({
-      'id'   : 1,
-      'email': 'linbolen@gradii.com'
-    });
+  id: 1,
+  email: 'linbolen@gradii.com'
+});
 await FedacoTestUser.createQuery().create({
-      'id'   : 2,
-      'email': 'xsilen@gradii.com'
-    });
+  id: 2,
+  email: 'xsilen@gradii.com'
+});
 let results = await FedacoTestUser.createQuery().forPageAfterId(15, 1);
 ```
 
+
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | xxx | ----- | yyy |
+> | `(await results.first()).id` | match | `2` |
 
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | xxx | ----- | yyy |
-> | xxx | ----- | yyy |
+> | `results` | type exactly match | `FedacoBuilder` |
+> | `(await results.first()).id` | match | `2` |
+
+
+----
+see also [prerequisites](./prerequisite.md)

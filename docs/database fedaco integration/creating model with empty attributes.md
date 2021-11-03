@@ -4,6 +4,11 @@
 const model = await FedacoTestNonIncrementing.createQuery().create({});
 ```
 
+
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | xxx | ----- | yyy |
+> | `model._wasRecentlyCreated` | exactly match false | `();` |
+
+
+----
+see also [prerequisites](./prerequisite.md)

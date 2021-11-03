@@ -3,3 +3,7 @@
 ```typescript
 const models = await new FedacoTestUser().newQuery().oldest('id').paginate();
 ```
+
+
+----
+see also [prerequisites](./prerequisite.md)

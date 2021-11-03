@@ -2,20 +2,25 @@
 
 ```typescript
 await FedacoTestNonIncrementingSecond.createQuery().create({
-      'name': ' First'
-    });
+  name: ' First'
+});
 await FedacoTestNonIncrementingSecond.createQuery().create({
-      'name': ' Second'
-    });
+  name: ' Second'
+});
 await FedacoTestNonIncrementingSecond.createQuery().create({
-      'name': ' Third'
-    });
+  name: ' Third'
+});
 const users = [];
 await FedacoTestNonIncrementingSecond.createQuery()
-      .eachById(2, 'name')
-      .pipe(
-        tap(({item: user, index: i}) => {
-          users.push([user.name, i]);
-        })
-      ).toPromise();
+  .eachById(2, 'name')
+  .pipe(
+    tap(({ item: user, index: i }) => {
+      users.push([user.name, i]);
+    })
+  )
+  .toPromise();
 ```
+
+
+----
+see also [prerequisites](./prerequisite.md)

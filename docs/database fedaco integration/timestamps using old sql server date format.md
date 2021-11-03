@@ -4,6 +4,10 @@
 const model = new FedacoTestUser();
 model.setDateFormat('yyyy-MM-dd HH:mm:ss.000');
 model.setRawAttributes({
-      'created_at': '2017-11-14 08:23:19.000'
-    });
+  created_at: '2017-11-14 08:23:19.000'
+});
 ```
+
+
+----
+see also [prerequisites](./prerequisite.md)

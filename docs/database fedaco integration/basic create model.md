@@ -2,11 +2,16 @@
 
 ```typescript
 const model = await new FedacoTestUser().newQuery().create({
-      'id'   : 1,
-      'email': 'linbolen@gradii.com'
-    });
+  id: 1,
+  email: 'linbolen@gradii.com'
+});
 ```
+
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | xxx | ----- | yyy |
+> | `model.email` | exactly match | `'linbolen@gradii.com'` |
+
+
+----
+see also [prerequisites](./prerequisite.md)

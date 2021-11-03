@@ -2,7 +2,11 @@
 
 ```typescript
 const user = await FedacoTestUserWithOmittingGlobalScope.createQuery().create({
-      'id'   : 1,
-      'email': 'linbolen@gradii.com'
-    });
+  id: 1,
+  email: 'linbolen@gradii.com'
+});
 ```
+
+
+----
+see also [prerequisites](./prerequisite.md)

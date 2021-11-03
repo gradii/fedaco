@@ -2,35 +2,42 @@
 
 ```typescript
 await FedacoTestPost.createQuery().create({
-      'id'     : 1,
-      'name'   : 'Default Connection Post',
-      'user_id': 1
-    });
+  id: 1,
+  name: 'Default Connection Post',
+  user_id: 1
+});
 await FedacoTestPhoto.createQuery().create({
-      'id'            : 1,
-      'imageable_type': 'post',
-      'imageable_id'  : 1,
-      'name'          : 'Photo'
-    });
+  id: 1,
+  imageable_type: 'post',
+  imageable_id: 1,
+  name: 'Photo'
+});
 await FedacoTestPost.useConnection('second_connection').create({
-      'id'     : 1,
-      'name'   : 'Second Connection Post',
-      'user_id': 1
-    });
+  id: 1,
+  name: 'Second Connection Post',
+  user_id: 1
+});
 await FedacoTestPhoto.useConnection('second_connection').create({
-      'id'            : 1,
-      'imageable_type': 'post',
-      'imageable_id'  : 1,
-      'name'          : 'Photo'
-    });
+  id: 1,
+  imageable_type: 'post',
+  imageable_id: 1,
+  name: 'Photo'
+});
 const defaultConnectionPost = (
-      await FedacoTestPhoto.createQuery().with('imageable').first()
-    ).imageable;
-const secondConnectionPost  = (
-      await FedacoTestPhoto.useConnection('second_connection').with('imageable').first()
-    ).imageable;
+  await FedacoTestPhoto.createQuery().with('imageable').first()
+).imageable;
+const secondConnectionPost = (
+  await FedacoTestPhoto.useConnection('second_connection')
+    .with('imageable')
+    .first()
+).imageable;
 ```
+
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | xxx | ----- | yyy |
+> | `'Second Connection Post'` | match | `secondConnectionPost.name` |
+
+
+----
+see also [prerequisites](./prerequisite.md)

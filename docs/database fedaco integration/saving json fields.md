@@ -2,24 +2,38 @@
 
 ```typescript
 const model = await FedacoTestWithJSON.createQuery().create({
-      'json': {
-        'x': 0
-      }
-    });
+  json: {
+    x: 0
+  }
+});
 ```
 ```typescript
 model.fillable(['json->y', 'json->a->b']);
 await model.update({
-      'json->y': '1'
-    });
+  'json->y': '1'
+});
 ```
 
+
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | xxx | ----- | yyy |
+> | `model.json` | match | `({
+      'x': 0,
+      'y': '1'
+    });` |
 
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | xxx | ----- | yyy |
-> | xxx | ----- | yyy |
+> | `'json->a->b' in model.toArray()` | exactly match false | `();` |
+> | `model.json` | match | `({
+      'x': 0,
+      'y': '1',
+      'a': {
+        'b': '3'
+      }
+    });` |
+
+
+----
+see also [prerequisites](./prerequisite.md)

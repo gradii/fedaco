@@ -2,11 +2,15 @@
 
 ```typescript
 const map1 = {
-      'user': FedacoTestUser
-    };
+  user: FedacoTestUser
+};
 const map2 = {
-      'post': FedacoTestPost
-    };
+  post: FedacoTestPost
+};
 Relation.morphMap(map1);
 Relation.morphMap(map2);
 ```
+
+
+----
+see also [prerequisites](./prerequisite.md)
