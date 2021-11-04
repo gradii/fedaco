@@ -45,16 +45,29 @@
 
   ```typescript
   const schemaBuilder = Model.getConnectionResolver()
-  .connection(connectionName)
-  .getSchemaBuilder();
-;
-
-await schemaBuilder().create('users', table => {
-  table.increments('id');
-  table.string('email').withUnique();
-  table.string('name');
-  table.string('age');
-});
+    .connection(connectionName)
+    .getSchemaBuilder();
+  ;
+  
+  await schemaBuilder().create('users', table => {
+    table.increments('id');
+    table.string('email').withUnique();
+    table.string('name');
+    table.string('age');
+  });
   ```
 
+### Features
+- wrapped driver. unify all driver query api
+- compile query builder to sql
+- decorate to define model
+- soft delete
+- use relationship to link model
+- relation can set dynamic constrain
+- sqlite and mysql support
+
+### Progressing
+- [ ] postgres full support
+- [ ] mssql full support
+- [ ] migration
 
