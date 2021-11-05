@@ -17,7 +17,7 @@ model.setRawAttributes({
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### timestamps using default sql server date format
 
@@ -37,7 +37,7 @@ model.setRawAttributes({
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### timestamps using old sql server date format
 
@@ -51,7 +51,7 @@ model.setRawAttributes({
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### to array includes custom formatted timestamps
 
@@ -71,4 +71,4 @@ const array = model.toArray();
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")

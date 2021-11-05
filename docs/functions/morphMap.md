@@ -14,7 +14,7 @@ Relation.morphMap(map2);
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### morph map is used for creating and fetching through relation
 
@@ -62,7 +62,7 @@ await post.newRelation('photos').create({
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### morph map is used when fetching parent
 
@@ -87,7 +87,7 @@ const photo = await FedacoTestPhoto.createQuery().first();
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### morph map overwrites current map
 
@@ -106,4 +106,4 @@ Relation.morphMap(map2, false);
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")

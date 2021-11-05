@@ -30,7 +30,7 @@ await FedacoTestUser.useConnection('second_connection').updateOrCreate(
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### update or create
 
@@ -62,4 +62,4 @@ const user2 = await FedacoTestUser.createQuery().updateOrCreate(
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")

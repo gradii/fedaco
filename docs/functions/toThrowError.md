@@ -15,7 +15,7 @@ await expect(async () => {
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### find or fail with single id throws model not found exception
 
@@ -29,7 +29,7 @@ await expect(async () => {
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### has on morph to relationship
 
@@ -43,7 +43,7 @@ await expect(async () => {
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### save or fail with duplicated entry
 
@@ -70,4 +70,4 @@ await expect(async () => {
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")

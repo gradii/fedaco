@@ -24,7 +24,7 @@ await expect(async () => {
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### save or fail
 
@@ -45,4 +45,4 @@ const post = FedacoTestPost.initAttributes({
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")

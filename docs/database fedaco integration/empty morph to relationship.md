@@ -6,4 +6,4 @@ const photo = new FedacoTestPhoto();
 
 
 ----
-see also [prerequisites](./prerequisite.md)
+see also [prerequisites]("./prerequisite.md")

@@ -36,7 +36,7 @@ const query = await FedacoTestUser.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### count for pagination with grouping
 
@@ -62,4 +62,4 @@ const query = FedacoTestUser.createQuery().groupBy('email').getQuery();
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")

@@ -69,7 +69,7 @@ for (const m of models) {
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### belongs to many custom pivot
 
@@ -128,7 +128,7 @@ const johnWithFriends = await FedacoTestUserWithCustomFriendPivot.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### check and create methods on multi connections
 
@@ -184,7 +184,7 @@ user2 = await FedacoTestUser.useConnection('second_connection').firstOrCreate({
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### is after retrieving the same model
 
@@ -198,4 +198,4 @@ const retrieved = await FedacoTestUser.createQuery().find(1);
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")

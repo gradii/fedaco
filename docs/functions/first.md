@@ -22,7 +22,7 @@ const post = await FedacoTestPost.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### basic model retrieval
 
@@ -94,7 +94,7 @@ for (const m of models) {
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### basic nested self referencing has many eager loading
 
@@ -131,7 +131,7 @@ user = await FedacoTestUser.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### belongs to many relationship models are properly hydrated over chunked request
 
@@ -163,7 +163,7 @@ await user1
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### belongs to many relationship models are properly hydrated over each request
 
@@ -191,7 +191,7 @@ await (
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### eager loaded morph to relations on another database connection
 
@@ -235,7 +235,7 @@ const secondConnectionPost = (
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### for page after id correctly paginates
 
@@ -264,7 +264,7 @@ let results = await FedacoTestUser.createQuery().forPageAfterId(15, 1);
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### incrementing primary keys are cast to integers by default
 
@@ -277,7 +277,7 @@ const user = await FedacoTestUser.createQuery().first();
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### morph map is used when fetching parent
 
@@ -302,7 +302,7 @@ const photo = await FedacoTestPhoto.createQuery().first();
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### morph to relations across database connections
 
@@ -326,7 +326,7 @@ try {
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### one to many relationship
 
@@ -360,4 +360,4 @@ const post2 = await user
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")

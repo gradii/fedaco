@@ -22,7 +22,7 @@ const post = await FedacoTestPost.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### basic nested self referencing has many eager loading
 
@@ -59,7 +59,7 @@ user = await FedacoTestUser.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### belongs to many custom pivot
 
@@ -118,7 +118,7 @@ const johnWithFriends = await FedacoTestUserWithCustomFriendPivot.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### eager loaded morph to relations on another database connection
 
@@ -162,4 +162,4 @@ const secondConnectionPost = (
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")

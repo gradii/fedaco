@@ -11,7 +11,7 @@ await expect(async () => {
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### has on nested self referencing belongs to many relationship with where pivot
 
@@ -40,7 +40,7 @@ const results = await FedacoTestUser.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### has on nested self referencing belongs to many relationship
 
@@ -64,7 +64,7 @@ const results = await FedacoTestUser.createQuery().has('friends.friends').get();
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### has on nested self referencing belongs to relationship
 
@@ -95,7 +95,7 @@ const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### has on nested self referencing has many relationship
 
@@ -126,7 +126,7 @@ const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### has on self referencing belongs to many relationship with where pivot
 
@@ -149,7 +149,7 @@ const results = await FedacoTestUser.createQuery().has('friendsOne').get();
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### has on self referencing belongs to many relationship
 
@@ -172,7 +172,7 @@ const results = await FedacoTestUser.createQuery().has('friends').get();
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### has on self referencing belongs to relationship
 
@@ -196,7 +196,7 @@ const results = await FedacoTestPost.createQuery().has('parentPost').get();
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### has on self referencing has many relationship
 
@@ -222,7 +222,7 @@ const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### has with non where bindings
 
@@ -248,4 +248,4 @@ const questionMarksCount = sql.match(/\?/g)?.length || 0;
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")

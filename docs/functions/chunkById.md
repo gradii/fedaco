@@ -38,7 +38,7 @@ await FedacoTestNonIncrementingSecond.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### chunk by id with non incrementing key
 
@@ -75,4 +75,4 @@ await FedacoTestNonIncrementingSecond.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")

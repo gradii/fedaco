@@ -22,7 +22,7 @@ const post = await FedacoTestPost.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### basic morph many relationship
 
@@ -74,7 +74,7 @@ const userPhotos = await user.photos;
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### basic nested self referencing has many eager loading
 
@@ -111,7 +111,7 @@ user = await FedacoTestUser.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### belongs to many custom pivot
 
@@ -170,7 +170,7 @@ const johnWithFriends = await FedacoTestUserWithCustomFriendPivot.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### belongs to many relationship models are properly hydrated over chunked request
 
@@ -202,7 +202,7 @@ await user1
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### belongs to many relationship models are properly hydrated over each request
 
@@ -230,7 +230,7 @@ await (
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### count for pagination with grouping and sub selects
 
@@ -269,7 +269,7 @@ const query = await FedacoTestUser.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### has on nested self referencing belongs to many relationship with where pivot
 
@@ -298,7 +298,7 @@ const results = await FedacoTestUser.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### has on nested self referencing belongs to many relationship
 
@@ -322,7 +322,7 @@ const results = await FedacoTestUser.createQuery().has('friends.friends').get();
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### has on self referencing belongs to many relationship with where pivot
 
@@ -345,7 +345,7 @@ const results = await FedacoTestUser.createQuery().has('friendsOne').get();
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### has on self referencing belongs to many relationship
 
@@ -368,7 +368,7 @@ const results = await FedacoTestUser.createQuery().has('friends').get();
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### has with non where bindings
 
@@ -394,7 +394,7 @@ const questionMarksCount = sql.match(/\?/g)?.length || 0;
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### isset loads in relationship if it isnt loaded already
 
@@ -409,7 +409,7 @@ await user.newRelation('post').create({
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### morph map is used for creating and fetching through relation
 
@@ -457,7 +457,7 @@ await post.newRelation('photos').create({
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### morph map is used when fetching parent
 
@@ -482,7 +482,7 @@ const photo = await FedacoTestPhoto.createQuery().first();
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### one to many relationship
 
@@ -516,7 +516,7 @@ const post2 = await user
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### pluck with join
 
@@ -559,7 +559,7 @@ const query = FedacoTestUser.createQuery().join(
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### where has on nested self referencing belongs to many relationship
 
@@ -587,7 +587,7 @@ const results: FedacoTestUser[] = await FedacoTestUser.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
 
 ### where has on self referencing belongs to many relationship
 
@@ -612,4 +612,4 @@ const results: FedacoTestUser[] = await FedacoTestUser.createQuery()
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")

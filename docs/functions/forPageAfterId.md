@@ -26,4 +26,4 @@ let results = await FedacoTestUser.createQuery().forPageAfterId(15, 1);
 
 
 ----
-see also [prerequisites](./../database fedaco integration/prerequisite.md)
+see also [prerequisites]("./../database fedaco integration/prerequisite.md")
