@@ -31,6 +31,7 @@
     "@gradii/check-type": "^1.1.2",
     "date-fns": "^2.23.0",
     "ramda": "^0.27.1",
+    "rxjs": "^7.4.0",
     "tslib": "^2.0.0"
   },
   "devDependencies": {
