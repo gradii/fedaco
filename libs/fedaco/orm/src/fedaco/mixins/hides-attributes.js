@@ -1,17 +1,22 @@
-import { isArray } from '@gradii/check-type'
-import { difference } from 'ramda'
+import { reflector } from '@gradii/annotation'
+import { isArray, isBlank } from '@gradii/check-type'
+import { difference, findLast } from 'ramda'
+import { Table } from '../../annotation/table/table'
 import { value } from '../../helper/fn'
 export function mixinHidesAttributes(base) {
   return class _Self extends base {
-    constructor() {
-      super(...arguments)
-
-      this._hidden = []
-
-      this._visible = []
-    }
-
     getHidden() {
+      if (isBlank(this._hidden)) {
+        const metas = reflector.annotations(this.constructor)
+        const meta = findLast((it) => {
+          return Table.isTypeOf(it)
+        }, metas)
+        if (meta && isArray(meta.hidden)) {
+          this._hidden = meta.hidden
+        } else {
+          this._hidden = []
+        }
+      }
       return this._hidden
     }
 
@@ -21,6 +26,17 @@ export function mixinHidesAttributes(base) {
     }
 
     getVisible() {
+      if (isBlank(this._visible)) {
+        const metas = reflector.annotations(this.constructor)
+        const meta = findLast((it) => {
+          return Table.isTypeOf(it)
+        }, metas)
+        if (meta && isArray(meta.visible)) {
+          this._visible = meta.visible
+        } else {
+          this._visible = []
+        }
+      }
       return this._visible
     }
 

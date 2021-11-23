@@ -3,6 +3,7 @@ import { reflector } from '@gradii/annotation'
 import { isBlank } from '@gradii/check-type'
 import { findLast, tap } from 'ramda'
 import { MorphToColumn } from '../../annotation/relation-column/morph-to.relation-column'
+import { camelCase } from '../../helper/str'
 import { resolveForwardRef } from '../../query-builder/forward-ref'
 import { Model } from '../model'
 import { BelongsTo } from './belongs-to'
@@ -79,9 +80,9 @@ export class MorphTo extends BelongsTo {
         if (!obj) {
           obj = {}
           this._dictionary[morphTypeKey] = obj
-          if (!obj[foreignKeyKey]) {
-            obj[foreignKeyKey] = []
-          }
+        }
+        if (!obj[foreignKeyKey]) {
+          obj[foreignKeyKey] = []
         }
         obj[foreignKeyKey].push(model)
       }
@@ -151,9 +152,8 @@ export class MorphTo extends BelongsTo {
       return morphMap[key]
     }
 
-    const metas = reflector.propMetadata(this._child.constructor)[
-      this._morphType.replace(/_type$/, '')
-    ]
+    const propertyKey = camelCase(this._morphType.replace(/_type$/, ''))
+    const metas = reflector.propMetadata(this._child.constructor)[propertyKey]
     if (metas) {
       const meta = findLast((it) => MorphToColumn.isTypeOf(it), metas)
       const morphTypeMap = meta['morphTypeMap']
@@ -219,9 +219,14 @@ export class MorphTo extends BelongsTo {
   }
 
   touch() {
-    if (!isBlank(this._child._getAttributeFromArray(this._foreignKey))) {
-      super.touch()
-    }
+    const _super = Object.create(null, {
+      touch: { get: () => super.touch },
+    })
+    return __awaiter(this, void 0, void 0, function* () {
+      if (!isBlank(this._child._getAttributeFromArray(this._foreignKey))) {
+        yield _super.touch.call(this)
+      }
+    })
   }
 
   newRelatedInstanceFor(parent) {

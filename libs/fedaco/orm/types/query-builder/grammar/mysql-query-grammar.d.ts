@@ -13,6 +13,7 @@ export declare class MysqlQueryGrammar extends QueryGrammar implements GrammarIn
     protected _createVisitor(queryBuilder: QueryBuilder): MysqlQueryBuilderVisitor;
     compileSelect(builder: QueryBuilder): string;
     compileUpdate(builder: QueryBuilder, values: any): string;
+    compileUpsert(builder: QueryBuilder, values: any, uniqueBy: any[] | string, update: any[] | null): string;
     distinct(distinct: boolean | any[]): string;
     quoteColumnName(columnName: string): string;
     quoteTableName(tableName: string): string;

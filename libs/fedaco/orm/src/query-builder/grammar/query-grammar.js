@@ -196,7 +196,9 @@ export class QueryGrammar extends BaseGrammar {
     return ast.accept(visitor)
   }
   compileUpsert(builder, values, uniqueBy, update) {
-    return ''
+    throw new Error(
+      'RuntimeException This database engine does not support upserts.'
+    )
   }
   compilePredicateFuncName(funcName) {
     if (funcName === 'JsonContains') {

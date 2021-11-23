@@ -1,4 +1,5 @@
-import { isAnyEmpty } from '@gradii/check-type'
+import { isAnyEmpty, isArray, isObject } from '@gradii/check-type'
+import { wrap } from '../../helper/arr'
 import { MysqlQueryBuilderVisitor } from '../visitor/mysql-query-builder-visitor'
 import { QueryBuilderVisitor } from '../visitor/query-builder-visitor'
 import { QueryGrammar } from './query-grammar'
@@ -20,6 +21,21 @@ export class MysqlQueryGrammar extends QueryGrammar {
     const ast = this._prepareUpdateAst(builder, values)
     const visitor = new MysqlQueryBuilderVisitor(builder._grammar, builder)
     return ast.accept(visitor)
+  }
+  compileUpsert(builder, values, uniqueBy, update) {
+    const sql =
+      this.compileInsert(builder, values) + ' on duplicate key update '
+    const columns = []
+    if (isObject(update)) {
+      for (const [key, val] of Object.entries(update)) {
+        columns.push(wrap(key) + ' = ' + this.parameter(val))
+      }
+    } else if (isArray(update)) {
+      update.forEach((val) => {
+        columns.push(`${wrap(val)} = values(${wrap(val)})`)
+      })
+    }
+    return sql + columns.join(', ')
   }
   distinct(distinct) {
     if (distinct !== false) {

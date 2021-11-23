@@ -45,6 +45,12 @@ export class Connection extends mixinManagesTransactions(class {}) {
     this.config = config
     this.useDefaultQueryGrammar()
     this.useDefaultPostProcessor()
+    if (isFunction(pdo)) {
+      this.reconnector = () => {
+        this.pdo = pdo
+        return this.getPdo()
+      }
+    }
   }
 
   useDefaultQueryGrammar() {
@@ -78,7 +84,7 @@ export class Connection extends mixinManagesTransactions(class {}) {
     return new SchemaBuilder(this)
   }
 
-  table(table, as = null) {
+  table(table, as) {
     return this.query().from(table, as)
   }
 
@@ -274,26 +280,35 @@ export class Connection extends mixinManagesTransactions(class {}) {
   }
 
   tryAgainIfCausedByLostConnection(e, query, bindings, callback) {
-    if (this.causedByLostConnection(e.message)) {
-      this.reconnect()
-      return this.runQueryCallback(query, bindings, callback)
-    }
-    throw e
+    return __awaiter(this, void 0, void 0, function* () {
+      if (this.causedByLostConnection(e.message)) {
+        yield this.reconnect()
+        return this.runQueryCallback(query, bindings, callback)
+      }
+      throw e
+    })
   }
   causedByLostConnection(message) {
-    if (message.includes('lost connection')) {
+    if (
+      [
+        'lost connection',
+        "Can't add new command when connection is in closed state",
+      ].find((it) => message.includes(it))
+    ) {
       return true
     }
     return false
   }
 
   reconnect() {
-    if (isFunction(this.reconnector)) {
-      return this.reconnector.call(this)
-    }
-    throw new Error(
-      'LogicException Lost connection and no reconnector available.'
-    )
+    return __awaiter(this, void 0, void 0, function* () {
+      if (isFunction(this.reconnector)) {
+        return this.reconnector.call(this)
+      }
+      throw new Error(
+        'LogicException Lost connection and no reconnector available.'
+      )
+    })
   }
 
   _reconnectIfMissingConnection() {

@@ -19,11 +19,13 @@ export interface HasAttributes {
     _dateFormat: string;
     _appends: any[];
     attributesToArray(): any;
+    attributesToArray2(): any;
     addDateAttributesToArray(attributes: any[]): any;
     addCastAttributesToArray(this: Model & this, attributes: any, mutatedAttributes: any[]): any;
     getArrayableAttributes(): any;
     getArrayableAppends(): any;
     relationsToArray(): any;
+    relationsToArray2(): any;
     getArrayableRelations(): any;
     getArrayableItems(values: string[]): any;
     unsetAttribute(key: string): any;

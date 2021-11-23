@@ -8,6 +8,7 @@ import { WrappedConnection } from '../wrapped-connection';
 import { MysqlWrappedStmt } from './mysql-wrapped-stmt';
 export declare class MysqlWrappedConnection implements WrappedConnection {
     driver: MysqlConnection;
+    lastError: string;
     constructor(driver: MysqlConnection);
     prepare(sql: string): Promise<MysqlWrappedStmt>;
     exec(sql: string): Promise<unknown>;

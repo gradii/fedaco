@@ -1,6 +1,9 @@
 import { __awaiter } from 'tslib'
-import { isArray } from '@gradii/check-type'
-import { tap } from 'ramda'
+import { reflector } from '@gradii/annotation'
+import { isArray, isBlank } from '@gradii/check-type'
+import { findLast, tap } from 'ramda'
+import { singular } from '../../../helper/pluralize'
+import { Table } from '../../../annotation/table/table'
 export function mixinAsPivot(base) {
   return class _Self extends base {
     static fromAttributes(parent, attributes, table, exists = false) {
@@ -74,7 +77,18 @@ export function mixinAsPivot(base) {
     }
 
     getTable() {
-      if (!(this._table !== undefined)) {
+      if (isBlank(this._table)) {
+        const metas = reflector.annotations(this.constructor)
+        const meta = findLast((it) => {
+          return Table.isTypeOf(it)
+        }, metas)
+        if (meta) {
+          return singular(meta.tableName)
+        } else {
+          throw new Error(
+            'must define table in annotation or `_table` property'
+          )
+        }
       }
       return this._table
     }

@@ -3,6 +3,9 @@ import { MysqlWrappedStmt } from './mysql-wrapped-stmt'
 export class MysqlWrappedConnection {
   constructor(driver) {
     this.driver = driver
+    driver.on('error', (e) => {
+      this.lastError = e.message
+    })
   }
   prepare(sql) {
     return __awaiter(this, void 0, void 0, function* () {

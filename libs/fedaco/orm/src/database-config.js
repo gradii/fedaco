@@ -8,9 +8,7 @@ export class DatabaseConfig {
       database: {
         fetch: 0,
         default: 'default',
-        connections: {
-          default: {},
-        },
+        connections: {},
       },
     }
 

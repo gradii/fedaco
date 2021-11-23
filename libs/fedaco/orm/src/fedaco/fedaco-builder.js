@@ -434,11 +434,13 @@ export class FedacoBuilder extends mixinGuardsAttributes(
   }
 
   upsert(values, uniqueBy, update) {
-    if (!values.length) {
-      return 0
-    }
     if (!isArray(values)) {
       values = [values]
+    }
+    if (!values.length) {
+      return 0
+    } else if (isAnyEmpty(update)) {
+      return this.insert(values)
     }
     if (isBlank(update)) {
       update = Object.keys(values)

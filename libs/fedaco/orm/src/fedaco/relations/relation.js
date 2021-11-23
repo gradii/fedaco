@@ -74,10 +74,13 @@ export class Relation extends mixinForwardCallToQueryBuilder(class {}) {
   }
 
   touch() {
-    const model = this.getRelated()
-
-    this.rawUpdate({
-      [model.getUpdatedAtColumn()]: model.freshTimestampString(),
+    return __awaiter(this, void 0, void 0, function* () {
+      const model = this.getRelated()
+      if (!model.constructor.isIgnoringTouch()) {
+        yield this.rawUpdate({
+          [model.getUpdatedAtColumn()]: model.freshTimestampString(),
+        })
+      }
     })
   }
 
@@ -104,7 +107,7 @@ export class Relation extends mixinForwardCallToQueryBuilder(class {}) {
 
   getRelationCountHash(incrementJoinCount = true) {
     return (
-      'laravel_reserved_' +
+      'fedaco_reserved_' +
       (incrementJoinCount ? Relation.selfJoinCount++ : Relation.selfJoinCount)
     )
   }

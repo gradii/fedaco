@@ -1,4 +1,5 @@
 import { __awaiter } from 'tslib'
+import { reflector } from '@gradii/annotation'
 import {
   isAnyEmpty,
   isArray,
@@ -6,7 +7,8 @@ import {
   isObjectEmpty,
   isString,
 } from '@gradii/check-type'
-import { difference, tap, uniq } from 'ramda'
+import { difference, findLast, tap, uniq } from 'ramda'
+import { Table } from '../annotation/table/table'
 import { except } from '../helper/obj'
 import { plural, pluralStudy } from '../helper/pluralize'
 import { camelCase, snakeCase, upperCaseFirst } from '../helper/str'
@@ -511,6 +513,12 @@ export class Model extends mixinHasAttributes(
       this.relationsToArray()
     )
   }
+  toArray2() {
+    return Object.assign(
+      Object.assign({}, this.attributesToArray2()),
+      this.relationsToArray2()
+    )
+  }
 
   jsonSerialize() {
     return this.toArray()
@@ -575,6 +583,19 @@ export class Model extends mixinHasAttributes(
   }
 
   getConnectionName() {
+    if (isBlank(this._connection)) {
+      const metas = reflector.annotations(this.constructor)
+      const meta = findLast((it) => {
+        return Table.isTypeOf(it)
+      }, metas)
+      if (meta) {
+        this._connection = meta.connection
+      } else if (this.constructor.connectionName) {
+        this._connection = this.constructor.connectionName
+      } else {
+        this._connection = 'default'
+      }
+    }
     return this._connection
   }
 
@@ -600,7 +621,22 @@ export class Model extends mixinHasAttributes(
   }
 
   getTable() {
-    return this._table || snakeCase(pluralStudy(this.constructor.name))
+    if (isBlank(this._table)) {
+      const metas = reflector.annotations(this.constructor)
+      const meta = findLast((it) => {
+        return Table.isTypeOf(it)
+      }, metas)
+      if (meta) {
+        if (!meta.noPluralTable) {
+          this.setTable(pluralStudy(meta.tableName))
+        } else {
+          this.setTable(snakeCase(meta.tableName))
+        }
+      } else {
+        throw new Error('must define table in annotation or `_table` property')
+      }
+    }
+    return this._table
   }
 
   setTable(table) {
@@ -704,6 +740,19 @@ export class Model extends mixinHasAttributes(
     this._perPage = perPage
     return this
   }
+  toJSON() {
+    return this.toArray()
+  }
+  clone() {
+    const cloned = new this.constructor()
+    cloned._table = this._table
+    cloned._guarded = [...this._guarded]
+    cloned._visible = [...this._visible]
+    cloned._hidden = [...this._hidden]
+    cloned._attributes = Object.assign({}, this._attributes)
+    cloned._relations = Object.assign({}, this._relations)
+    return cloned
+  }
 
   static useConnection(connection) {
     const instance = new this()
@@ -712,22 +761,26 @@ export class Model extends mixinHasAttributes(
   }
 
   static withoutTouching(callback) {
-    Model.withoutTouchingOn([Model], callback)
+    return __awaiter(this, void 0, void 0, function* () {
+      yield this.withoutTouchingOn([this], callback)
+    })
   }
 
   static withoutTouchingOn(models, callback) {
-    Model.ignoreOnTouch = [...Model.ignoreOnTouch, ...models]
-    try {
-      callback()
-    } finally {
-      Model.ignoreOnTouch = difference(Model.ignoreOnTouch, models)
-    }
+    return __awaiter(this, void 0, void 0, function* () {
+      this.ignoreOnTouch = [...this.ignoreOnTouch, ...models]
+      try {
+        yield callback()
+      } finally {
+        this.ignoreOnTouch = difference(this.ignoreOnTouch, models)
+      }
+    })
   }
 
   static isIgnoringTouch(clazz) {
     clazz = clazz || Model
 
-    for (const ignoredClass of Model.ignoreOnTouch) {
+    for (const ignoredClass of this.ignoreOnTouch) {
       if (
         clazz === ignoredClass ||
         ignoredClass.constructor instanceof clazz.constructor

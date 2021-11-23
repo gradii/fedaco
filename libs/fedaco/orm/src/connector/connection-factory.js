@@ -68,7 +68,12 @@ export class ConnectionFactory {
   }
 
   mergeReadWriteConfig(config, merge) {
-    return [...config, ...merge].filter((it) => !['read', 'write'].includes(it))
+    config = Object.assign(Object.assign({}, config), merge)
+
+    delete config.read
+
+    delete config.write
+    return config
   }
 
   createPdoResolver(config) {
@@ -140,7 +145,7 @@ export class ConnectionFactory {
         return new SqlServerConnection(connection, database, prefix, config)
     }
     throw new Error(
-      'InvalidArgumentException "Unsupported driver [{$driver}]."'
+      `InvalidArgumentException "Unsupported driver [${driver}]."`
     )
   }
 }

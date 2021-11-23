@@ -24,7 +24,7 @@ export function pluralStudy(word) {
       }
       return part
     },
-    delimiter: '',
+    delimiter: '_',
   })
 }
 

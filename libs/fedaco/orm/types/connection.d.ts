@@ -72,7 +72,7 @@ export declare class Connection extends Connection_base implements ConnectionInt
     protected handleQueryException(e: QueryException, query: string, bindings: any[], callback: Function): Promise<any>;
     protected tryAgainIfCausedByLostConnection(e: QueryException, query: string, bindings: any[], callback: Function): Promise<any>;
     protected causedByLostConnection(message: string): boolean;
-    reconnect(): any;
+    reconnect(): Promise<any>;
     _reconnectIfMissingConnection(): void;
     disconnect(): void;
     listen(callback: Function): void;

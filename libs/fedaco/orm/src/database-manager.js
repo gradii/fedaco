@@ -1,5 +1,7 @@
 import { __awaiter } from 'tslib'
+import { isAnyEmpty } from '@gradii/check-type'
 import { DatabaseConfig } from './database-config'
+import { ConfigurationUrlParser } from './helper/configuration-url-parser'
 import { MysqlQueryGrammar } from './query-builder/grammar/mysql-query-grammar'
 import { Processor } from './query-builder/processor'
 import { QueryBuilder } from './query-builder/query-builder'
@@ -83,7 +85,7 @@ export class DatabaseManager {
     }
   }
 
-  connection(name) {
+  connection(name = 'default') {
     const [database, type] = this.parseConnectionName(name)
     name = name || database
     if (!(this.connections[name] !== undefined)) {
@@ -111,7 +113,13 @@ export class DatabaseManager {
 
     const config = DatabaseConfig.instance.config
 
-    return config['database']['connections'][name]
+    const connectionConfig = config['database']['connections'][name]
+    if (isAnyEmpty(connectionConfig)) {
+      throw new Error(
+        `InvalidArgumentException Database connection [${name}] not configured.`
+      )
+    }
+    return new ConfigurationUrlParser().parseConfiguration(connectionConfig)
   }
 
   configure(connection, type) {

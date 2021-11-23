@@ -166,6 +166,7 @@ export declare class Model extends Model_base {
     hasNamedScope(scope: string): boolean;
     callNamedScope(scope: string, ...parameters: any[]): any;
     toArray(): any;
+    toArray2(): any;
     jsonSerialize(): any;
     fresh(_with?: any[] | string): Promise<this>;
     refresh(): Promise<this>;
@@ -173,6 +174,7 @@ export declare class Model extends Model_base {
     is(model: Model | null): boolean;
     isNot(model: Model | null): boolean;
     getConnection(): any;
+    static connectionName: string;
     getConnectionName(): string;
     setConnection(name: string | null): this;
     static resolveConnection(connection?: string | null): import("@gradii/fedaco").ConnectionInterface;

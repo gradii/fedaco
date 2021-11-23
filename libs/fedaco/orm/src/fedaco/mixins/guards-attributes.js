@@ -1,4 +1,3 @@
-import { __awaiter } from 'tslib'
 import { reflector } from '@gradii/annotation'
 import { isArray, isPromise } from '@gradii/check-type'
 import { findLast } from 'ramda'
@@ -59,24 +58,22 @@ export function mixinGuardsAttributes(base) {
       }
 
       static unguarded(callback) {
-        return __awaiter(this, void 0, void 0, function* () {
-          if (this._unguarded) {
-            return callback()
+        if (this._unguarded) {
+          return callback()
+        }
+        this.unguard()
+        try {
+          const rst = callback()
+          if (isPromise(rst)) {
+            return rst.finally(() => {
+              this.reguard()
+            })
+          } else {
+            return rst
           }
-          this.unguard()
-          try {
-            const rst = callback()
-            if (isPromise(rst)) {
-              return rst.finally(() => {
-                this.reguard()
-              })
-            } else {
-              return rst
-            }
-          } finally {
-            this.reguard()
-          }
-        })
+        } finally {
+          this.reguard()
+        }
       }
 
       isFillable(key) {
