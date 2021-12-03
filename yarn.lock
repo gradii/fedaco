@@ -325,14 +325,14 @@
     strip-json-comments "^3.1.1"
 
 "@gradii/annotation@^1.1.1-sha-a4663e90":
-  version "1.1.1-sha-a4663e90"
-  resolved "https://npm.pkg.github.com/download/@gradii/annotation/1.1.1-sha-a4663e90/f9de1379e939b4510dc130ec97f9e8fe74f4e5bd3d8bb1a0734fe1ec1088932f#1cab5b74c321634da0fba2aa50136844dc9e6731"
-  integrity sha512-uj9jWaiUmpVyATGit0K1ct7Tyz3zOHD02bZfSZ/ya689eCXfyols6BROiKvLpDcXzwAcDkNqCNsujxKB0cF/pA==
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/@gradii/annotation/-/annotation-1.1.4.tgz#32b34e22c860091a1300ecdb2eaea1f1ef83b6d3"
+  integrity sha512-xK7Q/0oFq1MN9qm9d/1uW5O2Tdpi+i1aXIz3SnrKUx4r2Ry8JZkxg4BXvH4tdY+WNkAjryhoUvNwGVARz201kQ==
 
 "@gradii/check-type@^1.1.2":
-  version "1.1.2"
-  resolved "https://npm.pkg.github.com/download/@gradii/check-type/1.1.2/b5898ea374fed685241a9961e2dc54cb54e8eec18a65053ced3d042a88e0cad7#eba51f9fd39d4b5ad1bf60857ad478c698c111f4"
-  integrity sha512-e+SD3GcPS7RklgH8cM4ErdQjjpXlCZRvTw0bg/qSxsIrrEfEp1vfA7Rv8vejF5VgGtAngHHnitT/pj4zJ0cbFQ==
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@gradii/check-type/-/check-type-1.1.3.tgz#253f50153bc0e430d796ccb4b01c284bfb609bb9"
+  integrity sha512-RAjn/BGeeFJ7hnN809VhwMy8m8bFRtQIDnGMLJgL7c6ganqKxZerUHusDPbiCe8Hhb8CAm56FNe+7mE2xT7OtQ==
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
