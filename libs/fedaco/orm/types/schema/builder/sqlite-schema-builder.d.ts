@@ -13,5 +13,5 @@ export declare class SqliteSchemaBuilder extends SchemaBuilder {
     dropAllViews(): void;
     refreshDatabaseFile(): void;
     protected _getPortableTableColumnDefinition(tableColumn: any): Column;
-    listTableDetails(tableName: string): Promise<import("@gradii/fedaco/src/dbal/table").Table>;
+    listTableDetails(tableName: string): Promise<import("../../dbal/table").Table>;
 }

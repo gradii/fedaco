@@ -8,7 +8,7 @@ import { FedacoBuilder } from '../../fedaco-builder';
 import { Model } from '../../model';
 export declare namespace AsPivot {
     function fromAttributes(parent: Model, attributes: any[], table: string, exists?: boolean): any;
-    function fromRawAttributes(parent: Model, attributes: any[], table: string, exists: boolean): any;
+    function fromRawAttributes(parent: Model, attributes: any, table: string, exists: boolean): any;
 }
 export interface AsPivot extends Model {
     pivotParent: Model;
@@ -17,19 +17,19 @@ export interface AsPivot extends Model {
     _setKeysForSelectQuery(query: FedacoBuilder<this>): FedacoBuilder<this>;
     _setKeysForSaveQuery(query: FedacoBuilder<this>): FedacoBuilder<this>;
     delete(): Promise<number | boolean>;
-    _getDeleteQuery(): any;
+    _getDeleteQuery(): FedacoBuilder;
     getTable(): string;
-    getForeignKey(): any;
-    getRelatedKey(): any;
-    getOtherKey(): any;
-    setPivotKeys(foreignKey: string, relatedKey: string): any;
-    hasTimestampAttributes(attributes?: any[] | null): any;
+    getForeignKey(): string;
+    getRelatedKey(): string;
+    getOtherKey(): string;
+    setPivotKeys(foreignKey: string, relatedKey: string): this;
+    hasTimestampAttributes(attributes?: any[] | null): boolean;
     getCreatedAtColumn(): string;
     getUpdatedAtColumn(): string;
     getQueueableId(): number | string;
-    newQueryForRestoration(ids: number[] | string[] | string): any;
-    _newQueryForCollectionRestoration(ids: number[] | string[]): any;
-    unsetRelations(): any;
+    newQueryForRestoration(ids: number[] | string[] | string): FedacoBuilder<this>;
+    _newQueryForCollectionRestoration(ids: number[] | string[]): FedacoBuilder<this>;
+    unsetRelations(): this;
 }
 export declare type AsPivotCtor = Constructor<AsPivot>;
 export declare function mixinAsPivot<T extends Constructor<any>>(base: T): AsPivotCtor & T;

@@ -51,7 +51,7 @@ export interface HasManyThrough extends InteractsWithDictionary, Constructor<Rel
     getQualifiedLocalKeyName(): string;
     getSecondLocalKeyName(): string;
 }
-declare const HasManyThrough_base: import("@gradii/fedaco/src/fedaco/relations/concerns/interacts-with-dictionary").InteractsWithDictionaryCtor & typeof Relation;
+declare const HasManyThrough_base: import("./concerns/interacts-with-dictionary").InteractsWithDictionaryCtor & typeof Relation;
 export declare class HasManyThrough extends HasManyThrough_base {
     _throughParent: Model;
     _farParent: Model;

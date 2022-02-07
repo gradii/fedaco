@@ -337,7 +337,15 @@ export class QueryBuilderVisitor {
             columns.push(this._grammar.quoteTableName(columnName))
           } else if (identifier instanceof FromTable) {
             if (columnName) {
-              columns.push(columnName.split(/\s+as\s+/i).pop())
+              const withAlias = columnName.split(/\s+as\s+/i)
+
+              if (this._isVisitUpdateSpecification) {
+                if (withAlias.length > 1) {
+                  columns.push(withAlias.pop())
+                }
+              } else {
+                columns.push(withAlias.pop())
+              }
             }
           } else {
             columns.push(columnName)
@@ -539,5 +547,8 @@ export class QueryBuilderVisitor {
   }
   visitNotExpression(node) {
     return `not ${node.expression.accept(this)}`
+  }
+  visitIndexBy(node) {
+    throw new Error('not implement')
   }
 }

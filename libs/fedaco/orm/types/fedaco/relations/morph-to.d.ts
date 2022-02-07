@@ -24,7 +24,7 @@ export declare class MorphTo extends BelongsTo {
     addEagerConstraints(models: any[]): void;
     protected buildDictionary(models: Collection): void;
     getEager(): Promise<Collection>;
-    protected getResultsByType(clazz: string): Promise<any>;
+    protected getResultsByType(clazz: string): Promise<Model[]>;
     protected gatherKeysByType(type: string, keyType: string): string[];
     _getActualClassNameForMorph(key: string): any;
     createModelByType(type: string): any;

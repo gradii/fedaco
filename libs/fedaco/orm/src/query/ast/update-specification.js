@@ -19,6 +19,9 @@ export class UpdateSpecification extends SqlNode {
     this.limitClause = limitClause
   }
   accept(visitor) {
-    return visitor.visitUpdateSpecification(this)
+    visitor._isVisitUpdateSpecification = true
+    const rst = visitor.visitUpdateSpecification(this)
+    visitor._isVisitUpdateSpecification = false
+    return rst
   }
 }

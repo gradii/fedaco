@@ -40,7 +40,8 @@ export function mixinHasRelationships(base) {
         return __awaiter(this, void 0, void 0, function* () {
           for (const relation of this.getTouchedRelations()) {
             yield this.newRelation(relation).touch()
-            if (this[relation] instanceof this.constructor) {
+            yield this[relation]
+            if (this[relation] instanceof _Self) {
               this[relation].fireModelEvent('saved', false)
               yield this[relation].touchOwners()
             } else if (isArray(this[relation])) {

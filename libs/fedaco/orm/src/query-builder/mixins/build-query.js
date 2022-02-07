@@ -147,8 +147,8 @@ export function mixinBuildQueries(base) {
     eachById(count = 1000, column, alias, signal) {
       return this.chunkById(count, column, alias, signal).pipe(
         mergeMap(({ results, page }) => {
-          return of(
-            ...results.map((it, idx) => {
+          return from(
+            results.map((it, idx) => {
               return { item: it, index: (page - 1) * count + idx }
             })
           )

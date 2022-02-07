@@ -5,10 +5,11 @@
  */
 import { Constructor } from '../../helper/constructor';
 import { QueryBuilder } from '../../query-builder/query-builder';
+import { TableReferenceExpression } from '../../query/ast/table-reference-expression';
 export interface QueryBuilderJoin {
-    join(table: string, first: any, operator: any, second: any, type?: any, where?: any): this;
-    join(table: string, first: any, second: any): this;
-    join(table: string, on: (q: any) => QueryBuilder | void): this;
+    join(table: string | TableReferenceExpression, first: string | ((...args: any[]) => any), operator: string, second: any, type?: string, where?: any): this;
+    join(table: string, first: string | ((...args: any[]) => any), second: any): this;
+    join(table: string, on: (q: QueryBuilder) => QueryBuilder | void): this;
     join(tableOrJoinSql: string): this;
     joinWhere(table: string, first: Function | string, operator: string, second: string, type?: string): this;
     joinSub(query: Function | QueryBuilder | string, as: string, first: Function | string, operator?: string, second?: string | number, type?: string, where?: boolean): this;

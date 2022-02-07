@@ -8,7 +8,14 @@ import {
   isObjectEmpty,
   isString,
 } from '@gradii/check-type'
-import { format, getUnixTime, isValid, parse, startOfDay } from 'date-fns'
+import {
+  format,
+  formatISO,
+  getUnixTime,
+  isValid,
+  parse,
+  startOfDay,
+} from 'date-fns'
 import { equals, findLast, omit, pick, tap, uniq } from 'ramda'
 import { FedacoColumn } from '../../annotation/column'
 import { ArrayColumn } from '../../annotation/column/array.column'
@@ -76,7 +83,7 @@ export function mixinHasAttributes(base) {
 
         this._original = {}
 
-        this._changes = []
+        this._changes = {}
 
         this._casts = {}
 
@@ -89,7 +96,6 @@ export function mixinHasAttributes(base) {
 
       attributesToArray() {
         let attributes = this.getArrayableAttributes()
-        attributes = this.addDateAttributesToArray(attributes)
 
         attributes = this.addCastAttributesToArray(attributes)
 
@@ -98,7 +104,6 @@ export function mixinHasAttributes(base) {
 
       attributesToArray2() {
         let attributes = this.getArrayableAttributes()
-        attributes = this.addDateAttributesToArray(attributes)
 
         attributes = this.addCastAttributesToArray(attributes)
 
@@ -208,13 +213,16 @@ export function mixinHasAttributes(base) {
       }
 
       getArrayableItems(values) {
+        let haveNew = false
         if (this.getVisible().length > 0) {
+          haveNew = true
           values = pick(this.getVisible(), values)
         }
         if (this.getHidden().length > 0) {
+          haveNew = true
           values = omit(this.getHidden(), values)
         }
-        return values
+        return haveNew ? values : Object.assign({}, values)
       }
       unsetAttribute(key) {
         delete this._attributes[key]
@@ -269,11 +277,12 @@ export function mixinHasAttributes(base) {
           if (!(relation instanceof Relation)) {
             if (isBlank(relation)) {
               throw new Error(
-                'LogicException(`${HasAttributes}::${method} must return a relationship instance, but "null" was returned. Was the "return" keyword used?`'
+                `LogicException getRelationshipFromMethod must return a relationship instance,` +
+                  ` but "null" was returned. Was the "return" keyword used?`
               )
             }
             throw new Error(
-              'LogicException(`${HasAttributes}::${method} must return a relationship instance.`'
+              `LogicException(getRelationshipFromMethod must return a relationship instance.`
             )
           }
           return tap((results) => {
@@ -400,7 +409,11 @@ export function mixinHasAttributes(base) {
 
       isDateAttribute(key) {
         const a = this._columnInfo(key)
-        return (a && (a.isDate || a.isDateCastable)) || this.isDateCastable(key)
+        return (
+          DateColumn.isTypeOf(a) ||
+          DatetimeColumn.isTypeOf(a) ||
+          this.isDateCastable(key)
+        )
       }
 
       fillJsonAttribute(key, value) {
@@ -416,7 +429,7 @@ export function mixinHasAttributes(base) {
       }
 
       setClassCastableAttribute(key, value) {
-        this._attributes = [...this._attributes]
+        this._attributes = Object.assign({}, this._attributes)
       }
 
       getArrayAttributeWithValue(path, key, value) {
@@ -434,13 +447,14 @@ export function mixinHasAttributes(base) {
       }
 
       castAttributeAsJson(key, value) {
-        value = this.asJson(value)
-        if (value == false) {
+        try {
+          value = this.asJson(value)
+          return value
+        } catch (e) {
           throw new Error(
             'JsonEncodingException.forAttribute(this, key, json_last_error_msg())'
           )
         }
-        return value
       }
 
       asJson(value) {
@@ -503,11 +517,15 @@ export function mixinHasAttributes(base) {
             new Date(value)
           )
         } catch (e) {}
-        return isValid(date) ? date : new Date(value)
+        if (isValid(date)) {
+          return date
+        } else {
+          throw new Error(`invalid date ${value}`)
+        }
       }
 
       isStandardDateFormat(value) {
-        return /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(value)
+        return Boolean(/^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(value))
       }
 
       fromDateTime(value) {
@@ -521,7 +539,7 @@ export function mixinHasAttributes(base) {
       }
 
       serializeDate(date) {
-        return format(date, `yyyy-MM-dd HH:mm:ss`)
+        return formatISO(date)
       }
 
       getDates() {
@@ -660,15 +678,7 @@ export function mixinHasAttributes(base) {
         throw new Error(`InvalidCastException(this.getModel(), key, castType)`)
       }
 
-      mergeAttributesFromClassCasts() {
-        for (const [key, value] of Object.entries(this._classCastCache)) {
-          this._attributes = Object.assign({}, this._attributes)
-        }
-      }
-
-      normalizeCastClassResponse(key, value) {
-        return isArray(value) ? value : {}
-      }
+      mergeAttributesFromClassCasts() {}
 
       getAttributes() {
         this.mergeAttributesFromClassCasts()
@@ -688,13 +698,13 @@ export function mixinHasAttributes(base) {
         return this
       }
 
-      getOriginal(key = null, _default = null) {
+      getOriginal(key, _default) {
         return new this.constructor()
           .setRawAttributes(this._original, true)
           .getOriginalWithoutRewindingModel(key, _default)
       }
 
-      getOriginalWithoutRewindingModel(key = null, _default = null) {
+      getOriginalWithoutRewindingModel(key, _default) {
         if (key) {
           return this.transformModelValue(
             key,
@@ -708,7 +718,7 @@ export function mixinHasAttributes(base) {
         return results
       }
 
-      getRawOriginal(key = null, _default = null) {
+      getRawOriginal(key, _default) {
         return get(this._original, key, _default)
       }
       only(attributes) {
@@ -739,6 +749,7 @@ export function mixinHasAttributes(base) {
 
       syncChanges() {
         this._changes = this.getDirty()
+
         return this
       }
 
@@ -753,15 +764,15 @@ export function mixinHasAttributes(base) {
         return !this.isDirty(...attributes)
       }
 
-      wasChanged(attributes = null) {
+      wasChanged(attributes) {
         return this.hasChanges(
           this.getChanges(),
           isArray(attributes) ? attributes : [...arguments]
         )
       }
 
-      hasChanges(changes, attributes = null) {
-        if (!attributes.length) {
+      hasChanges(changes, attributes) {
+        if (!attributes || !attributes.length) {
           return !isObjectEmpty(changes)
         }
         for (const attribute of wrap(attributes)) {

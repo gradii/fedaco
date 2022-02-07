@@ -44,7 +44,8 @@ export function mixinCanBeOneOfMany(base) {
       for (const [_column, _aggregate] of columnsEntries) {
         if (!['min', 'max'].includes(_aggregate.toLowerCase())) {
           throw new Error(
-            `InvalidArgumentException Invalid aggregate [${_aggregate}] used within ofMany relation. Available aggregates: MIN, MAX`
+            `InvalidArgumentException Invalid aggregate [${_aggregate}] used within ofMany relation. ` +
+              `Available aggregates: MIN, MAX`
           )
         }
 

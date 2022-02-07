@@ -4,7 +4,9 @@
  * Use of this source code is governed by an MIT-style license
  */
 import { Constructor } from '../../helper/constructor';
+import { ColumnReferenceExpression } from '../../query/ast/column-reference-expression';
 export interface QueryBuilderAggregate {
+    _setAggregate(func: string, columns: Array<string | ColumnReferenceExpression>): this;
     aggregate(func: string, columns: any[]): Promise<any>;
     count(columns?: string): Promise<number>;
     doesntExist(columns?: string): Promise<boolean>;

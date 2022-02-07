@@ -14,7 +14,7 @@ import { QueryBuilder } from './query-builder/query-builder';
 import { QueryException } from './query-exception';
 import { SchemaGrammar } from './schema/grammar/schema-grammar';
 import { SchemaBuilder } from './schema/schema-builder';
-declare const Connection_base: new (...args: any[]) => import("@gradii/fedaco/src/manages-transactions").ManagesTransactions;
+declare const Connection_base: new (...args: any[]) => import("./manages-transactions").ManagesTransactions;
 export declare class Connection extends Connection_base implements ConnectionInterface {
     protected pdo: WrappedConnection | Function;
     protected readPdo: Function;

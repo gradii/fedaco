@@ -4,11 +4,12 @@
  * Use of this source code is governed by an MIT-style license
  */
 import { SqlNode } from '../sql-node';
+import { SqlVisitor } from '../sql-visitor';
 /**
  * IndexBy ::= "INDEX" "BY" SimpleStateFieldPathExpression
  */
 export declare class IndexBy extends SqlNode {
-    simpleStateFieldPathExpression: any;
-    constructor(simpleStateFieldPathExpression?: any);
-    accept(sqlVisitor: any): any;
+    simpleStateFieldPathExpression: SqlNode;
+    constructor(simpleStateFieldPathExpression?: SqlNode);
+    accept(sqlVisitor: SqlVisitor): string;
 }

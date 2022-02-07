@@ -5,6 +5,7 @@
  */
 import { FedacoBuilder } from '../fedaco/fedaco-builder';
 import { Relation } from '../fedaco/relations/relation';
+import { ColumnReferenceExpression } from '../query/ast/column-reference-expression';
 import { RawExpression } from '../query/ast/expression/raw-expression';
 import { NestedPredicateExpression } from '../query/ast/fragment/expression/nested-predicate-expression';
 import { NestedExpression } from '../query/ast/fragment/nested-expression';
@@ -13,7 +14,7 @@ import { Builder } from './builder';
 import { ConnectionInterface } from './connection-interface';
 import { GrammarInterface } from './grammar.interface';
 import { ProcessorInterface } from './processor-interface';
-export declare enum BindingType {
+export declare const enum BindingType {
     where = "where",
     join = "join"
 }
@@ -24,9 +25,9 @@ export declare class QueryBuilder extends Builder {
     _useWriteConnection: boolean;
     private _sqlParser;
     constructor(connection: ConnectionInterface, grammar: GrammarInterface, processor?: ProcessorInterface | null);
-    _forSubQuery(): this;
-    clone(): this;
-    cloneWithout(properties: any[]): this;
+    _forSubQuery(): QueryBuilder;
+    clone(): QueryBuilder;
+    cloneWithout(properties: any[]): QueryBuilder;
     /**
      * Prepare the value and operator for a where clause.
      */
@@ -45,10 +46,10 @@ export declare class QueryBuilder extends Builder {
      * @param columns
      * @param as
      */
-    _selectAs(columns: string, as: string): any;
+    _selectAs(columns: string, as: string): this;
     _selectAs(columns: {
         [key: string]: string;
-    }): any;
+    }): this;
     find(id: number | string, columns?: any[]): Promise<any>;
     pluck(column: string, key?: string): Promise<any[] | Record<string, any>>;
     mergeWheres(_wheres: any[], bindings: object | any[]): void;
@@ -56,9 +57,9 @@ export declare class QueryBuilder extends Builder {
     protected pluckFromColumn(queryResult: any[], column: string, key?: string): any[] | Record<string, any>;
     addBinding(value: any, type?: string): this;
     addSelect(...col: string[]): this;
-    addSelect(columns: string[] | {
-        [as: string]: any;
-    }): this;
+    addSelect(...col: RawExpression[]): this;
+    addSelect(...col: ColumnReferenceExpression[]): this;
+    addSelect(columns: Array<string | RawExpression | ColumnReferenceExpression>): this;
     distinct(...args: (string | boolean)[]): this;
     insertGetId(values: any, sequence?: string): Promise<number>;
     from(table: Function | QueryBuilder | RawExpression | string, as?: string): this;
@@ -78,13 +79,13 @@ export declare class QueryBuilder extends Builder {
         [key: string]: any[];
     };
     isQueryable(value: QueryBuilder | FedacoBuilder | Relation | Function | any): value is (QueryBuilder | Function);
-    newQuery(): this;
+    newQuery(): QueryBuilder;
     runSelect(): Promise<any>;
     selectRaw(expression: string, bindings?: any[]): this;
     select(...col: string[]): this;
-    select(columns: string[] | {
-        [as: string]: any;
-    }): this;
+    select(...col: RawExpression[]): this;
+    select(...col: ColumnReferenceExpression[]): this;
+    select(columns: string[]): this;
     update(values?: any): Promise<any>;
     increment(column: string, amount?: number, extra?: any): Promise<any>;
     decrement(column: string, amount?: number, extra?: any): Promise<any>;
@@ -119,9 +120,9 @@ export declare class JoinClauseBuilder extends QueryBuilder {
     type: string;
     table: string | TableReferenceExpression;
     constructor(parentQuery: QueryBuilder, type: string, table: string | TableReferenceExpression);
-    newQuery(): any;
+    newQuery(): JoinClauseBuilder;
     on(first: ((q?: QueryBuilder) => any) | string, operator?: string, second?: string, conjunction?: 'and' | 'or'): this;
-    orOn(first: (query?: any) => any | string, operator?: string | null, second?: string | null): this;
-    protected forSubQuery(): any;
-    protected newParentQuery(): this;
+    orOn(first: (query?: QueryBuilder) => any | string, operator?: string | null, second?: string | null): this;
+    protected forSubQuery(): QueryBuilder;
+    protected newParentQuery(): QueryBuilder;
 }

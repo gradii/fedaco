@@ -37,6 +37,7 @@ import { GroupByClause } from '../../query/ast/group-by-clause';
 import { HavingClause } from '../../query/ast/having-clause';
 import { Identifier } from '../../query/ast/identifier';
 import { IdentifyVariableDeclaration } from '../../query/ast/identify-variable-declaration';
+import type { IndexBy } from '../../query/ast/index-by';
 import { InsertSpecification } from '../../query/ast/insert-specification';
 import { JoinClause } from '../../query/ast/join-clause';
 import { JoinExpression } from '../../query/ast/join-expression';
@@ -75,6 +76,7 @@ export declare class QueryBuilderVisitor implements SqlVisitor {
     protected _queryBuilder: QueryBuilder;
     protected inJoinExpression: boolean;
     protected explicitBindingType: string;
+    _isVisitUpdateSpecification: boolean;
     constructor(_grammar: GrammarInterface, 
     /**
      * @deprecated
@@ -156,4 +158,5 @@ export declare class QueryBuilderVisitor implements SqlVisitor {
     visitLockClause(node: LockClause): string;
     visitRejectOrderElementExpression(node: RejectOrderElementExpression, ctx?: any): string;
     visitNotExpression(node: NotExpression): string;
+    visitIndexBy(node: IndexBy): string;
 }

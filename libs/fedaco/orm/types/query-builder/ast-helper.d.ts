@@ -5,4 +5,4 @@
  */
 import { Identifier } from '../query/ast/identifier';
 export declare function resolveIdentifier(identifier: Identifier | undefined): string | undefined;
-export declare function wrapToArray(value: any): any[];
+export declare function wrapToArray(value: any | any[]): any[];

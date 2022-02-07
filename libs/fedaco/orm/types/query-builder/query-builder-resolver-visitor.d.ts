@@ -11,6 +11,7 @@ import { GrammarInterface } from './grammar.interface';
  */
 export declare class QueryBuilderResolverVisitor implements SqlVisitor {
     private _grammar;
+    _isVisitUpdateSpecification: boolean;
     constructor(_grammar: GrammarInterface);
     visitDeleteSpecification(node: SqlNode): string;
     visitAssignmentSetClause(node: SqlNode): string;
@@ -72,4 +73,5 @@ export declare class QueryBuilderResolverVisitor implements SqlVisitor {
     visitColumnReferenceExpression(node: SqlNode): string;
     visitQuerySpecification(node: SqlNode): string;
     visitNotExpression(node: SqlNode): string;
+    visitIndexBy(node: SqlNode): string;
 }

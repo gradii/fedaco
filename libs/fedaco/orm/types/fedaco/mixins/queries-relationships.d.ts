@@ -6,6 +6,7 @@
 import { Constructor } from '../../helper/constructor';
 import { Builder } from '../../query-builder/builder';
 import { FedacoBuilder } from '../fedaco-builder';
+import { BelongsTo } from '../relations/belongs-to';
 import { MorphTo } from '../relations/morph-to';
 import { Relation } from '../relations/relation';
 export declare type RelationParam = {
@@ -23,7 +24,7 @@ export interface QueriesRelationShips {
     whereDoesntHave(relation: string, callback?: Function | null): this;
     orWhereDoesntHave(relation: string, callback?: Function | null): this;
     hasMorph(relation: MorphTo | string, types: string[], operator?: string, count?: number, conjunction?: string, callback?: Function | null): this;
-    getBelongsToRelation(relation: MorphTo, type: string): any;
+    _getBelongsToRelation(relation: MorphTo, type: string): BelongsTo;
     orHasMorph(relation: MorphTo | string, types: string[], operator?: string, count?: number): this;
     doesntHaveMorph(relation: MorphTo | string, types: string[], conjunction?: string, callback?: Function): this;
     orDoesntHaveMorph(relation: MorphTo | string, types: string[]): this;
@@ -39,10 +40,10 @@ export interface QueriesRelationShips {
     withAvg(relation: string | any[], column: string): this;
     withExists(relation: RelationParams): this;
     addHasWhere(hasQuery: FedacoBuilder, relation: Relation, operator: string, count: number, conjunction: string): this;
-    mergeConstraintsFrom(from: FedacoBuilder): any;
-    addWhereCountQuery(query: Builder, operator?: string, count?: number, conjunction?: string): any;
-    getRelationWithoutConstraints(relation: string): any;
-    canUseExistsForExistenceCheck(operator: string, count: number): any;
+    mergeConstraintsFrom(from: FedacoBuilder): FedacoBuilder;
+    addWhereCountQuery(query: Builder, operator?: string, count?: number, conjunction?: string): this;
+    _getRelationWithoutConstraints<T extends Relation>(relation: string): T;
+    _canUseExistsForExistenceCheck(operator: string, count: number): boolean;
 }
 export declare type QueriesRelationShipsCtor = Constructor<QueriesRelationShips>;
 export declare function mixinQueriesRelationShips<T extends Constructor<any>>(base: T): QueriesRelationShipsCtor & T;

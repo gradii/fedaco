@@ -1,1 +1,1 @@
-export declare function loadAggregate(models: any, relations: any, column: any, func: any): void;
+export declare function loadAggregate(models: any[], relations: any, column: string, func?: ((...args: any[]) => any) | string): void;

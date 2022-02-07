@@ -47,7 +47,9 @@ export class QueryGrammar extends BaseGrammar {
   _prepareUpdateAst(builder, values) {
     const columnNodes = []
     for (const [key, value] of Object.entries(values)) {
-      const columnNode = SqlParser.createSqlParser(key).parseColumnAlias()
+      const columnNode = SqlParser.createSqlParser(key).parseColumnWithoutAlias(
+        builder._from
+      )
       columnNodes.push(
         new AssignmentSetClause(columnNode, bindingVariable(value, 'update'))
       )

@@ -1,3 +1,5 @@
+import { __awaiter } from 'tslib'
+
 import { Connector } from './connector'
 export class PostgresConnector extends Connector {
   constructor() {
@@ -6,5 +8,9 @@ export class PostgresConnector extends Connector {
     this.options = {}
   }
 
-  connect(config) {}
+  connect(config) {
+    return __awaiter(this, void 0, void 0, function* () {
+      throw new Error('method not implemented.')
+    })
+  }
 }

@@ -3,6 +3,7 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
+import { Connection } from './connection';
 import { ConnectionFactory } from './connector/connection-factory';
 import { ConnectionConfig } from './database-config';
 import { ConnectionResolverInterface } from './interface/connection-resolver-interface';
@@ -15,8 +16,8 @@ export declare class DatabaseManager implements ConnectionResolverInterface {
     protected parseConnectionName(name: string): string[];
     protected makeConnection(name: string): any;
     protected configuration(name: string): ConnectionConfig;
-    protected configure(connection: any, type: string): any;
-    protected setPdoForType(connection: any, type?: string | null): void;
+    protected configure(connection: Connection, type: string): Connection;
+    protected setPdoForType(connection: Connection, type?: string | null): void;
     purge(name?: string | null): void;
     disconnect(name?: string | null): void;
     reconnect(name?: string | null): void;

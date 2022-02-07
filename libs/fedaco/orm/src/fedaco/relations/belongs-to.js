@@ -66,7 +66,7 @@ export class BelongsTo extends mixinComparesRelatedModels(
   match(models, results, relation) {
     const foreign = this._foreignKey
     const owner = this._ownerKey
-    const dictionary = []
+    const dictionary = {}
     for (const result of results) {
       const attribute = this._getDictionaryKey(result.getAttribute(owner))
       dictionary[attribute] = result

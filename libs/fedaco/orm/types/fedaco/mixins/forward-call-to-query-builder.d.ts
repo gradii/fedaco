@@ -16,7 +16,7 @@ import { QueryBuilderUnion } from '../../query-builder/mixins/union';
 import { QueryBuilderWhereCommon } from '../../query-builder/mixins/where-common';
 import { QueryBuilderWhereDate } from '../../query-builder/mixins/where-date';
 import { QueryBuilderWherePredicate } from '../../query-builder/mixins/where-predicate';
-import { QueryBuilder } from '../../query-builder/query-builder';
+import { JoinClauseBuilder, QueryBuilder } from '../../query-builder/query-builder';
 import { FedacoBuilder } from '../fedaco-builder';
 export interface ForwardCallToQueryBuilder extends Omit<QueryBuilderJoin, 'joinSub'>, QueryBuilderOrderBy, QueryBuilderGroupBy, QueryBuilderHaving, QueryBuilderLimitOffset, QueryBuilderUnion, QueryBuilderWhereDate, QueryBuilderAggregate, QueryBuilderWherePredicate, QueryBuilderWhereCommon, Constructor<Omit<BuildQueries, 'first'>>, Pick<QueryBuilder, 'beforeQuery' | 'find' | 'applyBeforeQueryCallbacks'> {
     pluck(...args: any[]): Promise<any[] | Record<string, any>>;
@@ -59,7 +59,8 @@ export interface ForwardCallToQueryBuilder extends Omit<QueryBuilderJoin, 'joinS
     useWriteConnection(...args: any[]): this;
     onceWithColumns(...args: any[]): this;
     first(...args: any[]): Promise<any>;
-    joinSub(query: Function | QueryBuilder | FedacoBuilder | string, as: string, first: Function | string, operator?: string, second?: string | number, type?: string, where?: boolean): this;
+    join(...args: any[]): this;
+    joinSub(query: Function | QueryBuilder | FedacoBuilder | string, as: string, first: ((join: JoinClauseBuilder) => any) | string, operator?: string, second?: string | number, type?: string, where?: boolean): this;
     pipe(...args: any[]): this;
 }
 export declare type ForwardCallToQueryBuilderCtor = Constructor<ForwardCallToQueryBuilder>;

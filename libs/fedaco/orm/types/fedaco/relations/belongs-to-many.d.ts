@@ -14,7 +14,7 @@ import { InteractsWithPivotTable } from './concerns/interacts-with-pivot-table';
 import { Relation } from './relation';
 export interface BelongsToMany extends InteractsWithDictionary, InteractsWithPivotTable, Constructor<Relation> {
 }
-declare const BelongsToMany_base: import("@gradii/fedaco/src/fedaco/relations/concerns/interacts-with-dictionary").InteractsWithDictionaryCtor & (new (...args: any[]) => InteractsWithPivotTable) & typeof Relation;
+declare const BelongsToMany_base: import("./concerns/interacts-with-dictionary").InteractsWithDictionaryCtor & (new (...args: any[]) => InteractsWithPivotTable) & typeof Relation;
 export declare class BelongsToMany extends BelongsToMany_base {
     _table: string;
     _foreignPivotKey: string;
@@ -77,7 +77,7 @@ export declare class BelongsToMany extends BelongsToMany_base {
     getResults(): Promise<Model[]>;
     get(columns?: any[]): Promise<Model[]>;
     _shouldSelect(columns?: any[]): any[];
-    _aliasedPivotColumns(): any;
+    _aliasedPivotColumns(): string[];
     paginate(page?: number, pageSize?: number, columns?: any[]): Promise<{
         items: any[];
         total: number;
@@ -100,18 +100,18 @@ export declare class BelongsToMany extends BelongsToMany_base {
     _hydratePivotRelation(models: any[]): void;
     _migratePivotAttributes(model: Model): any;
     touchIfTouching(): Promise<void>;
-    _touchingParent(): any;
+    _touchingParent(): boolean;
     _guessInverseRelation(): string;
     touch(): Promise<void>;
-    allRelatedIds(): any;
+    allRelatedIds(): Promise<any[]>;
     save(model: Model, pivotAttributes?: any[], touch?: boolean): Model;
-    saveMany(models: Collection | any[], pivotAttributes?: any[]): any[] | Collection<Model>;
+    saveMany(models: Collection | any[], pivotAttributes?: any): any[] | Collection<Model>;
     create(attributes?: any, joining?: any[], touch?: boolean): Promise<Model>;
-    createMany(records: any[], joinings?: any[]): any[];
+    createMany(records: any[], joinings?: any): Promise<Model>[];
     getRelationExistenceQuery(query: FedacoBuilder, parentQuery: FedacoBuilder, columns?: any[] | any): FedacoBuilder<Model>;
     getRelationExistenceQueryForSelfJoin(query: FedacoBuilder, parentQuery: FedacoBuilder, columns?: any[] | any): FedacoBuilder<Model>;
     getExistenceCompareKey(): string;
-    withTimestamps(createdAt?: any, updatedAt?: any): any;
+    withTimestamps(createdAt?: any, updatedAt?: any): this;
     createdAt(): string;
     updatedAt(): string;
     getForeignPivotKeyName(): string;

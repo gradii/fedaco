@@ -11,16 +11,16 @@ import { QueryGrammar } from './query-grammar';
 export declare class SqliteQueryGrammar extends QueryGrammar implements GrammarInterface {
     private _tablePrefix;
     compileJoins(): void;
-    protected _createVisitor(queryBuilder: any): SqliteQueryBuilderVisitor;
-    compileInsertOrIgnore(builder: QueryBuilder, values: any): string;
+    protected _createVisitor(queryBuilder: QueryBuilder): SqliteQueryBuilderVisitor;
+    compileInsertOrIgnore(builder: QueryBuilder, values: any | any[]): string;
     compileTruncate(query: QueryBuilder): {
         [sql: string]: any[];
     };
     compileSelect(builder: QueryBuilder): string;
     distinct(distinct: boolean | any[]): string;
     quoteColumnName(columnName: string): string;
-    quoteTableName(tableName: any): string;
-    unQuoteTableName(tableName: any): string;
+    quoteTableName(tableName: string): string;
+    unQuoteTableName(tableName: string): string;
     setTablePrefix(prefix: string): this;
     protected _prepareDeleteAstWithJoins(builder: QueryBuilder): DeleteSpecification;
     protected _prepareDeleteAstWithoutJoins(builder: QueryBuilder): DeleteSpecification;

@@ -6,7 +6,7 @@
 import { Collection } from '../../define/collection';
 import { Model } from '../model';
 import { HasManyThrough } from './has-many-through';
-declare const HasOneThrough_base: import("@gradii/fedaco/src/fedaco/relations/concerns/interacts-with-dictionary").InteractsWithDictionaryCtor & (new (...args: any[]) => import("@gradii/fedaco/src/fedaco/relations/concerns/supports-default-models").SupportsDefaultModels) & typeof HasManyThrough;
+declare const HasOneThrough_base: import("./concerns/interacts-with-dictionary").InteractsWithDictionaryCtor & (new (...args: any[]) => import("./concerns/supports-default-models").SupportsDefaultModels) & typeof HasManyThrough;
 export declare class HasOneThrough extends HasOneThrough_base {
     getResults(): Promise<Model>;
     initRelation(models: any[], relation: string): any[];

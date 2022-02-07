@@ -20,17 +20,17 @@ declare const MorphOne_base: {
         ofMany(column: any, aggregate: string | Function, relation: string): any;
         latestOfMany(column?: string | string[], relation?: string): any;
         oldestOfMany(column?: string | string[], relation?: string): any;
-        _newOneOfManySubQuery(groupBy: string | any[], column?: string, aggregate?: string): any;
+        _newOneOfManySubQuery(this: MorphOneOrMany & any, groupBy: string | any[], column?: string, aggregate?: string): FedacoBuilder<Model>;
         _addOneOfManyJoinSubQuery(parent: FedacoBuilder<Model>, subQuery: FedacoBuilder<Model>, on: string): void;
-        _mergeOneOfManyJoinsTo(query: any): void;
-        _getRelationQuery(): any;
+        _mergeOneOfManyJoinsTo(query: FedacoBuilder<Model>): void;
+        _getRelationQuery(): FedacoBuilder<Model>;
         getOneOfManySubQuery(): FedacoBuilder<Model>;
         _qualifySubSelectColumn(column: string): string;
         _qualifyRelatedColumn(column: string): string;
         isOneOfMany(): boolean;
         getRelationName(): string;
     };
-} & (new (...args: any[]) => import("@gradii/fedaco/src/fedaco/relations/concerns/compares-related-models").ComparesRelatedModels) & (new (...args: any[]) => import("@gradii/fedaco/src/fedaco/relations/concerns/supports-default-models").SupportsDefaultModels) & typeof MorphOneOrMany;
+} & (new (...args: any[]) => import("./concerns/compares-related-models").ComparesRelatedModels) & (new (...args: any[]) => import("./concerns/supports-default-models").SupportsDefaultModels) & typeof MorphOneOrMany;
 export declare class MorphOne extends MorphOne_base {
     supportsPartialRelations: boolean;
     getResults(): Promise<Model>;
@@ -40,7 +40,7 @@ export declare class MorphOne extends MorphOne_base {
     addOneOfManySubQueryConstraints(query: FedacoBuilder, column?: string | null, aggregate?: string | null): void;
     getOneOfManySubQuerySelectColumns(): string[];
     addOneOfManyJoinSubQueryConstraints(join: JoinClauseBuilder): void;
-    newRelatedInstanceFor(parent: Model): any;
+    newRelatedInstanceFor(parent: Model): Model;
     _getRelatedKeyFrom(model: Model): any;
 }
 export {};

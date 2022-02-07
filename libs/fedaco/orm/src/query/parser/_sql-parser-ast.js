@@ -1,8 +1,10 @@
+import { isString } from '@gradii/check-type'
 import { createIdentifier } from '../../query-builder/ast-factory'
 import { ColumnReferenceExpression } from '../ast/column-reference-expression'
 import { NumberLiteralExpression } from '../ast/expression/number-literal-expression'
 import { StringLiteralExpression } from '../ast/expression/string-literal-expression'
 import { JsonPathColumn } from '../ast/fragment/json-path-column'
+import { FromTable } from '../ast/from-table'
 import { JoinClause } from '../ast/join-clause'
 import { JoinExpression } from '../ast/join-expression'
 import { JoinOnExpression } from '../ast/join-on-expression'
@@ -126,11 +128,23 @@ export class _SqlParserAst {
     this.error(`Missing expected operator ${operator}`)
   }
   parseBraceCondition() {}
+
+  parseColumnWithoutAlias(defaultTable) {
+    if (defaultTable instanceof FromTable) {
+    } else if (isString(defaultTable)) {
+      throw new Error('not implement parseColumnAlias with string type table')
+    }
+    const columnName = this._parseColumnName(defaultTable)
+    if (!columnName) {
+      throw new Error('columnName error')
+    }
+    return new ColumnReferenceExpression(columnName, undefined)
+  }
   parseColumnAlias() {
     return this._parseColumnAsName()
   }
-  _parseColumnAsName() {
-    const columnName = this._parseColumnName()
+  _parseColumnAsName(defaultTable) {
+    const columnName = this._parseColumnName(defaultTable)
     if (!columnName) {
       throw new Error('columnName error')
     }
@@ -146,10 +160,15 @@ export class _SqlParserAst {
       alias ? createIdentifier(alias) : undefined
     )
   }
-  _parseColumnName() {
+  _parseColumnName(defaultTable) {
     const clainNamePaths = this._parseClainName()
     if (clainNamePaths.length > 0) {
-      const ast = new PathExpression(clainNamePaths)
+      let ast
+      if (clainNamePaths.length === 1 && defaultTable) {
+        ast = new PathExpression([defaultTable, ...clainNamePaths])
+      } else {
+        ast = new PathExpression(clainNamePaths)
+      }
 
       if (this.consumeOptionalOperator('-')) {
         if (this.consumeOptionalOperator('>')) {

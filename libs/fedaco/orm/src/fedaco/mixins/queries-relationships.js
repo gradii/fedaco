@@ -235,11 +235,17 @@ public readonly ${relation};
         const relation = this._getRelationWithoutConstraints(name)
         let expression
         if (func) {
-          const hashedColumn =
+          let hashedColumn
+          if (
+            this.getModel()._connection ===
+              relation.getQuery().getModel()._connection &&
             this.getModel().getTable() ===
-            relation.getQuery().getModel().getTable()
-              ? `${relation.getRelationCountHash(false)}.${column}`
-              : column
+              relation.getQuery().getModel().getTable()
+          ) {
+            hashedColumn = `${relation.getRelationCountHash(false)}.${column}`
+          } else {
+            hashedColumn = column
+          }
           const wrappedColumn = this.getQuery()
             .getGrammar()
             .wrap(

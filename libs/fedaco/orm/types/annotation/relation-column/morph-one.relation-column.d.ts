@@ -3,8 +3,8 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-import { MorphOne } from '@gradii/fedaco';
 import { Model } from '../../fedaco/model';
+import { MorphOne } from '../../fedaco/relations/morph-one';
 import { ForwardRefFn } from '../../query-builder/forward-ref';
 import { FedacoDecorator } from '../annotation.interface';
 import { RelationColumnAnnotation } from '../relation-column';

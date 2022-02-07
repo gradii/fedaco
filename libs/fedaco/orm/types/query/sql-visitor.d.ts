@@ -5,6 +5,7 @@
  */
 import { SqlNode } from './sql-node';
 export interface SqlVisitor {
+    _isVisitUpdateSpecification: boolean;
     visitAggregateFragment(node: SqlNode): string;
     visitAsExpression(node: SqlNode): string;
     visitDeleteSpecification(node: SqlNode): string;
@@ -54,7 +55,7 @@ export interface SqlVisitor {
     visitSelectClause(node: SqlNode): string;
     visitSelectInsertSource(node: SqlNode): string;
     visitSelectScalarExpression(node: SqlNode): string;
-    visitSetClause(node: SqlNode): string;
+    visitSetClause(node: SqlNode, ctx?: any): string;
     visitStringLiteralExpression(node: SqlNode): string;
     visitTableName(node: SqlNode): string;
     visitTableReferenceExpression(node: SqlNode): string;
@@ -65,4 +66,5 @@ export interface SqlVisitor {
     visitLockClause(node: SqlNode): string;
     visitRejectOrderElementExpression(node: SqlNode): string;
     visitNotExpression(node: SqlNode): string;
+    visitIndexBy(node: SqlNode): string;
 }

@@ -27,11 +27,6 @@ import {
 } from './ast-factory'
 import { wrapToArray } from './ast-helper'
 import { Builder } from './builder'
-export var BindingType
-;(function (BindingType) {
-  BindingType['where'] = 'where'
-  BindingType['join'] = 'join'
-})(BindingType || (BindingType = {}))
 export class QueryBuilder extends Builder {
   constructor(connection, grammar, processor = null) {
     super()
@@ -241,8 +236,8 @@ export class QueryBuilder extends Builder {
     }
     return this
   }
-  addSelect(columns, ...cols) {
-    columns = isArray(columns) ? columns : arguments
+  addSelect(columns) {
+    columns = isArray(columns) ? columns : [...arguments]
     for (const column of columns) {
       if (column instanceof RawExpression) {
         this._columns.push(column)
@@ -391,10 +386,10 @@ export class QueryBuilder extends Builder {
 
     return this
   }
-  select(columns, ...cols) {
+  select(columns) {
     this._columns = []
     this._bindings['select'] = []
-    columns = isArray(columns) ? columns : [columns, ...cols]
+    columns = isArray(columns) ? columns : [...arguments]
     this.addSelect(columns)
     return this
   }

@@ -1,6 +1,6 @@
 import { __awaiter } from 'tslib'
-import { isArray, isBlank } from '@gradii/check-type'
-import { difference, intersection } from 'ramda'
+import { isArray, isBlank, isString } from '@gradii/check-type'
+import { difference, intersection, pluck } from 'ramda'
 import { mapWithKeys, wrap } from '../../../helper/arr'
 import { BaseModel } from '../../base-model'
 import { newPivot } from '../../model-helper-global'
@@ -49,8 +49,9 @@ export function mixinInteractsWithPivotTable(base) {
           detached: [],
           updated: [],
         }
-        const current = this._getCurrentlyAttachedPivots().pluck(
-          this.relatedPivotKey
+        const current = pluck(
+          this.relatedPivotKey,
+          yield this._getCurrentlyAttachedPivots()
         )
         const records = this._formatRecordsList(this._parseIds(ids))
         const detach = difference(current, Object.keys(records))
@@ -58,7 +59,10 @@ export function mixinInteractsWithPivotTable(base) {
           this.detach(detach)
           changes['detached'] = this._castKeys(detach)
         }
-        changes = [...changes, ...this._attachNew(records, current, false)]
+        changes = Object.assign(
+          Object.assign({}, changes),
+          this._attachNew(records, current, false)
+        )
         if (
           changes['attached'].length ||
           changes['updated'].length ||
@@ -83,10 +87,10 @@ export function mixinInteractsWithPivotTable(base) {
 
     _formatRecordsList(records) {
       return mapWithKeys(records, (attributes, id) => {
-        if (!isArray(attributes)) {
-          const [id, attributes] = [attributes, []]
+        if (isString(attributes)) {
+          return { attributes: [] }
         }
-        return {}
+        return { [id]: attributes }
       })
     }
 
@@ -110,35 +114,42 @@ export function mixinInteractsWithPivotTable(base) {
     }
 
     updateExistingPivot(id, attributes, touch = true) {
-      if (
-        this._using &&
-        !this._pivotWheres.length &&
-        !this._pivotWhereIns.length &&
-        !this._pivotWhereNulls.length
-      ) {
-        return this._updateExistingPivotUsingCustomClass(id, attributes, touch)
-      }
-      if (this._pivotColumns.includes(this.updatedAt())) {
-        attributes = this._addTimestampsToAttachment(attributes, true)
-      }
-      const updated = this.newPivotStatementForId(this._parseId(id)).update(
-        this._castAttributes(attributes)
-      )
-      if (touch) {
-        this.touchIfTouching()
-      }
-      return updated
+      return __awaiter(this, void 0, void 0, function* () {
+        if (
+          this._using &&
+          !this._pivotWheres.length &&
+          !this._pivotWhereIns.length &&
+          !this._pivotWhereNulls.length
+        ) {
+          return this._updateExistingPivotUsingCustomClass(
+            id,
+            attributes,
+            touch
+          )
+        }
+        if (this._pivotColumns.includes(this.updatedAt())) {
+          attributes = this._addTimestampsToAttachment(attributes, true)
+        }
+        const updated = yield this.newPivotStatementForId(
+          this._parseId(id)
+        ).update(this._castAttributes(attributes))
+        if (touch) {
+          yield this.touchIfTouching()
+        }
+        return updated
+      })
     }
 
     _updateExistingPivotUsingCustomClass(id, attributes, touch) {
       return __awaiter(this, void 0, void 0, function* () {
-        const pivot = this._getCurrentlyAttachedPivots()
-          .where(
-            this._foreignPivotKey,
-            this._parent.getAttribute(this._parentKey)
+        const pivot = (yield this._getCurrentlyAttachedPivots())
+          .filter(
+            (item) =>
+              item[this._foreignPivotKey] ==
+              this._parent.getAttribute(this._parentKey)
           )
-          .where(this._relatedPivotKey, this._parseId(id))
-          .first()
+          .filter((item) => item[this._relatedPivotKey] == this._parseId(id))
+          .pop()
         const updated = pivot ? pivot.fill(attributes).isDirty() : false
         if (updated) {
           yield pivot.save()
@@ -205,7 +216,7 @@ export function mixinInteractsWithPivotTable(base) {
 
     _extractAttachIdAndAttributes(key, value, attributes) {
       return isArray(value)
-        ? [key, [...value, ...attributes]]
+        ? [key, Object.assign(Object.assign({}, value), attributes)]
         : [value, attributes]
     }
 
@@ -242,44 +253,50 @@ export function mixinInteractsWithPivotTable(base) {
     }
 
     detach(ids = null, touch = true) {
-      let results
-      if (
-        this.using &&
-        ids.length &&
-        !this._pivotWheres.length &&
-        !this._pivotWhereIns.length &&
-        !this._pivotWhereNulls.length
-      ) {
-        results = this._detachUsingCustomClass(ids)
-      } else {
-        const query = this.newPivotQuery()
-        if (!isBlank(ids)) {
-          ids = this._parseIds(ids)
-          if (!ids.length) {
-            return 0
+      return __awaiter(this, void 0, void 0, function* () {
+        let results
+        if (
+          this.using &&
+          ids.length &&
+          !this._pivotWheres.length &&
+          !this._pivotWhereIns.length &&
+          !this._pivotWhereNulls.length
+        ) {
+          results = this._detachUsingCustomClass(ids)
+        } else {
+          const query = this.newPivotQuery()
+          if (!isBlank(ids)) {
+            ids = this._parseIds(ids)
+            if (!ids.length) {
+              return 0
+            }
+            query.whereIn(this.getQualifiedRelatedPivotKeyName(), ids)
           }
-          query.whereIn(this.getQualifiedRelatedPivotKeyName(), ids)
+          results = yield query.delete()
         }
-        results = query.delete()
-      }
-      if (touch) {
-        this.touchIfTouching()
-      }
-      return results
+        if (touch) {
+          yield this.touchIfTouching()
+        }
+        return results
+      })
     }
 
     _detachUsingCustomClass(ids) {
-      let results = 0
-      for (const id of this._parseIds(ids)) {
-        results += this.newPivot(
-          {
-            [this._foreignPivotKey]: this._parent.getAttribute(this._parentKey),
-            [this._relatedPivotKey]: id,
-          },
-          true
-        ).delete()
-      }
-      return results
+      return __awaiter(this, void 0, void 0, function* () {
+        let results = 0
+        for (const id of this._parseIds(ids)) {
+          results += yield this.newPivot(
+            {
+              [this._foreignPivotKey]: this._parent.getAttribute(
+                this._parentKey
+              ),
+              [this._relatedPivotKey]: id,
+            },
+            true
+          ).delete()
+        }
+        return results
+      })
     }
 
     _getCurrentlyAttachedPivots() {

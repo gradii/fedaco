@@ -5,6 +5,7 @@
  */
 import { BaseGrammar } from '../../base-grammar';
 import { Connection } from '../../connection';
+import { TableDiff } from '../../dbal/table-diff';
 import { RawExpression } from '../../query/ast/expression/raw-expression';
 import { Blueprint } from '../blueprint';
 import { ColumnDefinition } from '../column-definition';
@@ -37,7 +38,7 @@ export declare class SchemaGrammar extends BaseGrammar {
     compileRenameColumn(blueprint: Blueprint, command: ColumnDefinition, connection: Connection): void;
     compileChange(blueprint: Blueprint, command: ColumnDefinition, connection: Connection): void;
     compileForeign(blueprint: Blueprint, command: ForeignKeyDefinition): string;
-    protected getColumns(blueprint: Blueprint): any[];
+    protected getColumns(blueprint: Blueprint): string[];
     protected getType(column: ColumnDefinition): any;
     protected typeComputed(column: ColumnDefinition): void;
     protected addModifiers(sql: string, blueprint: Blueprint, column: ColumnDefinition): string;
@@ -49,7 +50,7 @@ export declare class SchemaGrammar extends BaseGrammar {
     protected wrapJsonPath(value: string, delimiter?: string): string;
     wrap(value: RawExpression | string, prefixAlias?: boolean): string | number | boolean | void;
     protected getDefaultValue(value: any): string | number | boolean;
-    getTableDiff(blueprint: Blueprint, schema: SchemaBuilder): Promise<any>;
+    getTableDiff(blueprint: Blueprint, schema: SchemaBuilder): Promise<TableDiff>;
     getListDatabasesSQL(): string;
     getListNamespacesSQL(): string;
     getListSequencesSQL(database: string): string;

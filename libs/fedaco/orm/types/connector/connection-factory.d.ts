@@ -10,15 +10,15 @@ export declare class ConnectionFactory {
     protected parseConfig(config: any, name: string): any;
     protected createSingleConnection(config: any): any;
     protected createReadWriteConnection(config: any[]): any;
-    protected createReadPdo(config: any[]): () => Promise<unknown>;
+    protected createReadPdo(config: any[]): () => Promise<any>;
     protected getReadConfig(config: any[]): any[];
     protected getWriteConfig(config: any[]): any[];
     protected getReadWriteConfig(config: any, type: string): any;
     protected mergeReadWriteConfig(config: any[], merge: any[]): any[];
-    protected createPdoResolver(config: any): () => Promise<unknown>;
-    protected createPdoResolverWithHosts(config: any): () => Promise<unknown>;
+    protected createPdoResolver(config: any): () => Promise<any>;
+    protected createPdoResolverWithHosts(config: any): () => Promise<any>;
     protected parseHosts(config: any): any[];
-    protected createPdoResolverWithoutHosts(config: any[]): () => Promise<unknown>;
+    protected createPdoResolverWithoutHosts(config: any[]): () => Promise<any>;
     createConnector(config: any): SqliteConnector | MysqlConnector;
     protected createConnection(driver: string, connection: Function, database: string, prefix?: string, config?: any[]): any;
 }

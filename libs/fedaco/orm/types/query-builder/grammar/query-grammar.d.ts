@@ -4,11 +4,11 @@
  * Use of this source code is governed by an MIT-style license
  */
 import { BaseGrammar } from '../../base-grammar';
-import { BinaryUnionQueryExpression } from '../../query/ast/binary-union-query-expression';
 import { DeleteSpecification } from '../../query/ast/delete-specification';
 import { NestedExpression } from '../../query/ast/fragment/nested-expression';
 import { QuerySpecification } from '../../query/ast/query-specification';
 import { UpdateSpecification } from '../../query/ast/update-specification';
+import { SqlNode } from '../../query/sql-node';
 import { SqlVisitor } from '../../query/sql-visitor';
 import { Builder } from '../builder';
 import { GrammarInterface } from '../grammar.interface';
@@ -19,11 +19,11 @@ export declare abstract class QueryGrammar extends BaseGrammar implements Gramma
     protected _selectComponents: string[];
     protected _prepareUpdateAst(builder: QueryBuilder, values: any): UpdateSpecification;
     compileAggregateFragment(aggregateFunctionName: any, aggregateColumns: any, visitor: SqlVisitor): string;
-    compileDelete(query: QueryBuilder): any;
+    compileDelete(query: QueryBuilder): string;
     compileExists(builder: QueryBuilder): string;
     compileInsert(builder: QueryBuilder, values: any | any[], insertOption?: string): string;
     compileInsertGetId(builder: QueryBuilder, values: any, sequence: string): string;
-    compileInsertOrIgnore(builder: QueryBuilder, values: any): string;
+    compileInsertOrIgnore(builder: QueryBuilder, values: any | any[]): string;
     compileInsertUsing(builder: QueryBuilder, columns: string[], nestedExpression: NestedExpression): string;
     compileJoinFragment(builder: JoinClauseBuilder, visitor: SqlVisitor): string;
     compileNestedPredicate(builder: Builder, visitor: SqlVisitor): string;
@@ -54,9 +54,9 @@ export declare abstract class QueryGrammar extends BaseGrammar implements Gramma
     quoteTableName(tableName: string): string;
     setTablePrefix(prefix: string): this;
     wrap(column: string): string;
-    protected _prepareAggregateAst(builder: any, ast: any): any;
-    protected _prepareSelectAst(builder: QueryBuilder): BinaryUnionQueryExpression | QuerySpecification;
-    protected _createVisitor(queryBuilder: any): QueryBuilderVisitor;
+    protected _prepareAggregateAst(builder: QueryBuilder, ast: SqlNode): QuerySpecification;
+    protected _prepareSelectAst(builder: QueryBuilder): QuerySpecification;
+    protected _createVisitor(queryBuilder: QueryBuilder): QueryBuilderVisitor;
     protected _prepareDeleteAstWithoutJoins(builder: QueryBuilder): DeleteSpecification;
     protected _prepareDeleteAstWithJoins(builder: QueryBuilder): DeleteSpecification;
     getDateFormat(): string;

@@ -182,4 +182,7 @@ export class QueryBuilderResolverVisitor {
   visitNotExpression(node) {
     throw new Error('Method not implemented.')
   }
+  visitIndexBy(node) {
+    throw new Error('Method not implemented.')
+  }
 }

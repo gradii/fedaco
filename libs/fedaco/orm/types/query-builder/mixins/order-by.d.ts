@@ -9,11 +9,11 @@ import { RawExpression } from '../../query/ast/expression/raw-expression';
 export interface QueryBuilderOrderBy {
     latest(column: string): this;
     oldest(column: string): this;
-    orderBy(column: Function | QueryBuilder | RawExpression | string, direction?: string): this;
-    orderByDesc(column: (q: any) => void): this;
+    orderBy(column: ((...args: any[]) => any) | QueryBuilder | RawExpression | string, direction?: string): this;
+    orderByDesc(column: (q: QueryBuilder) => void): this;
     orderByDesc(column: string): this;
     orderByRaw(sql: string, bindings: any[] | any): this;
-    reorder(column?: any, direction?: any): this;
+    reorder(column?: ((...args: any[]) => any) | QueryBuilder | RawExpression | string, direction?: string): this;
 }
 export declare type QueryBuilderOrderByCtor = Constructor<QueryBuilderOrderBy>;
 export declare function mixinOrderBy<T extends Constructor<any>>(base: T): QueryBuilderOrderByCtor & T;

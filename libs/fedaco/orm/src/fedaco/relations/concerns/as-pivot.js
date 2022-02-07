@@ -55,7 +55,7 @@ export function mixinAsPivot(base) {
         if (this._fireModelEvent('deleting') === false) {
           return 0
         }
-        this.touchOwners()
+        yield this.touchOwners()
         return tap(() => {
           this._exists = false
           this._fireModelEvent('deleted', false)
@@ -173,6 +173,7 @@ export function mixinAsPivot(base) {
     unsetRelations() {
       this.pivotParent = null
       this._relations = []
+
       return this
     }
   }

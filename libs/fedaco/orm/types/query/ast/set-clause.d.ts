@@ -7,5 +7,5 @@ import { SqlNode } from '../sql-node';
 import { SqlVisitor } from '../sql-visitor';
 export declare class SetClause extends SqlNode {
     constructor();
-    accept(visitor: SqlVisitor): string;
+    accept(visitor: SqlVisitor, ctx?: any): string;
 }

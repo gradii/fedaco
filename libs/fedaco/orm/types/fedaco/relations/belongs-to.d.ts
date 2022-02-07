@@ -14,7 +14,7 @@ import { Relation } from './relation';
 export interface BelongsTo extends ComparesRelatedModels, InteractsWithDictionary, SupportsDefaultModels, Constructor<Relation> {
     getRelationExistenceQuery(query: FedacoBuilder, parentQuery: FedacoBuilder, columns: any[] | any): FedacoBuilder;
 }
-declare const BelongsTo_base: (new (...args: any[]) => ComparesRelatedModels) & import("@gradii/fedaco/src/fedaco/relations/concerns/interacts-with-dictionary").InteractsWithDictionaryCtor & (new (...args: any[]) => SupportsDefaultModels) & typeof Relation;
+declare const BelongsTo_base: (new (...args: any[]) => ComparesRelatedModels) & import("./concerns/interacts-with-dictionary").InteractsWithDictionaryCtor & (new (...args: any[]) => SupportsDefaultModels) & typeof Relation;
 export declare class BelongsTo extends BelongsTo_base {
     protected _child: Model;
     protected _foreignKey: string;
@@ -24,7 +24,7 @@ export declare class BelongsTo extends BelongsTo_base {
     getResults(): Promise<Model>;
     addConstraints(): void;
     addEagerConstraints(models: any[]): void;
-    protected getEagerModelKeys(models: any[]): any;
+    protected getEagerModelKeys(models: any[]): any[];
     initRelation(models: any[], relation: string): any[];
     match(models: any[], results: Collection, relation: string): any[];
     associate(model: Model | number | string): Model;

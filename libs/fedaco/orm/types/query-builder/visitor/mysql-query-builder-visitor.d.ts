@@ -15,6 +15,6 @@ export declare class MysqlQueryBuilderVisitor extends QueryBuilderVisitor {
      * todo remove queryBuilder. should use binding only
      */
     _queryBuilder: QueryBuilder);
-    visitDeleteSpecification(node: DeleteSpecification): any;
+    visitDeleteSpecification(node: DeleteSpecification): string;
     visitUpdateSpecification(node: UpdateSpecification): string;
 }

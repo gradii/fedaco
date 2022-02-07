@@ -6,7 +6,7 @@
 import { Collection } from '../../define/collection';
 import { FedacoBuilder } from '../fedaco-builder';
 import { Model } from '../model';
-declare const Relation_base: import("@gradii/fedaco/src/fedaco/mixins/forward-call-to-query-builder").ForwardCallToQueryBuilderCtor & {
+declare const Relation_base: import("../mixins/forward-call-to-query-builder").ForwardCallToQueryBuilderCtor & {
     new (): {};
 };
 /**
@@ -20,7 +20,7 @@ export declare class Relation extends Relation_base {
     static _morphMap: any;
     protected static selfJoinCount: number;
     constructor(query: FedacoBuilder, parent: Model);
-    static noConstraints(callback: Function): Relation;
+    static noConstraints<T extends Relation>(callback: (...args: any[]) => T): T;
     addConstraints(): void;
     addEagerConstraints(models: any[]): void;
     initRelation(models: any[], relation: string): Model[];
@@ -35,7 +35,7 @@ export declare class Relation extends Relation_base {
     getRelationExistenceQuery(query: FedacoBuilder, parentQuery: FedacoBuilder, columns?: any[] | any): FedacoBuilder;
     getExistenceCompareKey(): string;
     getRelationCountHash(incrementJoinCount?: boolean): string;
-    getKeys(models: any[], key?: string | null): any;
+    getKeys(models: any[], key?: string | null): any[];
     _getRelationQuery(): FedacoBuilder<Model>;
     getQuery(): FedacoBuilder<Model>;
     getBaseQuery(): import("@gradii/fedaco").QueryBuilder;

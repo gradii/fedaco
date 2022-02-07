@@ -1,3 +1,5 @@
+import { __awaiter } from 'tslib'
+
 export class Connector {
   constructor() {
     this.options = {}
@@ -5,28 +7,36 @@ export class Connector {
 
   createConnection(dsn, config, options) {
     var _a, _b
-    const [username, password] = [
-      (_a = config['username']) !== null && _a !== void 0 ? _a : null,
-      (_b = config['password']) !== null && _b !== void 0 ? _b : null,
-    ]
-    try {
-      return this.createPdoConnection(dsn, username, password, options)
-    } catch (e) {
-      return this.tryAgainIfCausedByLostConnection(
-        e,
-        dsn,
-        username,
-        password,
-        options
-      )
-    }
+    return __awaiter(this, void 0, void 0, function* () {
+      const [username, password] = [
+        (_a = config['username']) !== null && _a !== void 0 ? _a : null,
+        (_b = config['password']) !== null && _b !== void 0 ? _b : null,
+      ]
+      try {
+        return this.createPdoConnection(dsn, username, password, options)
+      } catch (e) {
+        return this.tryAgainIfCausedByLostConnection(
+          e,
+          dsn,
+          username,
+          password,
+          options
+        )
+      }
+    })
   }
 
-  createPdoConnection(dsn, username, password, options) {}
+  createPdoConnection(dsn, username, password, options) {
+    throw new Error('not implemented')
+  }
 
   isPersistentConnection(options) {}
 
-  tryAgainIfCausedByLostConnection(e, dsn, username, password, options) {}
+  tryAgainIfCausedByLostConnection(e, dsn, username, password, options) {
+    return __awaiter(this, void 0, void 0, function* () {
+      throw new Error('not implemented')
+    })
+  }
 
   getOptions(config) {
     var _a

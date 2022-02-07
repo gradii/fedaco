@@ -10,7 +10,7 @@ export interface QueryBuilderHaving {
     addHaving(where: SqlNode, conjunction: string): this;
     having(column: string, value?: string | number | boolean | RawExpression): this;
     having(column: string, operator?: string, value?: string | number | boolean | RawExpression, conjunction?: string): this;
-    havingBetween(column: string, values: any[], conjunction?: string, not?: boolean): any;
+    havingBetween(column: string, values: any[], conjunction?: string, not?: boolean): this;
     havingRaw(sql: string): this;
     havingRaw(sql: string, bindings: any[], conjunction?: string): this;
     orHaving(column: string, value?: string | number | boolean | RawExpression): this;

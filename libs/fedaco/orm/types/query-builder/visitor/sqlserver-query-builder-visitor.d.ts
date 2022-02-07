@@ -27,8 +27,8 @@ export declare class SqlserverQueryBuilderVisitor extends QueryBuilderVisitor {
     visitQueryExpression(node: QueryExpression): string;
     visitSelectClause(node: SelectClause): string;
     visitOffsetClause(node: OffsetClause): string;
-    visitDeleteSpecification(node: DeleteSpecification): any;
-    visitBinaryUnionQueryExpression(node: BinaryUnionQueryExpression): any;
+    visitDeleteSpecification(node: DeleteSpecification): string;
+    visitBinaryUnionQueryExpression(node: BinaryUnionQueryExpression): string;
     visitFunctionCallExpression(node: FunctionCallExpression): string;
     visitUpdateSpecification(node: UpdateSpecification): string;
     visitLockClause(node: LockClause): string;

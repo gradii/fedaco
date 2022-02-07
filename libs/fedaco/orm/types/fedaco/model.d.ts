@@ -56,13 +56,13 @@ declare const Model_base: (new (...args: any[]) => HasAttributes) & {
         setObservableEvents(observables: any[]): any;
         addObservableEvents(observables: any): void;
         removeObservableEvents(observables: any): void;
-        _registerObserver(clazz: any & (new (...args: any[]) => HasGlobalScopes) & (new (...args: any[]) => HasRelationships) & import("@gradii/fedaco/src/fedaco/mixins/has-timestamps").HasTimestampsCtor & (new (...args: any[]) => HidesAttributes) & import("@gradii/fedaco/src/fedaco/mixins/guards-attributes").GuardsAttributesCtor<unknown> & typeof BaseModel): void;
+        _registerObserver(clazz: any & (new (...args: any[]) => HasGlobalScopes) & (new (...args: any[]) => HasRelationships) & import("./mixins/has-timestamps").HasTimestampsCtor & (new (...args: any[]) => HidesAttributes) & import("./mixins/guards-attributes").GuardsAttributesCtor<unknown> & typeof BaseModel): void;
         _fireModelEvent(event: string, halt?: boolean): any;
         _fireCustomModelEvent(event: string, method: string): any;
         _filterModelEventResults(result: any): any;
         _resolveObserverClassName(clazz: string | object): Function;
     };
-    dispatcher: import("@gradii/fedaco/src/fedaco/mixins/has-events").Dispatcher;
+    dispatcher: import("./mixins/has-events").Dispatcher;
     observe(classes: string | object | any[]): void;
     retrieved(callback: string | Function): void;
     saving(callback: string | Function): void;
@@ -75,12 +75,12 @@ declare const Model_base: (new (...args: any[]) => HasAttributes) & {
     deleting(callback: string | Function): void;
     deleted(callback: string | Function): void;
     flushEventListeners(): void;
-    getEventDispatcher(): import("@gradii/fedaco/src/fedaco/mixins/has-events").Dispatcher;
-    setEventDispatcher(dispatcher: import("@gradii/fedaco/src/fedaco/mixins/has-events").Dispatcher): void;
+    getEventDispatcher(): import("./mixins/has-events").Dispatcher;
+    setEventDispatcher(dispatcher: import("./mixins/has-events").Dispatcher): void;
     unsetEventDispatcher(): void;
     withoutEvents(callback: Function): any;
     _registerModelEvent(event: string, callback: string | Function): void;
-} & (new (...args: any[]) => HasGlobalScopes) & (new (...args: any[]) => HasRelationships) & import("@gradii/fedaco/src/fedaco/mixins/has-timestamps").HasTimestampsCtor & (new (...args: any[]) => HidesAttributes) & import("@gradii/fedaco/src/fedaco/mixins/guards-attributes").GuardsAttributesCtor<unknown> & typeof BaseModel;
+} & (new (...args: any[]) => HasGlobalScopes) & (new (...args: any[]) => HasRelationships) & import("./mixins/has-timestamps").HasTimestampsCtor & (new (...args: any[]) => HidesAttributes) & import("./mixins/guards-attributes").GuardsAttributesCtor<unknown> & typeof BaseModel;
 export declare class Model extends Model_base {
     _exists: boolean;
     _wasRecentlyCreated: boolean;
@@ -128,16 +128,16 @@ export declare class Model extends Model_base {
     loadMorphMin(relation: string, relations: Record<string, string[]>, column: string): this;
     loadMorphSum(relation: string, relations: Record<string, string[]>, column: string): this;
     loadMorphAvg(relation: string, relations: Record<string, string[]>, column: string): this;
-    protected increment(column: string, amount?: number | number, extra?: any[]): any;
-    protected decrement(column: string, amount?: number | number, extra?: any[]): any;
-    protected incrementOrDecrement(column: string, amount: number | number, extra: any[], method: string): any;
-    update(attributes?: any, options?: any): false | Promise<any>;
-    updateQuietly(attributes?: any[], options?: any[]): false | Promise<any>;
+    protected increment(column: string, amount?: number, extra?: any[]): any;
+    protected decrement(column: string, amount?: number, extra?: any[]): any;
+    protected incrementOrDecrement(column: string, amount: number, extra: any[], method: string): any;
+    update(attributes?: any, options?: any): false | Promise<boolean>;
+    updateQuietly(attributes?: any[], options?: any[]): false | Promise<boolean>;
     push(): Promise<boolean>;
-    saveQuietly(options?: any): Promise<any>;
+    saveQuietly(options?: any): Promise<boolean>;
     save(options?: {
         touch?: boolean;
-    }): Promise<any>;
+    }): Promise<boolean>;
     saveOrFail(options?: any): Promise<any>;
     protected finishSave(options: {
         touch?: boolean;
@@ -148,14 +148,14 @@ export declare class Model extends Model_base {
     _setKeysForSaveQuery(query: FedacoBuilder): FedacoBuilder;
     protected getKeyForSaveQuery(): any;
     protected performInsert(query: FedacoBuilder): Promise<boolean>;
-    protected insertAndSetId(query: FedacoBuilder, attributes: any[]): Promise<void>;
+    protected insertAndSetId(query: FedacoBuilder, attributes: Record<string, any>): Promise<void>;
     delete(): Promise<boolean | number>;
     forceDelete(): Promise<number | boolean>;
     protected _performDeleteOnModel(): Promise<void>;
     static createQuery<T extends typeof Model>(this: T): FedacoBuilder<InstanceType<T>>;
     newQuery<T extends Model>(this: T): FedacoBuilder<T>;
     newModelQuery(): FedacoBuilder<this>;
-    newQueryWithoutRelationships(): FedacoBuilder<Model>;
+    newQueryWithoutRelationships(): FedacoBuilder;
     registerGlobalScopes(builder: FedacoBuilder): FedacoBuilder<Model>;
     newQueryWithoutScopes(): FedacoBuilder<this>;
     newQueryWithoutScope(scope: string): FedacoBuilder<this>;

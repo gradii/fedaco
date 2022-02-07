@@ -82,10 +82,10 @@ export function mixinWherePredicate(base) {
       return this
     }
 
-    whereExists(callback, boolean = 'and', not = false) {
+    whereExists(callback, conjunction = 'and', not = false) {
       const query = this._forSubQuery()
       callback(query)
-      return this.addWhereExistsQuery(query, boolean, not)
+      return this.addWhereExistsQuery(query, conjunction, not)
     }
     whereIn(column, values, conjunction = 'and', not = false) {
       const expression =
@@ -128,15 +128,15 @@ export function mixinWherePredicate(base) {
       return this.whereBetween(column, values, conjuction, true)
     }
 
-    whereNotExists(callback, boolean = 'and') {
-      return this.whereExists(callback, boolean, true)
+    whereNotExists(callback, conjunction = 'and') {
+      return this.whereExists(callback, conjunction, true)
     }
     whereNotIn(column, values, conjuction = 'and') {
       return this.whereIn(column, values, conjuction, true)
     }
 
-    whereNotNull(columns, boolean = 'and') {
-      return this.whereNull(columns, boolean, true)
+    whereNotNull(columns, conjunction = 'and') {
+      return this.whereNull(columns, conjunction, true)
     }
 
     whereNull(columns, conjunction = 'and', not = false) {

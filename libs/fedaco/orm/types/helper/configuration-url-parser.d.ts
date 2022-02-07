@@ -2,7 +2,7 @@ import { ConnectionConfig } from '../database-config';
 export declare class ConfigurationUrlParser {
     protected static driverAliases: any;
     parseConfiguration(config: ConnectionConfig | string): any;
-    protected getPrimaryOptions(url: any): any;
+    protected getPrimaryOptions(url: any): import("ramda").Dictionary<any>;
     protected getDriver(url: any): any;
     protected getDatabase(url: any): any;
     protected getQueryOptions(url: any): any;

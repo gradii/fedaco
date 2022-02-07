@@ -6,6 +6,9 @@ export class FromTable extends SqlNode {
     this.indexBy = indexBy
   }
   accept(visitor) {
-    return visitor.visitFromTable(this)
+    if (!this._cached) {
+      this._cached = visitor.visitFromTable(this)
+    }
+    return this._cached
   }
 }

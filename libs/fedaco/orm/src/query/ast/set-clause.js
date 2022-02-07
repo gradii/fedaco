@@ -3,7 +3,7 @@ export class SetClause extends SqlNode {
   constructor() {
     super()
   }
-  accept(visitor) {
-    return visitor.visitSetClause(this)
+  accept(visitor, ctx) {
+    return visitor.visitSetClause(this, ctx)
   }
 }

@@ -158,7 +158,7 @@ export class Model extends mixinHasAttributes(
     return this
   }
 
-  loadAggregate(relations, column, func = null) {
+  loadAggregate(relations, column, func) {
     loadAggregate([this], relations, column, func)
     return this
   }
@@ -188,7 +188,7 @@ export class Model extends mixinHasAttributes(
     return this.loadAggregate(relations, '*', 'exists')
   }
 
-  loadMorphAggregate(relation, relations, column, func = null) {
+  loadMorphAggregate(relation, relations, column, func) {
     var _a
     if (!this[relation]) {
       return this

@@ -466,7 +466,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
         [this._related.getUpdatedAtColumn()]:
           this._related.freshTimestampString(),
       }
-      const ids = this.allRelatedIds()
+      const ids = yield this.allRelatedIds()
       if (ids.length > 0) {
         yield this.getRelated()
           .newQueryWithoutRelationships()
@@ -488,7 +488,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
     return model
   }
 
-  saveMany(models, pivotAttributes = []) {
+  saveMany(models, pivotAttributes = {}) {
     var _a
     for (const [key, model] of Object.entries(models)) {
       this.save(
@@ -512,7 +512,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
     })
   }
 
-  createMany(records, joinings = []) {
+  createMany(records, joinings = {}) {
     var _a
     const instances = []
     for (const [key, record] of Object.entries(records)) {

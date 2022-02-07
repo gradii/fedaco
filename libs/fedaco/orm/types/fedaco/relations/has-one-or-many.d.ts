@@ -35,7 +35,7 @@ export interface HasOneOrMany extends Constructor<Relation> {
     getQualifiedForeignKeyName(): string;
     getLocalKeyName(): string;
 }
-declare const HasOneOrMany_base: import("@gradii/fedaco/src/fedaco/relations/concerns/interacts-with-dictionary").InteractsWithDictionaryCtor & typeof Relation;
+declare const HasOneOrMany_base: import("./concerns/interacts-with-dictionary").InteractsWithDictionaryCtor & typeof Relation;
 export declare class HasOneOrMany extends HasOneOrMany_base {
     protected _foreignKey: string;
     protected _localKey: string;
