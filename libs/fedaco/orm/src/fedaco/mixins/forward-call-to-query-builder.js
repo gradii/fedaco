@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { __awaiter, __classPrivateFieldGet } from 'tslib'
 export function mixinForwardCallToQueryBuilder(base) {
   var __Self_instances,

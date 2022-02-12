@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { has, isArray, isBlank, isNumber } from '@gradii/check-type'
 import { value } from './fn'
 

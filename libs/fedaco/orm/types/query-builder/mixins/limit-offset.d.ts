@@ -13,5 +13,8 @@ export interface QueryBuilderLimitOffset {
     forPageBeforeId(perPage?: number, lastId?: number, column?: string): this;
     forPageAfterId(perPage?: number, lastId?: number, column?: string): this;
 }
-export declare type QueryBuilderLimitOffsetCtor = Constructor<QueryBuilderLimitOffset>;
-export declare function mixinLimitOffset<T extends Constructor<any>>(base: T): QueryBuilderLimitOffsetCtor & T;
+export declare type QueryBuilderLimitOffsetCtor =
+    Constructor<QueryBuilderLimitOffset>;
+export declare function mixinLimitOffset<T extends Constructor<any>>(
+    base: T
+): QueryBuilderLimitOffsetCtor & T;

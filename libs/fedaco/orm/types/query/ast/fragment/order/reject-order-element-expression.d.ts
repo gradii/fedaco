@@ -10,6 +10,9 @@ import { OrderByElement } from '../../order-by-element';
 export declare class RejectOrderElementExpression extends SqlNode {
     columns: Array<SqlNode | Identifier>;
     orderByElements: OrderByElement[];
-    constructor(columns: Array<SqlNode | Identifier>, orderByElements: OrderByElement[]);
+    constructor(
+        columns: Array<SqlNode | Identifier>,
+        orderByElements: OrderByElement[]
+    );
     accept(visitor: SqlVisitor): string;
 }

@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isBlank, isNumber } from '@gradii/check-type'
 import { SchemaGrammar } from './schema-grammar'
 export class MysqlSchemaGrammar extends SchemaGrammar {

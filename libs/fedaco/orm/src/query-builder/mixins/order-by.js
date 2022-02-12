@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isString } from '@gradii/check-type'
 import { RawExpression } from '../../query/ast/expression/raw-expression'
 import { OrderByElement } from '../../query/ast/order-by-element'

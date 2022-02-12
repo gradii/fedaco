@@ -14,9 +14,7 @@ import { SchemaBuilder } from '../schema-builder';
 export declare class SchemaGrammar extends BaseGrammar {
     protected modifiers: string[];
     protected transactions: boolean;
-    /**
-     * The commands to be executed outside of create or alter command.
-     */
+
     protected fluentCommands: string[];
     protected ColumnDefinitionCommands: any[];
     compileCreateDatabase(name: string, connection: Connection): string;
@@ -35,22 +33,42 @@ export declare class SchemaGrammar extends BaseGrammar {
     compileGetAllViews(...args: any[]): string;
     compileDropAllTypes(...args: any[]): string;
     compileGetAllTypes(): string;
-    compileRenameColumn(blueprint: Blueprint, command: ColumnDefinition, connection: Connection): void;
-    compileChange(blueprint: Blueprint, command: ColumnDefinition, connection: Connection): void;
+    compileRenameColumn(
+        blueprint: Blueprint,
+        command: ColumnDefinition,
+        connection: Connection
+    ): void;
+    compileChange(
+        blueprint: Blueprint,
+        command: ColumnDefinition,
+        connection: Connection
+    ): void;
     compileForeign(blueprint: Blueprint, command: ForeignKeyDefinition): string;
     protected getColumns(blueprint: Blueprint): string[];
     protected getType(column: ColumnDefinition): any;
     protected typeComputed(column: ColumnDefinition): void;
-    protected addModifiers(sql: string, blueprint: Blueprint, column: ColumnDefinition): string;
+    protected addModifiers(
+        sql: string,
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
     protected getCommandByName(blueprint: Blueprint, name: string): any;
     protected getCommandsByName(blueprint: Blueprint, name: string): any[];
     prefixArray(prefix: string, values: any[]): string[];
     wrapTable(table: any): string | number | boolean | void;
-    protected wrapJsonFieldAndPath(column: string): (string | number | boolean | void)[];
+    protected wrapJsonFieldAndPath(
+        column: string
+    ): (string | number | boolean | void)[];
     protected wrapJsonPath(value: string, delimiter?: string): string;
-    wrap(value: RawExpression | string, prefixAlias?: boolean): string | number | boolean | void;
+    wrap(
+        value: RawExpression | string,
+        prefixAlias?: boolean
+    ): string | number | boolean | void;
     protected getDefaultValue(value: any): string | number | boolean;
-    getTableDiff(blueprint: Blueprint, schema: SchemaBuilder): Promise<TableDiff>;
+    getTableDiff(
+        blueprint: Blueprint,
+        schema: SchemaBuilder
+    ): Promise<TableDiff>;
     getListDatabasesSQL(): string;
     getListNamespacesSQL(): string;
     getListSequencesSQL(database: string): string;
@@ -60,9 +78,7 @@ export declare class SchemaGrammar extends BaseGrammar {
     getListTablesSQL(): string;
     quoteStringLiteral(str: string): string;
     getStringLiteralQuoteCharacter(): string;
-    /**
-     * Get the fluent commands for the grammar.
-     */
+
     getFluentCommands(): string[];
     getColumnDefinitionCommands(): any[];
     supportsSchemaTransactions(): boolean;

@@ -11,6 +11,10 @@ export declare class JsonPathExpression extends SqlNode {
     pathExpression: PathExpression;
     pathLeg: Identifier;
     jsonLiteral: Identifier;
-    constructor(pathExpression: PathExpression, pathLeg: Identifier, jsonLiteral: Identifier);
+    constructor(
+        pathExpression: PathExpression,
+        pathLeg: Identifier,
+        jsonLiteral: Identifier
+    );
     accept(visitor: SqlVisitor): string;
 }

@@ -5,6 +5,5 @@
  */
 import { FedacoDecorator } from '../annotation.interface';
 import { ColumnAnnotation } from '../column';
-export interface BooleanColumnAnnotation extends ColumnAnnotation {
-}
+export interface BooleanColumnAnnotation extends ColumnAnnotation {}
 export declare const BooleanColumn: FedacoDecorator<BooleanColumnAnnotation>;

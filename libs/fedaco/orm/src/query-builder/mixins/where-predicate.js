@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { BindingVariable } from '../../query/ast/binding-variable'
 import { BetweenPredicateExpression } from '../../query/ast/expression/between-predicate-expression'
 import { ExistsPredicateExpression } from '../../query/ast/expression/exists-predicate-expression'

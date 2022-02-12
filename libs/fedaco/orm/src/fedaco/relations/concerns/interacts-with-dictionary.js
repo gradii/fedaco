@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isObject } from '@gradii/check-type'
 export function mixinInteractsWithDictionary(base) {
   return class _Self extends base {

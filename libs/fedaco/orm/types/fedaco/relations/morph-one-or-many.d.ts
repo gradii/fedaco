@@ -9,11 +9,21 @@ import { HasOneOrMany } from './has-one-or-many';
 export declare class MorphOneOrMany extends HasOneOrMany {
     _morphType: string;
     _morphClass: string;
-    constructor(query: FedacoBuilder, parent: Model, type: string, id: string, localKey: string);
+    constructor(
+        query: FedacoBuilder,
+        parent: Model,
+        type: string,
+        id: string,
+        localKey: string
+    );
     addConstraints(): void;
     addEagerConstraints(models: any[]): void;
     _setForeignAttributesForCreate(model: Model): void;
-    getRelationExistenceQuery(query: FedacoBuilder, parentQuery: FedacoBuilder, columns?: any[] | any): FedacoBuilder<Model>;
+    getRelationExistenceQuery(
+        query: FedacoBuilder,
+        parentQuery: FedacoBuilder,
+        columns?: any[] | any
+    ): FedacoBuilder<Model>;
     getQualifiedMorphType(): string;
     getMorphType(): string;
     getMorphClass(): string;

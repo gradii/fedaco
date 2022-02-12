@@ -19,6 +19,13 @@ export declare class DeleteSpecification extends SqlNode {
     offsetClause?: OffsetClause;
     limitClause?: LimitClause;
     topRow?: number;
-    constructor(target: FromTable, whereClause?: WhereClause, fromClause?: FromClause, orderByClause?: OrderByClause, offsetClause?: OffsetClause, limitClause?: LimitClause);
+    constructor(
+        target: FromTable,
+        whereClause?: WhereClause,
+        fromClause?: FromClause,
+        orderByClause?: OrderByClause,
+        offsetClause?: OffsetClause,
+        limitClause?: LimitClause
+    );
     accept(visitor: SqlVisitor): string;
 }

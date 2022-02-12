@@ -13,6 +13,11 @@ export declare class InsertSpecification extends SqlNode {
     insertSource: ValuesInsertSource;
     columns: SqlNode[];
     target: QuerySpecification | FromTable;
-    constructor(insertOption: string, insertSource: ValuesInsertSource, columns: SqlNode[], target: QuerySpecification | FromTable);
+    constructor(
+        insertOption: string,
+        insertSource: ValuesInsertSource,
+        columns: SqlNode[],
+        target: QuerySpecification | FromTable
+    );
     accept(visitor: SqlVisitor): string;
 }

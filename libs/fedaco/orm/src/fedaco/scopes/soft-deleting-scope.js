@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { Scope } from '../scope'
 export function restore() {
   return (builder) => {

@@ -24,4 +24,6 @@ export interface GuardsAttributes {
     _fillableFromArray(attributes: any): this;
 }
 export declare type GuardsAttributesCtor<M> = Constructor<GuardsAttributes>;
-export declare function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): GuardsAttributesCtor<M> & T;
+export declare function mixinGuardsAttributes<T extends Constructor<any>, M>(
+    base: T
+): GuardsAttributesCtor<M> & T;

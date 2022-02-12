@@ -13,5 +13,7 @@ export interface ComparesRelatedModels {
     _compareKeys(parentKey: any, relatedKey: any): boolean;
 }
 declare type ComparesRelatedModelsCtor = Constructor<ComparesRelatedModels>;
-export declare function mixinComparesRelatedModels<T extends Constructor<any>>(base: T): ComparesRelatedModelsCtor & T;
+export declare function mixinComparesRelatedModels<T extends Constructor<any>>(
+    base: T
+): ComparesRelatedModelsCtor & T;
 export {};

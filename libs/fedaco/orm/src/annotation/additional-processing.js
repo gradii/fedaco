@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 export const _additionalProcessingGetter = (target, name, decorator) => {
   const descriptor = Object.getOwnPropertyDescriptor(target, name)
   const hasGetter = !!(descriptor && descriptor.get)

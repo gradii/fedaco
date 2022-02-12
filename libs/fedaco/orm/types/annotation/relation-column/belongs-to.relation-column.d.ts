@@ -13,7 +13,5 @@ export interface BelongsToRelationAnnotation extends RelationColumnAnnotation {
     ownerKey?: string;
     relation?: string;
 }
-/**
- * todo if foreign key is not defined in model. should mark foreign key as attribute can be accessed
- */
+
 export declare const BelongsToColumn: FedacoDecorator<BelongsToRelationAnnotation>;

@@ -13,5 +13,14 @@ export declare class TableDiff {
     changedIndexes?: any[];
     removedIndexes?: any[];
     fromTable?: Table;
-    constructor(tableName: string, addedColumns?: any[], changedColumns?: any[], removedColumns?: any[], addedIndexes?: any[], changedIndexes?: any[], removedIndexes?: any[], fromTable?: Table);
+    constructor(
+        tableName: string,
+        addedColumns?: any[],
+        changedColumns?: any[],
+        removedColumns?: any[],
+        addedIndexes?: any[],
+        changedIndexes?: any[],
+        removedIndexes?: any[],
+        fromTable?: Table
+    );
 }

@@ -6,7 +6,10 @@
 import { Constructor } from '../../helper/constructor';
 import { ColumnReferenceExpression } from '../../query/ast/column-reference-expression';
 export interface QueryBuilderAggregate {
-    _setAggregate(func: string, columns: Array<string | ColumnReferenceExpression>): this;
+    _setAggregate(
+        func: string,
+        columns: Array<string | ColumnReferenceExpression>
+    ): this;
     aggregate(func: string, columns: any[]): Promise<any>;
     count(columns?: string): Promise<number>;
     doesntExist(columns?: string): Promise<boolean>;
@@ -16,5 +19,8 @@ export interface QueryBuilderAggregate {
     min(columns?: string): Promise<any>;
     sum(columns?: string): Promise<any>;
 }
-export declare type QueryBuilderAggregateCtor = Constructor<QueryBuilderAggregate>;
-export declare function mixinAggregate<T extends Constructor<any>>(base: T): QueryBuilderAggregateCtor & T;
+export declare type QueryBuilderAggregateCtor =
+    Constructor<QueryBuilderAggregate>;
+export declare function mixinAggregate<T extends Constructor<any>>(
+    base: T
+): QueryBuilderAggregateCtor & T;

@@ -15,7 +15,12 @@ export interface HasOneOrMany extends Constructor<Relation> {
     addEagerConstraints(models: any[]): void;
     matchOne(models: any[], results: Collection, relation: string): any[];
     matchMany(models: any[], results: Collection, relation: string): any[];
-    matchOneOrMany(models: any[], results: Collection, relation: string, type: string): any[];
+    matchOneOrMany(
+        models: any[],
+        results: Collection,
+        relation: string,
+        type: string
+    ): any[];
     getRelationValue(dictionary: any, key: string, type: string): any;
     buildDictionary(results: Collection): any;
     findOrNew(id: any, columns?: any[]): Promise<any>;
@@ -26,8 +31,16 @@ export interface HasOneOrMany extends Constructor<Relation> {
     saveMany(models: any[]): Promise<any[]>;
     create(attributes?: any): Promise<any>;
     createMany(records: any[]): Promise<any>;
-    getRelationExistenceQuery(query: FedacoBuilder, parentQuery: FedacoBuilder, columns?: any[] | any): any;
-    getRelationExistenceQueryForSelfRelation(query: FedacoBuilder, parentQuery: FedacoBuilder, columns?: any[] | any): any;
+    getRelationExistenceQuery(
+        query: FedacoBuilder,
+        parentQuery: FedacoBuilder,
+        columns?: any[] | any
+    ): any;
+    getRelationExistenceQueryForSelfRelation(
+        query: FedacoBuilder,
+        parentQuery: FedacoBuilder,
+        columns?: any[] | any
+    ): any;
     getExistenceCompareKey(): string;
     getParentKey(): any;
     getQualifiedParentKeyName(): any;
@@ -35,11 +48,17 @@ export interface HasOneOrMany extends Constructor<Relation> {
     getQualifiedForeignKeyName(): string;
     getLocalKeyName(): string;
 }
-declare const HasOneOrMany_base: import("./concerns/interacts-with-dictionary").InteractsWithDictionaryCtor & typeof Relation;
+declare const HasOneOrMany_base: import('./concerns/interacts-with-dictionary').InteractsWithDictionaryCtor &
+    typeof Relation;
 export declare class HasOneOrMany extends HasOneOrMany_base {
     protected _foreignKey: string;
     protected _localKey: string;
-    constructor(query: FedacoBuilder, parent: Model, foreignKey: string, localKey: string);
+    constructor(
+        query: FedacoBuilder,
+        parent: Model,
+        foreignKey: string,
+        localKey: string
+    );
     _setForeignAttributesForCreate(model: Model): void;
 }
 export {};

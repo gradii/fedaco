@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isArray, isBlank } from '@gradii/check-type'
 import { Blueprint } from '../blueprint'
 import { SchemaGrammar } from './schema-grammar'

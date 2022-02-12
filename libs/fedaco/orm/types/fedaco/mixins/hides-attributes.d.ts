@@ -12,10 +12,18 @@ export interface HidesAttributes {
     getVisible(): any[];
     setVisible(visible: any[]): this;
     makeVisible(attributes: any[] | string | null): this;
-    makeVisibleIf(condition: boolean | Function, attributes: any[] | string | null): this;
+    makeVisibleIf(
+        condition: boolean | Function,
+        attributes: any[] | string | null
+    ): this;
     makeHidden(attributes: any[] | string | null): this;
-    makeHiddenIf(condition: boolean | Function, attributes: any[] | string | null): this;
+    makeHiddenIf(
+        condition: boolean | Function,
+        attributes: any[] | string | null
+    ): this;
 }
 declare type HidesAttributesCtor = Constructor<HidesAttributes>;
-export declare function mixinHidesAttributes<T extends Constructor<{}>>(base: T): HidesAttributesCtor & T;
+export declare function mixinHidesAttributes<T extends Constructor<{}>>(
+    base: T
+): HidesAttributesCtor & T;
 export {};

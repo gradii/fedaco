@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { makePropDecorator } from '@gradii/annotation'
 import { _additionalProcessingGetter } from './additional-processing'
 export const RelationUsingColumn = makePropDecorator(

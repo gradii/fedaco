@@ -29,12 +29,16 @@ export declare class DatabaseConfig {
     constructor();
     protected setupManager(): void;
     static connection(connection?: string | null): Connection;
-    /**
-     * Make this capsule instance available globally.
-     */
+
     setAsGlobal(): void;
-    static table(table: Function | QueryBuilder | string, as?: string | null, connection?: string | null): QueryBuilder;
-    static schema(connection?: string | null): import("@gradii/fedaco").SchemaBuilder;
+    static table(
+        table: Function | QueryBuilder | string,
+        as?: string | null,
+        connection?: string | null
+    ): QueryBuilder;
+    static schema(
+        connection?: string | null
+    ): import('@gradii/fedaco').SchemaBuilder;
     getConnection(name?: string | null): Connection;
     addConnection(config: any, name?: string): void;
     bootFedaco(): void;

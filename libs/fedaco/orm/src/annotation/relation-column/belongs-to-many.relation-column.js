@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { makePropDecorator } from '@gradii/annotation'
 import { isBlank } from '@gradii/check-type'
 import { BelongsToMany } from '../../fedaco/relations/belongs-to-many'

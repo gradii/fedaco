@@ -6,12 +6,10 @@
 import { Collection } from '../../define/collection';
 import { FedacoBuilder } from '../fedaco-builder';
 import { Model } from '../model';
-declare const Relation_base: import("../mixins/forward-call-to-query-builder").ForwardCallToQueryBuilderCtor & {
+declare const Relation_base: import('../mixins/forward-call-to-query-builder').ForwardCallToQueryBuilderCtor & {
     new (): {};
 };
-/**
- * select * from table where col = ? and col2 = ?;
- */
+
 export declare class Relation extends Relation_base {
     _query: FedacoBuilder;
     _parent: Model;
@@ -20,7 +18,9 @@ export declare class Relation extends Relation_base {
     static _morphMap: any;
     protected static selfJoinCount: number;
     constructor(query: FedacoBuilder, parent: Model);
-    static noConstraints<T extends Relation>(callback: (...args: any[]) => T): T;
+    static noConstraints<T extends Relation>(
+        callback: (...args: any[]) => T
+    ): T;
     addConstraints(): void;
     addEagerConstraints(models: any[]): void;
     initRelation(models: any[], relation: string): Model[];
@@ -31,15 +31,22 @@ export declare class Relation extends Relation_base {
     get(columns?: string[] | string): Promise<any | any[]>;
     touch(): Promise<void>;
     rawUpdate(attributes: any): Promise<any>;
-    getRelationExistenceCountQuery(query: FedacoBuilder, parentQuery: FedacoBuilder): FedacoBuilder<Model>;
-    getRelationExistenceQuery(query: FedacoBuilder, parentQuery: FedacoBuilder, columns?: any[] | any): FedacoBuilder;
+    getRelationExistenceCountQuery(
+        query: FedacoBuilder,
+        parentQuery: FedacoBuilder
+    ): FedacoBuilder<Model>;
+    getRelationExistenceQuery(
+        query: FedacoBuilder,
+        parentQuery: FedacoBuilder,
+        columns?: any[] | any
+    ): FedacoBuilder;
     getExistenceCompareKey(): string;
     getRelationCountHash(incrementJoinCount?: boolean): string;
     getKeys(models: any[], key?: string | null): any[];
     _getRelationQuery(): FedacoBuilder<Model>;
     getQuery(): FedacoBuilder<Model>;
-    getBaseQuery(): import("@gradii/fedaco").QueryBuilder;
-    toBase(): import("@gradii/fedaco").QueryBuilder;
+    getBaseQuery(): import('@gradii/fedaco').QueryBuilder;
+    toBase(): import('@gradii/fedaco').QueryBuilder;
     getParent(): Model;
     getQualifiedParentKeyName(): string;
     getRelated(): Model;
@@ -49,7 +56,9 @@ export declare class Relation extends Relation_base {
     _whereInMethod(model: Model, key: string): 'whereIntegerInRaw' | 'whereIn';
     whereKey(id: any): this;
     static morphMap(map?: any | null, merge?: boolean): any;
-    protected static buildMorphMapFromModels(models?: any | Array<typeof Model> | null): any;
+    protected static buildMorphMapFromModels(
+        models?: any | Array<typeof Model> | null
+    ): any;
     static getMorphedModel(alias: string): any;
 }
 export {};

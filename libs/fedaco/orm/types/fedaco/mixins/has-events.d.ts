@@ -17,9 +17,10 @@ export interface Dispatcher {
     until(): boolean;
     dispatch(evt: any): void;
 }
-export interface HasEvents {
-}
-export declare function mixinHasEvents<T extends Constructor<any>>(base: T): {
+export interface HasEvents {}
+export declare function mixinHasEvents<T extends Constructor<any>>(
+    base: T
+): {
     new (...args: any[]): {
         [x: string]: any;
         _dispatchesEvents: any;
@@ -46,20 +47,26 @@ export declare function mixinHasEvents<T extends Constructor<any>>(base: T): {
     replicating(callback: Function | string): void;
     deleting(callback: Function | string): void;
     deleted(callback: Function | string): void;
-    flushEventListeners(this: Model & {
-        [x: string]: any;
-        _dispatchesEvents: any;
-        _observables: any[];
-        getObservableEvents(): any[];
-        setObservableEvents(observables: any[]): any;
-        addObservableEvents(observables: any[] | any): void;
-        removeObservableEvents(observables: any[] | any): void;
-        _registerObserver(clazz: any & T): void;
-        _fireModelEvent(this: Model & any, event: string, halt?: boolean): any;
-        _fireCustomModelEvent(event: string, method: string): any;
-        _filterModelEventResults(result: any): any;
-        _resolveObserverClassName(clazz: object | string): Function;
-    }): void;
+    flushEventListeners(
+        this: Model & {
+            [x: string]: any;
+            _dispatchesEvents: any;
+            _observables: any[];
+            getObservableEvents(): any[];
+            setObservableEvents(observables: any[]): any;
+            addObservableEvents(observables: any[] | any): void;
+            removeObservableEvents(observables: any[] | any): void;
+            _registerObserver(clazz: any & T): void;
+            _fireModelEvent(
+                this: Model & any,
+                event: string,
+                halt?: boolean
+            ): any;
+            _fireCustomModelEvent(event: string, method: string): any;
+            _filterModelEventResults(result: any): any;
+            _resolveObserverClassName(clazz: object | string): Function;
+        }
+    ): void;
     getEventDispatcher(): Dispatcher;
     setEventDispatcher(dispatcher: Dispatcher): void;
     unsetEventDispatcher(): void;

@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isString } from '@gradii/check-type'
 import { createIdentifier } from '../../query-builder/ast-factory'
 import { ColumnReferenceExpression } from '../ast/column-reference-expression'

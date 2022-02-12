@@ -3,5 +3,4 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-export declare abstract class FunctionNode {
-}
+export declare abstract class FunctionNode {}

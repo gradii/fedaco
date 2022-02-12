@@ -12,4 +12,6 @@ export interface QueryBuilderGroupBy {
     groupByRaw(sql: string | RawExpression, bindings: any[]): this;
 }
 export declare type QueryBuilderGroupByCtor = Constructor<QueryBuilderGroupBy>;
-export declare function mixinGroupBy<T extends Constructor<any>>(base: T): QueryBuilderGroupByCtor & T;
+export declare function mixinGroupBy<T extends Constructor<any>>(
+    base: T
+): QueryBuilderGroupByCtor & T;

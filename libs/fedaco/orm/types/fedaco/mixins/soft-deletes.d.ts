@@ -17,5 +17,7 @@ export interface SoftDeletes {
     getQualifiedDeletedAtColumn(this: Model & this): string;
 }
 declare type SoftDeletesCtor = Constructor<SoftDeletes>;
-export declare function mixinSoftDeletes<T extends Constructor<{}>>(base: T): SoftDeletesCtor & T;
+export declare function mixinSoftDeletes<T extends Constructor<{}>>(
+    base: T
+): SoftDeletesCtor & T;
 export {};

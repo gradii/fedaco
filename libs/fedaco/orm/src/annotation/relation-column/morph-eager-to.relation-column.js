@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { makePropDecorator } from '@gradii/annotation'
 import { MorphTo } from '../../fedaco/relations/morph-to'
 import { _additionalProcessingGetter } from '../additional-processing'

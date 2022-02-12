@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { mixinAggregate } from './mixins/aggregate'
 import { mixinBuildQueries } from './mixins/build-query'
 import { mixinGroupBy } from './mixins/group-by'

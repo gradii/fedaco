@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { ConnectionFactory } from './connector/connection-factory'
 import { DatabaseManager } from './database-manager'
 import { NullDispatcher } from './fedaco/mixins/has-events'

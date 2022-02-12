@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { makePropDecorator } from '@gradii/annotation'
 import { MorphToMany } from '../../fedaco/relations/morph-to-many'
 import { plural } from '../../helper/pluralize'

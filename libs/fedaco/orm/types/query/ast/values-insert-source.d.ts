@@ -12,6 +12,10 @@ export declare class ValuesInsertSource extends SqlNode {
     isDefault: boolean;
     valuesList: (BindingVariable | RawExpression)[][];
     select?: NestedExpression;
-    constructor(isDefault: boolean, valuesList?: (BindingVariable | RawExpression)[][], select?: NestedExpression);
+    constructor(
+        isDefault: boolean,
+        valuesList?: (BindingVariable | RawExpression)[][],
+        select?: NestedExpression
+    );
     accept(visitor: SqlVisitor): string;
 }

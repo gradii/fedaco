@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { ColumnDefineAttributes, ColumnDefinition } from './column-definition';
 export declare type ForeignKeyDefinitionAttributes = {
     deferrable: boolean;
@@ -15,29 +20,17 @@ export declare class ForeignKeyDefinition extends ColumnDefinition {
     get onDelete(): any;
     get onUpdate(): any;
     get references(): any;
-    /**
-     * Set the foreign key as deferrable (PostgreSQL)
-     */
+
     withDeferrable(value?: boolean): this;
-    /**
-     * Set the default time to check the constraint (PostgreSQL)
-     */
+
     withInitiallyImmediate(value?: boolean): this;
-    /**
-     * Specify the referenced table
-     */
+
     withOn(table: string): this;
-    /**
-     * Add an ON DELETE action
-     */
+
     withOnDelete(action: string): this;
-    /**
-     * Add an ON UPDATE action
-     */
+
     withOnUpdate(action: string): this;
-    /**
-     * Specify the referenced column(s)
-     */
+
     withReferences(columns: string | string[]): this;
     withCascadeOnUpdate(): this;
     withCascadeOnDelete(): this;

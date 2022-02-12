@@ -69,20 +69,16 @@ import { GrammarInterface } from '../grammar.interface';
 import { QueryBuilder } from '../query-builder';
 export declare class QueryBuilderVisitor implements SqlVisitor {
     protected _grammar: GrammarInterface;
-    /**
-     * @deprecated
-     * todo remove queryBuilder. should use binding only
-     */
+
     protected _queryBuilder: QueryBuilder;
     protected inJoinExpression: boolean;
     protected explicitBindingType: string;
     _isVisitUpdateSpecification: boolean;
-    constructor(_grammar: GrammarInterface, 
-    /**
-     * @deprecated
-     * todo remove queryBuilder. should use binding only
-     */
-    _queryBuilder: QueryBuilder);
+    constructor(
+        _grammar: GrammarInterface,
+
+        _queryBuilder: QueryBuilder
+    );
     visit(): string;
     visitAggregateFragment(node: AggregateFragment): string;
     visitAsExpression(node: AsExpression): string;
@@ -91,19 +87,12 @@ export declare class QueryBuilderVisitor implements SqlVisitor {
     visitBetweenPredicateExpression(node: BetweenPredicateExpression): string;
     visitBinaryExpression(node: BinaryExpression): string;
     visitBinaryUnionQueryExpression(node: BinaryUnionQueryExpression): string;
-    /**
-     * todo fixme binding variable
-     * generate a placeholder for sql
-     * @param node
-     */
+
     visitBindingVariable(node: BindingVariable): string;
     visitColumnReferenceExpression(node: ColumnReferenceExpression): string;
     visitCommonValueExpression(node: CommonValueExpression): string;
     visitComparisonExpression(node: ComparisonPredicateExpression): string;
-    /**
-     * todo `AND` is not right here.
-     * @param node
-     */
+
     visitConditionExpression(node: ConditionExpression): string;
     visitConditionTermExpression(node: SqlNode): string;
     visitExistsPredicateExpression(node: ExistsPredicateExpression): string;
@@ -114,10 +103,7 @@ export declare class QueryBuilderVisitor implements SqlVisitor {
     visitGroupByClause(node: GroupByClause): string;
     visitHavingClause(node: HavingClause): string;
     visitIdentifier(node: Identifier): string;
-    /**
-     * @deprecated
-     * @param node
-     */
+
     visitIdentifyVariableDeclaration(node: IdentifyVariableDeclaration): string;
     visitInPredicateExpression(node: InPredicateExpression): string;
     visitInsertSpecification(node: InsertSpecification): string;
@@ -156,7 +142,10 @@ export declare class QueryBuilderVisitor implements SqlVisitor {
     visitValuesInsertSource(node: ValuesInsertSource): string;
     visitWhereClause(node: WhereClause): string;
     visitLockClause(node: LockClause): string;
-    visitRejectOrderElementExpression(node: RejectOrderElementExpression, ctx?: any): string;
+    visitRejectOrderElementExpression(
+        node: RejectOrderElementExpression,
+        ctx?: any
+    ): string;
     visitNotExpression(node: NotExpression): string;
     visitIndexBy(node: IndexBy): string;
 }

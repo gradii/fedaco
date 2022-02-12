@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { _SqlParserAst } from './_sql-parser-ast'
 import { SqlLexer } from './sql-lexer'
 export class SqlParser {

@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isArray, isBlank } from '@gradii/check-type'
 import { resolveForwardRef } from './forward-ref'
 export function resolveIdentifier(identifier) {

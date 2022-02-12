@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isNumber } from '@gradii/check-type'
 import { pascalCase } from '../helper/str'
 

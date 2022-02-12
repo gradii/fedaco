@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { __classPrivateFieldGet } from 'tslib'
 import { BindingVariable } from '../../query/ast/binding-variable'
 import { ComparisonPredicateExpression } from '../../query/ast/expression/comparison-predicate-expression'

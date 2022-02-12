@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { makePropDecorator } from '@gradii/annotation'
 import { HasOne } from '../../fedaco/relations/has-one'
 import { resolveForwardRef } from '../../query-builder/forward-ref'

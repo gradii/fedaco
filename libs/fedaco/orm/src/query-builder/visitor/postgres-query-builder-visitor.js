@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isString } from '@gradii/check-type'
 import { QueryBuilderVisitor } from './query-builder-visitor'
 const LIKES = ['LIKE', 'ILIKE', 'NOT LIKE', 'NOT ILIKE']

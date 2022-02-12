@@ -1,9 +1,17 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { DatabaseTransactionsManager } from './database-transactions-manager';
 import { Constructor } from './helper/constructor';
 export interface ManagesTransactions {
     _transactions: number;
     _transactionsManager: DatabaseTransactionsManager;
-    transaction(callback: (...args: any[]) => Promise<any | void>, attempts?: number): Promise<any>;
+    transaction(
+        callback: (...args: any[]) => Promise<any | void>,
+        attempts?: number
+    ): Promise<any>;
     beginTransaction(): Promise<void>;
     commit(): Promise<void>;
     rollBack(toLevel?: number | null): Promise<void>;
@@ -13,5 +21,7 @@ export interface ManagesTransactions {
     unsetTransactionManager(): void;
 }
 declare type ManagesTransactionsCtor = Constructor<ManagesTransactions>;
-export declare function mixinManagesTransactions<T extends Constructor<any>>(base: T): ManagesTransactionsCtor;
+export declare function mixinManagesTransactions<T extends Constructor<any>>(
+    base: T
+): ManagesTransactionsCtor;
 export {};

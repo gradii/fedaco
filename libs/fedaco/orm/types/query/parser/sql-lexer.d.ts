@@ -21,7 +21,13 @@ export declare class Token {
     kind: SyntaxKind;
     numValue: number;
     strValue: string;
-    constructor(index: number, end: number, kind: SyntaxKind, numValue: number, strValue: string);
+    constructor(
+        index: number,
+        end: number,
+        kind: SyntaxKind,
+        numValue: number,
+        strValue: string
+    );
     isCharacter(code: number): boolean;
     isError(): boolean;
     isIdentifier(): boolean;

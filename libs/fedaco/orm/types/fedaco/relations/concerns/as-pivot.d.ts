@@ -7,8 +7,18 @@ import { Constructor } from '../../../helper/constructor';
 import { FedacoBuilder } from '../../fedaco-builder';
 import { Model } from '../../model';
 export declare namespace AsPivot {
-    function fromAttributes(parent: Model, attributes: any[], table: string, exists?: boolean): any;
-    function fromRawAttributes(parent: Model, attributes: any, table: string, exists: boolean): any;
+    function fromAttributes(
+        parent: Model,
+        attributes: any[],
+        table: string,
+        exists?: boolean
+    ): any;
+    function fromRawAttributes(
+        parent: Model,
+        attributes: any,
+        table: string,
+        exists: boolean
+    ): any;
 }
 export interface AsPivot extends Model {
     pivotParent: Model;
@@ -27,9 +37,15 @@ export interface AsPivot extends Model {
     getCreatedAtColumn(): string;
     getUpdatedAtColumn(): string;
     getQueueableId(): number | string;
-    newQueryForRestoration(ids: number[] | string[] | string): FedacoBuilder<this>;
-    _newQueryForCollectionRestoration(ids: number[] | string[]): FedacoBuilder<this>;
+    newQueryForRestoration(
+        ids: number[] | string[] | string
+    ): FedacoBuilder<this>;
+    _newQueryForCollectionRestoration(
+        ids: number[] | string[]
+    ): FedacoBuilder<this>;
     unsetRelations(): this;
 }
 export declare type AsPivotCtor = Constructor<AsPivot>;
-export declare function mixinAsPivot<T extends Constructor<any>>(base: T): AsPivotCtor & T;
+export declare function mixinAsPivot<T extends Constructor<any>>(
+    base: T
+): AsPivotCtor & T;

@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isDate, isNumber, isString } from '@gradii/check-type'
 import { format } from 'date-fns'
 import { BindingVariable } from '../../query/ast/binding-variable'

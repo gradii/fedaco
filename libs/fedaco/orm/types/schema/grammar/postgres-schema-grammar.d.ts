@@ -23,10 +23,16 @@ export declare class PostgresSchemaGrammar extends SchemaGrammar {
     compilePrimary(blueprint: Blueprint, command: ColumnDefinition): string;
     compileUnique(blueprint: Blueprint, command: ColumnDefinition): string;
     compileIndex(blueprint: Blueprint, command: ColumnDefinition): string;
-    compileSpatialIndex(blueprint: Blueprint, command: ColumnDefinition): string;
+    compileSpatialIndex(
+        blueprint: Blueprint,
+        command: ColumnDefinition
+    ): string;
     compileForeign(blueprint: Blueprint, command: ColumnDefinition): string;
     compileDrop(blueprint: Blueprint, command: ColumnDefinition): string;
-    compileDropIfExists(blueprint: Blueprint, command: ColumnDefinition): string;
+    compileDropIfExists(
+        blueprint: Blueprint,
+        command: ColumnDefinition
+    ): string;
     compileDropAllTables(tables: any[]): string;
     compileDropAllViews(views: any[]): string;
     compileDropAllTypes(types: any[]): string;
@@ -37,16 +43,16 @@ export declare class PostgresSchemaGrammar extends SchemaGrammar {
     compileDropPrimary(blueprint: Blueprint, command: ColumnDefinition): string;
     compileDropUnique(blueprint: Blueprint, command: ColumnDefinition): string;
     compileDropIndex(blueprint: Blueprint, command: ColumnDefinition): string;
-    compileDropSpatialIndex(blueprint: Blueprint, command: ColumnDefinition): string;
+    compileDropSpatialIndex(
+        blueprint: Blueprint,
+        command: ColumnDefinition
+    ): string;
     compileDropForeign(blueprint: Blueprint, command: ColumnDefinition): string;
     compileRename(blueprint: Blueprint, command: ColumnDefinition): string;
     compileRenameIndex(blueprint: Blueprint, command: ColumnDefinition): string;
     compileEnableForeignKeyConstraints(): string;
     compileDisableForeignKeyConstraints(): string;
-    /**
-     * Compile a comment command.
-     * @todo check me
-     */
+
     compileComment(blueprint: Blueprint, command: ColumnDefinition): string;
     protected typeChar(column: ColumnDefinition): string;
     protected typeString(column: ColumnDefinition): string;
@@ -90,10 +96,28 @@ export declare class PostgresSchemaGrammar extends SchemaGrammar {
     protected typeMultiPolygon(column: ColumnDefinition): string;
     protected typeMultiPolygonZ(column: ColumnDefinition): string;
     private formatPostGisType;
-    protected modifyCollate(blueprint: Blueprint, column: ColumnDefinition): string;
-    protected modifyNullable(blueprint: Blueprint, column: ColumnDefinition): " null" | " not null";
-    protected modifyDefault(blueprint: Blueprint, column: ColumnDefinition): string;
-    protected modifyIncrement(blueprint: Blueprint, column: ColumnDefinition): "" | " primary key";
-    protected modifyVirtualAs(blueprint: Blueprint, column: ColumnDefinition): string;
-    protected modifyStoredAs(blueprint: Blueprint, column: ColumnDefinition): string;
+    protected modifyCollate(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
+    protected modifyNullable(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): ' null' | ' not null';
+    protected modifyDefault(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
+    protected modifyIncrement(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): '' | ' primary key';
+    protected modifyVirtualAs(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
+    protected modifyStoredAs(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
 }

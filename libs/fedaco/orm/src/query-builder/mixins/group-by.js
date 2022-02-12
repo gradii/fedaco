@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { BindingVariable } from '../../query/ast/binding-variable'
 import { RawBindingExpression } from '../../query/ast/expression/raw-binding-expression'
 import { RawExpression } from '../../query/ast/expression/raw-expression'

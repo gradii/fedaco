@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { __awaiter } from 'tslib'
 import { isBlank, isNumber } from '@gradii/check-type'
 export function mixinComparesRelatedModels(base) {

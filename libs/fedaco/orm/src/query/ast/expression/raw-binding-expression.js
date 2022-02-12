@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { RawExpression } from './raw-expression'
 export class RawBindingExpression extends RawExpression {
   constructor(raw, bindings) {

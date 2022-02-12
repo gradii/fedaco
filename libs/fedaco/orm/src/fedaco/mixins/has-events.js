@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isAnyEmpty, isArray, isBlank, isObject } from '@gradii/check-type'
 import { difference, uniq } from 'ramda'
 export class NullDispatcher {

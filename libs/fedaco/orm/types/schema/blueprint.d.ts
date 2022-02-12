@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { Connection } from '../connection';
 import { Model } from '../fedaco/model';
 import { ColumnDefinition } from './column-definition';
@@ -43,12 +48,30 @@ export declare class Blueprint {
     dropRememberToken(): void;
     dropMorphs(name: string, indexName?: string | null): void;
     rename(to: string): ColumnDefinition;
-    primary(columns: any[] | string, name?: string | null, algorithm?: string | null): ColumnDefinition;
-    unique(columns: any[] | string, name?: string | null, algorithm?: string | null): ColumnDefinition;
-    index(columns: any[] | string, name?: string | null, algorithm?: string | null): ColumnDefinition;
-    spatialIndex(columns: any[] | string, name?: string | null): ColumnDefinition;
+    primary(
+        columns: any[] | string,
+        name?: string | null,
+        algorithm?: string | null
+    ): ColumnDefinition;
+    unique(
+        columns: any[] | string,
+        name?: string | null,
+        algorithm?: string | null
+    ): ColumnDefinition;
+    index(
+        columns: any[] | string,
+        name?: string | null,
+        algorithm?: string | null
+    ): ColumnDefinition;
+    spatialIndex(
+        columns: any[] | string,
+        name?: string | null
+    ): ColumnDefinition;
     rawIndex(expression: string, name: string): ColumnDefinition;
-    foreign(columns: any[] | string, name?: string | null): ForeignKeyDefinition;
+    foreign(
+        columns: any[] | string,
+        name?: string | null
+    ): ForeignKeyDefinition;
     id(column?: string): ColumnDefinition;
     increments(column: string): ColumnDefinition;
     integerIncrements(column: string): ColumnDefinition;
@@ -62,24 +85,86 @@ export declare class Blueprint {
     text(column: string): ColumnDefinition;
     mediumText(column: string): ColumnDefinition;
     longText(column: string): ColumnDefinition;
-    integer(column: string, autoIncrement?: boolean, unsigned?: boolean): ColumnDefinition;
-    tinyInteger(column: string, autoIncrement?: boolean, unsigned?: boolean): ColumnDefinition;
-    smallInteger(column: string, autoIncrement?: boolean, unsigned?: boolean): ColumnDefinition;
-    mediumInteger(column: string, autoIncrement?: boolean, unsigned?: boolean): ColumnDefinition;
-    bigInteger(column: string, autoIncrement?: boolean, unsigned?: boolean): ColumnDefinition;
+    integer(
+        column: string,
+        autoIncrement?: boolean,
+        unsigned?: boolean
+    ): ColumnDefinition;
+    tinyInteger(
+        column: string,
+        autoIncrement?: boolean,
+        unsigned?: boolean
+    ): ColumnDefinition;
+    smallInteger(
+        column: string,
+        autoIncrement?: boolean,
+        unsigned?: boolean
+    ): ColumnDefinition;
+    mediumInteger(
+        column: string,
+        autoIncrement?: boolean,
+        unsigned?: boolean
+    ): ColumnDefinition;
+    bigInteger(
+        column: string,
+        autoIncrement?: boolean,
+        unsigned?: boolean
+    ): ColumnDefinition;
     unsignedInteger(column: string, autoIncrement?: boolean): ColumnDefinition;
-    unsignedTinyInteger(column: string, autoIncrement?: boolean): ColumnDefinition;
-    unsignedSmallInteger(column: string, autoIncrement?: boolean): ColumnDefinition;
-    unsignedMediumInteger(column: string, autoIncrement?: boolean): ColumnDefinition;
-    unsignedBigInteger(column: string, autoIncrement?: boolean): ColumnDefinition;
+    unsignedTinyInteger(
+        column: string,
+        autoIncrement?: boolean
+    ): ColumnDefinition;
+    unsignedSmallInteger(
+        column: string,
+        autoIncrement?: boolean
+    ): ColumnDefinition;
+    unsignedMediumInteger(
+        column: string,
+        autoIncrement?: boolean
+    ): ColumnDefinition;
+    unsignedBigInteger(
+        column: string,
+        autoIncrement?: boolean
+    ): ColumnDefinition;
     foreignId(column: string): ForeignIdColumnDefinition;
-    foreignIdFor(model: Model, column?: string | null): ForeignIdColumnDefinition;
-    float(column: string, total?: number, places?: number, unsigned?: boolean): ColumnDefinition;
-    double(column: string, total?: number | null, places?: number | null, unsigned?: boolean): ColumnDefinition;
-    decimal(column: string, total?: number, places?: number, unsigned?: boolean): ColumnDefinition;
-    unsignedFloat(column: string, total?: number, places?: number): ColumnDefinition;
-    unsignedDouble(column: string, total?: number, places?: number): ColumnDefinition;
-    unsignedDecimal(column: string, total?: number, places?: number): ColumnDefinition;
+    foreignIdFor(
+        model: Model,
+        column?: string | null
+    ): ForeignIdColumnDefinition;
+    float(
+        column: string,
+        total?: number,
+        places?: number,
+        unsigned?: boolean
+    ): ColumnDefinition;
+    double(
+        column: string,
+        total?: number | null,
+        places?: number | null,
+        unsigned?: boolean
+    ): ColumnDefinition;
+    decimal(
+        column: string,
+        total?: number,
+        places?: number,
+        unsigned?: boolean
+    ): ColumnDefinition;
+    unsignedFloat(
+        column: string,
+        total?: number,
+        places?: number
+    ): ColumnDefinition;
+    unsignedDouble(
+        column: string,
+        total?: number,
+        places?: number
+    ): ColumnDefinition;
+    unsignedDecimal(
+        column: string,
+        total?: number,
+        places?: number
+    ): ColumnDefinition;
     boolean(column: string): ColumnDefinition;
     enum(column: string, allowed: any[]): ColumnDefinition;
     set(column: string, allowed: any[]): ColumnDefinition;
@@ -120,11 +205,39 @@ export declare class Blueprint {
     uuidMorphs(name: string, indexName?: string | null): void;
     nullableUuidMorphs(name: string, indexName?: string | null): void;
     rememberToken(): ColumnDefinition;
-    protected indexCommand(type: string, columns: any[] | any, index: string, algorithm?: string | null): ColumnDefinition;
-    protected dropIndexCommand(command: string, type: string, index: string | any[]): ColumnDefinition;
+    protected indexCommand(
+        type: string,
+        columns: any[] | any,
+        index: string,
+        algorithm?: string | null
+    ): ColumnDefinition;
+    protected dropIndexCommand(
+        command: string,
+        type: string,
+        index: string | any[]
+    ): ColumnDefinition;
     protected createIndexName(type: string, columns: any[]): string;
-    addColumn(type: 'ipAddress' | 'macAddress' | 'geometry' | 'point' | 'lineString' | 'polygon' | 'geometryCollection' | 'multiPoint' | 'multiLineString' | 'multiPolygon' | 'multiPolygonZ' | 'computed' | string, name: string, parameters?: Record<string, any>): ColumnDefinition;
-    protected addColumnDefinition<T extends ColumnDefinition = ColumnDefinition>(definition: T): T;
+    addColumn(
+        type:
+            | 'ipAddress'
+            | 'macAddress'
+            | 'geometry'
+            | 'point'
+            | 'lineString'
+            | 'polygon'
+            | 'geometryCollection'
+            | 'multiPoint'
+            | 'multiLineString'
+            | 'multiPolygon'
+            | 'multiPolygonZ'
+            | 'computed'
+            | string,
+        name: string,
+        parameters?: Record<string, any>
+    ): ColumnDefinition;
+    protected addColumnDefinition<
+        T extends ColumnDefinition = ColumnDefinition
+    >(definition: T): T;
     after(column: string, callback: Function): void;
     removeColumn(name: string): this;
     protected addCommand(name: string, parameters?: any): ColumnDefinition;

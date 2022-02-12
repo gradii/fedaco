@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isBoolean } from '@gradii/check-type'
 import { snakeCase } from '../../helper/str'
 import { DeleteSpecification } from '../../query/ast/delete-specification'

@@ -11,16 +11,33 @@ import { ComparesRelatedModels } from './concerns/compares-related-models';
 import { InteractsWithDictionary } from './concerns/interacts-with-dictionary';
 import { SupportsDefaultModels } from './concerns/supports-default-models';
 import { Relation } from './relation';
-export interface BelongsTo extends ComparesRelatedModels, InteractsWithDictionary, SupportsDefaultModels, Constructor<Relation> {
-    getRelationExistenceQuery(query: FedacoBuilder, parentQuery: FedacoBuilder, columns: any[] | any): FedacoBuilder;
+export interface BelongsTo
+    extends ComparesRelatedModels,
+        InteractsWithDictionary,
+        SupportsDefaultModels,
+        Constructor<Relation> {
+    getRelationExistenceQuery(
+        query: FedacoBuilder,
+        parentQuery: FedacoBuilder,
+        columns: any[] | any
+    ): FedacoBuilder;
 }
-declare const BelongsTo_base: (new (...args: any[]) => ComparesRelatedModels) & import("./concerns/interacts-with-dictionary").InteractsWithDictionaryCtor & (new (...args: any[]) => SupportsDefaultModels) & typeof Relation;
+declare const BelongsTo_base: (new (...args: any[]) => ComparesRelatedModels) &
+    import('./concerns/interacts-with-dictionary').InteractsWithDictionaryCtor &
+    (new (...args: any[]) => SupportsDefaultModels) &
+    typeof Relation;
 export declare class BelongsTo extends BelongsTo_base {
     protected _child: Model;
     protected _foreignKey: string;
     protected _ownerKey: string;
     protected _relationName: string;
-    constructor(query: FedacoBuilder, child: Model, foreignKey: string, ownerKey: string, relationName: string);
+    constructor(
+        query: FedacoBuilder,
+        child: Model,
+        foreignKey: string,
+        ownerKey: string,
+        relationName: string
+    );
     getResults(): Promise<Model>;
     addConstraints(): void;
     addEagerConstraints(models: any[]): void;
@@ -30,7 +47,11 @@ export declare class BelongsTo extends BelongsTo_base {
     associate(model: Model | number | string): Model;
     dissociate(): Model;
     disassociate(): Model;
-    getRelationExistenceQueryForSelfRelation(query: FedacoBuilder, parentQuery: FedacoBuilder, columns?: any[] | any): FedacoBuilder;
+    getRelationExistenceQueryForSelfRelation(
+        query: FedacoBuilder,
+        parentQuery: FedacoBuilder,
+        columns?: any[] | any
+    ): FedacoBuilder;
     protected relationHasIncrementingId(): boolean;
     protected newRelatedInstanceFor(parent: Model): Model;
     getChild(): Model;

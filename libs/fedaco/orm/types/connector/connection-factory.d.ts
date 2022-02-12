@@ -20,5 +20,11 @@ export declare class ConnectionFactory {
     protected parseHosts(config: any): any[];
     protected createPdoResolverWithoutHosts(config: any[]): () => Promise<any>;
     createConnector(config: any): SqliteConnector | MysqlConnector;
-    protected createConnection(driver: string, connection: Function, database: string, prefix?: string, config?: any[]): any;
+    protected createConnection(
+        driver: string,
+        connection: Function,
+        database: string,
+        prefix?: string,
+        config?: any[]
+    ): any;
 }

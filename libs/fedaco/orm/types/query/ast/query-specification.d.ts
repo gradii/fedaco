@@ -11,9 +11,7 @@ import { LockClause } from './lock-clause';
 import { QueryExpression } from './query-expression';
 import { SelectClause } from './select-clause';
 import { WhereClause } from './where-clause';
-/**
- * QueryExpression = SelectClause FromClause [WhereClause] [GroupByClause] [HavingClause] [OrderByClause]
- */
+
 export declare class QuerySpecification extends QueryExpression {
     selectClause: SelectClause;
     fromClause?: FromClause;
@@ -21,6 +19,13 @@ export declare class QuerySpecification extends QueryExpression {
     groupByClause?: GroupByClause;
     havingClause?: HavingClause;
     lockClause?: LockClause;
-    constructor(selectClause: SelectClause, fromClause?: FromClause, whereClause?: WhereClause, groupByClause?: GroupByClause, havingClause?: HavingClause, lockClause?: LockClause);
+    constructor(
+        selectClause: SelectClause,
+        fromClause?: FromClause,
+        whereClause?: WhereClause,
+        groupByClause?: GroupByClause,
+        havingClause?: HavingClause,
+        lockClause?: LockClause
+    );
     accept(sqlVisitor: SqlVisitor): string;
 }

@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { value } from '../helper/fn'
 export class ColumnDefinition {
   constructor(attributes = {}) {

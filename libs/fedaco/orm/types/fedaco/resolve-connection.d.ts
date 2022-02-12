@@ -7,8 +7,16 @@ import { ConnectionResolverInterface } from '../interface/connection-resolver-in
 import type { Model } from './model';
 export declare class ResolveConnection {
     resolvedConnection: WeakMap<any, any>;
-    resolveConnection(modelStatic: typeof Model, connection?: string | null): import("@gradii/fedaco").ConnectionInterface;
-    getConnectionResolver(modelStatic: typeof Model): ConnectionResolverInterface;
-    setConnectionResolver(modelStatic: typeof Model, resolver: ConnectionResolverInterface): void;
+    resolveConnection(
+        modelStatic: typeof Model,
+        connection?: string | null
+    ): import('@gradii/fedaco').ConnectionInterface;
+    getConnectionResolver(
+        modelStatic: typeof Model
+    ): ConnectionResolverInterface;
+    setConnectionResolver(
+        modelStatic: typeof Model,
+        resolver: ConnectionResolverInterface
+    ): void;
     unsetConnectionResolver(modelStatic: typeof Model): void;
 }

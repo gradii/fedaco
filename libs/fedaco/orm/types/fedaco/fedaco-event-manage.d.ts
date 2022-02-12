@@ -5,5 +5,9 @@
  */
 import type { Model } from './model';
 export declare class FedacoEventManage {
-    _registerModelEvent(model: Model, event: string, callback: Function | string): void;
+    _registerModelEvent(
+        model: Model,
+        event: string,
+        callback: Function | string
+    ): void;
 }

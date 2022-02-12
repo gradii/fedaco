@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { QueryExpression } from './query-expression'
 
 export class QuerySpecification extends QueryExpression {

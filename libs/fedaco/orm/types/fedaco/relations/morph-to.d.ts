@@ -15,7 +15,14 @@ export declare class MorphTo extends BelongsTo {
     protected _morphableEagerLoads: Map<any, any>;
     protected _morphableEagerLoadCounts: Map<any, any>;
     protected _morphableConstraints: Map<any, any>;
-    constructor(query: FedacoBuilder, parent: Model, foreignKey: string, ownerKey: string, type: string, relation: string);
+    constructor(
+        query: FedacoBuilder,
+        parent: Model,
+        foreignKey: string,
+        ownerKey: string,
+        type: string,
+        relation: string
+    );
     select(columns?: string[]): this;
     selectRaw(expression: string, bindings?: any): this;
     selectSub(query: any, as: string): this;

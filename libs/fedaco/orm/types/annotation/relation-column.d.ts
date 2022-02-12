@@ -7,7 +7,8 @@ import { Model } from '../fedaco/model';
 import { Relation } from '../fedaco/relations/relation';
 import { ColumnAnnotation } from './column';
 import { RelationType } from './enum-relation';
-export interface RelationColumnAnnotation<T extends Relation = Relation> extends ColumnAnnotation {
+export interface RelationColumnAnnotation<T extends Relation = Relation>
+    extends ColumnAnnotation {
     name?: string;
     isRelation?: boolean;
     relationType?: RelationType;

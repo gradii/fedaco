@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isBlank } from '@gradii/check-type'
 import { Connection } from '../connection'
 import { PostgresQueryGrammar } from '../query-builder/grammar/postgres-query-grammar'

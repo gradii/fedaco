@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { RejectOrderElementExpression } from '../../query/ast/fragment/order/reject-order-element-expression'
 import { Identifier } from '../../query/ast/identifier'
 export function mixinLimitOffset(base) {

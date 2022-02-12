@@ -11,6 +11,11 @@ export declare class InPredicateExpression extends Expression {
     values: Expression[];
     subQuery?: NestedExpression;
     not: boolean;
-    constructor(expression: Expression, values: Expression[], subQuery?: NestedExpression, not?: boolean);
+    constructor(
+        expression: Expression,
+        values: Expression[],
+        subQuery?: NestedExpression,
+        not?: boolean
+    );
     accept(visitor: SqlVisitor): string;
 }

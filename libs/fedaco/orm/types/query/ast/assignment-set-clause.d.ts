@@ -12,6 +12,9 @@ import { RawExpression } from './expression/raw-expression';
 export declare class AssignmentSetClause extends SqlNode {
     column: ColumnReferenceExpression;
     value: RawExpression | RawBindingExpression | BindingVariable;
-    constructor(column: ColumnReferenceExpression, value: RawExpression | RawBindingExpression | BindingVariable);
+    constructor(
+        column: ColumnReferenceExpression,
+        value: RawExpression | RawBindingExpression | BindingVariable
+    );
     accept(visitor: SqlVisitor): string;
 }

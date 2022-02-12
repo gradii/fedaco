@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { __awaiter } from 'tslib'
 import { isNumber, isObject } from '@gradii/check-type'
 import { Processor } from '../processor'

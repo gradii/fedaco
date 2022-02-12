@@ -5,6 +5,5 @@
  */
 import { FedacoDecorator } from '../annotation.interface';
 import { ColumnAnnotation } from '../column';
-export interface CurrencyColumnAnnotation extends ColumnAnnotation {
-}
+export interface CurrencyColumnAnnotation extends ColumnAnnotation {}
 export declare const CurrencyColumn: FedacoDecorator<CurrencyColumnAnnotation>;

@@ -20,16 +20,28 @@ export declare class SqlServerSchemaGrammar extends SchemaGrammar {
     compilePrimary(blueprint: Blueprint, command: ColumnDefinition): string;
     compileUnique(blueprint: Blueprint, command: ColumnDefinition): string;
     compileIndex(blueprint: Blueprint, command: ColumnDefinition): string;
-    compileSpatialIndex(blueprint: Blueprint, command: ColumnDefinition): string;
+    compileSpatialIndex(
+        blueprint: Blueprint,
+        command: ColumnDefinition
+    ): string;
     compileDrop(blueprint: Blueprint, command: ColumnDefinition): string;
-    compileDropIfExists(blueprint: Blueprint, command: ColumnDefinition): string;
+    compileDropIfExists(
+        blueprint: Blueprint,
+        command: ColumnDefinition
+    ): string;
     compileDropAllTables(): string;
     compileDropColumn(blueprint: Blueprint, command: ColumnDefinition): string;
-    compileDropDefaultConstraint(blueprint: Blueprint, command: ColumnDefinition): string;
+    compileDropDefaultConstraint(
+        blueprint: Blueprint,
+        command: ColumnDefinition
+    ): string;
     compileDropPrimary(blueprint: Blueprint, command: ColumnDefinition): string;
     compileDropUnique(blueprint: Blueprint, command: ColumnDefinition): string;
     compileDropIndex(blueprint: Blueprint, command: ColumnDefinition): string;
-    compileDropSpatialIndex(blueprint: Blueprint, command: ColumnDefinition): string;
+    compileDropSpatialIndex(
+        blueprint: Blueprint,
+        command: ColumnDefinition
+    ): string;
     compileDropForeign(blueprint: Blueprint, command: ColumnDefinition): string;
     compileRename(blueprint: Blueprint, command: ColumnDefinition): string;
     compileRenameIndex(blueprint: Blueprint, command: ColumnDefinition): string;
@@ -76,11 +88,26 @@ export declare class SqlServerSchemaGrammar extends SchemaGrammar {
     typeMultiLineString(column: ColumnDefinition): string;
     typeMultiPolygon(column: ColumnDefinition): string;
     protected typeComputed(column: ColumnDefinition): string;
-    protected modifyCollate(blueprint: Blueprint, column: ColumnDefinition): string;
-    protected modifyNullable(blueprint: Blueprint, column: ColumnDefinition): "" | " null" | " not null";
-    protected modifyDefault(blueprint: Blueprint, column: ColumnDefinition): string;
-    protected modifyIncrement(blueprint: Blueprint, column: ColumnDefinition): "" | " identity primary key";
-    protected modifyPersisted(blueprint: Blueprint, column: ColumnDefinition): "" | " persisted";
+    protected modifyCollate(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
+    protected modifyNullable(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): '' | ' null' | ' not null';
+    protected modifyDefault(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
+    protected modifyIncrement(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): '' | ' identity primary key';
+    protected modifyPersisted(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): '' | ' persisted';
     wrapTable(table: Blueprint | string): string | number | boolean | void;
     quoteString(value: any[] | string): string;
 }

@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { __awaiter } from 'tslib'
 import { reflector } from '@gradii/annotation'
 import { isArray, isBlank } from '@gradii/check-type'

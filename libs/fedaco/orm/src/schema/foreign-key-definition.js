@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { wrap } from '../helper/arr'
 import { ColumnDefinition } from './column-definition'
 export class ForeignKeyDefinition extends ColumnDefinition {

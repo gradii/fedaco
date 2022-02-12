@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { Connection } from '../connection';
 import { Table } from '../dbal/table';
 import { Blueprint } from './blueprint';
@@ -42,9 +47,16 @@ export declare class SchemaBuilder {
     protected _getPortableTriggerDefinition(trigger: any[]): any[];
     protected _getPortableSequencesList(sequences: any[][]): void[];
     protected _getPortableSequenceDefinition(sequence: any[]): void;
-    protected _getPortableTableColumnList(table: string, database: string, tableColumns: any[][]): any[];
+    protected _getPortableTableColumnList(
+        table: string,
+        database: string,
+        tableColumns: any[][]
+    ): any[];
     protected _getPortableTableColumnDefinition(tableColumn: any): any;
-    protected _getPortableTableIndexesList(tableIndexRows: any[], tableName?: string | null): Record<string, any>;
+    protected _getPortableTableIndexesList(
+        tableIndexRows: any[],
+        tableName?: string | null
+    ): Record<string, any>;
     protected _getPortableTablesList(tables: any[]): any[];
     protected _getPortableTableDefinition(table: any): any;
     protected _getPortableUsersList(users: any[][]): any[][];
@@ -61,8 +73,13 @@ export declare class SchemaBuilder {
     protected getFilterSchemaAssetsExpression(): any;
     listTables(): Promise<Promise<Table>[]>;
     listTableDetails(tableName: string): Promise<Table>;
-    listTableForeignKeys(table: string, database?: string | null): Promise<any[]>;
-    protected _getPortableTableForeignKeysList(tableForeignKeys: any[][]): any[];
+    listTableForeignKeys(
+        table: string,
+        database?: string | null
+    ): Promise<any[]>;
+    protected _getPortableTableForeignKeysList(
+        tableForeignKeys: any[][]
+    ): any[];
     protected _getPortableTableForeignKeyDefinition(tableForeignKey: any): any;
     protected createBlueprint(table: string, callback?: Function | null): any;
     registerCustomDoctrineType(clazz: string, name: string, type: string): void;

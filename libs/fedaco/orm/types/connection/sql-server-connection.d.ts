@@ -9,7 +9,10 @@ import { SqlServerProcessor } from '../query-builder/processor/sql-server-proces
 import { SchemaGrammar } from '../schema/grammar/schema-grammar';
 import { SchemaBuilder } from '../schema/schema-builder';
 export declare class SqlServerConnection extends Connection {
-    transaction(callback: (...args: any[]) => Promise<any>, attempts?: number): Promise<any>;
+    transaction(
+        callback: (...args: any[]) => Promise<any>,
+        attempts?: number
+    ): Promise<any>;
     protected getDefaultQueryGrammar(): SqlserverQueryGrammar;
     getSchemaBuilder(): SchemaBuilder;
     protected getDefaultSchemaGrammar(): SchemaGrammar;

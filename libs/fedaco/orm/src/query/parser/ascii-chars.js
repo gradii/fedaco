@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 export const $EOF = 0
 export const $BSPACE = 8
 export const $TAB = 9

@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isFunction, isObject } from '@gradii/check-type'
 export function mixinSupportsDefaultModels(base) {
   return class _Self extends base {

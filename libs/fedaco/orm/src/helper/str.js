@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 const UPPERCASE_SUPPORTED_LOCALE = {
   tr: {
     regexp: /[\u0069]/g,

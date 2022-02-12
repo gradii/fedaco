@@ -6,11 +6,16 @@
 import { Constructor } from '../../helper/constructor';
 import { Scope } from '../scope';
 export declare class HasGlobalScopes {
-    static addGlobalScope(scope: string, implementation: Scope | Function): void;
+    static addGlobalScope(
+        scope: string,
+        implementation: Scope | Function
+    ): void;
     getGlobalScopes(): {
         [key: string]: Scope | Function;
     };
 }
 declare type HasGlobalScopesCtor = Constructor<HasGlobalScopes>;
-export declare function mixinHasGlobalScopes<T extends Constructor<{}>>(base: T): HasGlobalScopesCtor & T;
+export declare function mixinHasGlobalScopes<T extends Constructor<{}>>(
+    base: T
+): HasGlobalScopesCtor & T;
 export {};

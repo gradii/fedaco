@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { reflector } from '@gradii/annotation'
 import { isArray, isPromise } from '@gradii/check-type'
 import { findLast } from 'ramda'

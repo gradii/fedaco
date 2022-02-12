@@ -8,7 +8,8 @@ import { HasOne } from '../../fedaco/relations/has-one';
 import { ForwardRefFn } from '../../query-builder/forward-ref';
 import { FedacoDecorator } from '../annotation.interface';
 import { RelationColumnAnnotation } from '../relation-column';
-export interface HasOneRelationAnnotation extends RelationColumnAnnotation<HasOne> {
+export interface HasOneRelationAnnotation
+    extends RelationColumnAnnotation<HasOne> {
     related?: typeof Model | ForwardRefFn;
     foreignKey?: string;
     localKey?: string;

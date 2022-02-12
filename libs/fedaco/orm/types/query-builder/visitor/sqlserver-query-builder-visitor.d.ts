@@ -18,12 +18,11 @@ import { QueryBuilder } from '../query-builder';
 import { QueryBuilderVisitor } from './query-builder-visitor';
 export declare class SqlserverQueryBuilderVisitor extends QueryBuilderVisitor {
     private _limitToTop;
-    constructor(_grammar: GrammarInterface, 
-    /**
-     * @deprecated
-     * todo remove queryBuilder. should use binding only
-     */
-    _queryBuilder: QueryBuilder);
+    constructor(
+        _grammar: GrammarInterface,
+
+        _queryBuilder: QueryBuilder
+    );
     visitQuerySpecification(node: QuerySpecification): string;
     visitQueryExpression(node: QueryExpression): string;
     visitSelectClause(node: SelectClause): string;

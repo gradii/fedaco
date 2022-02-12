@@ -3,13 +3,6 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-/**
- * @license
- * Copyright Google LLC All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
 export declare const $EOF = 0;
 export declare const $BSPACE = 8;
 export declare const $TAB = 9;
@@ -18,7 +11,7 @@ export declare const $VTAB = 11;
 export declare const $FF = 12;
 export declare const $CR = 13;
 export declare const $SPACE = 32;
-/*!*/ export declare const $BANG = 33;
+export declare const $BANG = 33;
 export declare const $DQ = 34;
 export declare const $HASH = 35;
 export declare const $$ = 36;
@@ -27,7 +20,7 @@ export declare const $AMPERSAND = 38;
 export declare const $SQ = 39;
 export declare const $LPAREN = 40;
 export declare const $RPAREN = 41;
-/***/ export declare const $STAR = 42;
+export declare const $STAR = 42;
 export declare const $PLUS = 43;
 export declare const $COMMA = 44;
 export declare const $MINUS = 45;

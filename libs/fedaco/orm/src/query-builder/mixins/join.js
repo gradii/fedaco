@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isFunction, isString } from '@gradii/check-type'
 import { JoinFragment } from '../../query/ast/fragment/join-fragment'
 import { JoinExpression } from '../../query/ast/join-expression'

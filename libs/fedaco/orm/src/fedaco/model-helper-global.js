@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { Pivot } from './relations/pivot'
 import { fromAttributes, fromRawAttributes } from './relations/pivot-helper'
 

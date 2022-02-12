@@ -6,10 +6,6 @@
 import { Constructor } from '../../helper/constructor';
 import { Model } from '../model';
 export interface HasTimestamps {
-    /**
-     * Indicates if the model should be timestamped.
-     * @deprecated disable timestamps
-     */
     _timestamps: boolean;
     touch(attribute?: string): Promise<boolean>;
     updateTimestamps(): boolean;
@@ -24,5 +20,7 @@ export interface HasTimestamps {
     getQualifiedUpdatedAtColumn(this: Model & this): string;
 }
 export declare type HasTimestampsCtor = Constructor<HasTimestamps>;
-/** Mixin to augment a directive with a `disableRipple` property. */
-export declare function mixinHasTimestamps<T extends Constructor<any>>(base: T): HasTimestampsCtor & T;
+
+export declare function mixinHasTimestamps<T extends Constructor<any>>(
+    base: T
+): HasTimestampsCtor & T;

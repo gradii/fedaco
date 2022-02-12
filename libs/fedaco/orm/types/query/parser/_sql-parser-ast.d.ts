@@ -29,23 +29,24 @@ export declare class _SqlParserAst {
     private rparensExpected;
     private rbracketsExpected;
     private rbracesExpected;
-    constructor(input: string, location: any, absoluteOffset: number, tokens: Token[], inputLength: number, parseAction: boolean, errors: any[], offset: number);
+    constructor(
+        input: string,
+        location: any,
+        absoluteOffset: number,
+        tokens: Token[],
+        inputLength: number,
+        parseAction: boolean,
+        errors: any[],
+        offset: number
+    );
     get next(): Token;
-    /** Whether all the parser input has been processed. */
+
     get atEOF(): boolean;
-    /**
-     * Index of the next token to be processed, or the end of the last token if all have been
-     * processed.
-     */
+
     get inputIndex(): number;
-    /**
-     * End index of the last processed token, or the start of the first token if none have been
-     * processed.
-     */
+
     get currentEndIndex(): number;
-    /**
-     * Returns the absolute offset of the start of the current token.
-     */
+
     get currentAbsoluteOffset(): number;
     advance(): void;
     consumeOptionalCharacter(code: number): boolean;
@@ -57,10 +58,14 @@ export declare class _SqlParserAst {
     expectIdentifierOrKeywordOrString(): string;
     expectOperator(operator: string): void;
     parseBraceCondition(): void;
-    parseColumnWithoutAlias(defaultTable?: string | FromTable): ColumnReferenceExpression;
+    parseColumnWithoutAlias(
+        defaultTable?: string | FromTable
+    ): ColumnReferenceExpression;
     parseColumnAlias(): ColumnReferenceExpression;
     _parseColumnAsName(defaultTable?: FromTable): ColumnReferenceExpression;
-    _parseColumnName(defaultTable?: FromTable): JsonPathExpression | PathExpression | null;
+    _parseColumnName(
+        defaultTable?: FromTable
+    ): JsonPathExpression | PathExpression | null;
     parseEqCondition(): void;
     parseExpression(): StringLiteralExpression | NumberLiteralExpression;
     parseGtCondition(): void;
@@ -68,20 +73,18 @@ export declare class _SqlParserAst {
     parseJoinClause(): JoinClause;
     parseLtCondition(): void;
     parseTableAlias(): TableReferenceExpression;
-    /**
-     *
-     */
+
     _parseTableAsName(): TableReferenceExpression;
     parseTableColumn(): Token;
     _parseChainName(): Identifier[];
     _parseChainPathExpression(defaultTable?: FromTable): PathExpression | null;
-    _parseJsonColumnPathExpression(defaultTable?: FromTable): PathExpression | JsonPathExpression | null;
+    _parseJsonColumnPathExpression(
+        defaultTable?: FromTable
+    ): PathExpression | JsonPathExpression | null;
     _parseTableName(): TableName;
     parseUnaryExpression(): StringLiteralExpression | NumberLiteralExpression;
     parseAsName(): Identifier;
-    /**
-     * @deprecated
-     */
+
     parseUnaryTableColumn(): PathExpression | null;
     parseWhereCondition(): JoinOnExpression;
     peek(offset: number): Token;

@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { SqlNode } from '../sql-node'
 export class InsertSpecification extends SqlNode {
   constructor(insertOption, insertSource, columns, target) {

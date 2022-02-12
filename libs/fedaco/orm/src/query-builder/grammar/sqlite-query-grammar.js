@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { snakeCase } from '../../helper/str'
 import { ColumnReferenceExpression } from '../../query/ast/column-reference-expression'
 import { DeleteSpecification } from '../../query/ast/delete-specification'

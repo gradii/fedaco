@@ -9,7 +9,9 @@ import { Relation } from '../../fedaco/relations/relation';
 import { ForwardRefFn } from '../../query-builder/forward-ref';
 import { FedacoDecorator } from '../annotation.interface';
 import { RelationColumnAnnotation } from '../relation-column';
-export interface BelongsToManyRelationAnnotation<T extends Relation = BelongsToMany> extends RelationColumnAnnotation<T> {
+export interface BelongsToManyRelationAnnotation<
+    T extends Relation = BelongsToMany
+> extends RelationColumnAnnotation<T> {
     related: typeof Model | ForwardRefFn<typeof Model>;
     table?: string;
     foreignPivotKey?: string;

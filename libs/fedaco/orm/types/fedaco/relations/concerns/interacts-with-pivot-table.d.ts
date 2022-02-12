@@ -10,28 +10,60 @@ import type { Model } from '../../model';
 import type { Pivot } from '../pivot';
 import type { AsPivot } from './as-pivot';
 export interface InteractsWithPivotTable {
-    /**
-     * Toggles a model (or models) from the parent.
-     * Each existing model is detached, and non existing ones are attached.
-     */
-    toggle(ids: any, touch?: boolean): Promise<{
+    toggle(
+        ids: any,
+        touch?: boolean
+    ): Promise<{
         attached: any[];
         detached: any[];
     }>;
-    syncWithoutDetaching(ids: Collection | Model | any[]): Promise<PivotTableData>;
-    sync(ids: Collection | Model | any[], detaching?: boolean): Promise<PivotTableData>;
-    syncWithPivotValues(ids: Collection | Model | any[], values: any[], detaching?: boolean): Promise<Record<string, any>>;
+    syncWithoutDetaching(
+        ids: Collection | Model | any[]
+    ): Promise<PivotTableData>;
+    sync(
+        ids: Collection | Model | any[],
+        detaching?: boolean
+    ): Promise<PivotTableData>;
+    syncWithPivotValues(
+        ids: Collection | Model | any[],
+        values: any[],
+        detaching?: boolean
+    ): Promise<Record<string, any>>;
     _formatRecordsList(records: any[]): Record<string, any>;
-    _attachNew(records: any[], current: any[], touch?: boolean): Promise<PivotTableData>;
-    updateExistingPivot(id: any, attributes: any[], touch?: boolean): Promise<any>;
-    _updateExistingPivotUsingCustomClass(id: any, attributes: any[], touch: boolean): Promise<any>;
+    _attachNew(
+        records: any[],
+        current: any[],
+        touch?: boolean
+    ): Promise<PivotTableData>;
+    updateExistingPivot(
+        id: any,
+        attributes: any[],
+        touch?: boolean
+    ): Promise<any>;
+    _updateExistingPivotUsingCustomClass(
+        id: any,
+        attributes: any[],
+        touch: boolean
+    ): Promise<any>;
     attach(id: any, attributes?: any, touch?: boolean): Promise<void>;
     _attachUsingCustomClass(id: any, attributes: any[]): Promise<void>;
     _formatAttachRecords(ids: any[], attributes: any[]): any[];
-    _formatAttachRecord(key: number, value: any, attributes: any[], hasTimestamps: boolean): Record<string, any>;
-    _extractAttachIdAndAttributes(key: any, value: any, attributes: any[]): [string, any];
+    _formatAttachRecord(
+        key: number,
+        value: any,
+        attributes: any[],
+        hasTimestamps: boolean
+    ): Record<string, any>;
+    _extractAttachIdAndAttributes(
+        key: any,
+        value: any,
+        attributes: any[]
+    ): [string, any];
     _baseAttachRecord(id: string | number, timed: boolean): Record<string, any>;
-    _addTimestampsToAttachment(record: any[], exists?: boolean): Record<string, any>;
+    _addTimestampsToAttachment(
+        record: any[],
+        exists?: boolean
+    ): Record<string, any>;
     hasPivotColumn(column: string): boolean;
     detach(ids?: any, touch?: boolean): Promise<any>;
     _detachUsingCustomClass(ids: any): Promise<number>;
@@ -55,5 +87,7 @@ declare type PivotTableData = {
     detached: any[];
     updated?: any[];
 };
-export declare function mixinInteractsWithPivotTable<T extends Constructor<any>>(base: T): InteractsWithPivotTableCtor & T;
+export declare function mixinInteractsWithPivotTable<
+    T extends Constructor<any>
+>(base: T): InteractsWithPivotTableCtor & T;
 export {};

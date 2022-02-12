@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isString } from '@gradii/check-type'
 import { ColumnReferenceExpression } from '../../query/ast/column-reference-expression'
 import { AsExpression } from '../../query/ast/expression/as-expression'

@@ -8,7 +8,10 @@ import { GrammarInterface } from '../grammar.interface';
 import { QueryBuilder } from '../query-builder';
 import { SqlserverQueryBuilderVisitor } from '../visitor/sqlserver-query-builder-visitor';
 import { QueryGrammar } from './query-grammar';
-export declare class SqlserverQueryGrammar extends QueryGrammar implements GrammarInterface {
+export declare class SqlserverQueryGrammar
+    extends QueryGrammar
+    implements GrammarInterface
+{
     private _tablePrefix;
     compileSelect(builder: QueryBuilder): string;
     compileUpdate(builder: QueryBuilder, values: any): string;
@@ -19,7 +22,15 @@ export declare class SqlserverQueryGrammar extends QueryGrammar implements Gramm
     quoteColumnName(columnName: string): string;
     quoteTableName(tableName: string): string;
     setTablePrefix(prefix: string): this;
-    compileInsertGetId(builder: QueryBuilder, values: any, sequence: string): string;
-    protected _createVisitor(queryBuilder: QueryBuilder): SqlserverQueryBuilderVisitor;
-    protected _prepareDeleteAstWithJoins(builder: QueryBuilder): DeleteSpecification;
+    compileInsertGetId(
+        builder: QueryBuilder,
+        values: any,
+        sequence: string
+    ): string;
+    protected _createVisitor(
+        queryBuilder: QueryBuilder
+    ): SqlserverQueryBuilderVisitor;
+    protected _prepareDeleteAstWithJoins(
+        builder: QueryBuilder
+    ): DeleteSpecification;
 }

@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isAnyEmpty, isArray, isString } from '@gradii/check-type'
 import { BaseGrammar } from '../../base-grammar'
 import { AssignmentSetClause } from '../../query/ast/assignment-set-clause'

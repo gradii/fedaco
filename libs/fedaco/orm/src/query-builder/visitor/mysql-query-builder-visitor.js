@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { QueryBuilderVisitor } from './query-builder-visitor'
 export class MysqlQueryBuilderVisitor extends QueryBuilderVisitor {
   constructor(

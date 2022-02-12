@@ -14,8 +14,13 @@ import { QueryBuilder } from './query-builder/query-builder';
 import { QueryException } from './query-exception';
 import { SchemaGrammar } from './schema/grammar/schema-grammar';
 import { SchemaBuilder } from './schema/schema-builder';
-declare const Connection_base: new (...args: any[]) => import("./manages-transactions").ManagesTransactions;
-export declare class Connection extends Connection_base implements ConnectionInterface {
+declare const Connection_base: new (
+    ...args: any[]
+) => import('./manages-transactions').ManagesTransactions;
+export declare class Connection
+    extends Connection_base
+    implements ConnectionInterface
+{
     protected pdo: WrappedConnection | Function;
     protected readPdo: Function;
     protected database: string;
@@ -35,7 +40,12 @@ export declare class Connection extends Connection_base implements ConnectionInt
     protected loggingQueries: boolean;
     protected _dryRun: boolean;
     protected static resolvers: any;
-    constructor(pdo: Function, database?: string, tablePrefix?: string, config?: any);
+    constructor(
+        pdo: Function,
+        database?: string,
+        tablePrefix?: string,
+        config?: any
+    );
     useDefaultQueryGrammar(): void;
     protected getDefaultQueryGrammar(): QueryGrammar;
     useDefaultSchemaGrammar(): void;
@@ -45,32 +55,54 @@ export declare class Connection extends Connection_base implements ConnectionInt
     getSchemaBuilder(): SchemaBuilder;
     table(table: Function | QueryBuilder | string, as?: string): QueryBuilder;
     query(): QueryBuilder;
-    selectOne(query: string, bindings?: any[], useReadPdo?: boolean): Promise<any>;
+    selectOne(
+        query: string,
+        bindings?: any[],
+        useReadPdo?: boolean
+    ): Promise<any>;
     selectFromWriteConnection(query: string, bindings?: any[]): Promise<any>;
     select(query: string, bindings?: any[], useReadPdo?: boolean): Promise<any>;
     protected prepared(statement: any): any;
     protected getPdoForSelect(useReadPdo?: boolean): any;
     insert(query: string, bindings?: any[]): Promise<any>;
-    insertGetId(query: string, bindings?: any[], sequence?: string): Promise<number>;
+    insertGetId(
+        query: string,
+        bindings?: any[],
+        sequence?: string
+    ): Promise<number>;
     update(query: string, bindings?: any[]): Promise<any>;
     delete(query: string, bindings?: any[]): Promise<any>;
     statement(query: string, bindings?: any): Promise<any>;
     affectingStatement(query: string, bindings?: any[]): Promise<any>;
     pretend(callback: Function): any;
     protected withFreshQueryLog(callback: Function): any;
-    /**
-     * Bind values to their parameters in the given statement.
-     * @param statement
-     * @param bindings
-     */
+
     bindValues(statement: WrappedStmt, bindings: any[]): void;
     prepareBindings(bindings: any[]): any[];
-    protected run(query: string, bindings: any[], callback: Function): Promise<any>;
-    protected runQueryCallback(query: string, bindings: any[], callback: Function): Promise<any>;
+    protected run(
+        query: string,
+        bindings: any[],
+        callback: Function
+    ): Promise<any>;
+    protected runQueryCallback(
+        query: string,
+        bindings: any[],
+        callback: Function
+    ): Promise<any>;
     logQuery(query: string, bindings: any[], time?: number | null): void;
     protected getElapsedTime(start: number): number;
-    protected handleQueryException(e: QueryException, query: string, bindings: any[], callback: Function): Promise<any>;
-    protected tryAgainIfCausedByLostConnection(e: QueryException, query: string, bindings: any[], callback: Function): Promise<any>;
+    protected handleQueryException(
+        e: QueryException,
+        query: string,
+        bindings: any[],
+        callback: Function
+    ): Promise<any>;
+    protected tryAgainIfCausedByLostConnection(
+        e: QueryException,
+        query: string,
+        bindings: any[],
+        callback: Function
+    ): Promise<any>;
     protected causedByLostConnection(message: string): boolean;
     reconnect(): Promise<any>;
     _reconnectIfMissingConnection(): void;
@@ -78,7 +110,7 @@ export declare class Connection extends Connection_base implements ConnectionInt
     listen(callback: Function): void;
     _fireConnectionEvent(event: string): void;
     protected event(event: any): void;
-    raw(value: any): import("@gradii/fedaco").RawExpression;
+    raw(value: any): import('@gradii/fedaco').RawExpression;
     hasModifiedRecords(): boolean;
     recordsHaveBeenModified(value?: boolean): void;
     setRecordModificationState(value: boolean): this;

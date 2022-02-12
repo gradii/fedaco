@@ -8,10 +8,15 @@ import { GrammarInterface } from '../grammar.interface';
 import { QueryBuilder } from '../query-builder';
 import { SqliteQueryBuilderVisitor } from '../visitor/sqlite-query-builder-visitor';
 import { QueryGrammar } from './query-grammar';
-export declare class SqliteQueryGrammar extends QueryGrammar implements GrammarInterface {
+export declare class SqliteQueryGrammar
+    extends QueryGrammar
+    implements GrammarInterface
+{
     private _tablePrefix;
     compileJoins(): void;
-    protected _createVisitor(queryBuilder: QueryBuilder): SqliteQueryBuilderVisitor;
+    protected _createVisitor(
+        queryBuilder: QueryBuilder
+    ): SqliteQueryBuilderVisitor;
     compileInsertOrIgnore(builder: QueryBuilder, values: any | any[]): string;
     compileTruncate(query: QueryBuilder): {
         [sql: string]: any[];
@@ -23,6 +28,10 @@ export declare class SqliteQueryGrammar extends QueryGrammar implements GrammarI
     quoteTableName(tableName: string): string;
     unQuoteTableName(tableName: string): string;
     setTablePrefix(prefix: string): this;
-    protected _prepareDeleteAstWithJoins(builder: QueryBuilder): DeleteSpecification;
-    protected _prepareDeleteAstWithoutJoins(builder: QueryBuilder): DeleteSpecification;
+    protected _prepareDeleteAstWithJoins(
+        builder: QueryBuilder
+    ): DeleteSpecification;
+    protected _prepareDeleteAstWithoutJoins(
+        builder: QueryBuilder
+    ): DeleteSpecification;
 }

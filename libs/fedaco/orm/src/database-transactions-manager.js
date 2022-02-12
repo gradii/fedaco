@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { __awaiter } from 'tslib'
 import { partition } from 'ramda'
 import { DatabaseTransactionRecord } from './database-transaction-record'

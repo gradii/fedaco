@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isBlank, isFunction, isString } from '@gradii/check-type'
 import { last } from 'ramda'
 import { wrap } from '../../../helper/arr'

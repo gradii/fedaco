@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { AsExpression } from '../../query/ast/expression/as-expression'
 import { FunctionCallExpression } from '../../query/ast/expression/function-call-expression'
 import { createIdentifier } from '../ast-factory'

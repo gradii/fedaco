@@ -28,7 +28,24 @@ export interface HasRelationships {
     _getMorphs(name: string, type: string, id: string): string[];
     getMorphClass(): string;
     _newRelatedInstance(this: Model & this, clazz: typeof Model): Model;
-    newRelation<T extends BelongsTo & BelongsToMany & HasMany & HasManyThrough & HasOne & HasOneOrMany & HasOneThrough & MorphMany & MorphOne & MorphOneOrMany & MorphPivot & MorphTo & MorphToMany, K extends keyof this>(relation: K): T;
+    newRelation<
+        T extends BelongsTo &
+            BelongsToMany &
+            HasMany &
+            HasManyThrough &
+            HasOne &
+            HasOneOrMany &
+            HasOneThrough &
+            MorphMany &
+            MorphOne &
+            MorphOneOrMany &
+            MorphPivot &
+            MorphTo &
+            MorphToMany,
+        K extends keyof this
+    >(
+        relation: K
+    ): T;
     getRelations(): Record<string, any>;
     getRelation(relation: string): any;
     relationLoaded(key: string): boolean;
@@ -41,6 +58,8 @@ export interface HasRelationships {
     setTouchedRelations(touches: any[]): this;
 }
 declare type HasRelationshipsCtor = Constructor<HasRelationships>;
-/** Mixin to augment a directive with a `disableRipple` property. */
-export declare function mixinHasRelationships<T extends Constructor<{}>>(base: T): HasRelationshipsCtor & T;
+
+export declare function mixinHasRelationships<T extends Constructor<{}>>(
+    base: T
+): HasRelationshipsCtor & T;
 export {};

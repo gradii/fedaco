@@ -13,6 +13,9 @@ import { TableName } from './table-name';
 export declare class TableReferenceExpression extends SqlNode {
     expression: ParenthesizedExpression | TableName | NestedExpression;
     alias?: Identifier | PathExpression;
-    constructor(expression: ParenthesizedExpression | TableName | NestedExpression, alias?: Identifier | PathExpression);
+    constructor(
+        expression: ParenthesizedExpression | TableName | NestedExpression,
+        alias?: Identifier | PathExpression
+    );
     accept(visitor: SqlVisitor): string;
 }

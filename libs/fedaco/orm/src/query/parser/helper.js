@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import * as chars from './ascii-chars'
 export function isIdentifierStart(code) {
   return (

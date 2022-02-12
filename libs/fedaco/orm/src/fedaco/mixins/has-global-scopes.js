@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isBlank } from '@gradii/check-type'
 const globalScopes = new WeakMap()
 export function mixinHasGlobalScopes(base) {

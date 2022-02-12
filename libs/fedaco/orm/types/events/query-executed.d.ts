@@ -10,5 +10,10 @@ export declare class QueryExecuted {
     time: number;
     connection: Connection;
     connectionName: string;
-    constructor(sql: string, bindings: any[], time: number | null, connection: Connection);
+    constructor(
+        sql: string,
+        bindings: any[],
+        time: number | null,
+        connection: Connection
+    );
 }

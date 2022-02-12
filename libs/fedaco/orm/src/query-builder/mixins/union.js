@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isFunction } from '@gradii/check-type'
 import { UnionFragment } from '../../query/ast/fragment/union-fragment'
 export function mixinUnion(base) {

@@ -10,6 +10,10 @@ export declare class JoinOnExpression extends SqlNode {
     columnExpression: Expression;
     operator: any;
     rightExpression: Expression;
-    constructor(columnExpression: Expression, operator: any, rightExpression: Expression);
+    constructor(
+        columnExpression: Expression,
+        operator: any,
+        rightExpression: Expression
+    );
     accept(visitor: SqlVisitor): string;
 }

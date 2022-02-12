@@ -11,5 +11,7 @@ export interface SupportsDefaultModels {
     _getDefaultFor(parent: Model): Model;
 }
 declare type SupportsDefaultModelsCtor = Constructor<SupportsDefaultModels>;
-export declare function mixinSupportsDefaultModels<T extends Constructor<{}>>(base: T): SupportsDefaultModelsCtor & T;
+export declare function mixinSupportsDefaultModels<T extends Constructor<{}>>(
+    base: T
+): SupportsDefaultModelsCtor & T;
 export {};

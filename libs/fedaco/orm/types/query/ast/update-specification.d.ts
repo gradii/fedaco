@@ -20,6 +20,14 @@ export declare class UpdateSpecification extends SqlNode {
     orderByClause?: OrderByClause;
     offsetClause?: OffsetClause;
     limitClause?: LimitClause;
-    constructor(target: FromTable, setClauses: SetClause[], whereClause?: WhereClause, fromClause?: FromClause, orderByClause?: OrderByClause, offsetClause?: OffsetClause, limitClause?: LimitClause);
+    constructor(
+        target: FromTable,
+        setClauses: SetClause[],
+        whereClause?: WhereClause,
+        fromClause?: FromClause,
+        orderByClause?: OrderByClause,
+        offsetClause?: OffsetClause,
+        limitClause?: LimitClause
+    );
     accept(visitor: SqlVisitor): string;
 }

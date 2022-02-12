@@ -8,6 +8,11 @@ import { ColumnDefinition } from './column-definition';
 export declare class ForeignIdColumnDefinition extends ColumnDefinition {
     protected blueprint: Blueprint;
     constructor(blueprint: Blueprint, attributes?: any);
-    withConstrained(table?: string | null, column?: string): import("@gradii/fedaco").ForeignKeyDefinition;
-    withReferences(column: string): import("@gradii/fedaco").ForeignKeyDefinition;
+    withConstrained(
+        table?: string | null,
+        column?: string
+    ): import('@gradii/fedaco').ForeignKeyDefinition;
+    withReferences(
+        column: string
+    ): import('@gradii/fedaco').ForeignKeyDefinition;
 }

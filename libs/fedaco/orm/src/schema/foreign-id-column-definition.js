@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { plural } from '../helper/pluralize'
 import { ColumnDefinition } from './column-definition'
 export class ForeignIdColumnDefinition extends ColumnDefinition {

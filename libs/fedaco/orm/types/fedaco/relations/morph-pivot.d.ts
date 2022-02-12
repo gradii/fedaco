@@ -15,6 +15,8 @@ export declare class MorphPivot extends Pivot {
     setMorphType(morphType: string): this;
     setMorphClass(morphClass: string): this;
     getQueueableId(): any;
-    newQueryForRestoration(ids: number[] | string[] | string): FedacoBuilder<this>;
+    newQueryForRestoration(
+        ids: number[] | string[] | string
+    ): FedacoBuilder<this>;
     protected newQueryForCollectionRestoration(ids: any[]): FedacoBuilder<this>;
 }

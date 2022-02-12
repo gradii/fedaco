@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isAnyEmpty, isArray, isObject } from '@gradii/check-type'
 import { wrap } from '../../helper/arr'
 import { MysqlQueryBuilderVisitor } from '../visitor/mysql-query-builder-visitor'

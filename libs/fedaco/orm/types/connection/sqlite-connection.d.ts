@@ -10,11 +10,19 @@ import { SchemaGrammar } from '../schema/grammar/schema-grammar';
 import { SchemaBuilder } from '../schema/schema-builder';
 import { SqliteSchemaState } from '../schema/sqlite-schema-state';
 export declare class SqliteConnection extends Connection {
-    constructor(pdo: any, database?: string, tablePrefix?: string, config?: any);
+    constructor(
+        pdo: any,
+        database?: string,
+        tablePrefix?: string,
+        config?: any
+    );
     protected getDefaultQueryGrammar(): QueryGrammar;
     getSchemaBuilder(): SchemaBuilder;
     protected getDefaultSchemaGrammar(): SchemaGrammar;
-    getSchemaState(files?: any, processFactory?: Function | null): SqliteSchemaState;
+    getSchemaState(
+        files?: any,
+        processFactory?: Function | null
+    ): SqliteSchemaState;
     protected getDefaultPostProcessor(): SqliteProcessor;
     protected getDoctrineDriver(): void;
     protected getForeignKeyConstraintsConfigurationValue(): any;

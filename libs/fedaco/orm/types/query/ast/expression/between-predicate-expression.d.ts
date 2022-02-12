@@ -10,6 +10,11 @@ export declare class BetweenPredicateExpression extends Expression {
     leftBetween: Expression;
     rightBetween: Expression;
     not: boolean;
-    constructor(expression: Expression, leftBetween: Expression, rightBetween: Expression, not?: boolean);
+    constructor(
+        expression: Expression,
+        leftBetween: Expression,
+        rightBetween: Expression,
+        not?: boolean
+    );
     accept(visitor: SqlVisitor): string;
 }

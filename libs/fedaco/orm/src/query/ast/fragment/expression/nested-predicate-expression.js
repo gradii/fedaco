@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { Expression } from '../../expression/expression'
 export class NestedPredicateExpression extends Expression {
   constructor(query) {

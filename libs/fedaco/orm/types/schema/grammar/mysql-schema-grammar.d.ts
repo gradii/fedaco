@@ -14,24 +14,53 @@ export declare class MysqlSchemaGrammar extends SchemaGrammar {
     compileDropDatabaseIfExists(name: string): string;
     compileTableExists(): string;
     compileColumnListing(): string;
-    compileCreate(blueprint: Blueprint, command: ColumnDefinition, connection: Connection): string[];
-    protected compileCreateTable(blueprint: Blueprint, command: ColumnDefinition, connection: Connection): string;
-    protected compileCreateEncoding(sql: string, connection: Connection, blueprint: Blueprint): string;
-    protected compileCreateEngine(sql: string, connection: Connection, blueprint: Blueprint): string;
+    compileCreate(
+        blueprint: Blueprint,
+        command: ColumnDefinition,
+        connection: Connection
+    ): string[];
+    protected compileCreateTable(
+        blueprint: Blueprint,
+        command: ColumnDefinition,
+        connection: Connection
+    ): string;
+    protected compileCreateEncoding(
+        sql: string,
+        connection: Connection,
+        blueprint: Blueprint
+    ): string;
+    protected compileCreateEngine(
+        sql: string,
+        connection: Connection,
+        blueprint: Blueprint
+    ): string;
     compileAdd(blueprint: Blueprint, command: ColumnDefinition): string[];
     compileAutoIncrementStartingValues(blueprint: Blueprint): string[];
     compilePrimary(blueprint: Blueprint, command: ColumnDefinition): string;
     compileUnique(blueprint: Blueprint, command: ColumnDefinition): string;
     compileIndex(blueprint: Blueprint, command: ColumnDefinition): string;
-    compileSpatialIndex(blueprint: Blueprint, command: ColumnDefinition): string;
-    protected compileKey(blueprint: Blueprint, command: ColumnDefinition, type: string): string;
+    compileSpatialIndex(
+        blueprint: Blueprint,
+        command: ColumnDefinition
+    ): string;
+    protected compileKey(
+        blueprint: Blueprint,
+        command: ColumnDefinition,
+        type: string
+    ): string;
     compileDrop(blueprint: Blueprint, command: ColumnDefinition): string;
-    compileDropIfExists(blueprint: Blueprint, command: ColumnDefinition): string;
+    compileDropIfExists(
+        blueprint: Blueprint,
+        command: ColumnDefinition
+    ): string;
     compileDropColumn(blueprint: Blueprint, command: ColumnDefinition): string;
     compileDropPrimary(blueprint: Blueprint, command: ColumnDefinition): string;
     compileDropUnique(blueprint: Blueprint, command: ColumnDefinition): string;
     compileDropIndex(blueprint: Blueprint, command: ColumnDefinition): string;
-    compileDropSpatialIndex(blueprint: Blueprint, command: ColumnDefinition): string;
+    compileDropSpatialIndex(
+        blueprint: Blueprint,
+        command: ColumnDefinition
+    ): string;
     compileDropForeign(blueprint: Blueprint, command: ColumnDefinition): string;
     compileRename(blueprint: Blueprint, command: ColumnDefinition): string;
     compileRenameIndex(blueprint: Blueprint, command: ColumnDefinition): string;
@@ -81,18 +110,54 @@ export declare class MysqlSchemaGrammar extends SchemaGrammar {
     typeMultiLineString(column: ColumnDefinition): string;
     typeMultiPolygon(column: ColumnDefinition): string;
     protected typeComputed(column: ColumnDefinition): void;
-    protected modifyVirtualAs(blueprint: Blueprint, column: ColumnDefinition): string;
-    protected modifyStoredAs(blueprint: Blueprint, column: ColumnDefinition): string;
-    protected modifyUnsigned(blueprint: Blueprint, column: ColumnDefinition): "" | " unsigned";
-    protected modifyCharset(blueprint: Blueprint, column: ColumnDefinition): string;
-    protected modifyCollate(blueprint: Blueprint, column: ColumnDefinition): string;
-    protected modifyNullable(blueprint: Blueprint, column: ColumnDefinition): "" | " null" | " not null";
-    protected modifyDefault(blueprint: Blueprint, column: ColumnDefinition): string;
-    protected modifyIncrement(blueprint: Blueprint, column: ColumnDefinition): "" | " auto_increment primary key";
-    protected modifyFirst(blueprint: Blueprint, column: ColumnDefinition): "" | " first";
-    protected modifyAfter(blueprint: Blueprint, column: ColumnDefinition): string;
-    protected modifyComment(blueprint: Blueprint, column: ColumnDefinition): string;
-    protected modifySrid(blueprint: Blueprint, column: ColumnDefinition): string;
+    protected modifyVirtualAs(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
+    protected modifyStoredAs(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
+    protected modifyUnsigned(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): '' | ' unsigned';
+    protected modifyCharset(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
+    protected modifyCollate(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
+    protected modifyNullable(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): '' | ' null' | ' not null';
+    protected modifyDefault(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
+    protected modifyIncrement(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): '' | ' auto_increment primary key';
+    protected modifyFirst(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): '' | ' first';
+    protected modifyAfter(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
+    protected modifyComment(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
+    protected modifySrid(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
     protected wrapValue(value: string): string;
     protected wrapJsonSelector(value: string): string;
     getListSequencesSQL(database: string): string;

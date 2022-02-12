@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { __awaiter } from 'tslib'
 import { isObject } from '@gradii/check-type'
 import { ColumnReferenceExpression } from '../../query/ast/column-reference-expression'

@@ -10,12 +10,11 @@ import { GrammarInterface } from '../grammar.interface';
 import { QueryBuilder } from '../query-builder';
 import { QueryBuilderVisitor } from './query-builder-visitor';
 export declare class MysqlQueryBuilderVisitor extends QueryBuilderVisitor {
-    constructor(_grammar: GrammarInterface, 
-    /**
-     * @deprecated
-     * todo remove queryBuilder. should use binding only
-     */
-    _queryBuilder: QueryBuilder);
+    constructor(
+        _grammar: GrammarInterface,
+
+        _queryBuilder: QueryBuilder
+    );
     visitDeleteSpecification(node: DeleteSpecification): string;
     visitUpdateSpecification(node: UpdateSpecification): string;
     visitFunctionCallExpression(node: FunctionCallExpression): string;

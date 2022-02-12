@@ -6,9 +6,7 @@
 import { SqlNode } from '../query/sql-node';
 import { SqlVisitor } from '../query/sql-visitor';
 import { GrammarInterface } from './grammar.interface';
-/**
- *
- */
+
 export declare class QueryBuilderResolverVisitor implements SqlVisitor {
     private _grammar;
     _isVisitUpdateSpecification: boolean;

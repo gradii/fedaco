@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { HasOneOrMany } from './has-one-or-many'
 export class HasMany extends HasOneOrMany {
   getResults() {

@@ -10,4 +10,6 @@ export interface QueryBuilderUnion {
     unionAll(query: QueryBuilder | Function): this;
 }
 export declare type QueryBuilderUnionCtor = Constructor<QueryBuilderUnion>;
-export declare function mixinUnion<T extends Constructor<any>>(base: T): QueryBuilderUnionCtor & T;
+export declare function mixinUnion<T extends Constructor<any>>(
+    base: T
+): QueryBuilderUnionCtor & T;

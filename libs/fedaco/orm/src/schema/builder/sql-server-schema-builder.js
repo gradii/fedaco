@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { SchemaBuilder } from '../schema-builder'
 export class SqlServerSchemaBuilder extends SchemaBuilder {
   createDatabase(name) {

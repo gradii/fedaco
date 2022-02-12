@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { isArray, isFunction, isObject, isString } from '@gradii/check-type'
 import { BindingVariable } from '../../query/ast/binding-variable'
 import { BinaryExpression } from '../../query/ast/expression/binary-expression'

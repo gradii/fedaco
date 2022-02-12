@@ -23,17 +23,31 @@ export declare class SqliteSchemaGrammar extends SchemaGrammar {
     compileSpatialIndex(blueprint: Blueprint, command: ColumnDefinition): void;
     compileForeign(blueprint: Blueprint, command: ColumnDefinition): string;
     compileDrop(blueprint: Blueprint, command: ColumnDefinition): string;
-    compileDropIfExists(blueprint: Blueprint, command: ColumnDefinition): string;
+    compileDropIfExists(
+        blueprint: Blueprint,
+        command: ColumnDefinition
+    ): string;
     compileDropAllTables(): string;
     compileDropAllViews(): string;
     compileRebuild(): string;
-    compileDropColumn(blueprint: Blueprint, command: ColumnDefinition, connection: Connection): Promise<string>;
+    compileDropColumn(
+        blueprint: Blueprint,
+        command: ColumnDefinition,
+        connection: Connection
+    ): Promise<string>;
     compileDropUnique(blueprint: Blueprint, command: ColumnDefinition): string;
     compileDropIndex(blueprint: Blueprint, command: ColumnDefinition): string;
     compilePrimary(blueprint: Blueprint, command: ColumnDefinition): string;
-    compileDropSpatialIndex(blueprint: Blueprint, command: ColumnDefinition): void;
+    compileDropSpatialIndex(
+        blueprint: Blueprint,
+        command: ColumnDefinition
+    ): void;
     compileRename(blueprint: Blueprint, command: ColumnDefinition): string;
-    compileRenameIndex(blueprint: Blueprint, command: ColumnDefinition, connection: Connection): void;
+    compileRenameIndex(
+        blueprint: Blueprint,
+        command: ColumnDefinition,
+        connection: Connection
+    ): void;
     compileEnableForeignKeyConstraints(): string;
     compileDisableForeignKeyConstraints(): string;
     compileEnableWriteableSchema(): string;
@@ -57,12 +71,20 @@ export declare class SqliteSchemaGrammar extends SchemaGrammar {
     protected typeJson(column: ColumnDefinition): string;
     protected typeJsonb(column: ColumnDefinition): string;
     protected typeDate(column: ColumnDefinition): string;
-    protected typeDateTime(column: ColumnDefinition): "datetime" | "datetime default CURRENT_TIMESTAMP";
-    protected typeDateTimeTz(column: ColumnDefinition): "datetime" | "datetime default CURRENT_TIMESTAMP";
+    protected typeDateTime(
+        column: ColumnDefinition
+    ): 'datetime' | 'datetime default CURRENT_TIMESTAMP';
+    protected typeDateTimeTz(
+        column: ColumnDefinition
+    ): 'datetime' | 'datetime default CURRENT_TIMESTAMP';
     protected typeTime(column: ColumnDefinition): string;
     protected typeTimeTz(column: ColumnDefinition): string;
-    protected typeTimestamp(column: ColumnDefinition): "datetime" | "datetime default CURRENT_TIMESTAMP";
-    protected typeTimestampTz(column: ColumnDefinition): "datetime" | "datetime default CURRENT_TIMESTAMP";
+    protected typeTimestamp(
+        column: ColumnDefinition
+    ): 'datetime' | 'datetime default CURRENT_TIMESTAMP';
+    protected typeTimestampTz(
+        column: ColumnDefinition
+    ): 'datetime' | 'datetime default CURRENT_TIMESTAMP';
     protected typeYear(column: ColumnDefinition): string;
     protected typeBinary(column: ColumnDefinition): string;
     protected typeUuid(column: ColumnDefinition): string;
@@ -77,11 +99,26 @@ export declare class SqliteSchemaGrammar extends SchemaGrammar {
     typeMultiLineString(column: ColumnDefinition): string;
     typeMultiPolygon(column: ColumnDefinition): string;
     protected typeComputed(column: ColumnDefinition): void;
-    protected modifyVirtualAs(blueprint: Blueprint, column: ColumnDefinition): string;
-    protected modifyStoredAs(blueprint: Blueprint, column: ColumnDefinition): string;
-    protected modifyNullable(blueprint: Blueprint, column: ColumnDefinition): "" | " not null";
-    protected modifyDefault(blueprint: Blueprint, column: ColumnDefinition): string;
-    protected modifyIncrement(blueprint: Blueprint, column: ColumnDefinition): "" | " primary key autoincrement";
+    protected modifyVirtualAs(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
+    protected modifyStoredAs(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
+    protected modifyNullable(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): '' | ' not null';
+    protected modifyDefault(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): string;
+    protected modifyIncrement(
+        blueprint: Blueprint,
+        column: ColumnDefinition
+    ): '' | ' primary key autoincrement';
     protected wrapJsonSelector(value: string): string;
     getListTableColumnsSQL(table: string, database: string): string;
     getListTableIndexesSQL(table: string, database: string): string;

@@ -15,6 +15,14 @@ export declare class JoinExpression extends SqlNode {
     type: string;
     name: TableReferenceExpression | PathExpression | Identifier | JoinedTable;
     on?: JoinOnExpression | ConditionExpression;
-    constructor(type: string, name: TableReferenceExpression | PathExpression | Identifier | JoinedTable, on?: JoinOnExpression | ConditionExpression);
+    constructor(
+        type: string,
+        name:
+            | TableReferenceExpression
+            | PathExpression
+            | Identifier
+            | JoinedTable,
+        on?: JoinOnExpression | ConditionExpression
+    );
     accept(visitor: SqlVisitor): string;
 }

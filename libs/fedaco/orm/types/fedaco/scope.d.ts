@@ -8,5 +8,4 @@ import { Model } from './model';
 export interface Scope {
     apply(builder: FedacoBuilder, model: Model): any;
 }
-export declare abstract class Scope {
-}
+export declare abstract class Scope {}

@@ -1,3 +1,8 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
 import { replaceArray } from './helper/str'
 export class QueryException {
   constructor(sql, bindings, message) {
