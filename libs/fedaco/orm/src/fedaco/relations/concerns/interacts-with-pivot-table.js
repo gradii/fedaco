@@ -1,5 +1,5 @@
 import { __awaiter } from 'tslib'
-import { isArray, isBlank, isString } from '@gradii/check-type'
+import { isArray, isBlank, isNumber, isString } from '@gradii/check-type'
 import { difference, intersection, pluck } from 'ramda'
 import { mapWithKeys, wrap } from '../../../helper/arr'
 import { BaseModel } from '../../base-model'
@@ -20,12 +20,12 @@ export function mixinInteractsWithPivotTable(base) {
           )
         )
         if (detach.length > 0) {
-          this.detach(detach, false)
+          yield this.detach(detach, false)
           changes['detached'] = this.castKeys(detach)
         }
         const attach = difference(Object.keys(records), detach)
         if (attach.length > 0) {
-          this.attach(attach, [], false)
+          yield this.attach(attach, [], false)
           changes['attached'] = Object.keys(attach)
         }
         if (
@@ -56,12 +56,12 @@ export function mixinInteractsWithPivotTable(base) {
         const records = this._formatRecordsList(this._parseIds(ids))
         const detach = difference(current, Object.keys(records))
         if (detaching && detach.length > 0) {
-          this.detach(detach)
+          yield this.detach(detach)
           changes['detached'] = this._castKeys(detach)
         }
         changes = Object.assign(
           Object.assign({}, changes),
-          this._attachNew(records, current, false)
+          yield this._attachNew(records, current, false)
         )
         if (
           changes['attached'].length ||
@@ -87,30 +87,32 @@ export function mixinInteractsWithPivotTable(base) {
 
     _formatRecordsList(records) {
       return mapWithKeys(records, (attributes, id) => {
-        if (isString(attributes)) {
-          return { attributes: [] }
+        if (isString(attributes) || isNumber(attributes)) {
+          return { [attributes]: [] }
         }
         return { [id]: attributes }
       })
     }
 
     _attachNew(records, current, touch = true) {
-      const changes = {
-        attached: [],
-        updated: [],
-      }
-      for (const [id, attributes] of Object.entries(records)) {
-        if (!current.includes(id)) {
-          this.attach(id, attributes, touch)
-          changes['attached'].push(this._castKey(id))
-        } else if (
-          attributes.length > 0 &&
-          this.updateExistingPivot(id, attributes, touch)
-        ) {
-          changes['updated'].push(this._castKey(id))
+      return __awaiter(this, void 0, void 0, function* () {
+        const changes = {
+          attached: [],
+          updated: [],
         }
-      }
-      return changes
+        for (const [id, attributes] of Object.entries(records)) {
+          if (!current.includes(id)) {
+            yield this.attach(id, attributes, touch)
+            changes['attached'].push(this._castKey(id))
+          } else if (
+            attributes.length > 0 &&
+            (yield this.updateExistingPivot(id, attributes, touch))
+          ) {
+            changes['updated'].push(this._castKey(id))
+          }
+        }
+        return changes
+      })
     }
 
     updateExistingPivot(id, attributes, touch = true) {
@@ -235,7 +237,7 @@ export function mixinInteractsWithPivotTable(base) {
 
     _addTimestampsToAttachment(record, exists = false) {
       let fresh = this.parent.freshTimestamp()
-      if (this.using) {
+      if (this._using) {
         const pivotModel = new this._using()
         fresh = fresh.format(pivotModel.getDateFormat())
       }
@@ -256,7 +258,7 @@ export function mixinInteractsWithPivotTable(base) {
       return __awaiter(this, void 0, void 0, function* () {
         let results
         if (
-          this.using &&
+          this._using &&
           ids.length &&
           !this._pivotWheres.length &&
           !this._pivotWhereIns.length &&
@@ -369,7 +371,7 @@ export function mixinInteractsWithPivotTable(base) {
       if (value instanceof BaseModel) {
         return [value.getAttribute(this._relatedKey)]
       }
-      if (isArray(value)) {
+      if (isArray(value) && value.length && value[0] instanceof BaseModel) {
         return value.map((it) => it.getAttribute(this._relatedKey))
       }
 

@@ -3,7 +3,7 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-import { Connection } from 'mysql2';
+import type { Connection } from 'mysql2';
 import { WrappedStmt } from '../wrapped-stmt';
 export declare class MysqlWrappedStmt implements WrappedStmt {
     driverConnection: Connection;

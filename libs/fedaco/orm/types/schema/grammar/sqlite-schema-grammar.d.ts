@@ -84,6 +84,7 @@ export declare class SqliteSchemaGrammar extends SchemaGrammar {
     protected modifyIncrement(blueprint: Blueprint, column: ColumnDefinition): "" | " primary key autoincrement";
     protected wrapJsonSelector(value: string): string;
     getListTableColumnsSQL(table: string, database: string): string;
+    getListTableIndexesSQL(table: string, database: string): string;
     getListTableForeignKeysSQL(table: string, database?: string): string;
     getListTablesSQL(): string;
     getAlterTableSQL(tableDiff: any): string;

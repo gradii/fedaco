@@ -7,7 +7,7 @@ import { Constructor } from '../helper/constructor';
 import { BuildQueries, BuildQueriesCtor } from '../query-builder/mixins/build-query';
 import { QueryBuilder } from '../query-builder/query-builder';
 import { SqlNode } from '../query/sql-node';
-import type { FedacoBuilderCallBack } from './fedaco-types';
+import type { FedacoBuilderCallBack, RelationCallBack } from './fedaco-types';
 import { ForwardCallToQueryBuilder, ForwardCallToQueryBuilderCtor } from './mixins/forward-call-to-query-builder';
 import { GuardsAttributes } from './mixins/guards-attributes';
 import { QueriesRelationShips } from './mixins/queries-relationships';
@@ -66,7 +66,7 @@ export interface FedacoBuilder<T extends Model = Model> extends GuardsAttributes
     getRelation(name: string): Relation;
     _relationsNestedUnder(relation: string): Record<string, any>;
     _isNestedUnder(relation: string, name: string): boolean;
-    pluck(column: string, key?: string): Promise<any[] | Record<string, any>>;
+    pluck(column: string, key?: string): Promise<any[]>;
     paginate(page?: number, pageSize?: number, columns?: any[]): Promise<{
         items: any[];
         total: number;
@@ -99,17 +99,17 @@ export interface FedacoBuilder<T extends Model = Model> extends GuardsAttributes
     scope(scopeFn: string, ...args: any[]): this;
     whereScope(key: string, ...args: any[]): this;
     with(...relations: Array<{
-        [key: string]: FedacoBuilderCallBack;
+        [key: string]: RelationCallBack;
     } | string>): this;
     with(relations: {
-        [key: string]: FedacoBuilderCallBack;
+        [key: string]: RelationCallBack;
     }): this;
     with(relations: string[]): this;
-    with(relations: string, callback?: FedacoBuilderCallBack): this;
+    with(relations: string, callback?: RelationCallBack): this;
     with(relations: {
-        [key: string]: FedacoBuilderCallBack;
-    } | string[] | string, callback?: FedacoBuilderCallBack | {
-        [key: string]: FedacoBuilderCallBack;
+        [key: string]: RelationCallBack;
+    } | string[] | string, callback?: RelationCallBack | {
+        [key: string]: RelationCallBack;
     } | string): this;
     without(relations: any): this;
     withOnly(relations: any): this;
@@ -149,6 +149,7 @@ export declare class FedacoBuilder<T extends Model = Model> extends FedacoBuilde
     /**
      * Add a basic where clause to the query.
      */
+    where(query: (q: FedacoBuilder) => void): this;
     where(column: FedacoBuilderCallBack | any[] | SqlNode | any): this;
     where(column: string | SqlNode | any, value: any): this;
     where(column: FedacoBuilderCallBack | string | any[] | SqlNode | any, operator?: any, value?: any, conjunction?: string): this;
@@ -165,13 +166,13 @@ export declare class FedacoBuilder<T extends Model = Model> extends FedacoBuilde
         boolean: string;
     };
     with(...relations: Array<{
-        [key: string]: FedacoBuilderCallBack;
+        [key: string]: RelationCallBack;
     } | string>): this;
     with(relations: {
-        [key: string]: FedacoBuilderCallBack;
+        [key: string]: RelationCallBack;
     }): this;
     with(relations: string[]): this;
-    with(relations: string, callback?: FedacoBuilderCallBack): this;
+    with(relations: string, callback?: RelationCallBack): this;
     clone(): FedacoBuilder<T>;
 }
 export {};

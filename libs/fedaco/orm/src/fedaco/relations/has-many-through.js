@@ -1,4 +1,5 @@
 import { __awaiter } from 'tslib'
+
 import { isArray, isBlank } from '@gradii/check-type'
 import { uniq } from 'ramda'
 import { mixinInteractsWithDictionary } from './concerns/interacts-with-dictionary'
@@ -92,10 +93,10 @@ export class HasManyThrough extends mixinInteractsWithDictionary(Relation) {
   _buildDictionary(results) {
     const dictionary = {}
     for (const result of results) {
-      if (!dictionary[result.getAttribute('laravel_through_key')]) {
-        dictionary[result.getAttribute('laravel_through_key')] = []
+      if (!dictionary[result.getAttribute('fedaco_through_key')]) {
+        dictionary[result.getAttribute('fedaco_through_key')] = []
       }
-      dictionary[result.getAttribute('laravel_through_key')].push(result)
+      dictionary[result.getAttribute('fedaco_through_key')].push(result)
     }
     return dictionary
   }
@@ -210,8 +211,28 @@ export class HasManyThrough extends mixinInteractsWithDictionary(Relation) {
     }
     return [
       ...columns,
-      ...[this.getQualifiedFirstKeyName() + ' as laravel_through_key'],
+      ...[this.getQualifiedFirstKeyName() + ' as fedaco_through_key'],
     ]
+  }
+
+  chunk(count, singal) {
+    return this._prepareQueryBuilder().chunk(count, singal)
+  }
+
+  chunkById(count, column, alias) {
+    column =
+      column !== null && column !== void 0
+        ? column
+        : this.getRelated().getQualifiedKeyName()
+    alias =
+      alias !== null && alias !== void 0
+        ? alias
+        : this.getRelated().getKeyName()
+    return this._prepareQueryBuilder().chunkById(count, column, alias)
+  }
+
+  each(count = 1000, singal) {
+    return this._prepareQueryBuilder().each(count, singal)
   }
 
   _prepareQueryBuilder(columns = ['*']) {

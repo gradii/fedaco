@@ -13,6 +13,7 @@ export declare class PostgresQueryGrammar extends QueryGrammar implements Gramma
     private _tablePrefix;
     compileJoins(): void;
     protected _createVisitor(queryBuilder: QueryBuilder): QueryBuilderVisitor;
+    compilePredicateFuncName(funcName: string): string;
     compileTruncate(query: QueryBuilder): {
         [sql: string]: any[];
     };

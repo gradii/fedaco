@@ -80,7 +80,7 @@ export function mixinBuildQueries(base) {
         return EMPTY
       }
       column =
-        column !== null && column !== void 0 ? column : this.defaultKeyName()
+        column !== null && column !== void 0 ? column : this._defaultKeyName()
       alias = alias !== null && alias !== void 0 ? alias : column
       const clone = this.clone()
       return new Observable((observer) => {

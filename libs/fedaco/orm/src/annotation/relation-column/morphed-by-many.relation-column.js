@@ -27,7 +27,7 @@ export const MorphedByManyColumn = makePropDecorator(
             instance.newQuery(),
             m,
             p.name,
-            p.table,
+            table,
             p.foreignPivotKey,
             p.relatedPivotKey,
             p.parentKey,

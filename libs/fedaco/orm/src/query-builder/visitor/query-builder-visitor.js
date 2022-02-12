@@ -9,10 +9,9 @@ import { uniq } from 'ramda'
 import { BinaryUnionQueryExpression } from '../../query/ast/binary-union-query-expression'
 import { BindingVariable } from '../../query/ast/binding-variable'
 import { RawExpression } from '../../query/ast/expression/raw-expression'
-import { JsonPathColumn } from '../../query/ast/fragment/json-path-column'
-import { FromTable } from '../../query/ast/from-table'
 import { Identifier } from '../../query/ast/identifier'
 import { JoinedTable } from '../../query/ast/joined-table'
+import { JsonPathExpression } from '../../query/ast/json-path-expression'
 import { PathExpression } from '../../query/ast/path-expression'
 import { TableName } from '../../query/ast/table-name'
 import { resolveIdentifier } from '../ast-helper'
@@ -252,7 +251,17 @@ export class QueryBuilderVisitor {
     )})`
   }
   visitJsonPathExpression(node) {
-    return `'$.${node.paths.map((it) => `"${it.accept(this)}"`).join('.')}'`
+    const pathLeg = node.pathLeg.accept(this)
+    if (pathLeg === '->') {
+      return `json_extract(${node.pathExpression.accept(
+        this
+      )}, "$.${node.jsonLiteral.accept(this)}")`
+    } else if (pathLeg === '->>') {
+      return `json_unquote(json_extract(${node.pathExpression.accept(
+        this
+      )}, "$.${node.jsonLiteral.accept(this)}"))`
+    }
+    throw new Error('unknown path leg')
   }
   visitLimitClause(node) {
     return `LIMIT ${node.value}`
@@ -284,7 +293,7 @@ export class QueryBuilderVisitor {
     return 'node part'
   }
   visitNullPredicateExpression(node) {
-    if (node.expression.expression instanceof JsonPathColumn) {
+    if (node.expression.expression instanceof JsonPathExpression) {
       const sql = node.expression.accept(this)
       if (node.not) {
         return `(${sql} IS NOT NULL AND json_type(${sql}) != 'NULL')`
@@ -325,37 +334,43 @@ export class QueryBuilderVisitor {
     return `(${node.expression.accept(this)})`
   }
   visitPathExpression(node) {
-    const columns = []
-    for (let i = 0; i < node.paths.length; i++) {
-      const identifier = node.paths[i]
-      const columnName = identifier.accept(this)
-      if (columnName === '*') {
-        columns.push(columnName)
-      } else {
-        if (i === node.paths.length - 2) {
-          if (identifier instanceof Identifier) {
-            columns.push(this._grammar.quoteTableName(columnName))
-          } else if (identifier instanceof FromTable) {
-            if (columnName) {
-              const withAlias = columnName.split(/\s+as\s+/i)
-
-              if (this._isVisitUpdateSpecification) {
-                if (withAlias.length > 1) {
-                  columns.push(withAlias.pop())
-                }
-              } else {
-                columns.push(withAlias.pop())
-              }
-            }
-          } else {
-            columns.push(columnName)
-          }
-        } else {
-          columns.push(this._grammar.quoteColumnName(columnName))
-        }
+    let schemaName = node.schemaIdentifier
+      ? `${node.schemaIdentifier.accept(this)}`
+      : null
+    let tableName = node.tableIdentifier
+      ? `${node.tableIdentifier.accept(this)}`
+      : null
+    let columnName = node.columnIdentifier
+      ? `${node.columnIdentifier.accept(this)}`
+      : null
+    if (node.schemaIdentifier instanceof Identifier) {
+      schemaName = this._grammar.quoteSchemaName(schemaName)
+    }
+    if (node.tableIdentifier instanceof Identifier) {
+      tableName = this._grammar.quoteTableName(tableName)
+    }
+    if (node.columnIdentifier instanceof Identifier) {
+      columnName =
+        columnName === '*' ? '*' : this._grammar.quoteColumnName(columnName)
+    }
+    let tableAlias
+    if (tableName) {
+      const withAlias = tableName.replace(/'"`/g, '').split(/\s+as\s+/i)
+      if (withAlias.length > 1) {
+        tableAlias = withAlias.pop()
+        tableName = tableAlias
       }
     }
-    return columns.join('.')
+
+    if (this._isVisitUpdateSpecification && !this._queryBuilder._joins.length) {
+      if (!tableAlias) {
+        return columnName
+      }
+    }
+    if (tableName) {
+      return `${tableName}.${columnName}`
+    }
+    return columnName
   }
   visitQueryExpression(node) {
     let sql = ''
@@ -443,7 +458,10 @@ export class QueryBuilderVisitor {
     throw new Error('Method not implemented.')
   }
   visitStringLiteralExpression(node) {
-    return `"${node.value}"`
+    if (isString(node.value)) {
+      return `"${node.value.replace(/"'`/g, '')}"`
+    }
+    return `"${resolveForwardRef(node.value).replace(/"'`/g, '')}"`
   }
   visitTableName(node) {
     const tableName = []

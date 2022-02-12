@@ -2,8 +2,9 @@ import { __awaiter } from 'tslib'
 import { reflector } from '@gradii/annotation'
 import { isArray, isBlank } from '@gradii/check-type'
 import { findLast, tap } from 'ramda'
-import { singular } from '../../../helper/pluralize'
 import { Table } from '../../../annotation/table/table'
+import { singular } from '../../../helper/pluralize'
+import { Pivot } from '../pivot'
 export function mixinAsPivot(base) {
   return class _Self extends base {
     static fromAttributes(parent, attributes, table, exists = false) {
@@ -15,7 +16,7 @@ export function mixinAsPivot(base) {
         .forceFill(attributes)
         .syncOriginal()
       instance.pivotParent = parent
-      instance.exists = exists
+      instance._exists = exists
       return instance
     }
 
@@ -84,6 +85,8 @@ export function mixinAsPivot(base) {
         }, metas)
         if (meta) {
           return singular(meta.tableName)
+        } else if (this.constructor === Pivot) {
+          return 'pivot'
         } else {
           throw new Error(
             'must define table in annotation or `_table` property'

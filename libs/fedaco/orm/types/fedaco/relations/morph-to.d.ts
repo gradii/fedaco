@@ -33,7 +33,7 @@ export declare class MorphTo extends BelongsTo {
     associate(model: Model): Model;
     dissociate(): Model;
     touch(): Promise<void>;
-    protected newRelatedInstanceFor(parent: Model): any;
+    protected newRelatedInstanceFor(parent: Model): Model;
     getMorphType(): string;
     getDictionary(): Record<any, any>;
     morphWith(_with: Map<any, any>): this;

@@ -1,3 +1,4 @@
+import { snakeCase } from '../../helper/str'
 import { ColumnReferenceExpression } from '../../query/ast/column-reference-expression'
 import { DeleteSpecification } from '../../query/ast/delete-specification'
 import { ConditionExpression } from '../../query/ast/expression/condition-expression'
@@ -43,7 +44,16 @@ export class SqliteQueryGrammar extends QueryGrammar {
       return ''
     }
   }
+  compilePredicateFuncName(funcName) {
+    if (funcName === 'JsonLength') {
+      return 'json_array_length'
+    }
+    return snakeCase(funcName)
+  }
   quoteColumnName(columnName) {
+    if (columnName === '*') {
+      return '*'
+    }
     return `"${columnName.replace(/`/g, '')}"`
   }
   quoteTableName(tableName) {

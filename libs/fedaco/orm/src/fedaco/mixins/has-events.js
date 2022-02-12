@@ -66,9 +66,10 @@ export function mixinHasEvents(base) {
       if (!(this.dispatcher !== undefined)) {
         return
       }
+
       const instance = new this()
       for (const event of instance.getObservableEvents()) {
-        this.dispatcher.forget(`eloquent.${event}: ${this.constructor.name}`)
+        this.dispatcher.forget(`fedaco.${event}: ${this.getTable()}`)
       }
       for (const event of Object.values(instance._dispatchesEvents)) {
         this.dispatcher.forget(event)
@@ -104,7 +105,7 @@ export function mixinHasEvents(base) {
     static _registerModelEvent(event, callback) {
       if (this.dispatcher !== undefined) {
         const name = this.prototype.constructor.name
-        this.dispatcher.listen(`eloquent.${event}: ${name}`, callback)
+        this.dispatcher.listen(`fedaco.${event}: ${name}`, callback)
       }
     }
 
@@ -172,7 +173,7 @@ export function mixinHasEvents(base) {
       return !isAnyEmpty(result)
         ? result
         : this.constructor.dispatcher[method](
-            `eloquent.${event}: ${this.constructor.name}`,
+            `fedaco.${event}: ${this.getTable()}`,
             this
           )
     }

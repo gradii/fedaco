@@ -629,6 +629,9 @@ export class FedacoBuilder extends mixinGuardsAttributes(
     throw new Error('key is not in model or scope metadata is not exist')
   }
   with(relations, callback) {
+    if (!relations || (isArray(relations) && !relations.length)) {
+      return this
+    }
     let eagerLoad
     if (isFunction(callback)) {
       eagerLoad = this._parseWithRelations([{ [relations]: callback }])

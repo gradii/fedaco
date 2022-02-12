@@ -58,4 +58,17 @@ export class MysqlQueryBuilderVisitor extends QueryBuilderVisitor {
     }
     return sql
   }
+  visitFunctionCallExpression(node) {
+    let funcName = node.name.accept(this)
+    funcName = this._grammar.compilePredicateFuncName(funcName)
+    if ('json_length' === funcName) {
+      return `${funcName}(${node.parameters
+        .map((it) => it.accept(this))
+        .join(', ')
+        .replace(/^json_extract\((.+)\)$/, '$1')})`
+    }
+    return `${funcName}(${node.parameters
+      .map((it) => it.accept(this))
+      .join(', ')})`
+  }
 }

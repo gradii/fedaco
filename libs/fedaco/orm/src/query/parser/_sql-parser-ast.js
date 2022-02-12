@@ -3,7 +3,6 @@ import { createIdentifier } from '../../query-builder/ast-factory'
 import { ColumnReferenceExpression } from '../ast/column-reference-expression'
 import { NumberLiteralExpression } from '../ast/expression/number-literal-expression'
 import { StringLiteralExpression } from '../ast/expression/string-literal-expression'
-import { JsonPathColumn } from '../ast/fragment/json-path-column'
 import { FromTable } from '../ast/from-table'
 import { JoinClause } from '../ast/join-clause'
 import { JoinExpression } from '../ast/join-expression'
@@ -151,7 +150,7 @@ export class _SqlParserAst {
     let alias
     if (this.peekKeywordAs()) {
       this.advance()
-      alias = this._parseClainName()
+      alias = this._parseChainName()
         .map((it) => it.name)
         .join('.')
     }
@@ -161,28 +160,8 @@ export class _SqlParserAst {
     )
   }
   _parseColumnName(defaultTable) {
-    const clainNamePaths = this._parseClainName()
-    if (clainNamePaths.length > 0) {
-      let ast
-      if (clainNamePaths.length === 1 && defaultTable) {
-        ast = new PathExpression([defaultTable, ...clainNamePaths])
-      } else {
-        ast = new PathExpression(clainNamePaths)
-      }
-
-      if (this.consumeOptionalOperator('-')) {
-        if (this.consumeOptionalOperator('>')) {
-          const name = this.expectIdentifierOrKeywordOrString()
-          return new JsonPathColumn(
-            ast,
-            new JsonPathExpression([createIdentifier(name)])
-          )
-        }
-      }
-      return ast
-    }
-
-    return undefined
+    const ast = this._parseJsonColumnPathExpression(defaultTable)
+    return ast
   }
 
   parseEqCondition() {}
@@ -251,7 +230,7 @@ export class _SqlParserAst {
     }
     return undefined
   }
-  _parseClainName() {
+  _parseChainName() {
     const paths = []
     if (this.consumeOptionalOperator('*')) {
       return [createIdentifier('*')]
@@ -273,8 +252,43 @@ export class _SqlParserAst {
     }
     return paths
   }
+  _parseChainPathExpression(defaultTable) {
+    const chainNamePaths = this._parseChainName()
+    if (chainNamePaths.length > 0) {
+      let ast
+      if (chainNamePaths.length === 1 && defaultTable) {
+        ast = new PathExpression([defaultTable, ...chainNamePaths])
+      } else {
+        ast = new PathExpression(chainNamePaths)
+      }
+      return ast
+    }
+    return null
+  }
+  _parseJsonColumnPathExpression(defaultTable) {
+    const chainPathExpression = this._parseChainPathExpression(defaultTable)
+    if (chainPathExpression) {
+      if (this.consumeOptionalOperator('-')) {
+        if (this.consumeOptionalOperator('>')) {
+          let operator = '->'
+          if (this.consumeOptionalOperator('>')) {
+            operator = '->>'
+          }
+          const name = this.expectIdentifierOrKeywordOrString()
+          return new JsonPathExpression(
+            chainPathExpression,
+            createIdentifier(operator),
+            createIdentifier(name)
+          )
+        }
+      } else {
+        return chainPathExpression
+      }
+    }
+    return null
+  }
   _parseTableName() {
-    const clainNamePaths = this._parseClainName()
+    const clainNamePaths = this._parseChainName()
     if (clainNamePaths.length > 0) {
       return new TableName(clainNamePaths)
     }
@@ -311,7 +325,7 @@ export class _SqlParserAst {
         return new PathExpression([createIdentifier(table.strValue)])
       }
     }
-    return undefined
+    return null
   }
   parseWhereCondition() {
     const tableColumn = this.parseUnaryTableColumn()

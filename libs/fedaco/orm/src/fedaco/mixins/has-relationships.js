@@ -29,7 +29,7 @@ export function mixinHasRelationships(base) {
       }
 
       joiningTableSegment() {
-        return snakeCase(this.constructor.name)
+        return snakeCase(this.getTable())
       }
 
       touches(relation) {

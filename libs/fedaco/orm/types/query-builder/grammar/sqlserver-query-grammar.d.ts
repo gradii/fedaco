@@ -13,7 +13,9 @@ export declare class SqlserverQueryGrammar extends QueryGrammar implements Gramm
     compileSelect(builder: QueryBuilder): string;
     compileUpdate(builder: QueryBuilder, values: any): string;
     compileInsertOrIgnore(builder: QueryBuilder, values: any): string;
+    compilePredicateFuncName(funcName: string): string;
     distinct(distinct: boolean | any[]): string;
+    prepareBindingForJsonContains(value: any): string;
     quoteColumnName(columnName: string): string;
     quoteTableName(tableName: string): string;
     setTablePrefix(prefix: string): this;

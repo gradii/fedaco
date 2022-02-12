@@ -6,7 +6,7 @@
 import { Collection } from '../../../define/collection';
 import { Constructor } from '../../../helper/constructor';
 import { QueryBuilder } from '../../../query-builder/query-builder';
-import { Model } from '../../model';
+import type { Model } from '../../model';
 import type { Pivot } from '../pivot';
 import type { AsPivot } from './as-pivot';
 export interface InteractsWithPivotTable {
@@ -22,7 +22,7 @@ export interface InteractsWithPivotTable {
     sync(ids: Collection | Model | any[], detaching?: boolean): Promise<PivotTableData>;
     syncWithPivotValues(ids: Collection | Model | any[], values: any[], detaching?: boolean): Promise<Record<string, any>>;
     _formatRecordsList(records: any[]): Record<string, any>;
-    _attachNew(records: any[], current: any[], touch?: boolean): PivotTableData;
+    _attachNew(records: any[], current: any[], touch?: boolean): Promise<PivotTableData>;
     updateExistingPivot(id: any, attributes: any[], touch?: boolean): Promise<any>;
     _updateExistingPivotUsingCustomClass(id: any, attributes: any[], touch: boolean): Promise<any>;
     attach(id: any, attributes?: any, touch?: boolean): Promise<void>;

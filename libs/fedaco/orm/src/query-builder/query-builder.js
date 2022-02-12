@@ -510,18 +510,18 @@ export class QueryBuilder extends Builder {
       )
     })
   }
-
   selectSub(query, as) {
     let columnAsNode
     if (isString(as)) {
       columnAsNode = SqlParser.createSqlParser(as).parseAsName()
     }
-    return this._columns.push(
+    this._columns.push(
       new ColumnReferenceExpression(
         this._createSubQuery('select', query),
         columnAsNode
       )
     )
+    return this
   }
   lock(value = true) {
     this._lock = value
@@ -606,7 +606,7 @@ export class JoinClauseBuilder extends QueryBuilder {
     return this.whereColumn(first, operator, second, conjunction)
   }
 
-  orOn(first, operator = null, second = null) {
+  orOn(first, operator, second) {
     return this.on(first, operator, second, 'or')
   }
 

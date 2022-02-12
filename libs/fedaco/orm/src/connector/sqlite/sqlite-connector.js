@@ -1,5 +1,4 @@
 import { __awaiter } from 'tslib'
-import * as sqlite3 from 'sqlite3'
 import { Connector } from '../connector'
 import { SqliteWrappedConnection } from './sqlite-wrapped-connection'
 export class SqliteConnector extends Connector {
@@ -26,6 +25,7 @@ export class SqliteConnector extends Connector {
         (_b = config['password']) !== null && _b !== void 0 ? _b : null,
       ]
       try {
+        const sqlite3 = yield import('sqlite3')
         return new Promise((ok, fail) => {
           const db = new sqlite3.Database(database, (err) => {
             if (err) {

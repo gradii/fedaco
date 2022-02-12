@@ -18,6 +18,7 @@ export declare class SqliteQueryGrammar extends QueryGrammar implements GrammarI
     };
     compileSelect(builder: QueryBuilder): string;
     distinct(distinct: boolean | any[]): string;
+    compilePredicateFuncName(funcName: string): string;
     quoteColumnName(columnName: string): string;
     quoteTableName(tableName: string): string;
     unQuoteTableName(tableName: string): string;

@@ -6,12 +6,12 @@
 import { ColumnReferenceExpression } from '../ast/column-reference-expression';
 import { NumberLiteralExpression } from '../ast/expression/number-literal-expression';
 import { StringLiteralExpression } from '../ast/expression/string-literal-expression';
-import { JsonPathColumn } from '../ast/fragment/json-path-column';
 import { FromTable } from '../ast/from-table';
 import { Identifier } from '../ast/identifier';
 import { JoinClause } from '../ast/join-clause';
 import { JoinExpression } from '../ast/join-expression';
 import { JoinOnExpression } from '../ast/join-on-expression';
+import { JsonPathExpression } from '../ast/json-path-expression';
 import { PathExpression } from '../ast/path-expression';
 import { TableName } from '../ast/table-name';
 import { TableReferenceExpression } from '../ast/table-reference-expression';
@@ -60,9 +60,9 @@ export declare class _SqlParserAst {
     parseColumnWithoutAlias(defaultTable?: string | FromTable): ColumnReferenceExpression;
     parseColumnAlias(): ColumnReferenceExpression;
     _parseColumnAsName(defaultTable?: FromTable): ColumnReferenceExpression;
-    _parseColumnName(defaultTable?: FromTable): JsonPathColumn | PathExpression;
+    _parseColumnName(defaultTable?: FromTable): JsonPathExpression | PathExpression | null;
     parseEqCondition(): void;
-    parseExpression(): NumberLiteralExpression | StringLiteralExpression;
+    parseExpression(): StringLiteralExpression | NumberLiteralExpression;
     parseGtCondition(): void;
     parseJoin(): JoinExpression;
     parseJoinClause(): JoinClause;
@@ -73,14 +73,16 @@ export declare class _SqlParserAst {
      */
     _parseTableAsName(): TableReferenceExpression;
     parseTableColumn(): Token;
-    _parseClainName(): Identifier[];
+    _parseChainName(): Identifier[];
+    _parseChainPathExpression(defaultTable?: FromTable): PathExpression | null;
+    _parseJsonColumnPathExpression(defaultTable?: FromTable): PathExpression | JsonPathExpression | null;
     _parseTableName(): TableName;
-    parseUnaryExpression(): NumberLiteralExpression | StringLiteralExpression;
+    parseUnaryExpression(): StringLiteralExpression | NumberLiteralExpression;
     parseAsName(): Identifier;
     /**
      * @deprecated
      */
-    parseUnaryTableColumn(): PathExpression;
+    parseUnaryTableColumn(): PathExpression | null;
     parseWhereCondition(): JoinOnExpression;
     peek(offset: number): Token;
     peekKeyword(keyword: string): boolean;

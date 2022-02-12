@@ -12,12 +12,6 @@ export class MysqlWrappedStmt {
   }
   execute(bindings) {
     return __awaiter(this, void 0, void 0, function* () {
-      console.log(
-        `run this ${this.sqlStmt}`,
-        bindings !== null && bindings !== void 0
-          ? bindings
-          : this._bindingValues
-      )
       return new Promise((ok, fail) => {
         this.driverConnection.execute(
           this.sqlStmt,
@@ -41,12 +35,6 @@ export class MysqlWrappedStmt {
   }
   fetchAll(bindings) {
     return __awaiter(this, void 0, void 0, function* () {
-      console.log(
-        `run this ${this.sqlStmt}`,
-        bindings !== null && bindings !== void 0
-          ? bindings
-          : this._bindingValues
-      )
       return new Promise((ok, fail) => {
         this.driverConnection.query(
           this.sqlStmt,

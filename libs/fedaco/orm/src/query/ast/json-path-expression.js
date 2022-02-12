@@ -1,9 +1,11 @@
 import { SqlNode } from '../sql-node'
 
 export class JsonPathExpression extends SqlNode {
-  constructor(paths) {
+  constructor(pathExpression, pathLeg, jsonLiteral) {
     super()
-    this.paths = paths
+    this.pathExpression = pathExpression
+    this.pathLeg = pathLeg
+    this.jsonLiteral = jsonLiteral
   }
   accept(visitor) {
     return visitor.visitJsonPathExpression(this)

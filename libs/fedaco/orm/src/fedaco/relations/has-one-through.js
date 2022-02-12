@@ -1,4 +1,5 @@
 import { __awaiter } from 'tslib'
+import { isArray } from '@gradii/check-type'
 import { mixinInteractsWithDictionary } from './concerns/interacts-with-dictionary'
 import { mixinSupportsDefaultModels } from './concerns/supports-default-models'
 import { HasManyThrough } from './has-many-through'
@@ -24,7 +25,7 @@ export class HasOneThrough extends mixinInteractsWithDictionary(
       const key = this._getDictionaryKey(model.getAttribute(this._localKey))
       if (dictionary[key] !== undefined) {
         const value = dictionary[key]
-        model.setRelation(relation, value)
+        model.setRelation(relation, isArray(value) ? value[0] : value)
       }
     }
     return models

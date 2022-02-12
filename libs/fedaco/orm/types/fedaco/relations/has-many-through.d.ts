@@ -1,8 +1,4 @@
-/**
- * @license
- *
- * Use of this source code is governed by an MIT-style license
- */
+import { Observable } from 'rxjs';
 import { Collection } from '../../define/collection';
 import { Constructor } from '../../helper/constructor';
 import { FedacoBuilder } from '../fedaco-builder';
@@ -60,5 +56,17 @@ export declare class HasManyThrough extends HasManyThrough_base {
     _localKey: string;
     _secondLocalKey: string;
     constructor(query: FedacoBuilder, farParent: Model, throughParent: Model, firstKey: string, secondKey: string, localKey: string, secondLocalKey: string);
+    chunk(count: number, singal?: Observable<any>): Observable<{
+        results: any[];
+        page: number;
+    }>;
+    chunkById(count: number, column?: string, alias?: string): Observable<{
+        results: any;
+        page: number;
+    }>;
+    each(count?: number, singal?: Observable<any>): Observable<{
+        item: any;
+        index: number;
+    }>;
 }
 export {};

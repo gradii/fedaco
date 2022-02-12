@@ -8,7 +8,13 @@ import { SqlVisitor } from '../sql-visitor';
 import { FromTable } from './from-table';
 import { Identifier } from './identifier';
 export declare class PathExpression extends SqlNode {
-    paths: Array<FromTable | Identifier>;
-    constructor(paths: Array<FromTable | Identifier>);
+    identifiers: Array<FromTable | Identifier>;
+    get serverIdentifier(): Identifier | null;
+    get databaseIdentifier(): Identifier | null;
+    get schemaIdentifier(): FromTable | null;
+    get tableIdentifier(): FromTable | null;
+    get columnIdentifier(): Identifier;
+    constructor(identifiers: Array<FromTable | Identifier>);
+    protected ChooseIdentifier(modifier: number): Identifier | FromTable;
     accept(visitor: SqlVisitor): string;
 }

@@ -11,7 +11,7 @@ export interface HasTimestamps {
      * @deprecated disable timestamps
      */
     _timestamps: boolean;
-    touch(attribute?: string): boolean;
+    touch(attribute?: string): Promise<boolean>;
     updateTimestamps(): boolean;
     setCreatedAt(value: any): this;
     setUpdatedAt(value: any): this;

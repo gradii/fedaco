@@ -46,9 +46,9 @@ export function mixinHidesAttributes(base) {
     }
 
     makeVisible(attributes) {
-      attributes = isArray(attributes) ? attributes : arguments
+      attributes = isArray(attributes) ? attributes : [...arguments]
       this._hidden = difference(this._hidden, attributes)
-      if (this._visible.length) {
+      if (this.getVisible().length) {
         this._visible = [...this._visible, ...attributes]
       }
       return this

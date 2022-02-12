@@ -1,3 +1,4 @@
+import { __awaiter } from 'tslib'
 import { isArray } from '@gradii/check-type'
 import { tap } from 'ramda'
 import { Pivot } from './pivot'
@@ -13,17 +14,22 @@ export class MorphPivot extends Pivot {
   }
 
   delete() {
-    if (this._attributes[this.getKeyName()] !== undefined) {
-      return super.delete()
-    }
-    if (this._fireModelEvent('deleting') === false) {
-      return 0
-    }
-    const query = this.getDeleteQuery()
-    query.where(this.morphType, this.morphClass)
-    return tap(() => {
-      this._fireModelEvent('deleted', false)
-    }, query.delete())
+    const _super = Object.create(null, {
+      delete: { get: () => super.delete },
+    })
+    return __awaiter(this, void 0, void 0, function* () {
+      if (this._attributes[this.getKeyName()] !== undefined) {
+        return _super.delete.call(this)
+      }
+      if (this._fireModelEvent('deleting') === false) {
+        return 0
+      }
+      const query = this._getDeleteQuery()
+      query.where(this.morphType, this.morphClass)
+      return tap(() => {
+        this._fireModelEvent('deleted', false)
+      }, yield query.delete())
+    })
   }
 
   getMorphType() {

@@ -3,13 +3,12 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-import { Connection as MysqlConnection } from 'mysql2';
 import { WrappedConnection } from '../wrapped-connection';
 import { MysqlWrappedStmt } from './mysql-wrapped-stmt';
 export declare class MysqlWrappedConnection implements WrappedConnection {
-    driver: MysqlConnection;
+    driver: import('mysql2').Connection;
     lastError: string;
-    constructor(driver: MysqlConnection);
+    constructor(driver: import('mysql2').Connection);
     prepare(sql: string): Promise<MysqlWrappedStmt>;
     exec(sql: string): Promise<unknown>;
     execute(sql: string, bindings?: any[]): Promise<any>;

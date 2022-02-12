@@ -1,4 +1,5 @@
 import { isNumber } from '@gradii/check-type'
+import { pascalCase } from '../helper/str'
 
 export class Column {
   constructor(columnName, type, options = {}) {
@@ -36,7 +37,7 @@ export class Column {
 
   setOptions(options) {
     for (const [name, value] of Object.entries(options)) {
-      const method = 'set' + name
+      const method = 'set' + pascalCase(name)
       if (method in this) {
         this[method](value)
       } else {
@@ -197,6 +198,9 @@ export class Column {
 
   getCustomSchemaOptions() {
     return this._customSchemaOptions
+  }
+  getQuotedName(grammar) {
+    return `"${this._name}"`
   }
 
   toArray() {

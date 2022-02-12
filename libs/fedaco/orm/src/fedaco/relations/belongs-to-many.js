@@ -46,7 +46,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
 
   addConstraints() {
     this._performJoin()
-    if (BelongsToMany.constraints) {
+    if (this.constructor.constraints) {
       this._addWhereConstraints()
     }
   }
@@ -130,7 +130,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
       value = operator
       operator = '='
     }
-    this._pivotWheres.push(arguments)
+    this._pivotWheres.push([...arguments])
     return this.getQuery().where(
       this.qualifyPivotColumn(column),
       operator,
@@ -161,7 +161,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
   }
 
   wherePivotIn(column, values, conjunction = 'and', not = false) {
-    this._pivotWhereIns.push(arguments)
+    this._pivotWhereIns.push([...arguments])
     return this.whereIn(
       this.qualifyPivotColumn(column),
       values,
@@ -203,7 +203,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
   }
 
   wherePivotNull(column, conjunction = 'and', not = false) {
-    this._pivotWhereNulls.push(arguments)
+    this._pivotWhereNulls.push([...arguments])
     return this.whereNull(this.qualifyPivotColumn(column), conjunction, not)
   }
 
@@ -358,7 +358,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
   }
 
   _shouldSelect(columns = ['*']) {
-    if (columns == ['*']) {
+    if (columns.length === 1 && columns[0] === '*') {
       columns = [`${this._related.getTable()}.*`]
     }
     return [...columns, ...this._aliasedPivotColumns()]
@@ -456,7 +456,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
   }
 
   _guessInverseRelation() {
-    return camelCase(pluralStudy(this.getParent().constructor.name))
+    return camelCase(pluralStudy(this.getParent().getTable()))
   }
 
   touch() {

@@ -12,7 +12,7 @@ export declare class DatabaseManager implements ConnectionResolverInterface {
     protected connections: any;
     protected reconnector: Function;
     constructor(factory: ConnectionFactory);
-    connection(name?: string): any;
+    connection(name?: string): Connection;
     protected parseConnectionName(name: string): string[];
     protected makeConnection(name: string): any;
     protected configuration(name: string): ConnectionConfig;

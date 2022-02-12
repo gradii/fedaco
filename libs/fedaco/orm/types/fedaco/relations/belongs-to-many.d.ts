@@ -6,6 +6,7 @@
 import { Observable } from 'rxjs';
 import { Collection } from '../../define/collection';
 import { Constructor } from '../../helper/constructor';
+import { RawExpression } from '../../query/ast/expression/raw-expression';
 import { FedacoBuilder } from '../fedaco-builder';
 import { Model } from '../model';
 import { AsPivot } from './concerns/as-pivot';
@@ -71,7 +72,8 @@ export declare class BelongsToMany extends BelongsToMany_base {
     find(id: any, columns?: any[]): Promise<Model | Model[]>;
     findMany(ids: any[], columns?: any[]): Promise<Model[]>;
     findOrFail(id: any, columns?: any[]): Promise<Model | Model[]>;
-    firstWhere(column: Function | string | any[], operator?: any, value?: any, conjunction?: 'and' | 'or'): Promise<Model>;
+    firstWhere(left: string, operator?: string, right?: ((q: this) => void) | RawExpression | boolean | string | number | Array<string | number>, conjunction?: 'and' | 'or' | string): Promise<Model>;
+    firstWhere(left: ((q: this) => void) | string | any[], operator?: string, right?: ((q: this) => void) | RawExpression | boolean | string | number | Array<string | number>, conjunction?: 'and' | 'or' | string): Promise<Model>;
     first(columns?: any[]): Promise<Model>;
     firstOrFail(columns?: any[]): Promise<Model>;
     getResults(): Promise<Model[]>;

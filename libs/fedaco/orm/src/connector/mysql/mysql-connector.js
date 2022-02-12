@@ -1,5 +1,4 @@
 import { __awaiter } from 'tslib'
-import { createConnection } from 'mysql2'
 import { Connector } from '../connector'
 import { MysqlWrappedConnection } from './mysql-wrapped-connection'
 export class MysqlConnector extends Connector {
@@ -26,9 +25,10 @@ export class MysqlConnector extends Connector {
         (_b = config['password']) !== null && _b !== void 0 ? _b : null,
       ]
       try {
+        const mysql2 = yield import('mysql2')
         return Promise.resolve(
           new MysqlWrappedConnection(
-            createConnection({
+            mysql2.createConnection({
               host: config['host'],
               port: config['port'],
               user: username,

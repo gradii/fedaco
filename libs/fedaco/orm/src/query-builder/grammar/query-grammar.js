@@ -95,8 +95,7 @@ export class QueryGrammar extends BaseGrammar {
   compileInsert(builder, values, insertOption = 'into') {
     const visitor = this._createVisitor(builder)
     if (isAnyEmpty(values)) {
-      return `INSERT INTO ${builder._from.accept(visitor)} DEFAULT
-              VALUES`
+      return 'INSERT INTO ' + builder._from.accept(visitor) + ' DEFAULT VALUES'
     }
 
     let keys

@@ -45,6 +45,7 @@ export declare namespace Model {
      */
     function unguarded<R extends Promise<any> | any>(callback: () => R): R;
     const snakeAttributes: boolean;
+    function addGlobalScope(scope: string, implementation: Scope | ((q: QueryBuilder) => void)): void;
     function addGlobalScope(scope: string, implementation: Scope | Function): void;
 }
 declare const Model_base: (new (...args: any[]) => HasAttributes) & {
@@ -57,7 +58,7 @@ declare const Model_base: (new (...args: any[]) => HasAttributes) & {
         addObservableEvents(observables: any): void;
         removeObservableEvents(observables: any): void;
         _registerObserver(clazz: any & (new (...args: any[]) => HasGlobalScopes) & (new (...args: any[]) => HasRelationships) & import("./mixins/has-timestamps").HasTimestampsCtor & (new (...args: any[]) => HidesAttributes) & import("./mixins/guards-attributes").GuardsAttributesCtor<unknown> & typeof BaseModel): void;
-        _fireModelEvent(event: string, halt?: boolean): any;
+        _fireModelEvent(this: Model & any, event: string, halt?: boolean): any;
         _fireCustomModelEvent(event: string, method: string): any;
         _filterModelEventResults(result: any): any;
         _resolveObserverClassName(clazz: string | object): Function;
@@ -74,7 +75,20 @@ declare const Model_base: (new (...args: any[]) => HasAttributes) & {
     replicating(callback: string | Function): void;
     deleting(callback: string | Function): void;
     deleted(callback: string | Function): void;
-    flushEventListeners(): void;
+    flushEventListeners(this: Model & {
+        [x: string]: any;
+        _dispatchesEvents: any;
+        _observables: any[];
+        getObservableEvents(): any[];
+        setObservableEvents(observables: any[]): any;
+        addObservableEvents(observables: any): void;
+        removeObservableEvents(observables: any): void;
+        _registerObserver(clazz: any & (new (...args: any[]) => HasGlobalScopes) & (new (...args: any[]) => HasRelationships) & import("./mixins/has-timestamps").HasTimestampsCtor & (new (...args: any[]) => HidesAttributes) & import("./mixins/guards-attributes").GuardsAttributesCtor<unknown> & typeof BaseModel): void;
+        _fireModelEvent(this: Model & any, event: string, halt?: boolean): any;
+        _fireCustomModelEvent(event: string, method: string): any;
+        _filterModelEventResults(result: any): any;
+        _resolveObserverClassName(clazz: string | object): Function;
+    }): void;
     getEventDispatcher(): import("./mixins/has-events").Dispatcher;
     setEventDispatcher(dispatcher: import("./mixins/has-events").Dispatcher): void;
     unsetEventDispatcher(): void;
@@ -122,12 +136,12 @@ export declare class Model extends Model_base {
     loadSum(relations: any[] | string, column: string): this;
     loadAvg(relations: any[] | string, column: string): this;
     loadExists(relations: any[] | string): this;
-    loadMorphAggregate(relation: string, relations: Record<string, string[]>, column: string, func?: string): this;
-    loadMorphCount(relation: string, relations: Record<string, string[]>): this;
-    loadMorphMax(relation: string, relations: Record<string, string[]>, column: string): this;
-    loadMorphMin(relation: string, relations: Record<string, string[]>, column: string): this;
-    loadMorphSum(relation: string, relations: Record<string, string[]>, column: string): this;
-    loadMorphAvg(relation: string, relations: Record<string, string[]>, column: string): this;
+    loadMorphAggregate(relation: string, relations: Record<string, string[] | string>, column: string, func?: string): Promise<this>;
+    loadMorphCount(relation: string, relations: Record<string, string[] | string>): Promise<this>;
+    loadMorphMax(relation: string, relations: Record<string, string[] | string>, column: string): Promise<this>;
+    loadMorphMin(relation: string, relations: Record<string, string[] | string>, column: string): Promise<this>;
+    loadMorphSum(relation: string, relations: Record<string, string[] | string>, column: string): Promise<this>;
+    loadMorphAvg(relation: string, relations: Record<string, string[] | string>, column: string): Promise<this>;
     protected increment(column: string, amount?: number, extra?: any[]): any;
     protected decrement(column: string, amount?: number, extra?: any[]): any;
     protected incrementOrDecrement(column: string, amount: number, extra: any[], method: string): any;

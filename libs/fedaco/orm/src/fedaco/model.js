@@ -190,18 +190,21 @@ export class Model extends mixinHasAttributes(
 
   loadMorphAggregate(relation, relations, column, func) {
     var _a
-    if (!this[relation]) {
-      return this
-    }
+    return __awaiter(this, void 0, void 0, function* () {
+      const relationValue = yield this[relation]
+      if (!relationValue) {
+        return this
+      }
 
-    const className = this[relation].constructor.name
-    loadAggregate(
-      this[relation],
-      (_a = relations[className]) !== null && _a !== void 0 ? _a : [],
-      column,
-      func
-    )
-    return this
+      const className = relationValue.constructor.name
+      yield loadAggregate(
+        relationValue,
+        (_a = relations[className]) !== null && _a !== void 0 ? _a : [],
+        column,
+        func
+      )
+      return this
+    })
   }
 
   loadMorphCount(relation, relations) {
@@ -729,7 +732,7 @@ export class Model extends mixinHasAttributes(
   }
 
   getForeignKey() {
-    return snakeCase(this.constructor.name) + '_' + this.getKeyName()
+    return snakeCase(this.getTable()) + '_' + this.getKeyName()
   }
 
   getPerPage() {
@@ -746,9 +749,9 @@ export class Model extends mixinHasAttributes(
   clone() {
     const cloned = new this.constructor()
     cloned._table = this._table
-    cloned._guarded = [...this._guarded]
-    cloned._visible = [...this._visible]
-    cloned._hidden = [...this._hidden]
+    cloned._guarded = this._guarded && [...this._guarded]
+    cloned._visible = this._visible && [...this._visible]
+    cloned._hidden = this._hidden && [...this._hidden]
     cloned._attributes = Object.assign({}, this._attributes)
     cloned._relations = Object.assign({}, this._relations)
     return cloned

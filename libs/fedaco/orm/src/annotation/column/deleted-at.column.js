@@ -1,6 +1,6 @@
 import { makePropDecorator } from '@gradii/annotation'
 import { _additionalProcessingGetterSetter } from '../additional-processing'
-import { DateColumn } from './date.column'
+import { DatetimeColumn } from './datetime.column'
 export const DeletedAtColumn = makePropDecorator(
   'Fedaco:DeletedAtColumn',
   (
@@ -8,7 +8,7 @@ export const DeletedAtColumn = makePropDecorator(
       hidden: true,
     }
   ) => Object.assign({}, p),
-  DateColumn,
+  DatetimeColumn,
   (target, name, decorator) => {
     _additionalProcessingGetterSetter(target, name, decorator)
   }

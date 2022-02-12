@@ -6,6 +6,7 @@
 import { BinaryUnionQueryExpression } from '../../query/ast/binary-union-query-expression';
 import { DeleteSpecification } from '../../query/ast/delete-specification';
 import { FunctionCallExpression } from '../../query/ast/expression/function-call-expression';
+import { JsonPathExpression } from '../../query/ast/json-path-expression';
 import { LockClause } from '../../query/ast/lock-clause';
 import { OffsetClause } from '../../query/ast/offset-clause';
 import { QueryExpression } from '../../query/ast/query-expression';
@@ -30,6 +31,7 @@ export declare class SqlserverQueryBuilderVisitor extends QueryBuilderVisitor {
     visitDeleteSpecification(node: DeleteSpecification): string;
     visitBinaryUnionQueryExpression(node: BinaryUnionQueryExpression): string;
     visitFunctionCallExpression(node: FunctionCallExpression): string;
+    visitJsonPathExpression(node: JsonPathExpression): string;
     visitUpdateSpecification(node: UpdateSpecification): string;
     visitLockClause(node: LockClause): string;
 }

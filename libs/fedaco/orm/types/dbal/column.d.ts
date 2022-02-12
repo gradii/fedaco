@@ -3,6 +3,7 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
+import { SchemaGrammar } from '../schema/grammar/schema-grammar';
 export declare class Column {
     protected _name: any;
     protected _type: any;
@@ -53,5 +54,6 @@ export declare class Column {
     getCustomSchemaOption(name: string): any;
     setCustomSchemaOptions(customSchemaOptions: any[]): this;
     getCustomSchemaOptions(): any;
+    getQuotedName(grammar: SchemaGrammar): string;
     toArray(): any;
 }

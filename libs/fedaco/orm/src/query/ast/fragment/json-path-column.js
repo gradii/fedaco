@@ -1,4 +1,5 @@
 import { SqlNode } from '../../sql-node'
+
 export class JsonPathColumn extends SqlNode {
   constructor(columns, jsonPaths) {
     super()

@@ -19,9 +19,9 @@ export interface HasAttributes {
     _changes: Record<string, any>;
     _classCastCache: any[];
     /**
-    * @deprecated
-    * The attributes that should be mutated to dates.
-    */
+     * @deprecated
+     * The attributes that should be mutated to dates.
+     */
     _dates: any[];
     _dateFormat: string;
     _appends: any[];

@@ -6,26 +6,26 @@
 import { NestedExpression } from '../query/ast/fragment/nested-expression';
 import { SqlVisitor } from '../query/sql-visitor';
 import { Builder } from './builder';
-export interface GrammarInterface {
+export interface GrammarInterface<T extends Builder = Builder> {
     compileAggregateFragment(functionName: any, columns: any, visitor: SqlVisitor): string;
-    compileDelete(builder: Builder): string;
-    compileExists(builder: Builder): string;
-    compileInsert(builder: Builder, values: any): string;
-    compileInsertGetId(builder: Builder, values: any, sequence: string): string;
-    compileInsertOrIgnore(builder: Builder, values: any): string;
-    compileInsertUsing(builder: Builder, columns: any, nestedExpression: NestedExpression): string;
-    compileJoinFragment(builder: Builder, visitor: SqlVisitor): string;
-    compileNestedPredicate(builder: Builder, visitor: SqlVisitor): string;
-    compileSelect(builder: Builder): string;
-    compileTruncate(builder: Builder): {
+    compileDelete(builder: T): string;
+    compileExists(builder: T): string;
+    compileInsert(builder: T, values: any): string;
+    compileInsertGetId(builder: T, values: any, sequence: string): string;
+    compileInsertOrIgnore(builder: T, values: any): string;
+    compileInsertUsing(builder: T, columns: any, nestedExpression: NestedExpression): string;
+    compileJoinFragment(builder: T, visitor: SqlVisitor): string;
+    compileNestedPredicate(builder: T, visitor: SqlVisitor): string;
+    compileSelect(builder: T): string;
+    compileTruncate(builder: T): {
         [sql: string]: any[];
     };
-    compileUpdate(builder: Builder, values: any): string;
-    compileUpsert(builder: Builder, values: any, uniqueBy: any[] | string, update: any[] | null): string;
+    compileUpdate(builder: T, values: any): string;
+    compileUpsert(builder: T, values: any, uniqueBy: any[] | string, update: any[] | null): string;
     compilePredicateFuncName(funcName: string): string;
     distinct(distinct: boolean | any[]): string;
     getOperators(): string[];
-    prepareBindingsForUpdate(builder: Builder, visitor: SqlVisitor): string;
+    prepareBindingsForUpdate(builder: T, visitor: SqlVisitor): string;
     prepareBindingForJsonContains(value: any): string;
     quoteColumnName(columnName: string): string;
     quoteSchemaName(tableName: string): string;

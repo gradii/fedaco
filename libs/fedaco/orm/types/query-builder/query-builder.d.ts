@@ -63,6 +63,7 @@ export declare class QueryBuilder extends Builder {
     distinct(...args: (string | boolean)[]): this;
     insertGetId(values: any, sequence?: string): Promise<number>;
     from(table: Function | QueryBuilder | RawExpression | string, as?: string): this;
+    fromSub(table: (q: QueryBuilder) => void, as: string): this;
     fromSub(table: any, as: string): this;
     /**
      * get for column is temp used for query
@@ -71,21 +72,20 @@ export declare class QueryBuilder extends Builder {
     get(columns?: string | string[]): Promise<any[]>;
     getBindings(): any[];
     getConnection(): ConnectionInterface;
-    insertUsing(columns: any[], query: Function | QueryBuilder | string): Promise<any>;
+    insertUsing(columns: any[], query: ((q: QueryBuilder) => void) | QueryBuilder | string): Promise<any>;
     insertOrIgnore(values: any): any;
-    getGrammar(): GrammarInterface;
+    getGrammar(): GrammarInterface<Builder>;
     getProcessor(): ProcessorInterface;
     getRawBindings(): {
         [key: string]: any[];
     };
     isQueryable(value: QueryBuilder | FedacoBuilder | Relation | Function | any): value is (QueryBuilder | Function);
-    newQuery(): QueryBuilder;
+    newQuery<T extends Builder = QueryBuilder>(): T;
     runSelect(): Promise<any>;
     selectRaw(expression: string, bindings?: any[]): this;
-    select(...col: string[]): this;
-    select(...col: RawExpression[]): this;
+    select(...col: (string | RawExpression)[]): this;
     select(...col: ColumnReferenceExpression[]): this;
-    select(columns: string[]): this;
+    select(columns: (string | RawExpression)[]): this;
     update(values?: any): Promise<any>;
     increment(column: string, amount?: number, extra?: any): Promise<any>;
     decrement(column: string, amount?: number, extra?: any): Promise<any>;
@@ -94,7 +94,8 @@ export declare class QueryBuilder extends Builder {
     updateOrInsert(attributes: object, values?: object): Promise<any>;
     upsert(values: any[], uniqueBy: any[] | string, update?: any[] | null): any;
     insert(values: any | any[]): Promise<boolean>;
-    selectSub(query: Function | QueryBuilder | string, as: string): number;
+    selectSub(query: (q: QueryBuilder) => void, as: string): this;
+    selectSub(query: QueryBuilder | string, as: string): this;
     lock(value?: boolean | string): this;
     /**
      * Register a closure to be invoked before the query is executed.
@@ -120,9 +121,9 @@ export declare class JoinClauseBuilder extends QueryBuilder {
     type: string;
     table: string | TableReferenceExpression;
     constructor(parentQuery: QueryBuilder, type: string, table: string | TableReferenceExpression);
-    newQuery(): JoinClauseBuilder;
-    on(first: ((q?: QueryBuilder) => any) | string, operator?: string, second?: string, conjunction?: 'and' | 'or'): this;
-    orOn(first: (query?: QueryBuilder) => any | string, operator?: string | null, second?: string | null): this;
+    newQuery<T extends Builder = JoinClauseBuilder>(): T;
+    on(first: ((q?: JoinClauseBuilder) => any) | string, operator?: string, second?: string, conjunction?: 'and' | 'or'): this;
+    orOn(first: ((query?: JoinClauseBuilder) => any) | string, operator?: string, second?: string): this;
     protected forSubQuery(): QueryBuilder;
     protected newParentQuery(): QueryBuilder;
 }

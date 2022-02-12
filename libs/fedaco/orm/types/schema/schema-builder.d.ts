@@ -19,7 +19,7 @@ export declare class SchemaBuilder {
     hasColumns(table: string, columns: any[]): Promise<boolean>;
     getColumnType(table: string, column: string): Promise<void>;
     getColumnListing(table: string): Promise<string[]>;
-    table(table: string, callback: Function): Promise<void>;
+    table(table: string, callback: (bp: Blueprint) => void): Promise<void>;
     create(table: string, callback: (table: Blueprint) => void): Promise<void>;
     drop(table: string): Promise<void>;
     dropIfExists(table: string): Promise<void>;

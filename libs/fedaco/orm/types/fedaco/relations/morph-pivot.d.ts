@@ -10,7 +10,7 @@ export declare class MorphPivot extends Pivot {
     protected morphClass: string;
     _setKeysForSaveQuery(query: FedacoBuilder<this>): FedacoBuilder<this>;
     _setKeysForSelectQuery(query: FedacoBuilder<this>): FedacoBuilder<this>;
-    delete(): any;
+    delete(): Promise<any>;
     getMorphType(): string;
     setMorphType(morphType: string): this;
     setMorphClass(morphClass: string): this;

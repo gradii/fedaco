@@ -3,14 +3,13 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-import { Statement } from 'sqlite3';
 import { WrappedStmt } from '../wrapped-stmt';
 export declare class SqliteWrappedStmt implements WrappedStmt {
-    driverStmt: Statement;
+    driverStmt: import('sqlite3').Statement;
     private _bindingValues;
     _lastInsertId: number;
     _affectRows: number;
-    constructor(driverStmt: Statement);
+    constructor(driverStmt: import('sqlite3').Statement);
     bindValues(bindings: any[]): this;
     execute(bindings?: any[]): Promise<unknown>;
     fetchAll(bindings?: any[]): Promise<unknown>;

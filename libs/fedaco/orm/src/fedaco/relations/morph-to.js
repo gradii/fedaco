@@ -69,13 +69,11 @@ export class MorphTo extends BelongsTo {
 
   buildDictionary(models) {
     for (const model of models) {
-      if (model._getAttributeFromArray(this._morphType)) {
-        const morphTypeKey = this._getDictionaryKey(
-          model._getAttributeFromArray(this._morphType)
-        )
-        const foreignKeyKey = this._getDictionaryKey(
-          model._getAttributeFromArray(this._foreignKey)
-        )
+      const morphTypeValue = model.getAttribute(this._morphType)
+      const foreignKeyValue = model.getAttribute(this._foreignKey)
+      if (morphTypeValue) {
+        const morphTypeKey = this._getDictionaryKey(morphTypeValue)
+        const foreignKeyKey = this._getDictionaryKey(foreignKeyValue)
         let obj = this._dictionary[morphTypeKey]
         if (!obj) {
           obj = {}
@@ -194,21 +192,19 @@ export class MorphTo extends BelongsTo {
   }
 
   associate(model) {
-    let foreignKey
+    let foreignKey,
+      foreignKeyValue = null,
+      morphClass = null
     if (model instanceof Model) {
       foreignKey =
         this._ownerKey && model[this._ownerKey]
           ? this._ownerKey
           : model.getKeyName()
+      foreignKeyValue = model[foreignKey]
+      morphClass = model.getMorphClass()
     }
-    this._parent.setAttribute(
-      this._foreignKey,
-      model instanceof Model ? model[foreignKey] : null
-    )
-    this._parent.setAttribute(
-      this._morphType,
-      model instanceof Model ? model.getMorphClass() : null
-    )
+    this._parent.setAttribute(this._foreignKey, foreignKeyValue)
+    this._parent.setAttribute(this._morphType, morphClass)
     return this._parent.setRelation(this._relationName, model)
   }
 
@@ -230,7 +226,7 @@ export class MorphTo extends BelongsTo {
   }
 
   newRelatedInstanceFor(parent) {
-    return parent[this.getRelationName()]().getRelated().newInstance()
+    return parent.newRelation(this.getRelationName()).getRelated().newInstance()
   }
 
   getMorphType() {

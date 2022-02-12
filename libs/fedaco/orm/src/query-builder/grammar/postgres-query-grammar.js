@@ -1,3 +1,4 @@
+import { snakeCase } from '../../helper/str'
 import { AssignmentSetClause } from '../../query/ast/assignment-set-clause'
 import { ColumnReferenceExpression } from '../../query/ast/column-reference-expression'
 import { DeleteSpecification } from '../../query/ast/delete-specification'
@@ -21,6 +22,12 @@ export class PostgresQueryGrammar extends QueryGrammar {
   compileJoins() {}
   _createVisitor(queryBuilder) {
     return new QueryBuilderVisitor(queryBuilder._grammar, queryBuilder)
+  }
+  compilePredicateFuncName(funcName) {
+    if (funcName === 'JsonLength') {
+      return 'json_array_length'
+    }
+    return snakeCase(funcName)
   }
   compileTruncate(query) {
     return {
@@ -61,6 +68,9 @@ export class PostgresQueryGrammar extends QueryGrammar {
     )}`
   }
   quoteColumnName(columnName) {
+    if (columnName === '*') {
+      return '*'
+    }
     return `"${columnName.replace(/`/g, '')}"`
   }
   quoteTableName(tableName) {

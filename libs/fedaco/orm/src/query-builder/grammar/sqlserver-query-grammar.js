@@ -1,3 +1,5 @@
+import { isBoolean } from '@gradii/check-type'
+import { snakeCase } from '../../helper/str'
 import { DeleteSpecification } from '../../query/ast/delete-specification'
 import { ConditionExpression } from '../../query/ast/expression/condition-expression'
 import { FromClause } from '../../query/ast/from-clause'
@@ -23,6 +25,9 @@ export class SqlserverQueryGrammar extends QueryGrammar {
   compileInsertOrIgnore(builder, values) {
     throw new Error('RuntimeException')
   }
+  compilePredicateFuncName(funcName) {
+    return snakeCase(funcName)
+  }
   distinct(distinct) {
     if (distinct !== false) {
       return 'DISTINCT'
@@ -30,7 +35,13 @@ export class SqlserverQueryGrammar extends QueryGrammar {
       return ''
     }
   }
+  prepareBindingForJsonContains(value) {
+    return isBoolean(value) ? JSON.stringify(value) : value
+  }
   quoteColumnName(columnName) {
+    if (columnName === '*') {
+      return '*'
+    }
     return `[${columnName.replace(/`/g, '')}]`
   }
   quoteTableName(tableName) {

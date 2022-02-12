@@ -2,6 +2,7 @@ import { BindingVariable } from '../query/ast/binding-variable'
 import { ColumnReferenceExpression } from '../query/ast/column-reference-expression'
 import { RawBindingExpression } from '../query/ast/expression/raw-binding-expression'
 import { RawExpression } from '../query/ast/expression/raw-expression'
+import { StringLiteralExpression } from '../query/ast/expression/string-literal-expression'
 import { Identifier } from '../query/ast/identifier'
 import { PathExpression } from '../query/ast/path-expression'
 import { SyntaxKind, Token } from '../query/parser/sql-lexer'
@@ -23,6 +24,9 @@ export function rawSqlBindings(value, bindings, type = 'where') {
 }
 export function createIdentifier(identifier) {
   return new Identifier(identifier)
+}
+export function createStringLiteral(identifier) {
+  return new StringLiteralExpression(identifier)
 }
 export function createTableColumn(table, column) {
   return new ColumnReferenceExpression(

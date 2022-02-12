@@ -95,4 +95,9 @@ export declare class MysqlSchemaGrammar extends SchemaGrammar {
     protected modifySrid(blueprint: Blueprint, column: ColumnDefinition): string;
     protected wrapValue(value: string): string;
     protected wrapJsonSelector(value: string): string;
+    getListSequencesSQL(database: string): string;
+    getListTableColumnsSQL(table: string, database: string): string;
+    getListTableIndexesSQL(table: string, database: string): string;
+    getListTableForeignKeysSQL(table: string, database?: string): string;
+    getListTablesSQL(): string;
 }

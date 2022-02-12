@@ -10,16 +10,30 @@ export class PostgresQueryBuilderVisitor extends QueryBuilderVisitor {
     super(_grammar, _queryBuilder)
   }
   visitFunctionCallExpression(node) {
-    const name = node.name.accept(this).toLowerCase()
-    if (['day', 'month', 'year'].includes(name)) {
-      return `extract(${name} from ${node.parameters
+    let funcName = node.name.accept(this)
+    funcName = this._grammar.compilePredicateFuncName(funcName)
+    if (['day', 'month', 'year'].includes(funcName)) {
+      return `extract(${funcName} from ${node.parameters
         .map((it) => it.accept(this))
         .join(', ')})`
     }
-    if (['date', 'time'].includes(name)) {
+    if (['date', 'time'].includes(funcName)) {
       return `${node.parameters
         .map((it) => it.accept(this))
-        .join(', ')}::${name}`
+        .join(', ')}::${funcName}`
+    }
+    if (['json_contains'].includes(funcName)) {
+      return `(${node.parameters
+        .slice(0, node.parameters.length - 1)
+        .map((it) => it.accept(this))
+        .join(', ')})::jsonb @> ${node.parameters[
+        node.parameters.length - 1
+      ].accept(this)}`
+    }
+    if (['json_array_length'].includes(funcName)) {
+      return `json_array_length((${node.parameters
+        .map((it) => it.accept(this))
+        .join(', ')})::json)`
     }
     return super.visitFunctionCallExpression(node)
   }
@@ -36,8 +50,21 @@ export class PostgresQueryBuilderVisitor extends QueryBuilderVisitor {
     if (this._queryBuilder._joins.length > 0) {
       return super.visitColumnReferenceExpression(node)
     } else {
-      return super.visitColumnReferenceExpression(node).split('.').pop()
+      return super.visitColumnReferenceExpression(node)
     }
+  }
+  visitJsonPathExpression(node) {
+    const pathLeg = node.pathLeg.accept(this)
+    if (pathLeg === '->') {
+      return `${node.pathExpression.accept(this)}->"${node.jsonLiteral.accept(
+        this
+      )}"`
+    } else if (pathLeg === '->>') {
+      return `${node.pathExpression.accept(this)}->>"${node.jsonLiteral.accept(
+        this
+      )}"`
+    }
+    throw new Error('unknown path leg')
   }
   visitLockClause(node) {
     if (node.value === true) {

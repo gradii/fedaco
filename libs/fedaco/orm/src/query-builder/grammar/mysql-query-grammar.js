@@ -37,6 +37,12 @@ export class MysqlQueryGrammar extends QueryGrammar {
     }
     return sql + columns.join(', ')
   }
+  compilePredicateFuncName(funcName) {
+    if (funcName === 'JsonLength') {
+      return 'json_length'
+    }
+    return super.compilePredicateFuncName(funcName)
+  }
   distinct(distinct) {
     if (distinct !== false) {
       return 'DISTINCT'
@@ -47,9 +53,8 @@ export class MysqlQueryGrammar extends QueryGrammar {
   quoteColumnName(columnName) {
     if (columnName === '*') {
       return columnName
-    } else {
-      return `\`${columnName.replace(/`/g, '')}\``
     }
+    return `\`${columnName.replace(/`/g, '')}\``
   }
   quoteTableName(tableName) {
     return `\`${this._tablePrefix}${tableName.replace(/`/g, '')}\``

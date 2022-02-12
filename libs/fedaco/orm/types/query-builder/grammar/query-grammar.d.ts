@@ -14,7 +14,7 @@ import { Builder } from '../builder';
 import { GrammarInterface } from '../grammar.interface';
 import { JoinClauseBuilder, QueryBuilder } from '../query-builder';
 import { QueryBuilderVisitor } from '../visitor/query-builder-visitor';
-export declare abstract class QueryGrammar extends BaseGrammar implements GrammarInterface {
+export declare abstract class QueryGrammar extends BaseGrammar implements GrammarInterface<QueryBuilder> {
     constructor();
     protected _selectComponents: string[];
     protected _prepareUpdateAst(builder: QueryBuilder, values: any): UpdateSpecification;
