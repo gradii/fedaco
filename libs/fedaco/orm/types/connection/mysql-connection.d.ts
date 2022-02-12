@@ -10,6 +10,8 @@ import { MysqlSchemaBuilder } from '../schema/builder/mysql-schema-builder';
 import { SchemaGrammar } from '../schema/grammar/schema-grammar';
 import { MySqlSchemaState } from '../schema/mysql-schema-state';
 export declare class MysqlConnection extends Connection {
+    _version: string;
+    _isMaria: boolean;
     isMaria(): Promise<boolean>;
     protected getDefaultQueryGrammar(): MysqlQueryGrammar;
     getSchemaBuilder(): MysqlSchemaBuilder;

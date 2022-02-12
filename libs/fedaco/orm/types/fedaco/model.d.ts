@@ -3,6 +3,7 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
+import type { Connection } from '../connection';
 import { ConnectionResolverInterface } from '../interface/connection-resolver-interface';
 import { QueryBuilder } from '../query-builder/query-builder';
 import { BaseModel } from './base-model';
@@ -175,7 +176,7 @@ export declare class Model extends Model_base {
     newQueryWithoutScope(scope: string): FedacoBuilder<this>;
     newQueryForRestoration(ids: any[] | number | string): FedacoBuilder<this>;
     newEloquentBuilder(query: QueryBuilder): FedacoBuilder<this>;
-    protected newBaseQueryBuilder(): any;
+    protected newBaseQueryBuilder(): QueryBuilder;
     newCollection(models?: any[]): this[];
     hasNamedScope(scope: string): boolean;
     callNamedScope(scope: string, ...parameters: any[]): any;
@@ -187,7 +188,7 @@ export declare class Model extends Model_base {
     replicate(excepts?: any[] | null): any;
     is(model: Model | null): boolean;
     isNot(model: Model | null): boolean;
-    getConnection(): any;
+    getConnection(): Connection;
     static connectionName: string;
     getConnectionName(): string;
     setConnection(name: string | null): this;

@@ -9,7 +9,20 @@ import { MySqlSchemaState } from '../schema/mysql-schema-state'
 export class MysqlConnection extends Connection {
   isMaria() {
     return __awaiter(this, void 0, void 0, function* () {
-      return false
+      if (isBlank(this._isMaria)) {
+        try {
+          const data = yield this.selectOne('SELECT VERSION() as version')
+          if (data) {
+            this._version = data.version
+            this._isMaria = this._version.indexOf('MariaDB') !== -1
+          } else {
+            this._isMaria = false
+          }
+        } catch (e) {
+          console.error('can not get mysql db version')
+        }
+      }
+      return this._isMaria
     })
   }
 
@@ -39,6 +52,16 @@ export class MysqlConnection extends Connection {
   getDoctrineDriver() {}
   insertGetId(query, bindings = [], sequence) {
     return __awaiter(this, void 0, void 0, function* () {
+      if (!(yield this.isMaria())) {
+        if (query.includes('returning')) {
+          query = query.replace(/\s+returning\s+.+$/, '')
+        }
+        const [, d] = yield Promise.all([
+          this.statement(query, bindings),
+          this.selectOne('SELECT LAST_INSERT_ID() as id'),
+        ])
+        return d.id
+      }
       const data = yield this.statement(query, bindings)
       return isArray(data) && data.length === 1 ? data[0][sequence] : null
     })
