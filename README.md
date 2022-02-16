@@ -18,6 +18,9 @@ can play fedaco here https://github.com/gradii/play-fedaco
   ```
 - define a model
   ```typescript
+  @Table({
+    tableName: 'user'
+  })
   class User extends Model {
     @PrimaryColumn
     id;
