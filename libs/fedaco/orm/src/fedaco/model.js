@@ -13,6 +13,7 @@ import {
   isString,
 } from '@gradii/check-type'
 import { difference, findLast, tap, uniq } from 'ramda'
+import { PrimaryColumn } from '../annotation/column/primary.column'
 import { Table } from '../annotation/table/table'
 import { except } from '../helper/obj'
 import { plural, pluralStudy } from '../helper/pluralize'
@@ -69,8 +70,6 @@ export class Model extends mixinHasAttributes(
     this._table = undefined
 
     this._tableAlias = undefined
-
-    this._primaryKey = 'id'
     this._keyType = 'int'
     this._incrementing = true
     this._with = []
@@ -653,6 +652,21 @@ export class Model extends mixinHasAttributes(
   }
 
   getKeyName() {
+    if (this._primaryKey === undefined) {
+      const typeOfClazz = this.constructor
+      const metas = reflector.propMetadata(typeOfClazz)
+      for (const [key, meta] of Object.entries(metas)) {
+        const columnMeta = findLast((it) => {
+          return PrimaryColumn.isTypeOf(it)
+        }, meta)
+        if (columnMeta) {
+          this._primaryKey = columnMeta.field || key
+          this._keyType = columnMeta.keyType
+          break
+        }
+      }
+      this._primaryKey = null
+    }
     return this._primaryKey
   }
 

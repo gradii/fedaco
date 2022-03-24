@@ -90,7 +90,7 @@ export function mixinHasAttributes(base) {
 
         this._changes = {}
 
-        this._casts = {}
+        this._casts = null
 
         this._classCastCache = []
 
@@ -297,6 +297,9 @@ export function mixinHasAttributes(base) {
       }
 
       mergeCasts(casts) {
+        if (isBlank(this._casts)) {
+          this.getCasts()
+        }
         Object.assign(this._casts, casts)
         return this
       }
@@ -575,7 +578,7 @@ export function mixinHasAttributes(base) {
       }
 
       getCasts() {
-        if (isObjectEmpty(this._casts)) {
+        if (isBlank(this._casts)) {
           const typeOfClazz = this.constructor
           const metas = reflector.propMetadata(typeOfClazz)
           const casts = {}
@@ -814,15 +817,17 @@ export function mixinHasAttributes(base) {
           return false
         } else if (this.isDateAttribute(key)) {
           return this.fromDateTime(attribute) === this.fromDateTime(original)
-        } else if (this.hasCast(key, ['object', 'collection'])) {
+        } else if (
+          this.hasCast(key, ['object', 'collection', 'json', 'array'])
+        ) {
           return equals(
             this.castAttribute(key, attribute),
             this.castAttribute(key, original)
           )
         } else if (this.hasCast(key, ['real', 'float', 'double'])) {
           if (
-            (attribute === null && original !== null) ||
-            (attribute !== null && original === null)
+            (attribute == null && original != null) ||
+            (attribute != null && original == null)
           ) {
             return false
           }
@@ -834,8 +839,8 @@ export function mixinHasAttributes(base) {
             EPSILON * 4
           )
         } else if (this.hasCast(key, PrimitiveCastTypes)) {
-          return (
-            this.castAttribute(key, attribute) ===
+          return equals(
+            this.castAttribute(key, attribute),
             this.castAttribute(key, original)
           )
         }

@@ -32,7 +32,10 @@ export class SqliteConnector extends Connector {
       try {
         const sqlite3 = yield import('sqlite3')
         return new Promise((ok, fail) => {
-          const db = new sqlite3.Database(database, (err) => {
+          const db = new (sqlite3.Database ||
+            (sqlite3 === null || sqlite3 === void 0
+              ? void 0
+              : sqlite3.default.Database))(database, (err) => {
             if (err) {
               return fail(err)
             }

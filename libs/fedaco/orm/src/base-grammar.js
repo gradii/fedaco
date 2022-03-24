@@ -5,7 +5,6 @@
  */
 import { isArray } from '@gradii/check-type'
 import { RawExpression } from './query/ast/expression/raw-expression'
-
 export class BaseGrammar {
   constructor() {
     this.tablePrefix = ''

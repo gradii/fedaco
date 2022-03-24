@@ -15,10 +15,10 @@ export class MysqlConnector extends Connector {
       if (config['database'].length) {
         yield connection.exec(`use \`${config['database']}\`;`)
       }
-      this.configureIsolationLevel(connection, config)
-      this.configureEncoding(connection, config)
+      yield this.configureIsolationLevel(connection, config)
+      yield this.configureEncoding(connection, config)
       yield this.configureTimezone(connection, config)
-      this.setModes(connection, config)
+      yield this.setModes(connection, config)
       return connection
     })
   }
@@ -29,43 +29,44 @@ export class MysqlConnector extends Connector {
         (_a = config['username']) !== null && _a !== void 0 ? _a : null,
         (_b = config['password']) !== null && _b !== void 0 ? _b : null,
       ]
-      try {
-        const mysql2 = yield import('mysql2')
-        return Promise.resolve(
-          new MysqlWrappedConnection(
-            mysql2.createConnection({
-              host: config['host'],
-              port: config['port'],
-              user: username,
-              password: password,
-              database: config['database'],
-            })
-          )
+
+      const mysql2 = yield import('mysql2')
+      return Promise.resolve(
+        new MysqlWrappedConnection(
+          mysql2.createConnection({
+            host: config['host'],
+            port: config['port'],
+            user: username,
+            password: password,
+            database: config['database'],
+          })
         )
-      } catch (e) {
-        throw e
-      }
+      )
     })
   }
 
   configureIsolationLevel(connection, config) {
-    if (!(config['isolation_level'] !== undefined)) {
-      return
-    }
-    connection
-      .prepare(
+    return __awaiter(this, void 0, void 0, function* () {
+      if (!(config['isolation_level'] !== undefined)) {
+        return
+      }
+      const stmt = yield connection.prepare(
         `SET SESSION TRANSACTION ISOLATION LEVEL ${config['isolation_level']}`
       )
-      .execute()
+      yield stmt.execute()
+    })
   }
 
   configureEncoding(connection, config) {
-    if (!(config['charset'] !== undefined)) {
-      return connection
-    }
-    connection
-      .prepare(`set names '${config['charset']}'${this.getCollation(config)}`)
-      .execute()
+    return __awaiter(this, void 0, void 0, function* () {
+      if (!(config['charset'] !== undefined)) {
+        return connection
+      }
+      const stmt = yield connection.prepare(
+        `set names '${config['charset']}'${this.getCollation(config)}`
+      )
+      yield stmt.execute()
+    })
   }
 
   getCollation(config) {
@@ -106,27 +107,35 @@ export class MysqlConnector extends Connector {
   }
 
   setModes(connection, config) {
-    if (config['modes'] !== undefined) {
-      this.setCustomModes(connection, config)
-    } else if (config['strict'] !== undefined) {
-      if (config['strict']) {
-        connection.prepare(this.strictMode(connection, config)).execute()
-      } else {
-        connection
-          .prepare(`set session sql_mode='NO_ENGINE_SUBSTITUTION'`)
-          .execute()
+    return __awaiter(this, void 0, void 0, function* () {
+      if (config['modes'] !== undefined) {
+        yield this.setCustomModes(connection, config)
+      } else if (config['strict'] !== undefined) {
+        if (config['strict']) {
+          yield (yield connection.prepare(
+            this.strictMode(connection, config)
+          )).execute()
+        } else {
+          yield (yield connection.prepare(
+            `set session sql_mode='NO_ENGINE_SUBSTITUTION'`
+          )).execute()
+        }
       }
-    }
+    })
   }
 
   setCustomModes(connection, config) {
-    const modes = config['modes'].join(',')
-    connection.prepare(`set session sql_mode='${modes}'`).execute()
+    return __awaiter(this, void 0, void 0, function* () {
+      const modes = config['modes'].join(',')
+      yield (yield connection.prepare(
+        `set session sql_mode='${modes}'`
+      )).execute()
+    })
   }
 
   strictMode(connection, config) {
     const version =
-      config['version'] || connection.getAttribute('PDO.ATTR_SERVER_VERSION')
+      config['version'] || connection.getAttribute('ATTR_SERVER_VERSION')
 
     if (version >= '8.0.11') {
       return `set session sql_mode='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'`

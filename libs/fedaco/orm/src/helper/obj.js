@@ -5,7 +5,6 @@
  */
 import { has, isArray, isBlank, isNumber } from '@gradii/check-type'
 import { value } from './fn'
-
 export function get(target, key, defaultValue) {
   var _a
   if (isBlank(key)) {

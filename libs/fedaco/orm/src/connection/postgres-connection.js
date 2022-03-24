@@ -3,7 +3,8 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-import { isBlank } from '@gradii/check-type'
+import { __awaiter } from 'tslib'
+import { isArray, isBlank } from '@gradii/check-type'
 import { Connection } from '../connection'
 import { PostgresQueryGrammar } from '../query-builder/grammar/postgres-query-grammar'
 import { PostgresProcessor } from '../query-builder/processor/postgres-processor'
@@ -35,4 +36,10 @@ export class PostgresConnection extends Connection {
   }
 
   getDoctrineDriver() {}
+  insertGetId(query, bindings = [], sequence) {
+    return __awaiter(this, void 0, void 0, function* () {
+      const data = yield this.statement(query, bindings)
+      return isArray(data) && data.length === 1 ? data[0][sequence] : null
+    })
+  }
 }

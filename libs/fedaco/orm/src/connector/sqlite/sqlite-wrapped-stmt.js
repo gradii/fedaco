@@ -15,12 +15,6 @@ export class SqliteWrappedStmt {
   }
   execute(bindings) {
     return __awaiter(this, void 0, void 0, function* () {
-      console.log(
-        `run this ${this.driverStmt.sql}`,
-        bindings !== null && bindings !== void 0
-          ? bindings
-          : this._bindingValues
-      )
       const _self = this
       return new Promise((ok, fail) => {
         this.driverStmt
@@ -47,12 +41,6 @@ export class SqliteWrappedStmt {
   }
   fetchAll(bindings) {
     return __awaiter(this, void 0, void 0, function* () {
-      console.log(
-        `run this ${this.driverStmt.sql}`,
-        bindings !== null && bindings !== void 0
-          ? bindings
-          : this._bindingValues
-      )
       return new Promise((ok, fail) => {
         this.driverStmt.all(
           bindings !== null && bindings !== void 0

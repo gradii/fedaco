@@ -105,6 +105,9 @@ export function dotCase(input, options = {}) {
 export function headerCase(input, options = {}) {
   return capitalCase(input, Object.assign({ delimiter: '-' }, options))
 }
+export function slugCase(input, options = {}) {
+  return dotCase(input, Object.assign({ delimiter: '-' }, options))
+}
 export function isLowerCase(input) {
   return input.toLowerCase() === input && input.toUpperCase() !== input
 }
