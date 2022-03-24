@@ -12,5 +12,15 @@ export const PrimaryGeneratedColumn = makePropDecorator(
   FedacoColumn,
   (target, key, decorator) => {
     _additionalProcessingGetterSetter(target, key, decorator)
+    Object.defineProperty(target, '_primaryKey', {
+      enumerable: false,
+      configurable: true,
+      value: decorator.field || key,
+    })
+    Object.defineProperty(target, '_keyType', {
+      enumerable: false,
+      configurable: true,
+      value: decorator.keyType,
+    })
   }
 )
