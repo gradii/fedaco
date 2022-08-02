@@ -1,29 +1,7 @@
 {
   "version": 2,
   "projects": {
-    "fedaco": {
-      "root": "libs/fedaco",
-      "sourceRoot": "libs/fedaco/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["libs/fedaco/**/*.ts"]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/fedaco"],
-          "options": {
-            "jestConfig": "libs/fedaco/jest.config.js",
-            "passWithNoTests": true
-          }
-        }
-      }
-    }
+    "fedaco": "libs/fedaco"
   },
-  "cli": {
-    "defaultCollection": "@nrwl/workspace"
-  }
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json"
 }
