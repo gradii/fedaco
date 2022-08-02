@@ -1,0 +1,42 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/fedaco/src",
+  "prefix": "applications",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/angular:package",
+      "outputs": ["dist/libs/fedaco"],
+      "options": {
+        "project": "libs/fedaco/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/fedaco/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "libs/fedaco/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/fedaco"],
+      "options": {
+        "jestConfig": "libs/fedaco/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/fedaco/src/**/*.ts",
+          "libs/fedaco/src/**/*.html"
+        ]
+      }
+    }
+  },
+  "tags": []
+}
