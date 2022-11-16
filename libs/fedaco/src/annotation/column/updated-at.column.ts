@@ -16,7 +16,7 @@ export type UpdatedAtColumnAnnotation = ColumnAnnotation
 
 export const UpdatedAtColumn: FedacoDecorator<UpdatedAtColumnAnnotation> = makePropDecorator(
   'Fedaco:UpdatedAtColumn',
-  (p: UpdatedAtColumnAnnotation = {}): UpdatedAtColumnAnnotation => ({...p}),
+  (p: UpdatedAtColumnAnnotation = {}): UpdatedAtColumnAnnotation => ({fillable: false,...p}),
   DatetimeColumn,
   (target: any, name: string, decorator: UpdatedAtColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, name, decorator);

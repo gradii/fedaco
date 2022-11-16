@@ -38,6 +38,7 @@
     "@angular/router": "~14.1.0",
     "@gradii/annotation": "^1.1.1-sha-a4663e90",
     "@gradii/check-type": "^1.1.2",
+    "@gradii/nanofn": "^1.0.3",
     "date-fns": "^2.23.0",
     "ramda": "^0.27.1",
     "rxjs": "^7.4.0",

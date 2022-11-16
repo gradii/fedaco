@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank } from '@gradii/check-type';
+import { isBlank } from '@gradii/nanofn';
 import type { Constructor } from '../../helper/constructor';
 import type { QueryBuilder } from '../../query-builder/query-builder';
 import { RejectOrderElementExpression } from '../../query/ast/fragment/order/reject-order-element-expression';

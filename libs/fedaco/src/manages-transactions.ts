@@ -3,7 +3,7 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-import { isBlank } from '@gradii/check-type';
+import { isBlank } from '@gradii/nanofn';
 import type { Connection } from './connection';
 import type { DatabaseTransactionsManager } from './database-transactions-manager';
 import type { Constructor } from './helper/constructor';
@@ -58,7 +58,7 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
         await this.beginTransaction();
         try {
           callbackResult = await callback(this);
-        } catch (e) {
+        } catch (e: any) {
           await this._handleTransactionException(e, currentAttempt, attempts);
           continue;
         }
@@ -72,7 +72,7 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
               await this._transactionsManager.commit(this.getName());
             }
           }
-        } catch (e) {
+        } catch (e: any) {
           this.handleCommitTransactionException(e, currentAttempt, attempts);
           continue;
         }
@@ -115,7 +115,7 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
         this._reconnectIfMissingConnection();
         try {
           await (await this.getPdo()).beginTransaction();
-        } catch (e) {
+        } catch (e: any) {
           await this.handleBeginTransactionException(e);
         }
       } else if (this._transactions >= 1 && this._queryGrammar.supportsSavepoints()) {
@@ -174,7 +174,7 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
       }
       try {
         await this.performRollBack(toLevel);
-      } catch (e) {
+      } catch (e: any) {
         this.handleRollBackException(e);
       }
       this._transactions = toLevel;

@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank } from '@gradii/check-type';
+import { isBlank } from '@gradii/nanofn';
 import { Connection } from '../connection';
 import type { QueryGrammar } from '../query-builder/grammar/query-grammar';
 import { SqliteQueryGrammar } from '../query-builder/grammar/sqlite-query-grammar';

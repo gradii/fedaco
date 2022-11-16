@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isAnyEmpty } from '@gradii/check-type';
+import { isAnyEmpty } from '@gradii/nanofn';
 import type { Connection } from './connection';
 import type { ConnectionFactory } from './connector/connection-factory';
 import type { ConnectionConfig } from './database-config';

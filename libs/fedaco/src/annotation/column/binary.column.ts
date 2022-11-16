@@ -17,7 +17,7 @@ export interface BinaryColumnAnnotation extends ColumnAnnotation {
 
 export const BinaryColumn: FedacoDecorator<BinaryColumnAnnotation> = makePropDecorator(
   'Fedaco:BinaryColumn',
-  (p: BinaryColumnAnnotation = {}): BinaryColumnAnnotation => ({...p}),
+  (p: BinaryColumnAnnotation = {}): BinaryColumnAnnotation => ({fillable: true,...p}),
   FedacoColumn,
   (target: any, name: string, decorator: BinaryColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, name, decorator);

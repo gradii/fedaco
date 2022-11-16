@@ -56,9 +56,9 @@ describe('test database fedaco polymorphic relations integration', () => {
     const image = await EloquentManyToManyPolymorphicTestImage.createQuery().create();
     const tag   = await EloquentManyToManyPolymorphicTestTag.createQuery().create();
     const tag2  = await EloquentManyToManyPolymorphicTestTag.createQuery().create();
-    await post.newRelation('tags').attach(tag.id);
-    await post.newRelation('tags').attach(tag2.id);
-    await image.newRelation('tags').attach(tag.id);
+    await post.$newRelation('tags').attach(tag.id);
+    await post.$newRelation('tags').attach(tag2.id);
+    await image.$newRelation('tags').attach(tag.id);
     
     expect(await post.tags).toHaveLength(2);
     expect(await image.tags).toHaveLength(1);
@@ -71,13 +71,13 @@ describe('test database fedaco polymorphic relations integration', () => {
   it('eager loading', async () => {
     let post = await EloquentManyToManyPolymorphicTestPost.createQuery().create();
     let tag  = await EloquentManyToManyPolymorphicTestTag.createQuery().create();
-    post.newRelation('tags').attach(tag.id);
+    post.$newRelation('tags').attach(tag.id);
     post = await EloquentManyToManyPolymorphicTestPost.createQuery().with('tags')
       .where('id', 1).first();
     tag  = await EloquentManyToManyPolymorphicTestTag.createQuery().with('posts')
       .where('id', 1).first();
-    expect(post.relationLoaded('tags')).toBeTruthy();
-    expect(tag.relationLoaded('posts')).toBeTruthy();
+    expect(post.$relationLoaded('tags')).toBeTruthy();
+    expect(tag.$relationLoaded('posts')).toBeTruthy();
     expect(head(post.tags as Model[]).id).toEqual(tag.id);
     expect(head(tag.posts as Model[]).id).toEqual(post.id);
   });
@@ -87,10 +87,10 @@ describe('test database fedaco polymorphic relations integration', () => {
     const tag1 = await EloquentManyToManyPolymorphicTestTag.createQuery().create();
     const tag2 = await EloquentManyToManyPolymorphicTestTag.createQuery().create();
     const tag3 = await EloquentManyToManyPolymorphicTestTag.createQuery().create();
-    post.newRelation('tags').attach([tag1.id, tag2.id, tag3.id]);
+    post.$newRelation('tags').attach([tag1.id, tag2.id, tag3.id]);
     let count      = 0;
     let iterations = 0;
-    await post.newRelation('tags').chunkById(2).pipe(
+    await post.$newRelation('tags').chunkById(2).pipe(
       tap(({results: tags})=>{
           expect(head(tags)).toBeInstanceOf(EloquentManyToManyPolymorphicTestTag);
           count += tags.length;

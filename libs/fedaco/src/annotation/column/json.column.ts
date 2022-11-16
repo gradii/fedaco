@@ -17,7 +17,7 @@ export interface JsonColumnAnnotation extends ColumnAnnotation {
 
 export const JsonColumn: FedacoDecorator<JsonColumnAnnotation> = makePropDecorator(
   'Fedaco:JsonColumn',
-  (p: JsonColumnAnnotation = {}): JsonColumnAnnotation => ({...p}),
+  (p: JsonColumnAnnotation = {}): JsonColumnAnnotation => ({fillable: true,...p}),
   FedacoColumn,
   (target: any, name: string, decorator: JsonColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, name, decorator);

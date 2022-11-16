@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isString } from '@gradii/check-type';
+import { isString } from '@gradii/nanofn';
 import { createIdentifier } from '../../query-builder/ast-factory';
 import { ColumnReferenceExpression } from '../ast/column-reference-expression';
 import { NumberLiteralExpression } from '../ast/expression/number-literal-expression';
@@ -300,6 +300,12 @@ export class _SqlParserAst {
     const paths = [];
     if (this.consumeOptionalOperator('*')) {
       return [createIdentifier('*')];
+    }
+    if (this.next.isKeyword()) {
+      //patch for simple keyword token
+      if (this.tokens.length === 1) {
+        return [createIdentifier(this.next.strValue)];
+      }
     }
     if (this.next.isIdentifier()) {
       paths.push(createIdentifier(this.next.strValue));

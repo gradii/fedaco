@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray, isFunction, isObject, isString } from '@gradii/check-type';
+import { isArray, isFunction, isObject, isString } from '@gradii/nanofn';
 import type { FedacoBuilder } from '../../fedaco/fedaco-builder';
 import type { FedacoBuilderCallBack } from '../../fedaco/fedaco-types';
 import type { Constructor } from '../../helper/constructor';

@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { has, isArray, isBlank, isNumber } from '@gradii/check-type';
+import { has, isArray, isBlank, isNumber } from '@gradii/nanofn';
 import { value } from './fn';
 
 export function get(target: any[] | any, key?: string | number, defaultValue?: any) {

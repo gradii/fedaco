@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isObject } from '@gradii/check-type';
+import { isObject } from '@gradii/nanofn';
 import type { Constructor } from '../../helper/constructor';
 import { ColumnReferenceExpression } from '../../query/ast/column-reference-expression';
 import { AggregateFragment } from '../../query/ast/fragment/aggregate-fragment';

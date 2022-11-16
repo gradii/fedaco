@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank } from '@gradii/check-type';
+import { isBlank } from '@gradii/nanofn';
 import { Connection } from '../connection';
 import { SqlserverQueryGrammar } from '../query-builder/grammar/sqlserver-query-grammar';
 import { SqlServerProcessor } from '../query-builder/processor/sql-server-processor';

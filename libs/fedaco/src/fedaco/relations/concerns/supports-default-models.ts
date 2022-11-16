@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray, isFunction, isObject } from '@gradii/check-type';
+import { isArray, isFunction, isObject } from '@gradii/nanofn';
 import type { Constructor } from '../../../helper/constructor';
 import type { Model } from '../../model';
 import type { Relation } from '../relation';
@@ -50,7 +50,7 @@ export function mixinSupportsDefaultModels<T extends Constructor<{}>>(base: T): 
         return this._withDefault.call(this, instance, parent) || instance;
       }
       if (isObject(this._withDefault)) {
-        instance.forceFill(this._withDefault as any[]);
+        instance.$forceFill(this._withDefault as any[]);
       }
       return instance;
     }

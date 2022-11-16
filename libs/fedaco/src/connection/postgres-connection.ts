@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray, isBlank, isString } from '@gradii/check-type';
+import { isArray, isBlank, isString } from '@gradii/nanofn';
 import { Connection } from '../connection';
 import { PostgresQueryGrammar } from '../query-builder/grammar/postgres-query-grammar';
 import { PostgresProcessor } from '../query-builder/processor/postgres-processor';

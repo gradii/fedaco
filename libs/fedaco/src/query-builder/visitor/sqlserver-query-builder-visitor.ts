@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isString } from '@gradii/check-type';
+import { isString } from '@gradii/nanofn';
 import type { BinaryUnionQueryExpression } from '../../query/ast/binary-union-query-expression';
 import { ColumnReferenceExpression } from '../../query/ast/column-reference-expression';
 import type { DeleteSpecification } from '../../query/ast/delete-specification';

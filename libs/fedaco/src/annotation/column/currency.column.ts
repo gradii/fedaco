@@ -14,7 +14,7 @@ export type CurrencyColumnAnnotation = ColumnAnnotation
 
 export const CurrencyColumn: FedacoDecorator<CurrencyColumnAnnotation> = makePropDecorator(
   'Fedaco:CurrencyColumn',
-  (p: CurrencyColumnAnnotation = {}): CurrencyColumnAnnotation => ({...p}),
+  (p: CurrencyColumnAnnotation = {}): CurrencyColumnAnnotation => ({fillable: true,...p}),
   FedacoColumn,
   (target: any, name: string, decorator: CurrencyColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, name, decorator);

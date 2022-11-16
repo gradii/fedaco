@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isObject } from '@gradii/check-type';
+import { isObject } from '@gradii/nanofn';
 import type { Connection, FieldPacket, QueryError } from 'mysql2';
 import type { WrappedStmt } from '../wrapped-stmt';
 

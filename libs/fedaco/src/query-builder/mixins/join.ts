@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isFunction, isString } from '@gradii/check-type';
+import { isFunction, isString } from '@gradii/nanofn';
 import type { Constructor } from '../../helper/constructor';
 import type { JoinClauseBuilder, QueryBuilder } from '../../query-builder/query-builder';
 import { JoinFragment } from '../../query/ast/fragment/join-fragment';

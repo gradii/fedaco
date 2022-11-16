@@ -14,7 +14,7 @@ export type BooleanColumnAnnotation = ColumnAnnotation
 
 export const BooleanColumn: FedacoDecorator<BooleanColumnAnnotation> = makePropDecorator(
   'Fedaco:BooleanColumn',
-  (p: BooleanColumnAnnotation = {}): BooleanColumnAnnotation => ({...p}),
+  (p: BooleanColumnAnnotation = {}): BooleanColumnAnnotation => ({fillable: true,...p}),
   FedacoColumn,
   (target: any, name: string, decorator: BooleanColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, name, decorator);

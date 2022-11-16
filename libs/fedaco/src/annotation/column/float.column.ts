@@ -14,7 +14,7 @@ export type FloatColumnAnnotation = ColumnAnnotation
 
 export const FloatColumn: FedacoDecorator<FloatColumnAnnotation> = makePropDecorator(
   'Fedaco:FloatColumn',
-  (p: FloatColumnAnnotation = {}): FloatColumnAnnotation => ({...p}),
+  (p: FloatColumnAnnotation = {}): FloatColumnAnnotation => ({fillable: true,...p}),
   FedacoColumn,
   (target: any, name: string, decorator: FloatColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, name, decorator);

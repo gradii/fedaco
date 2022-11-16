@@ -7,7 +7,7 @@
 import { makePropDecorator } from '@gradii/annotation';
 import type { Model } from '../../fedaco/model';
 import { HasOneThrough } from '../../fedaco/relations/has-one-through';
-import type { ForwardRefFn} from '../../query-builder/forward-ref';
+import type { ForwardRefFn } from '../../query-builder/forward-ref';
 import { resolveForwardRef } from '../../query-builder/forward-ref';
 import { _additionalProcessingGetter } from '../additional-processing';
 import type { FedacoDecorator } from '../annotation.interface';
@@ -32,16 +32,16 @@ export const HasOneThroughColumn: FedacoDecorator<HasOneThroughRelationAnnotatio
     type        : RelationType.HasOneThrough,
     _getRelation: function (m: Model, relation: string) {
       // @ts-ignore
-      const throughClazz = resolveForwardRef(p.through);
-      const through      = new throughClazz();
-      const firstKey     = p.firstKey || m.getForeignKey();
-      const secondKey    = p.secondKey || through.getForeignKey();
-      const clazz        = resolveForwardRef(p.related);
+      const throughClazz   = resolveForwardRef(p.through);
+      const through: Model = new throughClazz();
+      const firstKey       = p.firstKey || m.$getForeignKey();
+      const secondKey      = p.secondKey || through.$getForeignKey();
+      const clazz          = resolveForwardRef(p.related);
 
       const r = new HasOneThrough(
-        m._newRelatedInstance(clazz).newQuery(),
+        m._newRelatedInstance(clazz).$newQuery(),
         m, through, firstKey, secondKey,
-        p.localKey || m.getKeyName(), p.secondLocalKey || through.getKeyName()
+        p.localKey || m.$getKeyName(), p.secondLocalKey || through.$getKeyName()
       );
 
       if (p.onQuery) {

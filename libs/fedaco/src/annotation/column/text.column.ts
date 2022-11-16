@@ -17,7 +17,7 @@ export interface TextColumnAnnotation extends ColumnAnnotation {
 
 export const TextColumn = makePropDecorator(
   'Fedaco:TextColumn',
-  (p: TextColumnAnnotation): TextColumnAnnotation => ({...p}),
+  (p: TextColumnAnnotation): TextColumnAnnotation => ({fillable: true,...p}),
   FedacoColumn,
   (target: any, key: string, decorator: TextColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, key, decorator);

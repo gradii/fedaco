@@ -4,33 +4,28 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import {
-  isAnyEmpty, isArray, isBlank, isFunction, isNumber, isObject, isString
-} from '@gradii/check-type';
+import { isAnyEmpty, isArray, isBlank, isFunction, isNumber, isObject, isString } from '@gradii/nanofn';
 import { nth, omit, pluck } from 'ramda';
 import { wrap } from '../helper/arr';
 import type { Constructor } from '../helper/constructor';
-import { pascalCase } from '../helper/str';
-import type {
-  BuildQueries, BuildQueriesCtor} from '../query-builder/mixins/build-query';
-import { mixinBuildQueries
-} from '../query-builder/mixins/build-query';
+import { pascalCase } from '@gradii/nanofn';
+import type { BuildQueries, BuildQueriesCtor } from '../query-builder/mixins/build-query';
+import { mixinBuildQueries } from '../query-builder/mixins/build-query';
 import type { QueryBuilder } from '../query-builder/query-builder';
 import type { SqlNode } from '../query/sql-node';
+import { BaseModel } from './base-model';
 import type { FedacoBuilderCallBack, RelationCallBack } from './fedaco-types';
-import type {
-  ForwardCallToQueryBuilder, ForwardCallToQueryBuilderCtor} from './mixins/forward-call-to-query-builder';
-import { mixinForwardCallToQueryBuilder
-} from './mixins/forward-call-to-query-builder';
-import type { GuardsAttributes} from './mixins/guards-attributes';
+import type { ForwardCallToQueryBuilder, ForwardCallToQueryBuilderCtor } from './mixins/forward-call-to-query-builder';
+import { mixinForwardCallToQueryBuilder } from './mixins/forward-call-to-query-builder';
+import type { GuardsAttributes } from './mixins/guards-attributes';
 import { mixinGuardsAttributes } from './mixins/guards-attributes';
-import type { QueriesRelationShips } from './mixins/queries-relationships';
-import { mixinQueriesRelationShips } from './mixins/queries-relationships';
-import { Model } from './model';
+import type { QueriesRelationships } from './mixins/queries-relationships';
+import { mixinQueriesRelationships } from './mixins/queries-relationships';
+import type { Model } from './model';
 import { Relation } from './relations/relation';
 import { Scope } from './scope';
 
-export interface FedacoBuilder<T extends Model = Model> extends GuardsAttributes, QueriesRelationShips,
+export interface FedacoBuilder<T extends Model = Model> extends GuardsAttributes, QueriesRelationships,
   Omit<BuildQueries, 'first' | 'latest' | 'oldest' | 'orWhere' | 'where'>,
   ForwardCallToQueryBuilder {
   first(columns?: any[] | string): Promise<T>;
@@ -170,16 +165,16 @@ export interface FedacoBuilder<T extends Model = Model> extends GuardsAttributes
                  columns?: any[]): Promise<{ items: any[], pageSize: number, page: number }>;
 
   /*Save a new model and return the instance.*/
-  create(attributes?: Record<string, any>): Promise<T>;
+  create<T extends Model>(attributes?: Record<string, any>): Promise<T>;
 
   /*Save a new model and return the instance. Allow mass-assignment.*/
-  forceCreate(attributes: Record<string, any>): Promise<T>;
+  forceCreate<T extends Model>(attributes: Record<string, any>): Promise<T>;
 
   /*Update records in the database.*/
   update(values: any): Promise<any>;
 
   /*Insert new records or update the existing ones.*/
-  upsert(values: any[], uniqueBy: any[] | string, update?: any[]): Promise<any>;
+  upsert(values: any[] | any, uniqueBy: any[] | string, update?: any[] | any): Promise<any>;
 
   /*Increment a column's value by a given amount.*/
   increment(column: string, amount?: number, extra?: any): Promise<any>;
@@ -312,7 +307,7 @@ export interface FedacoBuilder<T extends Model = Model> extends GuardsAttributes
 }
 
 export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttributes(
-  mixinQueriesRelationShips(
+  mixinQueriesRelationships(
     mixinBuildQueries(
       mixinForwardCallToQueryBuilder(class {
       })
@@ -388,32 +383,32 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
    * Add a where clause on the primary key to the query.
    */
   public whereKey(id: any): this {
-    if (id instanceof Model) {
-      id = id.getKey();
+    if (id instanceof BaseModel) {
+      id = (id as Model).$getKey();
     }
     if (isArray(id)) {
-      this._query.whereIn(this._model.getQualifiedKeyName(), id);
+      this._query.whereIn(this._model.$getQualifiedKeyName(), id);
       return this;
     }
-    if (id != null && this._model.getKeyType() === 'string') {
+    if (id != null && this._model.$getKeyType() === 'string') {
       id = `${id}`;
     }
-    return this.where(this._model.getQualifiedKeyName(), '=', id);
+    return this.where(this._model.$getQualifiedKeyName(), '=', id);
   }
 
   /*Add a where clause on the primary key to the query.*/
   public whereKeyNot(id: any) {
-    if (id instanceof Model) {
-      id = id.getKey();
+    if (id instanceof BaseModel) {
+      id = (id as Model).$getKey();
     }
     if (isArray(id)) {
-      this._query.whereNotIn(this._model.getQualifiedKeyName(), id);
+      this._query.whereNotIn(this._model.$getQualifiedKeyName(), id);
       return this;
     }
-    if (id !== null && this._model.getKeyType() === 'string') {
+    if (id !== null && this._model.$getKeyType() === 'string') {
       id = `${id}`;
     }
-    return this.where(this._model.getQualifiedKeyName(), '!=', id);
+    return this.where(this._model.$getQualifiedKeyName(), '!=', id);
   }
 
 
@@ -433,7 +428,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
       operator = '=';
     }
     if (isFunction(column) && isBlank(operator)) {
-      const query = this._model.newQueryWithoutRelationships();
+      const query = this._model.$newQueryWithoutRelationships();
       column(query);
       this._query.addNestedWhereQuery(query.getQuery(), conjunction);
     } else {
@@ -462,7 +457,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   /*Add an "order by" clause for a timestamp to the query.*/
   public latest(column?: string): this {
     if (isBlank(column)) {
-      column = this._model.getCreatedAtColumn() ?? 'created_at';
+      column = this._model.$getCreatedAtColumn() ?? 'created_at';
     }
     this._query.latest(column);
     return this;
@@ -471,7 +466,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   /*Add an "order by" clause for a timestamp to the query.*/
   public oldest(column?: string): this {
     if (isBlank(column)) {
-      column = this._model.getCreatedAtColumn() ?? 'created_at';
+      column = this._model.$getCreatedAtColumn() ?? 'created_at';
     }
     this._query.oldest(column);
     return this;
@@ -480,8 +475,8 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   /*Create a collection of models from plain arrays.*/
   public hydrate(items: any[]): T[] {
     const instance = this.newModelInstance();
-    return instance.newCollection(items.map(item => {
-      const model = instance.newFromBuilder(item);
+    return instance.$newCollection(items.map(item => {
+      const model = instance.$newFromBuilder(item);
       if (items.length > 1) {
         // model.preventsLazyLoading = Model.preventsLazyLoading();
       }
@@ -559,14 +554,14 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
       return instance;
     }
     instance = this.newModelInstance({...attributes, ...values});
-    await instance.save();
+    await instance.$save();
     return instance;
   }
 
   /*Create or update a record matching the attributes, and fill it with values.*/
   public async updateOrCreate(attributes: any, values: Record<string, any>): Promise<T> {
     const instance = await this.firstOrNew(attributes);
-    await instance.fill(values).save();
+    await instance.$fill(values).$save();
     return instance;
   }
 
@@ -628,7 +623,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   /*Get the hydrated models without eager loading.*/
   public async getModels(columns: any[] | string = ['*']): Promise<T[]> {
     // @ts-ignore
-    return this._model.newQuery().hydrate(await this._query.get(columns));
+    return this._model.$newQuery().hydrate(await this._query.get(columns));
   }
 
   /*Eager load the relationships for the models.*/
@@ -660,7 +655,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     // not have to remove these where clauses manually which gets really hacky
     // and error prone. We don't want constraints because we add eager ones.
     const relation = Relation.noConstraints(() => {
-      const _relation = this.getModel().newInstance().newRelation(name);
+      const _relation = this.getModel().$newInstance().$newRelation(name);
       if (!_relation) {
         throw new Error(`RelationNotFoundException ${this.getModel().constructor.name} ${name}`); // (this.getModel(), name);
       }
@@ -704,7 +699,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   /*Add a generic "order by" clause if the query doesn't already have one.*/
   _enforceOrderBy() {
     if (!this._query._orders.length && !this._query._unionOrders.length) {
-      this.orderBy(this._model.getQualifiedKeyName(), 'asc');
+      this.orderBy(this._model.$getQualifiedKeyName(), 'asc');
     }
   }
 
@@ -713,14 +708,14 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     const results = await this.toBase().pluck(column, key);
     if (
       // !this._model.hasGetMutator(column) &&
-      !this._model.hasCast(column) &&
-      !this._model.getDates().includes(column)
+      !this._model.$hasCast(column) &&
+      !this._model.$getDates().includes(column)
     ) {
       return results;
     }
     if (isArray(results)) {
       return results.map(value => {
-        return this._model.newFromBuilder({
+        return this._model.$newFromBuilder({
           [column]: value
         })[column];
       });
@@ -734,7 +729,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
                         pageSize?: number,
                         columns: any[] = ['*'],
   ): Promise<{ items: any[], total: number, pageSize: number, page: number }> {
-    pageSize      = pageSize || this._model.getPerPage();
+    pageSize      = pageSize || this._model.$getPerPage();
     const total   = await this.toBase().getCountForPagination();
     const results = total > 0 ? await this.forPage(page, pageSize).get(columns) : [];
     return {
@@ -748,7 +743,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   public async simplePaginate(page: number   = 1,
                               pageSize?: number,
                               columns: any[] = ['*']): Promise<{ items: any[], pageSize: number, page: number }> {
-    pageSize = pageSize || this._model.getPerPage();
+    pageSize = pageSize || this._model.$getPerPage();
     this.skip((page - 1) * pageSize).take(pageSize + 1);
     const results = await this.get(columns);
     return {
@@ -782,14 +777,14 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   /*Save a new model and return the instance.*/
   public async create(attributes?: Record<string, any>): Promise<T> {
     const instance = this.newModelInstance(attributes);
-    await instance.save();
+    await instance.$save();
     return instance;
   }
 
   /*Save a new model and return the instance. Allow mass-assignment.*/
   public async forceCreate(attributes: Record<string, any>) {
     return (this._model.constructor as typeof Model).unguarded(() => {
-      return this.newModelInstance().newQuery().create(attributes);
+      return this.newModelInstance().$newQuery().create(attributes);
     });
   }
 
@@ -830,15 +825,15 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
 
   /*Add the "updated at" column to an array of values.*/
   _addUpdatedAtColumn(values: any): Record<string, any> {
-    if (!this._model.usesTimestamps() || isBlank(this._model.getUpdatedAtColumn())) {
+    if (!this._model.$usesTimestamps() || isBlank(this._model.$getUpdatedAtColumn())) {
       return values;
     }
-    const column = this._model.getUpdatedAtColumn();
+    const column = this._model.$getUpdatedAtColumn();
     values       = {
       ...values,
       [column]: column in values ?
         values[column] :
-        this._model.freshTimestampString(),
+        this._model.$freshTimestampString(),
     };
     // let segments            = preg_split('/\\s+as\\s+/i', this._query.from);
     // let qualifiedColumn     = end(segments) + '.' + column;
@@ -849,13 +844,13 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
 
   /*Add timestamps to the inserted values.*/
   _addTimestampsToUpsertValues(values: any[]) {
-    if (!this._model.usesTimestamps()) {
+    if (!this._model.$usesTimestamps()) {
       return values;
     }
-    const timestamp = this._model.freshTimestampString();
+    const timestamp = this._model.$freshTimestampString();
     const columns   = [
-      this._model.getCreatedAtColumn(),
-      this._model.getUpdatedAtColumn()
+      this._model.$getCreatedAtColumn(),
+      this._model.$getUpdatedAtColumn()
     ];
     for (const row of values) {
       for (const column of columns) {
@@ -867,10 +862,10 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
 
   /*Add the "updated at" column to the updated columns.*/
   _addUpdatedAtToUpsertColumns(update: string[]) {
-    if (!this._model.usesTimestamps()) {
+    if (!this._model.$usesTimestamps()) {
       return update;
     }
-    const column = this._model.getUpdatedAtColumn();
+    const column = this._model.$getUpdatedAtColumn();
     if (!isBlank(column) && !update.includes(column)) {
       update.push(column);
     }
@@ -899,7 +894,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
 
   /*Determine if the given model has a scope.*/
   public hasNamedScope(scope: string): boolean {
-    return this._model && this._model.hasNamedScope(scope);
+    return this._model && this._model.$hasNamedScope(scope);
   }
 
   /*Call the given local model scopes.*/
@@ -951,7 +946,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   /*Apply the given named scope on the current builder instance.*/
   callNamedScope(scope: string, parameters: any[] = []): any | void {
     return this.callScope((params: any[]) => {
-      return this._model.callNamedScope(scope, params);
+      return this._model.$callNamedScope(scope, params);
     }, parameters);
   }
 
@@ -1040,7 +1035,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
 
   /*Create a new instance of the model being queried.*/
   public newModelInstance(attributes?: Record<string, any>): T {
-    return this._model.newInstance(attributes).setConnection(this._query.getConnection().getName());
+    return this._model.$newInstance(attributes).$setConnection(this._query.getConnection().getName());
   }
 
   /*Parse a list of relations into individuals.*/
@@ -1101,7 +1096,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
 
   /*Apply query-time casts to the model instance.*/
   public withCasts(casts: any): this {
-    this._model.mergeCasts(casts);
+    this._model.$mergeCasts(casts);
     return this;
   }
 
@@ -1134,7 +1129,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
 
   /*Get the default key name of the table.*/
   _defaultKeyName(): string {
-    return this.getModel().getKeyName();
+    return this.getModel().$getKeyName();
   }
 
   /*Get the model instance being queried.*/
@@ -1145,18 +1140,18 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   /*Set a model instance for the model being queried.*/
   public setModel(model: T): this {
     this._model = model;
-    this._query.from(model.getTable());
+    this._query.from(model.$getTable());
     return this;
   }
 
   /*Qualify the given column name by the model's table.*/
   public qualifyColumn(column: string): string {
-    return this._model.qualifyColumn(column);
+    return this._model.$qualifyColumn(column);
   }
 
   /*Qualify the given columns with the model's table.*/
   public qualifyColumns(columns: any[]): string[] {
-    return this._model.qualifyColumns(columns);
+    return this._model.$qualifyColumns(columns);
   }
 
 

@@ -16,7 +16,7 @@ export interface PrimaryGeneratedColumnAnnotation extends ColumnAnnotation {
 
 export const PrimaryGeneratedColumn = makePropDecorator(
   'Fedaco:PrimaryGeneratedColumn',
-  (p: PrimaryGeneratedColumnAnnotation): PrimaryGeneratedColumnAnnotation => ({...p}),
+  (p: PrimaryGeneratedColumnAnnotation): PrimaryGeneratedColumnAnnotation => ({fillable: true,...p}),
   FedacoColumn,
   (target: any, key: string, decorator: any) => {
     _additionalProcessingGetterSetter(target, key, decorator);
@@ -24,11 +24,16 @@ export const PrimaryGeneratedColumn = makePropDecorator(
     Object.defineProperty(target, '_primaryKey', {
       enumerable  : false,
       configurable: true,
+      writable    : false,
       value       : decorator.field || key
     });
-    Object.defineProperty(target, '_keyType', {
-      enumerable  : false,
-      configurable: true,
-      value       : decorator.keyType
-    });
+
+    if (Object.prototype.hasOwnProperty.call(decorator, 'keyType')) {
+      Object.defineProperty(target, '_keyType', {
+        enumerable  : false,
+        configurable: true,
+        writable    : false,
+        value       : decorator.keyType
+      });
+    }
   });

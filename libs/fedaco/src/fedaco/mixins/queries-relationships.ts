@@ -4,13 +4,14 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isAnyEmpty, isArray, isBlank, isNumber, isString } from '@gradii/check-type';
+import { isAnyEmpty, isArray, isBlank, isNumber, isString } from '@gradii/nanofn';
 import type { Constructor } from '../../helper/constructor';
-import { snakeCase } from '../../helper/str';
+import { snakeCase } from '@gradii/nanofn';
 import { createTableColumn, raw, rawSqlBindings } from '../../query-builder/ast-factory';
 import type { Builder } from '../../query-builder/builder';
 import type { QueryBuilder } from '../../query-builder/query-builder';
 import type { FedacoBuilder } from '../fedaco-builder';
+import type { Model } from '../model';
 import type { BelongsTo } from '../relations/belongs-to';
 import { MorphTo } from '../relations/morph-to';
 import { Relation } from '../relations/relation';
@@ -18,7 +19,7 @@ import { Relation } from '../relations/relation';
 export type RelationParam = { [key: string]: (q: FedacoBuilder) => void } | string;
 export type RelationParams = RelationParam[] | RelationParam;
 
-export interface QueriesRelationShips {
+export interface QueriesRelationships {
   /*Add a relationship count / exists condition to the query.*/
   has(relation: Relation | string, operator?: string, count?: number, conjunction?: string,
       callback?: Function | null): this;
@@ -151,9 +152,9 @@ export interface QueriesRelationShips {
   _canUseExistsForExistenceCheck(operator: string, count: number): boolean;
 }
 
-export type QueriesRelationShipsCtor = Constructor<QueriesRelationShips>;
+export type QueriesRelationshipsCtor = Constructor<QueriesRelationships>;
 
-export function mixinQueriesRelationShips<T extends Constructor<any>>(base: T): QueriesRelationShipsCtor & T {
+export function mixinQueriesRelationships<T extends Constructor<any>>(base: T): QueriesRelationshipsCtor & T {
   return class _Self extends base {
 
     /*Add a relationship count / exists condition to the query.*/
@@ -184,7 +185,7 @@ public readonly ${relation};
         'getRelationExistenceCountQuery';
 
       const hasQuery: FedacoBuilder = (relation as any)[method](
-        (relation as Relation).getRelated().newQueryWithoutRelationships(), this);
+        (relation as Relation).getRelated().$newQueryWithoutRelationships(), this);
 
       if (callback) {
         hasQuery.callScope(callback as any);
@@ -375,7 +376,7 @@ public readonly ${relation};
           let hashedColumn: string;
           if (
             this.getModel()._connection === relation.getQuery().getModel()._connection &&
-            this.getModel().getTable() === relation.getQuery().getModel().getTable()
+            this.getModel().$getTable() === relation.getQuery().getModel().$getTable()
           ) {
             hashedColumn = `${relation.getRelationCountHash(false)}.${column}`;
           } else {
@@ -384,7 +385,7 @@ public readonly ${relation};
 
           const wrappedColumn = this.getQuery().getGrammar().wrap(
             column === '*' ? column :
-              relation.getRelated().qualifyColumn(hashedColumn)
+              relation.getRelated().$qualifyColumn(hashedColumn)
           );
 
           expression = func === 'exists' ? wrappedColumn : `${func}(${wrappedColumn})`;
@@ -392,7 +393,7 @@ public readonly ${relation};
           expression = column;
         }
         const query = relation.getRelationExistenceQuery(
-          relation.getRelated().newQuery(), this as unknown as FedacoBuilder, raw(expression)
+          relation.getRelated().$newQuery(), this as unknown as FedacoBuilder, raw(expression)
         ); // .setBindings([], 'select');
         query.callScope(constraints);
 
@@ -501,7 +502,7 @@ public readonly ${relation};
     /*Get the "has relation" base query instance.*/
     _getRelationWithoutConstraints(relation: string): Relation {
       return Relation.noConstraints(() => {
-        return this.getModel().newRelation(relation);
+        return (this.getModel() as Model).$newRelation(relation);
       });
     }
 

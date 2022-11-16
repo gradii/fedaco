@@ -1,5 +1,5 @@
 import { reflector } from '@gradii/annotation';
-import { isFunction } from '@gradii/check-type';
+import { isFunction } from '@gradii/nanofn';
 import { findLast } from 'ramda';
 import { ColumnAnnotation, FedacoColumn } from '../src/annotation/column';
 import { FedacoRelationColumn, RelationColumnAnnotation } from '../src/annotation/relation-column';
@@ -87,7 +87,7 @@ describe('model annotation', () => {
 
     const meta = reflector.propMetadata(RelationModel);
 
-    const spy1 = jest.spyOn(relationModel, 'getAttribute').mockReturnValue('foo');
+    const spy1 = jest.spyOn(relationModel, '$getAttribute').mockReturnValue('foo');
     const data = relationModel.columnFoo;
 
     expect(spy1).toBeCalled();

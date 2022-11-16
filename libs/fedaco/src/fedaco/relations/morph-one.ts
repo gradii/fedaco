@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank } from '@gradii/check-type';
+import { isBlank } from '@gradii/nanofn';
 import type { Collection } from '../../define/collection';
 import type { JoinClauseBuilder } from '../../query-builder/query-builder';
 import type { FedacoBuilder } from '../fedaco-builder';
@@ -33,15 +33,15 @@ export class MorphOne extends mixinCanBeOneOfMany(
   }
 
   /*Initialize the relation on a set of models.*/
-  public initRelation(models: any[], relation: string) {
+  public initRelation(models: Model[], relation: string) {
     for (const model of models) {
-      model.setRelation(relation, this._getDefaultFor(model));
+      model.$setRelation(relation, this._getDefaultFor(model));
     }
     return models;
   }
 
   /*Match the eagerly loaded results to their parents.*/
-  public match(models: any[], results: Collection, relation: string) {
+  public match(models: Model[], results: Collection, relation: string) {
     return this.matchOne(models, results, relation);
   }
 
@@ -80,13 +80,13 @@ export class MorphOne extends mixinCanBeOneOfMany(
 
   /*Make a new related instance for the given model.*/
   public newRelatedInstanceFor(parent: Model) {
-    return this._related.newInstance()
-      .setAttribute(this.getForeignKeyName(), parent[this._localKey])
-      .setAttribute(this.getMorphType(), this._morphClass);
+    return this._related.$newInstance()
+      .$setAttribute(this.getForeignKeyName(), parent[this._localKey])
+      .$setAttribute(this.getMorphType(), this._morphClass);
   }
 
   /*Get the value of the model's foreign key.*/
   _getRelatedKeyFrom(model: Model) {
-    return model.getAttribute(this.getForeignKeyName());
+    return model.$getAttribute(this.getForeignKeyName());
   }
 }

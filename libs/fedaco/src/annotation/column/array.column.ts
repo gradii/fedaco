@@ -14,7 +14,7 @@ export type ArrayColumnAnnotation = ColumnAnnotation
 
 export const ArrayColumn: FedacoDecorator<ArrayColumnAnnotation> = makePropDecorator(
   'Fedaco:ArrayColumn',
-  (p: ArrayColumnAnnotation = {}): ArrayColumnAnnotation => ({...p}),
+  (p: ArrayColumnAnnotation = {}): ArrayColumnAnnotation => ({fillable: true,...p}),
   FedacoColumn,
   (target: any, name: string, decorator: ArrayColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, name, decorator);

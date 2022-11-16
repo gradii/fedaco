@@ -1,10 +1,11 @@
-import { Table } from './../../src/annotation/table/table';
-import type { FedacoRelationListType } from './../../src/fedaco/fedaco-types';
+import { PrimaryColumn } from '../../src/annotation/column/primary.column';
 import { BelongsToManyColumn } from '../../src/annotation/relation-column/belongs-to-many.relation-column';
 import { DatabaseConfig } from '../../src/database-config';
 import { Model } from '../../src/fedaco/model';
 import { forwardRef } from '../../src/query-builder/forward-ref';
 import type { SchemaBuilder } from '../../src/schema/schema-builder';
+import { Table } from './../../src/annotation/table/table';
+import type { FedacoRelationListType } from './../../src/fedaco/fedaco-types';
 
 
 function connection(connectionName = 'default') {
@@ -76,9 +77,9 @@ describe('test database fedaco belongs to many sync return value type', () => {
     await seedData();
     const user       = await BelongsToManySyncTestTestUser.createQuery().first();
     const articleIDs = await BelongsToManySyncTestTestArticle.createQuery().pluck('id') as any[];
-    const changes    = await user.newRelation('articles').sync(articleIDs);
+    const changes    = await user.$newRelation('articles').sync(articleIDs);
     changes['attached'].map(id => {
-      expect(new BelongsToManySyncTestTestArticle().getKeyType()).toBe(typeof id);
+      expect(new BelongsToManySyncTestTestArticle().$getKeyType()).toBe(typeof id);
     });
   });
 });
@@ -87,7 +88,7 @@ describe('test database fedaco belongs to many sync return value type', () => {
   tableName: 'users'
 })
 export class BelongsToManySyncTestTestUser extends Model {
-  _table: any            = 'users';
+  // _table: any            = 'users';
   _fillable: any         = ['id', 'email'];
   public timestamps: any = false;
 
@@ -104,8 +105,14 @@ export class BelongsToManySyncTestTestUser extends Model {
   tableName: 'articles'
 })
 export class BelongsToManySyncTestTestArticle extends Model {
-  _table: any              = 'articles';
-  _keyType: any            = 'string';
+  // _table: any              = 'articles';
+  // _keyType: any            = 'string';
+
+  @PrimaryColumn({
+    keyType: 'string'
+  })
+  id: string;
+
   public incrementing: any = false;
   public timestamps: any   = false;
   _fillable: any           = ['id', 'title'];

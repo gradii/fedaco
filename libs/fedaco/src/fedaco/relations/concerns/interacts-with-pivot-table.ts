@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray, isBlank, isNumber, isString } from '@gradii/check-type';
+import { isArray, isBlank, isNumber, isString } from '@gradii/nanofn';
 import { difference, intersection, pluck } from 'ramda';
 import type { Collection } from '../../../define/collection';
 import { mapWithKeys, wrap } from '../../../helper/arr';
@@ -260,7 +260,7 @@ export function mixinInteractsWithPivotTable<T extends Constructor<any>>(base: T
                                                attributes: any,
                                                touch: boolean): Promise<any> {
       const pivot   = (await this._getCurrentlyAttachedPivots())
-        .filter((item) => item[this._foreignPivotKey] == this._parent.getAttribute(this._parentKey))
+        .filter((item) => item[this._foreignPivotKey] == this._parent.$getAttribute(this._parentKey))
         .filter((item) => item[this._relatedPivotKey] == this._parseId(id))
         .pop();
       const updated = pivot ? pivot.fill(attributes).isDirty() : false;
@@ -294,7 +294,7 @@ export function mixinInteractsWithPivotTable<T extends Constructor<any>>(base: T
                                   attributes: any[]): Promise<void> {
       const records = this._formatAttachRecords(this._parseIds(id), attributes);
       for (const record of records) {
-        await this.newPivot(record, false).save();
+        await this.newPivot(record, false).$save();
       }
     }
 
@@ -329,7 +329,7 @@ export function mixinInteractsWithPivotTable<T extends Constructor<any>>(base: T
                       timed: boolean): Record<string, any> {
       let record: Record<string, any> = {};
       record[this._relatedPivotKey]   = id;
-      record[this._foreignPivotKey]   = this._parent.getAttribute(this._parentKey);
+      record[this._foreignPivotKey]   = this._parent.$getAttribute(this._parentKey);
       if (timed) {
         record = this._addTimestampsToAttachment(record);
       }
@@ -393,7 +393,7 @@ export function mixinInteractsWithPivotTable<T extends Constructor<any>>(base: T
       let results = 0;
       for (const id of this._parseIds(ids)) {
         results += await this.newPivot({
-          [this._foreignPivotKey]: this._parent.getAttribute(this._parentKey),
+          [this._foreignPivotKey]: this._parent.$getAttribute(this._parentKey),
           [this._relatedPivotKey]: id,
         }, true).delete();
       }
@@ -415,7 +415,7 @@ export function mixinInteractsWithPivotTable<T extends Constructor<any>>(base: T
                     attributes: Record<string, any> = {},
                     exists                          = false) {
       const pivot = newPivot(this._parent, attributes, this._table, exists, this._using);
-      return pivot.setPivotKeys(this._foreignPivotKey, this._relatedPivotKey);
+      return pivot.$setPivotKeys(this._foreignPivotKey, this._relatedPivotKey);
     }
 
     /*Create a new existing pivot model instance.*/
@@ -449,7 +449,7 @@ export function mixinInteractsWithPivotTable<T extends Constructor<any>>(base: T
         query.whereNull(...args);
       }
       return query.where(this.getQualifiedForeignPivotKeyName(),
-        this._parent.getAttribute(this._parentKey));
+        this._parent.$getAttribute(this._parentKey));
     }
 
     /*Set the columns on the pivot table to retrieve.*/
@@ -464,7 +464,7 @@ export function mixinInteractsWithPivotTable<T extends Constructor<any>>(base: T
     /*Get all of the IDs from the given mixed value.*/
     _parseIds(this: BelongsToMany & _Self, value: any | any[]): any[] {
       if (value as Model instanceof BaseModel) {
-        return [value.getAttribute(this._relatedKey)];
+        return [value.$getAttribute(this._relatedKey)];
       }
       if (isArray(value) && value.length && value[0] instanceof BaseModel) {
         return value.map(it => it.getAttribute(this._relatedKey));
@@ -492,12 +492,12 @@ export function mixinInteractsWithPivotTable<T extends Constructor<any>>(base: T
 
     /*Cast the given key to convert to primary key type.*/
     _castKey(this: BelongsToMany & _Self, key: any): any {
-      return this._getTypeSwapValue(this._related.getKeyType(), key);
+      return this._getTypeSwapValue(this._related.$getKeyType(), key);
     }
 
     /*Cast the given pivot attributes.*/
     _castAttributes(this: BelongsToMany & _Self, attributes: any[]): Model | Record<string, any> {
-      return this._using ? this.newPivot().fill(attributes).getAttributes() : attributes;
+      return this._using ? this.newPivot().$fill(attributes).$getAttributes() : attributes;
     }
 
     /*Converts a given value to a given type value.*/

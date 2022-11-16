@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank } from '@gradii/check-type';
+import { isBlank } from '@gradii/nanofn';
 import { uniq } from 'ramda';
 import type { FedacoBuilder } from '../fedaco-builder';
 import type { Model } from '../model';
@@ -33,8 +33,8 @@ export class MorphToMany extends BelongsToMany {
     this._inverse    = inverse;
     this._morphType  = name + '_type';
     this._morphClass = inverse ?
-      query.getModel().getMorphClass() :
-      parent.getMorphClass();
+      query.getModel().$getMorphClass() :
+      parent.$getMorphClass();
     this.addConstraints();
   }
 
@@ -55,7 +55,7 @@ export class MorphToMany extends BelongsToMany {
   }
 
   /*Set the constraints for an eager load of the relation.*/
-  public addEagerConstraints(models: any[]) {
+  public addEagerConstraints(models: Model[]) {
     super.addEagerConstraints(models);
     this._query.where(this.qualifyPivotColumn(this._morphType), this._morphClass);
   }
@@ -80,7 +80,7 @@ export class MorphToMany extends BelongsToMany {
   async _getCurrentlyAttachedPivots() {
     return (await super._getCurrentlyAttachedPivots())
       .map(record => {
-        return record instanceof MorphPivot ? record.setMorphType(this._morphType).setMorphClass(
+        return record instanceof MorphPivot ? record.$setMorphType(this._morphType).$setMorphClass(
           this._morphClass) : record;
       });
   }
@@ -95,8 +95,9 @@ export class MorphToMany extends BelongsToMany {
     const using = this._using;
     const pivot = using ? using.fromRawAttributes(this._parent, attributes, this._table,
       exists) : MorphPivot.fromAttributes(this._parent, attributes, this._table, exists);
-    pivot.setPivotKeys(this._foreignPivotKey, this._relatedPivotKey).setMorphType(
-      this._morphType).setMorphClass(this._morphClass);
+    pivot.$setPivotKeys(this._foreignPivotKey, this._relatedPivotKey)
+      .$setMorphType(this._morphType)
+      .$setMorphClass(this._morphClass);
     return pivot;
   }
 

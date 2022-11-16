@@ -5,14 +5,15 @@
  */
 
 import { reflector } from '@gradii/annotation';
-import { isBlank } from '@gradii/check-type';
+import { isBlank } from '@gradii/nanofn';
 import { findLast, tap } from 'ramda';
 import { MorphToColumn } from '../../annotation/relation-column/morph-to.relation-column';
 import type { Collection } from '../../define/collection';
-import { camelCase } from '../../helper/str';
+import { camelCase } from '@gradii/nanofn';
 import { resolveForwardRef } from '../../query-builder/forward-ref';
+import { BaseModel } from '../base-model';
 import type { FedacoBuilder } from '../fedaco-builder';
-import { Model } from '../model';
+import type { Model } from '../model';
 import { BelongsTo } from './belongs-to';
 import { Relation } from './relation';
 
@@ -86,15 +87,15 @@ export class MorphTo extends BelongsTo {
   }
 
   /*Set the constraints for an eager load of the relation.*/
-  public addEagerConstraints(models: any[]) {
+  public addEagerConstraints(models: Model[]) {
     this.buildDictionary(this._models = models);
   }
 
   /*Build a dictionary with the models.*/
   protected buildDictionary(models: Collection) {
     for (const model of models) {
-      const morphTypeValue = model.getAttribute(this._morphType);
-      const foreignKeyValue = model.getAttribute(this._foreignKey);
+      const morphTypeValue = model.$getAttribute(this._morphType);
+      const foreignKeyValue = model.$getAttribute(this._foreignKey);
       if (morphTypeValue) {
         const morphTypeKey  = this._getDictionaryKey(
           morphTypeValue
@@ -129,21 +130,21 @@ export class MorphTo extends BelongsTo {
 
   /*Get all of the relation results for a type.*/
   protected async getResultsByType(clazz: string) {
-    const instance = this.createModelByType(clazz);
-    const ownerKey = this._ownerKey ?? instance.getKeyName();
-    const query    = this.replayMacros(instance.newQuery())
+    const instance: Model = this.createModelByType(clazz);
+    const ownerKey = this._ownerKey ?? instance.$getKeyName();
+    const query    = this.replayMacros(instance.$newQuery())
       .mergeConstraintsFrom(this.getQuery())
       .with({
         ...this.getQuery().getEagerLoads(),
-        ...this._morphableEagerLoads.get(instance.constructor) ?? {}
-      }).withCount(/*cast type array*/this._morphableEagerLoadCounts.get(instance.constructor) ?? []);
-    const callback = this._morphableConstraints.get(instance.constructor) ?? null;
+        ...this._morphableEagerLoads.get(/*static*/instance.constructor) ?? {}
+      }).withCount(/*cast type array*/this._morphableEagerLoadCounts.get(/*static*/instance.constructor) ?? []);
+    const callback = this._morphableConstraints.get(/*static*/instance.constructor) ?? null;
     if (callback) {
       callback(query);
     }
     const whereIn = this._whereInMethod(instance, ownerKey);
-    return query[whereIn](instance.getTable() + '.' + ownerKey,
-      this.gatherKeysByType(clazz, instance.getKeyType())).get();
+    return query[whereIn](instance.$getTable() + '.' + ownerKey,
+      this.gatherKeysByType(clazz, instance.$getKeyType())).get();
   }
 
   /*Gather all of the foreign keys for a given type.*/
@@ -177,18 +178,18 @@ export class MorphTo extends BelongsTo {
 
   /*Create a new model instance by type.*/
   public createModelByType(type: string) {
-    const clazz = this._getActualClassNameForMorph(type);
+    const clazz: typeof Model = this._getActualClassNameForMorph(type);
     // reflector.propMetadata(this._models)
 
     return tap(instance => {
-      if (!instance.getConnectionName()) {
-        instance.setConnection(this.getConnection().getName());
+      if (!instance.$getConnectionName()) {
+        instance.$setConnection(this.getConnection().getName());
       }
     }, new clazz());
   }
 
   /*Match the eagerly loaded results to their parents.*/
-  public match(models: any[], results: Collection, relation: string) {
+  public match(models: Model[], results: Collection, relation: string) {
     return models;
   }
 
@@ -196,10 +197,10 @@ export class MorphTo extends BelongsTo {
   protected matchToMorphParents(type: string, results: Collection) {
     for (const result of results) {
       const ownerKey = !isBlank(this._ownerKey) ? this._getDictionaryKey(
-        result[this._ownerKey]) : result.getKey();
+        result[this._ownerKey]) : result.$getKey();
       if (this._dictionary[type][ownerKey] !== undefined) {
         for (const model of this._dictionary[type][ownerKey]) {
-          model.setRelation(this._relationName, result);
+          (model as Model).$setRelation(this._relationName, result);
         }
       }
     }
@@ -208,33 +209,33 @@ export class MorphTo extends BelongsTo {
   /*Associate the model instance to the given parent.*/
   public associate(model: Model) {
     let foreignKey, foreignKeyValue = null, morphClass = null;
-    if (model instanceof Model) {
-      foreignKey = this._ownerKey && model[this._ownerKey] ? this._ownerKey : model.getKeyName();
+    if (model instanceof BaseModel) {
+      foreignKey = this._ownerKey && model[this._ownerKey] ? this._ownerKey : model.$getKeyName();
       foreignKeyValue = model[foreignKey];
-      morphClass = model.getMorphClass();
+      morphClass = model.$getMorphClass();
     }
-    this._parent.setAttribute(this._foreignKey, foreignKeyValue);
-    this._parent.setAttribute(this._morphType, morphClass);
-    return this._parent.setRelation(this._relationName, model);
+    this._parent.$setAttribute(this._foreignKey, foreignKeyValue);
+    this._parent.$setAttribute(this._morphType, morphClass);
+    return this._parent.$setRelation(this._relationName, model);
   }
 
   /*Dissociate previously associated model from the given parent.*/
   public dissociate() {
-    this._parent.setAttribute(this._foreignKey, null);
-    this._parent.setAttribute(this._morphType, null);
-    return this._parent.setRelation(this._relationName, null);
+    this._parent.$setAttribute(this._foreignKey, null);
+    this._parent.$setAttribute(this._morphType, null);
+    return this._parent.$setRelation(this._relationName, null);
   }
 
   /*Touch all of the related models for the relationship.*/
-  public async touch() {
+  public async $touch() {
     if (!isBlank(this._child._getAttributeFromArray(this._foreignKey))) {
-      await super.touch();
+      await super.$touch();
     }
   }
 
   /*Make a new related instance for the given model.*/
   protected newRelatedInstanceFor(parent: Model) {
-    return parent.newRelation(this.getRelationName()).getRelated().newInstance();
+    return parent.$newRelation(this.getRelationName()).getRelated().$newInstance();
   }
 
   /*Get the foreign key "type" name.*/

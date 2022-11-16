@@ -1,4 +1,4 @@
-import { isArray } from '@gradii/check-type';
+import { isArray } from '@gradii/nanofn';
 import { DatabaseConfig } from '../../src/database-config';
 import { Model } from '../../src/fedaco/model';
 import { SchemaBuilder } from '../../src/schema/schema-builder';

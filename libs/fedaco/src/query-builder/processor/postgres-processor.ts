@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isNumber, isObject } from '@gradii/check-type';
+import { isNumber, isObject } from '@gradii/nanofn';
 import { Processor } from '../processor';
 import type { QueryBuilder } from '../query-builder';
 

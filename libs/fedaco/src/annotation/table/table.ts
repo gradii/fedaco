@@ -5,7 +5,8 @@
  */
 
 import { makeDecorator } from '@gradii/annotation';
-import { Model } from '../../fedaco/model';
+import { pluralStudy } from '@gradii/nanofn';
+import { snakeCase } from '@gradii/nanofn';
 import { FedacoColumn } from '../column';
 
 export interface TableAnnotation {
@@ -69,6 +70,23 @@ export interface InjectableDecorator<T extends TableAnnotation> {
 
 export const Table: InjectableDecorator<TableAnnotation> = makeDecorator(
   'Fedaco:Table',
-  (p?: TableAnnotation): TableAnnotation => ({...p}),
+  (p?: TableAnnotation): TableAnnotation => ({
+    noPluralTable: true, ...p
+  }),
   FedacoColumn,
+  (target: any, decorator: TableAnnotation) => {
+    let tableName = decorator.tableName || target.name;
+    if (!decorator.noPluralTable) {
+      tableName = pluralStudy(tableName);
+    } else {
+      tableName = snakeCase(tableName);
+    }
+
+    Object.defineProperty(target.prototype, '_table', {
+      configurable: true,
+      enumerable  : false,
+      writable    : true,
+      value       : tableName
+    });
+  }
 );

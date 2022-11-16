@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment,@typescript-eslint/no-empty-function */
 import { FedacoBuilder } from './../../src/fedaco/fedaco-builder';
 import { Model } from '../../src/fedaco/model';
 import { BelongsTo } from '../../src/fedaco/relations/belongs-to';
@@ -10,9 +11,9 @@ function getRelation(parent?: Model, keyType = 'int') {
   builder = getBuilder();
   // this.builder.shouldReceive('where').with('relation.id', '=', 'foreign.value');
   related = new Model();
-  jest.spyOn(related, 'getKeyType').mockReturnValue(keyType);
-  jest.spyOn(related, 'getKeyName').mockReturnValue('id');
-  jest.spyOn(related, 'getTable').mockReturnValue('relation');
+  jest.spyOn(related, '$getKeyType').mockReturnValue(keyType);
+  jest.spyOn(related, '$getKeyName').mockReturnValue('id');
+  jest.spyOn(related, '$getTable').mockReturnValue('relation');
   jest.spyOn(builder, 'getModel').mockReturnValue(related);
   parent = parent || new EloquentBelongsToModelStub();
   return new BelongsTo(builder, parent, 'foreignKey', 'id', 'relation');
@@ -25,7 +26,7 @@ describe('test database fedaco belongs to', () => {
 
     jest.spyOn(builder, 'first').mockReturnValueOnce(null);
     const newModel = new EloquentBelongsToModelStub();
-    const spy2     = jest.spyOn(related, 'newInstance').mockReturnValue(newModel);
+    const spy2     = jest.spyOn(related, '$newInstance').mockReturnValue(newModel);
 
     expect(await relation.getResults()).toEqual(newModel);
     expect(spy2).toReturnWith(newModel);
@@ -38,7 +39,7 @@ describe('test database fedaco belongs to', () => {
 
     jest.spyOn(builder, 'first').mockReturnValueOnce(null);
     const newModel = new EloquentBelongsToModelStub();
-    jest.spyOn(related, 'newInstance').mockReturnValue(newModel);
+    jest.spyOn(related, '$newInstance').mockReturnValue(newModel);
 
     expect(await relation.getResults()).toEqual(newModel);
     expect(newModel.username).toBe('taylor');
@@ -51,7 +52,7 @@ describe('test database fedaco belongs to', () => {
 
     jest.spyOn(builder, 'first').mockReturnValueOnce(null);
     const newModel = new EloquentBelongsToModelStub();
-    jest.spyOn(related, 'newInstance').mockReturnValue(newModel);
+    jest.spyOn(related, '$newInstance').mockReturnValue(newModel);
 
     expect(await relation.getResults()).toEqual(newModel);
     expect(newModel.username).toBe('taylor');
@@ -60,8 +61,8 @@ describe('test database fedaco belongs to', () => {
   it('eager constraints are properly added', () => {
     const relation = getRelation();
 
-    jest.spyOn(relation.getRelated(), 'getKeyName').mockReturnValue('id');
-    jest.spyOn(relation.getRelated(), 'getKeyType').mockReturnValue('int');
+    jest.spyOn(relation.getRelated(), '$getKeyName').mockReturnValue('id');
+    jest.spyOn(relation.getRelated(), '$getKeyType').mockReturnValue('int');
 
     const spy3 = jest.spyOn(relation.getQuery(), 'whereIntegerInRaw');
 
@@ -78,8 +79,8 @@ describe('test database fedaco belongs to', () => {
   it('ids in eager constraints can be zero', () => {
     const relation = getRelation();
 
-    jest.spyOn(relation.getRelated(), 'getKeyName').mockReturnValue('id');
-    jest.spyOn(relation.getRelated(), 'getKeyType').mockReturnValue('int');
+    jest.spyOn(relation.getRelated(), '$getKeyName').mockReturnValue('id');
+    jest.spyOn(relation.getRelated(), '$getKeyType').mockReturnValue('int');
 
     const spy3   = jest.spyOn(relation.getQuery(), 'whereIntegerInRaw');
     const models = [new EloquentBelongsToModelStub(), new EloquentBelongsToModelStubWithZeroId()];
@@ -90,7 +91,7 @@ describe('test database fedaco belongs to', () => {
   it('relation is properly initialized', () => {
     const relation = getRelation();
     const model    = new Model();
-    const spy1     = jest.spyOn(model, 'setRelation');
+    const spy1     = jest.spyOn(model, '$setRelation');
     const models   = relation.initRelation([model], 'foo');
     expect(models).toEqual([model]);
     expect(spy1).toBeCalledWith('foo', null);
@@ -99,15 +100,15 @@ describe('test database fedaco belongs to', () => {
   it('models are properly matched to parents', () => {
     const relation = getRelation();
     const result1  = {
-      getAttribute(): any {
+      $getAttribute(): any {
       }
     };
-    jest.spyOn(result1, 'getAttribute').mockReturnValue(1);
+    jest.spyOn(result1, '$getAttribute').mockReturnValue(1);
     const result2 = {
-      getAttribute(): any {
+      $getAttribute(): any {
       }
     };
-    jest.spyOn(result2, 'getAttribute').mockReturnValue(2);
+    jest.spyOn(result2, '$getAttribute').mockReturnValue(2);
     const model1      = new EloquentBelongsToModelStub();
     model1.foreignKey = 1;
     const model2      = new EloquentBelongsToModelStub();
@@ -117,19 +118,19 @@ describe('test database fedaco belongs to', () => {
       // @ts-ignore
       [result1, result2],
       'foo');
-    expect(models[0].getRelationValue('foo').getAttribute('id')).toEqual(1);
-    expect(models[1].getRelationValue('foo').getAttribute('id')).toEqual(2);
+    expect(models[0].$getRelationValue('foo').$getAttribute('id')).toEqual(1);
+    expect(models[1].$getRelationValue('foo').$getAttribute('id')).toEqual(2);
   });
 
   it('associate method sets foreign key on model', () => {
     const parent = new Model();
 
-    jest.spyOn(parent, 'getAttribute').mockReturnValue('foreign.value');
+    jest.spyOn(parent, '$getAttribute').mockReturnValue('foreign.value');
     const relation  = getRelation(parent);
     const associate = new Model();
-    jest.spyOn(associate, 'getAttribute').mockReturnValue(1);
-    const spy1 = jest.spyOn(parent, 'setAttribute');
-    const spy2 = jest.spyOn(parent, 'setRelation');
+    jest.spyOn(associate, '$getAttribute').mockReturnValue(1);
+    const spy1 = jest.spyOn(parent, '$setAttribute');
+    const spy2 = jest.spyOn(parent, '$setRelation');
 
     relation.associate(associate);
 
@@ -139,11 +140,11 @@ describe('test database fedaco belongs to', () => {
 
   it('dissociate method unsets foreign key on model', () => {
     const parent = new Model();
-    jest.spyOn(parent, 'getAttribute').mockReturnValue('foreign.value');
+    jest.spyOn(parent, '$getAttribute').mockReturnValue('foreign.value');
     const relation = getRelation(parent);
 
-    const spy1 = jest.spyOn(parent, 'setAttribute');
-    const spy2 = jest.spyOn(parent, 'setRelation');
+    const spy1 = jest.spyOn(parent, '$setAttribute');
+    const spy2 = jest.spyOn(parent, '$setRelation');
 
     relation.dissociate();
 
@@ -153,12 +154,12 @@ describe('test database fedaco belongs to', () => {
 
   it('associate method sets foreign key on model by id', () => {
     const parent = new Model();
-    jest.spyOn(parent, 'getAttribute').mockReturnValue('foreign.value');
+    jest.spyOn(parent, '$getAttribute').mockReturnValue('foreign.value');
     const relation = getRelation(parent);
 
-    const spy1 = jest.spyOn(parent, 'setAttribute');
-    const spy3 = jest.spyOn(parent, 'isDirty');
-    const spy2 = jest.spyOn(parent, 'unsetRelation');
+    const spy1 = jest.spyOn(parent, '$setAttribute');
+    const spy3 = jest.spyOn(parent, '$isDirty');
+    const spy2 = jest.spyOn(parent, '$unsetRelation');
 
     relation.associate(1);
 
@@ -170,8 +171,8 @@ describe('test database fedaco belongs to', () => {
   it('default eager constraints when incrementing', () => {
     const relation = getRelation();
 
-    jest.spyOn(relation.getRelated(), 'getKeyName').mockReturnValue('id');
-    jest.spyOn(relation.getRelated(), 'getKeyType').mockReturnValue('int');
+    jest.spyOn(relation.getRelated(), '$getKeyName').mockReturnValue('id');
+    jest.spyOn(relation.getRelated(), '$getKeyType').mockReturnValue('int');
     const spy1 = jest.spyOn(relation.getQuery(), 'whereIntegerInRaw');
 
     const models = [new MissingEloquentBelongsToModelStub(), new MissingEloquentBelongsToModelStub()];
@@ -193,8 +194,8 @@ describe('test database fedaco belongs to', () => {
   it('default eager constraints when not incrementing', () => {
     const relation = getRelation();
 
-    jest.spyOn(relation.getRelated(), 'getKeyName').mockReturnValue('id');
-    jest.spyOn(relation.getRelated(), 'getKeyType').mockReturnValue('int');
+    jest.spyOn(relation.getRelated(), '$getKeyName').mockReturnValue('id');
+    jest.spyOn(relation.getRelated(), '$getKeyType').mockReturnValue('int');
     const spy1   = jest.spyOn(relation.getQuery(), 'whereIntegerInRaw');
     const models = [new MissingEloquentBelongsToModelStub(), new MissingEloquentBelongsToModelStub()];
     relation.addEagerConstraints(models);

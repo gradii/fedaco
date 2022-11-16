@@ -32,11 +32,11 @@ export const MorphOneColumn: FedacoDecorator<MorphOneRelationAnnotation> = makeP
       const instance = m._newRelatedInstance(resolveForwardRef(p.related));
 
       const [type, id] = m._getMorphs(p.morphName, p.type, p.id);
-      const localKey   = p.localKey || m.getKeyName();
+      const localKey   = p.localKey || m.$getKeyName();
       const r          = new MorphOne(
-        instance.newQuery(), m,
-        `${instance.getTable()}.${type}`,
-        `${instance.getTable()}.${id}`,
+        instance.$newQuery(), m,
+        `${instance.$getTable()}.${type}`,
+        `${instance.$getTable()}.${id}`,
         localKey);
 
       if (p.onQuery) {

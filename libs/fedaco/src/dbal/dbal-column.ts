@@ -6,8 +6,8 @@
 
 
 /*Object representation of a database column.*/
-import { isNumber } from '@gradii/check-type';
-import { pascalCase } from '../helper/str';
+import { isNumber } from '@gradii/nanofn';
+import { pascalCase } from '@gradii/nanofn';
 import type { SchemaGrammar } from '../schema/grammar/schema-grammar';
 
 // import { Type } from './types/type';

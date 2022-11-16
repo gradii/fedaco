@@ -56,12 +56,12 @@ async function seedData() {
     'name'     : 'President',
     'shortname': 'ps'
   });
-  const user     = await position.newRelation('user').create({
+  const user     = await position.$newRelation('user').create({
     'id'            : 1,
     'email'         : 'linbolen@gradii.com',
     'position_short': 'ps'
   });
-  await user.newRelation('contract').create({
+  await user.$newRelation('contract').create({
     'title': 'A title',
     'body' : 'A body',
     'email': 'linbolen@gradii.com'
@@ -74,12 +74,12 @@ async function seedDataExtended() {
     'name'     : 'Vice President',
     'shortname': 'vp'
   });
-  const user     = await position.newRelation('user').create({
+  const user     = await position.$newRelation('user').create({
     'id'            : 2,
     'email'         : 'example1@gmail.com',
     'position_short': 'vp'
   });
-  await user.newRelation('contract').create({
+  await user.$newRelation('contract').create({
     'title': 'Example1 title1',
     'body' : 'Example1 body1',
     'email': 'example1contract1@gmail.com'
@@ -91,11 +91,11 @@ async function seedDefaultData() {
     'id'  : 1,
     'name': 'President'
   });
-  const user     = await position.newRelation('user').create({
+  const user     = await position.$newRelation('user').create({
     'id'   : 1,
     'email': 'linbolen@gradii.com'
   });
-  await user.newRelation('contract').create({
+  await user.$newRelation('contract').create({
     'title': 'A title',
     'body' : 'A body'
   });
@@ -157,7 +157,7 @@ describe('test database fedaco has one through integration', () => {
     await seedDefaultData();
     const contract = await (await HasOneThroughDefaultTestPosition.createQuery().first()).contract;
     expect(contract.title).toBe('A title');
-    expect('email' in contract.getAttributes()).not.toBeTruthy();
+    expect('email' in contract.$getAttributes()).not.toBeTruthy();
     await resetDefault();
   });
 
@@ -189,13 +189,13 @@ describe('test database fedaco has one through integration', () => {
       'name'     : 'President',
       'shortname': 'ps'
     });
-    await position.newRelation('user').create({
+    await position.$newRelation('user').create({
       'id'            : 1,
       'email'         : 'linbolen@gradii.com',
       'position_short': 'ps'
     });
     await expect(async () => {
-      await (await HasOneThroughTestPosition.createQuery().first()).newRelation(
+      await (await HasOneThroughTestPosition.createQuery().first()).$newRelation(
         'contract').firstOrFail();
     }).rejects.toThrowError(
       'ModelNotFoundException No query results for model [HasOneThroughTestContract].');
@@ -207,20 +207,20 @@ describe('test database fedaco has one through integration', () => {
       'name'     : 'President',
       'shortname': 'ps'
     });
-    await position.newRelation('user').create({
+    await position.$newRelation('user').create({
       'id'            : 1,
       'email'         : 'linbolen@gradii.com',
       'position_short': 'ps'
     });
     await expect(async () => {
-      await (await HasOneThroughTestPosition.createQuery().first()).newRelation(
+      await (await HasOneThroughTestPosition.createQuery().first()).$newRelation(
         'contract').findOrFail(1);
     }).rejects.toThrowError('ModelNotFoundException');
   });
 
   it('first retrieves first record', async () => {
     await seedData();
-    const contract = await (await HasOneThroughTestPosition.createQuery().first()).newRelation(
+    const contract = await (await HasOneThroughTestPosition.createQuery().first()).$newRelation(
       'contract').first();
     expect(contract).not.toBeNull();
     expect(contract.title).toBe('A title');
@@ -228,9 +228,9 @@ describe('test database fedaco has one through integration', () => {
 
   it('all columns are retrieved by default', async () => {
     await seedData();
-    const contract = await (await HasOneThroughTestPosition.createQuery().first()).newRelation(
+    const contract = await (await HasOneThroughTestPosition.createQuery().first()).$newRelation(
       'contract').first();
-    expect(Object.keys(contract.getAttributes())).toEqual(
+    expect(Object.keys(contract.$getAttributes())).toEqual(
       [
         'id', 'user_id', 'title', 'body', 'email', 'created_at', 'updated_at', 'fedaco_through_key'
       ]);
@@ -238,20 +238,20 @@ describe('test database fedaco has one through integration', () => {
 
   it('only proper columns are selected if provided', async () => {
     await seedData();
-    const contract = await (await HasOneThroughTestPosition.createQuery().first()).newRelation(
+    const contract = await (await HasOneThroughTestPosition.createQuery().first()).$newRelation(
       'contract').first(['title', 'body']);
-    expect(Object.keys(contract.getAttributes())).toEqual(['title', 'body', 'fedaco_through_key']);
+    expect(Object.keys(contract.$getAttributes())).toEqual(['title', 'body', 'fedaco_through_key']);
   });
 
   it('chunk returns correct models', async () => {
     await seedData();
     await seedDataExtended();
     const position = await HasOneThroughTestPosition.createQuery().find(1);
-    await position.newRelation('contract').chunk(10)
+    await position.$newRelation('contract').chunk(10)
       .pipe(
         tap(({results: contractsChunk}) => {
           const contract = head(contractsChunk as Model[]);
-          expect(Object.keys(contract.getAttributes())).toEqual([
+          expect(Object.keys(contract.$getAttributes())).toEqual([
             'id', 'user_id', 'title', 'body', 'email', 'created_at', 'updated_at',
             'fedaco_through_key'
           ]);
@@ -276,7 +276,7 @@ describe('test database fedaco has one through integration', () => {
     await seedData();
     await seedDataExtended();
     const position = await HasOneThroughTestPosition.createQuery().find(1);
-    await position.newRelation('contract').each().pipe(
+    await position.$newRelation('contract').each().pipe(
       tap(({item: contract}) => {
         expect(Object.keys(contract.getAttributes())).toEqual([
           'id', 'user_id', 'title', 'body', 'email', 'created_at', 'updated_at',
@@ -288,7 +288,7 @@ describe('test database fedaco has one through integration', () => {
 
   it('intermediate soft deletes are ignored', async () => {
     await seedData();
-    await (await HasOneThroughSoftDeletesTestUser.createQuery().first()).delete();
+    await (await HasOneThroughSoftDeletesTestUser.createQuery().first()).$delete();
     const contract = await (await HasOneThroughSoftDeletesTestPosition.createQuery().first()).contract;
     expect((contract as HasOneThroughSoftDeletesTestContract).title).toBe('A title');
   });

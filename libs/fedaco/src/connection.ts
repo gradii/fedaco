@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray, isBlank, isBoolean, isFunction, isPromise } from '@gradii/check-type';
+import { isArray, isBlank, isBoolean, isFunction, isPromise } from '@gradii/nanofn';
 import { format } from 'date-fns';
 import type { BaseGrammar } from './base-grammar';
 import type { SqliteWrappedConnection } from './connector/sqlite/sqlite-wrapped-connection';
@@ -301,7 +301,7 @@ export class Connection extends mixinManagesTransactions(class {
     let result;
     try {
       result = await this.runQueryCallback(query, bindings, callback);
-    } catch (e) {
+    } catch (e: any) {
       result = this.handleQueryException(e, query, bindings, callback);
     }
     this.logQuery(query, bindings, this.getElapsedTime(start));

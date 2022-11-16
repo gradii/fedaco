@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank, isString } from '@gradii/check-type';
+import { isBlank, isString } from '@gradii/nanofn';
 import type { Connection } from '../../connection';
 import type { Blueprint } from '../blueprint';
 import type { ColumnDefinition } from '../column-definition';

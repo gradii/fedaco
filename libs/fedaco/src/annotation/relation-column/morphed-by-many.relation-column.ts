@@ -7,7 +7,7 @@
 import { makePropDecorator } from '@gradii/annotation';
 import type { Model } from '../../fedaco/model';
 import { MorphToMany } from '../../fedaco/relations/morph-to-many';
-import { plural } from '../../helper/pluralize';
+import { plural } from '@gradii/nanofn';
 import type { ForwardRefFn} from '../../query-builder/forward-ref';
 import { resolveForwardRef } from '../../query-builder/forward-ref';
 import { _additionalProcessingGetter } from '../additional-processing';
@@ -33,13 +33,13 @@ export const MorphedByManyColumn: FedacoDecorator<MorphedByManyRelationAnnotatio
     isRelation  : true,
     type        : RelationType.MorphedByMany,
     _getRelation: function (m: Model, relation: string) {
-      p.foreignPivotKey = p.foreignPivotKey || m.getForeignKey();
+      p.foreignPivotKey = p.foreignPivotKey || m.$getForeignKey();
       p.relatedPivotKey = p.relatedPivotKey || p.name + '_id';
 
       const instance = m._newRelatedInstance(resolveForwardRef(p.related));
 
-      p.parentKey  = p.parentKey || m.getKeyName();
-      p.relatedKey = p.relatedKey || instance.getKeyName();
+      p.parentKey  = p.parentKey || m.$getKeyName();
+      p.relatedKey = p.relatedKey || instance.$getKeyName();
 
       let table = p.table;
       if (!table) {
@@ -47,7 +47,7 @@ export const MorphedByManyColumn: FedacoDecorator<MorphedByManyRelationAnnotatio
         words[words.length - 1] = plural(words[words.length - 1]);
         table                   = words.join('_');
       }
-      const r = new MorphToMany(instance.newQuery(), m, p.name, table,
+      const r = new MorphToMany(instance.$newQuery(), m, p.name, table,
         p.foreignPivotKey, p.relatedPivotKey,
         p.parentKey, p.relatedKey,
         relation, true);

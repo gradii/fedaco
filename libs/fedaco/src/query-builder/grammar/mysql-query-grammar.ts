@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isAnyEmpty, isArray, isObject } from '@gradii/check-type';
+import { isAnyEmpty, isArray, isObject } from '@gradii/nanofn';
 import { wrap } from '../../helper/arr';
 import type { GrammarInterface } from '../grammar.interface';
 import type { QueryBuilder } from '../query-builder';

@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray, isBlank } from '@gradii/check-type';
+import { isArray, isBlank } from '@gradii/nanofn';
 import { Connection } from '../connection';
 import { MysqlQueryGrammar } from '../query-builder/grammar/mysql-query-grammar';
 import { MysqlProcessor } from '../query-builder/processor/mysql-processor';

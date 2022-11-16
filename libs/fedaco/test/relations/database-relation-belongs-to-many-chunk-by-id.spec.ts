@@ -56,7 +56,7 @@ async function seedData() {
       'title': 'Another title'
     }
   ]);
-  await user.newRelation('articles').sync([3, 1, 2]);
+  await user.$newRelation('articles').sync([3, 1, 2]);
 }
 
 describe('test database fedaco belongs to many chunk by id', () => {
@@ -83,10 +83,11 @@ describe('test database fedaco belongs to many chunk by id', () => {
 
     let i = 0;
 
-    await user.newRelation('articles').chunkById(1).pipe(
+    await user.$newRelation('articles').chunkById(1).pipe(
       tap(({results: collection}: { results: any[] }) => {
         i++;
-        expect(head(collection).aid).toBe(i);
+        //must be string!
+        expect(head(collection).aid).toBe(`${i}`);
       })
     ).toPromise();
     expect(i).toEqual(3);
@@ -97,7 +98,7 @@ describe('test database fedaco belongs to many chunk by id', () => {
   tableName: 'users'
 })
 export class BelongsToManyChunkByIdTestTestUser extends Model {
-  _table: any            = 'users';
+  // _table: any            = 'users';
   _fillable: any         = ['id', 'email'];
   public timestamps: any = false;
 
@@ -117,14 +118,16 @@ export class BelongsToManyChunkByIdTestTestUser extends Model {
   tableName: 'articles'
 })
 export class BelongsToManyChunkByIdTestTestArticle extends Model {
-  _primaryKey: any         = 'aid';
-  _table: any              = 'articles';
-  _keyType: any            = 'string';
+  // _primaryKey: any         = 'aid';
+  // _table: any              = 'articles';
+  // _keyType: any            = 'string';
   public incrementing: any = false;
   public timestamps: any   = false;
   protected fillable: any  = ['aid', 'title'];
 
-  @PrimaryColumn()
+  @PrimaryColumn({
+    keyType: 'string'
+  })
   aid: string | number;
 
   @Column()

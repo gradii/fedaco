@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { snakeCase } from '../../helper/str';
+import { snakeCase } from '@gradii/nanofn';
 import { ColumnReferenceExpression } from '../../query/ast/column-reference-expression';
 import { DeleteSpecification } from '../../query/ast/delete-specification';
 import { ConditionExpression } from '../../query/ast/expression/condition-expression';

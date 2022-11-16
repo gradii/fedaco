@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isString } from '@gradii/check-type';
+import { isString } from '@gradii/nanofn';
 import type { Constructor } from '../../helper/constructor';
 import type { QueryBuilder } from '../../query-builder/query-builder';
 import { RawExpression } from '../../query/ast/expression/raw-expression';

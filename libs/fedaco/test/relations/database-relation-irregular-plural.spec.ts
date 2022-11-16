@@ -1,6 +1,7 @@
 import { formatISO } from 'date-fns';
 import { Column } from '../../src/annotation/column/column';
 import { CreatedAtColumn } from '../../src/annotation/column/created-at.column';
+import { PrimaryColumn } from '../../src/annotation/column/primary.column';
 import { UpdatedAtColumn } from '../../src/annotation/column/updated-at.column';
 import {
   BelongsToManyColumn
@@ -73,7 +74,7 @@ describe('test database fedaco irregular plural', () => {
 
   it('it pluralizes the table name', async () => {
     const model = new IrregularPluralHuman();
-    expect(model.getTable()).toBe('irregular_plural_humans');
+    expect(model.$getTable()).toBe('irregular_plural_humans');
   });
 
   it('it touches the parent with an irregular plural', async () => {
@@ -90,9 +91,9 @@ describe('test database fedaco irregular plural', () => {
     const human    = await IrregularPluralHuman.createQuery().first();
     const tokenIds = await IrregularPluralToken.createQuery().pluck('id');
     // Carbon.setTestNow('2018-05-01 15:16:17');
-    await human.newRelation('irregularPluralTokens').sync(tokenIds as any[]);
+    await human.$newRelation('irregularPluralTokens').sync(tokenIds as any[]);
     const now = formatISO(new Date());
-    await human.refresh();
+    await human.$refresh();
     expect(+human.created_at - +new Date() < 1000).toBeTruthy();
     expect(+human.updated_at - +new Date() < 1000).toBeTruthy();
     // expect(/*cast type string*/ formatISO(human.created_at)).toBe(now);
@@ -103,7 +104,7 @@ describe('test database fedaco irregular plural', () => {
     const human = await IrregularPluralHuman.createQuery().create({
       'email': 'bobby@example.com'
     });
-    await human.newRelation('mottoes').create({
+    await human.$newRelation('mottoes').create({
       'name': 'Real eyes realize real lies'
     });
     const motto = await IrregularPluralMotto.createQuery().first();
@@ -116,6 +117,9 @@ describe('test database fedaco irregular plural', () => {
 })
 export class IrregularPluralHuman extends Model {
   _guarded: any = [];
+
+  @PrimaryColumn()
+  id: number;
 
   @BelongsToManyColumn({
     related        : forwardRef(() => IrregularPluralToken),
@@ -139,16 +143,21 @@ export class IrregularPluralHuman extends Model {
 }
 
 @Table({
-  tableName: 'irregular_plural_token'
+  tableName: 'irregular_plural_token',
+  noPluralTable: false
 })
 export class IrregularPluralToken extends Model {
   _guarded: any    = [];
   _timestamps: any = false;
   _touches: any    = ['irregularPluralHumans'];
+
+  @PrimaryColumn()
+  public id: number;
 }
 
 @Table({
-  tableName: 'irregular_plural_motto'
+  tableName: 'irregular_plural_motto',
+  noPluralTable: false
 })
 export class IrregularPluralMotto extends Model {
   _guarded: any    = [];

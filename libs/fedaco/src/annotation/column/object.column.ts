@@ -17,7 +17,7 @@ export interface ObjectColumnAnnotation extends ColumnAnnotation {
 
 export const ObjectColumn: FedacoDecorator<ObjectColumnAnnotation> = makePropDecorator(
   'Fedaco:ObjectColumn',
-  (p: ObjectColumnAnnotation = {}): ObjectColumnAnnotation => ({...p}),
+  (p: ObjectColumnAnnotation = {}): ObjectColumnAnnotation => ({fillable: true,...p}),
   FedacoColumn,
   (target: any, name: string, decorator: ObjectColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, name, decorator);

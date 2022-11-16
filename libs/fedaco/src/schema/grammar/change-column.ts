@@ -5,10 +5,10 @@
  */
 
 
-// import { isBlank } from '@gradii/check-type';
+// import { isBlank } from '@gradii/nanofn';
 // import { Connection } from '../../connection';
 // import { Comparator } from '../../dbal/comparator';
-// import { upperCaseFirst } from '../../helper/str';
+// import { upperCaseFirst } from '@gradii/nanofn';
 // import { Blueprint } from '../blueprint';
 // import { ColumnDefinition } from '../column-definition';
 // import { SchemaGrammar } from './schema-grammar';

@@ -3,7 +3,7 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-import { isArray, isBlank, isObject, isString, isStringEmpty } from '@gradii/check-type';
+import { isArray, isBlank, isObject, isString, isStringEmpty } from '@gradii/nanofn';
 import { filter } from 'ramda';
 import type { ConnectionConfig } from '../database-config';
 

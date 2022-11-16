@@ -12,7 +12,7 @@ import { FedacoColumn } from '../column';
 
 export const Column: FedacoDecorator<ColumnAnnotation> = makePropDecorator(
   'Fedaco:Column',
-  (p: ColumnAnnotation = {}): ColumnAnnotation => ({...p}),
+  (p: ColumnAnnotation = {}): ColumnAnnotation => ({fillable: true,...p}),
   FedacoColumn,
   (target: any, name: string, decorator: ColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, name, decorator);

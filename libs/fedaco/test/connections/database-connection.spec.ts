@@ -1,4 +1,4 @@
-// import { isNumber } from '@gradii/check-type';
+// import { isNumber } from '@gradii/nanofn';
 // import { TransactionBeginning } from '../../src/events/transaction-beginning';
 // import { TransactionCommitted } from '../../src/events/transaction-committed';
 // import { TransactionRolledBack } from '../../src/events/transaction-rolled-back';

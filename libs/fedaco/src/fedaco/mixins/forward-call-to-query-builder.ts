@@ -77,7 +77,7 @@ export interface ForwardCallToQueryBuilder extends Omit<QueryBuilderJoin, 'joinS
 
   // withoutGlobalScope(...args: any[]): this;
 
-  truncate(...args: any[]): this;
+  truncate(): this;
 
   updateOrInsert(...args: any[]): this;
 
@@ -260,8 +260,8 @@ export function mixinForwardCallToQueryBuilder<T extends Constructor<any>>(base:
     //   return this.#directToBuilder('withoutGlobalScope', args);
     // }
 
-    truncate(...args: any[]) {
-      return this.#directToQueryBuilder('truncate', args);
+    truncate() {
+      return this.#directToQueryBuilder('truncate', []);
     }
 
     async updateOrInsert(...args: any[]) {

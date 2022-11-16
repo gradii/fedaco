@@ -1,4 +1,4 @@
-import { isArray } from '@gradii/check-type';
+import { isArray } from '@gradii/nanofn';
 import { format } from 'date-fns';
 import { ArrayColumn } from '../src/annotation/column/array.column';
 import { Column } from '../src/annotation/column/column';
@@ -63,7 +63,7 @@ async function createSchema() {
   });
 
   for (const name of ['default', 'second_connection']) {
-    const index = ['default', 'second_connection'].indexOf(name);
+    // const index = ['default', 'second_connection'].indexOf(name);
     await schema(name).create('users', function (table) {
       table.increments('id');
       table.string('name').withNullable();
@@ -133,7 +133,7 @@ async function createSchema() {
   }
 }
 
-describe('test database fedaco integration', () => {
+describe('test database fedaco mysql integration', () => {
   beforeAll(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
@@ -167,7 +167,7 @@ describe('test database fedaco integration', () => {
     await connection('second_connection').disconnect();
   });
 
-  afterEach(async () => {
+  beforeEach(async () => {
     for (const it of ['test_orders', 'with_json', 'users_with_space_in_colum_name']) {
       await DatabaseConfig.table(it, undefined, 'default').truncate();
     }
@@ -197,59 +197,59 @@ describe('test database fedaco integration', () => {
   });
 
   it('basic create model', async () => {
-    const model = await new EloquentTestUser().newQuery().create({
+    const model = await new EloquentTestUser().$newQuery().create({
       'id'   : 1,
       'email': 'linbolen@gradii.com'
     });
 
     expect(model.id).toBe(1);
     expect(model.email).toBe('linbolen@gradii.com');
-    await model.delete();
+    await model.$delete();
   });
 
   it('basic model retrieval', async () => {
     const factory = new EloquentTestUser();
 
-    await factory.newQuery().create({
+    await factory.$newQuery().create({
       'id'   : 1,
       'email': 'linbolen@gradii.com'
     });
 
-    await factory.newQuery().create({
+    await factory.$newQuery().create({
       'id'   : 2,
       'email': 'xsilen@gradii.com'
     });
 
-    expect(await factory.newQuery().count()).toEqual(2);
+    expect(await factory.$newQuery().count()).toEqual(2);
     expect(
-      await factory.newQuery().where('email', 'linbolen@gradii.com').doesntExist()).toBeFalsy();
+      await factory.$newQuery().where('email', 'linbolen@gradii.com').doesntExist()).toBeFalsy();
     expect(
-      await factory.newQuery().where('email', 'mohamed@laravel.com').doesntExist()).toBeTruthy();
-    let model: EloquentTestUser = await factory.newQuery()
+      await factory.$newQuery().where('email', 'mohamed@laravel.com').doesntExist()).toBeTruthy();
+    let model: EloquentTestUser = await factory.$newQuery()
       .where('email', 'linbolen@gradii.com').first();
     expect(model.email).toBe('linbolen@gradii.com');
     expect(model.email !== undefined).toBeTruthy();
     const friends = await model.friends;
     expect(friends !== undefined).toBeTruthy();
     expect(friends).toEqual([]);
-    model = await factory.newQuery().find(1);
+    model = await factory.$newQuery().find(1);
     expect(model).toBeInstanceOf(EloquentTestUser);
     expect(model.id).toEqual(1);
-    model = await factory.newQuery().find(2);
+    model = await factory.$newQuery().find(2);
     expect(model).toBeInstanceOf(EloquentTestUser);
     expect(model.id).toEqual(2);
-    const missing = await factory.newQuery().find(3);
+    const missing = await factory.$newQuery().find(3);
     expect(missing).toBeUndefined();
-    let collection = await factory.newQuery().find([]);
+    let collection = await factory.$newQuery().find([]);
     expect(isArray(collection)).toBeTruthy();
     expect(collection.length).toBe(0);
-    collection = await factory.newQuery().find([1, 2, 3]);
+    collection = await factory.$newQuery().find([1, 2, 3]);
     expect(isArray(collection)).toBeTruthy();
     expect(collection.length).toBe(2);
-    const models = await factory.newQuery().where('id', 1).get(); // .cursor();
+    const models = await factory.$newQuery().where('id', 1).get(); // .cursor();
     for (const m of models) {
       expect(m.id).toEqual(1);
-      expect(m.getConnectionName()).toBe('default');
+      expect(m.$getConnectionName()).toBe('default');
     }
     // let records = DB.table('users').where('id', 1).cursor();
     // for (let record of records) {
@@ -264,27 +264,28 @@ describe('test database fedaco integration', () => {
   it('test insert get id method', async () => {
     const factory = new EloquentTestUser();
     // factory.getConnection().enableQueryLog();
-    await factory.newQuery().create({
+    await factory.$newQuery().create({
       'id'   : 1,
       'email': 'linbolen@gradii.com'
     });
 
-    await factory.newQuery().create({
+    await factory.$newQuery().create({
       'id'   : 2,
       'email': 'xsilen@gradii.com'
     });
 
-    console.log(factory.getConnection().getQueryLog());
+    console.log(factory.$getConnection().getQueryLog());
   });
 
 });
 
 /*Eloquent Models...*/
 @Table({
+  tableName: 'users',
   morphTypeName: 'user'
 })
 export class EloquentTestUser extends Model {
-  _table: any   = 'users';
+  // _table: any   = 'users';
   _dates: any   = ['birthday'];
   _guarded: any = [];
 
@@ -391,7 +392,7 @@ export class EloquentTestUserWithSpaceInColumnName extends EloquentTestUser {
   tableName: 'non_incrementing_users',
 })
 export class EloquentTestNonIncrementing extends Model {
-  _table: any               = 'non_incrementing_users';
+  // _table: any               = 'non_incrementing_users';
   _guarded: any             = [];
   public _incrementing: any = false;
   public _timestamps: any   = false;
@@ -533,13 +534,16 @@ export class EloquentTestUserWithStringCastId extends EloquentTestUser {
 }
 
 export class EloquentTestUserWithCustomDateSerialization extends EloquentTestUser {
-  serializeDate(date: Date) {
+  $serializeDate(date: Date) {
     return format(date, 'yyyy-MM-dd');
   }
 }
 
+@Table({
+  tableName: 'test_orders'
+})
 export class EloquentTestOrder extends Model {
-  _table: any   = 'test_orders';
+  // _table: any   = 'test_orders';
   _guarded: any = [];
   _with: any[]  = ['item'];
 
@@ -562,8 +566,12 @@ export class EloquentTestItem extends Model {
 
 }
 
+@Table({
+  tableName: 'with_json',
+  noPluralTable: false
+})
 export class EloquentTestWithJSON extends Model {
-  _table: any   = 'with_json';
+  // _table: any   = 'with_json';
   _guarded: any = [];
 
   public _timestamps: any = false;

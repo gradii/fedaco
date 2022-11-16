@@ -4,12 +4,12 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank, isBoolean } from '@gradii/check-type';
+import { isBlank, isBoolean } from '@gradii/nanofn';
 import { tap } from 'ramda';
 import { BaseGrammar } from '../../base-grammar';
 import type { Connection } from '../../connection';
 import { DbalTableDiff } from '../../dbal/dbal-table-diff';
-import { upperCaseFirst } from '../../helper/str';
+import { upperFirst } from '@gradii/nanofn';
 import { RawExpression } from '../../query/ast/expression/raw-expression';
 import { Blueprint } from '../blueprint';
 import { ColumnDefinition } from '../column-definition';
@@ -139,7 +139,7 @@ export class SchemaGrammar extends BaseGrammar {
 
   /*Get the SQL for the column data type.*/
   protected getType(column: ColumnDefinition) {
-    const fn = 'type' + upperCaseFirst(column.type);
+    const fn = 'type' + upperFirst(column.type);
     if (fn in this) {
       // @ts-ignore
       return this[fn](column);

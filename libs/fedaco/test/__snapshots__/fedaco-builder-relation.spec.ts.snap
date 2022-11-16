@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`fedaco builder relation test self has nested 1`] = `"SELECT * FROM \`self_related_stubs\` WHERE EXISTS (SELECT * FROM \`self_related_stubs\` AS \`self_alias_hash\` WHERE \`self_alias_hash\`.\`id\` = \`self_related_stubs\`.\`parent_id\` AND EXISTS (SELECT * FROM \`self_related_stubs\` WHERE \`self_alias_hash\`.\`id\` = \`self_related_stubs\`.\`parent_id\`))"`;
+
+exports[`fedaco builder relation test self has nested uses alias 1`] = `"SELECT * FROM \`self_related_stubs\` WHERE EXISTS (SELECT * FROM \`self_related_stubs\` AS \`self_alias_hash\` WHERE \`self_alias_hash\`.\`id\` = \`self_related_stubs\`.\`parent_id\` AND EXISTS (SELECT * FROM \`self_related_stubs\` WHERE \`self_alias_hash\`.\`id\` = \`self_related_stubs\`.\`parent_id\`))"`;

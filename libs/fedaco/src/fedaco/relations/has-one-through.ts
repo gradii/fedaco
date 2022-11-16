@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray } from '@gradii/check-type';
+import { isArray } from '@gradii/nanofn';
 import type { Collection } from '../../define/collection';
 import type { Model } from '../model';
 import { mixinInteractsWithDictionary } from './concerns/interacts-with-dictionary';
@@ -22,21 +22,21 @@ export class HasOneThrough extends mixinInteractsWithDictionary(
   }
 
   /*Initialize the relation on a set of models.*/
-  public initRelation(models: any[], relation: string) {
+  public initRelation(models: Model[], relation: string) {
     for (const model of models) {
-      model.setRelation(relation, this._getDefaultFor(model));
+      model.$setRelation(relation, this._getDefaultFor(model));
     }
     return models;
   }
 
   /*Match the eagerly loaded results to their parents.*/
-  public match(models: any[], results: Collection, relation: string) {
+  public match(models: Model[], results: Collection, relation: string) {
     const dictionary = this._buildDictionary(results);
     for (const model of models) {
-      const key = this._getDictionaryKey(model.getAttribute(this._localKey));
+      const key = this._getDictionaryKey(model.$getAttribute(this._localKey));
       if (dictionary[key] !== undefined) {
         const value = dictionary[key];
-        model.setRelation(relation, isArray(value) ? value[0] : value );
+        model.$setRelation(relation, isArray(value) ? value[0] : value );
       }
     }
     return models;
@@ -44,6 +44,6 @@ export class HasOneThrough extends mixinInteractsWithDictionary(
 
   /*Make a new related instance for the given model.*/
   public newRelatedInstanceFor(parent: Model) {
-    return this._related.newInstance();
+    return this._related.$newInstance();
   }
 }

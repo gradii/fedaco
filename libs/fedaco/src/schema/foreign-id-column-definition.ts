@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { plural } from '../helper/pluralize';
+import { plural } from '@gradii/nanofn';
 import type { Blueprint } from './blueprint';
 import { ColumnDefinition } from './column-definition';
 

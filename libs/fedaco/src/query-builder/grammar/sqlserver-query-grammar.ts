@@ -4,8 +4,8 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBoolean } from '@gradii/check-type';
-import { snakeCase } from '../../helper/str';
+import { isBoolean } from '@gradii/nanofn';
+import { snakeCase } from '@gradii/nanofn';
 import { DeleteSpecification } from '../../query/ast/delete-specification';
 import { ConditionExpression } from '../../query/ast/expression/condition-expression';
 import { FromClause } from '../../query/ast/from-clause';

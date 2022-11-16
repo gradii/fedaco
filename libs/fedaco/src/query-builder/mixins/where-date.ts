@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isDate, isNumber, isString } from '@gradii/check-type';
+import { isDate, isNumber, isString } from '@gradii/nanofn';
 import { format } from 'date-fns';
 import type { Constructor } from '../../helper/constructor';
 import type { QueryBuilder } from '../../query-builder/query-builder';

@@ -13,6 +13,12 @@ export interface ColumnAnnotation extends FedacoAnnotation {
 
   // visible?: boolean;
 
+  /**
+   * todo not implement yet
+   * fillable defined in model
+   */
+  fillable?: boolean;
+
   hidden?: boolean;
   // isPrimary?: boolean;
   //

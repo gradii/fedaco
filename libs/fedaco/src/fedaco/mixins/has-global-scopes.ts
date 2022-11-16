@@ -4,15 +4,18 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank } from '@gradii/check-type';
+import { isBlank } from '@gradii/nanofn';
 import type { Constructor } from '../../helper/constructor';
 import type { Model } from '../model';
 import type { Scope } from '../scope';
 
+export interface HasGlobalScopes {
+
+  $getGlobalScopes(): { [key: string]: Scope | Function };
+}
+
 export declare class HasGlobalScopes {
   static addGlobalScope(scope: string, implementation: Scope | Function): void;
-
-  getGlobalScopes(): { [key: string]: Scope | Function };
 }
 
 type HasGlobalScopesCtor = Constructor<HasGlobalScopes>;
@@ -47,7 +50,7 @@ export function mixinHasGlobalScopes<T extends Constructor<{}>>(base: T): HasGlo
     }
 
     /*Get the global scopes for this class instance.*/
-    public getGlobalScopes(this: Model & _Self) {
+    public $getGlobalScopes(this: Model & _Self) {
       const target = globalScopes.get(this.constructor);
       return target || [];
     }

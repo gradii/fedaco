@@ -14,7 +14,7 @@ export type DatetimeColumnAnnotation = ColumnAnnotation
 
 export const DatetimeColumn: FedacoDecorator<DatetimeColumnAnnotation> = makePropDecorator(
   'Fedaco:DatetimeColumn',
-  (p: DatetimeColumnAnnotation = {}): DatetimeColumnAnnotation => ({...p}),
+  (p: DatetimeColumnAnnotation = {}): DatetimeColumnAnnotation => ({fillable: true, ...p}),
   FedacoColumn,
   (target: any, name: string, decorator: DatetimeColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, name, decorator);

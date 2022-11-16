@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isAnyEmpty, isArray, isBlank, isObject } from '@gradii/check-type';
+import { isAnyEmpty, isArray, isBlank, isObject } from '@gradii/nanofn';
 import { difference, uniq } from 'ramda';
 import type { Constructor } from '../../helper/constructor';
 import type { Model } from '../model';
@@ -119,7 +119,7 @@ export function mixinHasEvents<T extends Constructor<any>>(base: T) {
       // @ts-ignore
       const instance = new this();
       for (const event of instance.getObservableEvents()) {
-        (/*static*/ this).dispatcher.forget(`fedaco.${event}: ${this.getTable()}`);
+        (/*static*/ this).dispatcher.forget(`fedaco.${event}: ${this.$getTable()}`);
       }
       for (const event of Object.values(instance._dispatchesEvents)) {
         (/*static*/ this).dispatcher.forget(event as string);
@@ -165,7 +165,7 @@ export function mixinHasEvents<T extends Constructor<any>>(base: T) {
     }
 
     /*Get the observable event names.*/
-    public getObservableEvents() {
+    public $getObservableEvents() {
       return [
         ...[
           'retrieved', 'creating', 'created', 'updating', 'updated', 'saving', 'saved',
@@ -176,13 +176,13 @@ export function mixinHasEvents<T extends Constructor<any>>(base: T) {
     }
 
     /*Set the observable event names.*/
-    public setObservableEvents(observables: any[]) {
+    public $setObservableEvents(observables: any[]) {
       this._observables = observables;
       return this;
     }
 
     /*Add an observable event name.*/
-    public addObservableEvents(observables: any[] | any) {
+    public $addObservableEvents(observables: any[] | any) {
       this._observables = uniq([
         ...this._observables,
         ...(isArray(observables) ? observables : arguments)
@@ -190,7 +190,7 @@ export function mixinHasEvents<T extends Constructor<any>>(base: T) {
     }
 
     /*Remove an observable event name.*/
-    public removeObservableEvents(observables: any[] | any) {
+    public $removeObservableEvents(observables: any[] | any) {
       this._observables = difference(
         this._observables, isArray(observables) ? observables : [...arguments]);
     }
@@ -198,7 +198,7 @@ export function mixinHasEvents<T extends Constructor<any>>(base: T) {
     /*Register a single observer with the model.*/
     _registerObserver(clazz: typeof _Self) {
       // const className = this._resolveObserverClassName(clazz);
-      for (const event of this.getObservableEvents()) {
+      for (const event of this.$getObservableEvents()) {
         if (event in clazz) {
           (/*static*/<any>this.constructor)._registerModelEvent(event,
             (...args: any[]) => clazz.prototype[event].apply()
@@ -222,7 +222,7 @@ export function mixinHasEvents<T extends Constructor<any>>(base: T) {
       return !isAnyEmpty(result) ?
         result :
         (/*static*/<any>this.constructor).dispatcher[method](
-          `fedaco.${event}: ${this.getTable()}`,
+          `fedaco.${event}: ${this.$getTable()}`,
           this);
     }
 

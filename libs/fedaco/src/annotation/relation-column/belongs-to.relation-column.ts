@@ -5,10 +5,10 @@
  */
 
 import { makePropDecorator } from '@gradii/annotation';
-import { isBlank } from '@gradii/check-type';
+import { isBlank } from '@gradii/nanofn';
 import type { Model } from '../../fedaco/model';
 import { BelongsTo } from '../../fedaco/relations/belongs-to';
-import { snakeCase } from '../../helper/str';
+import { snakeCase } from '@gradii/nanofn';
 import type { ForwardRefFn} from '../../query-builder/forward-ref';
 import { resolveForwardRef } from '../../query-builder/forward-ref';
 import { _additionalProcessingGetter } from '../additional-processing';
@@ -38,9 +38,9 @@ export const BelongsToColumn: FedacoDecorator<BelongsToRelationAnnotation> = mak
       }
 
       const instance = m._newRelatedInstance(resolveForwardRef(p.related));
-      p.foreignKey   = p.foreignKey || `${snakeCase(p.relation)}_${instance.getKeyName()}`;
-      p.ownerKey     = p.ownerKey || instance.getKeyName();
-      const r        = new BelongsTo(instance.newQuery(), m, p.foreignKey, p.ownerKey, p.relation);
+      p.foreignKey   = p.foreignKey || `${snakeCase(p.relation)}_${instance.$getKeyName()}`;
+      p.ownerKey     = p.ownerKey || instance.$getKeyName();
+      const r        = new BelongsTo(instance.$newQuery(), m, p.foreignKey, p.ownerKey, p.relation);
       if (p.onQuery) {
         p.onQuery(r);
       }

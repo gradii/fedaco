@@ -11,7 +11,9 @@ Object {
     },
   ],
   "id": Array [
-    FedacoColumn {},
+    FedacoColumn {
+      "fillable": true,
+    },
   ],
 }
 `;

@@ -3,6 +3,7 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
+import { Table } from '../../src/annotation/table/table';
 import { BelongsToManyColumn } from '../../src/annotation/relation-column/belongs-to-many.relation-column';
 import { BelongsToColumn } from '../../src/annotation/relation-column/belongs-to.relation-column';
 import { HasManyColumn } from '../../src/annotation/relation-column/has-many.relation-column';
@@ -12,8 +13,11 @@ import { Model } from '../../src/fedaco/model';
 export class FedacoBuilderTestModelFarRelatedStub extends Model {
 }
 
+@Table({
+  tableName: 'self_related_stubs'
+})
 export class FedacoBuilderTestModelSelfRelatedStub extends Model {
-  _table: any = 'self_related_stubs';
+  // _table: any = 'self_related_stubs';
 
   @BelongsToColumn({
     related   : FedacoBuilderTestModelSelfRelatedStub,

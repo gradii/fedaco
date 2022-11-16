@@ -16,7 +16,7 @@ export const DeletedAtColumn: FedacoDecorator<DeletedAtColumnAnnotation> = makeP
   'Fedaco:DeletedAtColumn',
   (p: DeletedAtColumnAnnotation = {
     hidden: true
-  }): DeletedAtColumnAnnotation => ({...p}),
+  }): DeletedAtColumnAnnotation => ({fillable: false,...p}),
   DatetimeColumn,
   (target: any, name: string, decorator: DeletedAtColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, name, decorator);

@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { has } from '@gradii/check-type';
+import { has } from '@gradii/nanofn';
 import { Connection } from '../connection';
 import { MysqlConnection } from '../connection/mysql-connection';
 import { PostgresConnection } from '../connection/postgres-connection';
@@ -156,6 +156,8 @@ export class ConnectionFactory {
     }
     switch (driver) {
       case 'mysql':
+        return new MysqlConnection(connection, database, prefix, config);
+      case 'mariadb':
         return new MysqlConnection(connection, database, prefix, config);
       case 'pgsql':
         return new PostgresConnection(connection, database, prefix, config);

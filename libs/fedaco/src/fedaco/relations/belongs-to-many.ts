@@ -4,15 +4,14 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray, isBlank, isObject } from '@gradii/check-type';
+import { isArray, isBlank, isObject } from '@gradii/nanofn';
 import { uniq } from 'ramda';
 import type { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import type { Collection } from '../../define/collection';
 import type { Constructor } from '../../helper/constructor';
-import { pluralStudy } from '../../helper/pluralize';
-import { camelCase } from '../../helper/str';
-import { QueryBuilder } from '../../query-builder/query-builder';
+import { pluralStudy } from '@gradii/nanofn';
+import { camelCase } from '@gradii/nanofn';
 import type { RawExpression } from '../../query/ast/expression/raw-expression';
 import type { FedacoBuilder } from '../fedaco-builder';
 import type { Model } from '../model';
@@ -130,27 +129,27 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
   }
 
   /*Set the constraints for an eager load of the relation.*/
-  public addEagerConstraints(models: any[]) {
+  public addEagerConstraints(models: Model[]) {
     const whereIn = this._whereInMethod(this._parent, this._parentKey);
     this._query[whereIn](this.getQualifiedForeignPivotKeyName(),
       this.getKeys(models, this._parentKey));
   }
 
   /*Initialize the relation on a set of models.*/
-  public initRelation(models: any[], relation: string) {
+  public initRelation(models: Model[], relation: string) {
     for (const model of models) {
-      model.setRelation(relation, this._related.newCollection());
+      model.$setRelation(relation, this._related.$newCollection());
     }
     return models;
   }
 
   /*Match the eagerly loaded results to their parents.*/
-  public match(models: any[], results: Collection, relation: string) {
+  public match(models: Model[], results: Collection, relation: string) {
     const dictionary = this._buildDictionary(results);
     for (const model of models) {
       const key = this._getDictionaryKey(model[this._parentKey]);
       if (dictionary[key] !== undefined) {
-        model.setRelation(relation, this._related.newCollection(dictionary[key]));
+        model.$setRelation(relation, this._related.$newCollection(dictionary[key]));
       }
     }
     return models;
@@ -161,7 +160,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
     const dictionary: { [key: string]: any[] } = {};
     for (const result of results) {
       const value = this._getDictionaryKey(
-        (result.getRelation(this._accessor) as Model).getAttributeValue(this._foreignPivotKey)
+        (result.$getRelation(this._accessor) as Model).$getAttributeValue(this._foreignPivotKey)
       );
       if (!isArray(dictionary[value])) {
         dictionary[value] = [];
@@ -306,16 +305,16 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
   public async findOrNew(id: any, columns: any[] = ['*']): Promise<Model> {
     let instance = await this.find(id, columns) as Model;
     if (isBlank(instance)) {
-      instance = this._related.newInstance();
+      instance = this._related.$newInstance();
     }
     return instance;
   }
 
   /*Get the first related model record matching the attributes or instantiate it.*/
   public async firstOrNew(attributes: any = {}, values: any[] = []) {
-    let instance = await this._related.newQuery().where(attributes).first();
+    let instance = await this._related.$newQuery().where(attributes).first();
     if (isBlank(instance)) {
-      instance = this._related.newInstance([...attributes, ...values]);
+      instance = this._related.$newInstance([...attributes, ...values]);
     }
     return instance;
   }
@@ -325,7 +324,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
     values: any = {},
     joining: any[] = [],
     touch = true) {
-    let instance = await this._related.newQuery().where(attributes).first();
+    let instance = await this._related.$newQuery().where(attributes).first();
     if (isBlank(instance)) {
       instance = await this.create({ ...attributes, ...values }, joining, touch);
     }
@@ -337,12 +336,12 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
     values: any[] = [],
     joining: any[] = [],
     touch = true) {
-    const instance = await this._related.newQuery().where(attributes).first() as Model;
+    const instance = await this._related.$newQuery().where(attributes).first() as Model;
     if (isBlank(instance)) {
       return this.create([...attributes, ...values], joining, touch);
     }
-    instance.fill(values);
-    await instance.save({
+    instance.$fill(values);
+    await instance.$save({
       'touch': false
     });
     return instance;
@@ -353,16 +352,16 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
     if (isArray(id) /*|| id instanceof Arrayable*/) {
       return this.findMany(id, columns);
     }
-    return this.where(this.getRelated().getQualifiedKeyName(), '=', this._parseIds(id))
+    return this.where(this.getRelated().$getQualifiedKeyName(), '=', this._parseIds(id))
       .first(columns);
   }
 
   /*Find multiple related models by their primary keys.*/
   public async findMany(ids: any[], columns: any[] = ['*']) {
     if (!ids.length) {
-      return this.getRelated().newCollection();
+      return this.getRelated().$newCollection();
     }
-    return this.whereIn(this.getRelated().getQualifiedKeyName(), this._parseIds(ids)).get(columns);
+    return this.whereIn(this.getRelated().$getQualifiedKeyName(), this._parseIds(ids)).get(columns);
   }
 
   /*Find a related model by its primary key or throw an exception.*/
@@ -416,7 +415,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
   public async getResults() {
     return !isBlank(this._parent[this._parentKey]) ?
       await this.get() :
-      this._related.newCollection();
+      this._related.$newCollection();
   }
 
   /*Execute the query as a "select" statement.*/
@@ -431,13 +430,13 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
     if (models.length > 0) {
       models = await builder.eagerLoadRelations(models);
     }
-    return this._related.newCollection(models);
+    return this._related.$newCollection(models);
   }
 
   /*Get the select columns for the relation query.*/
   _shouldSelect(columns: any[] = ['*']) {
     if (columns.length === 1 && columns[0] === '*') {
-      columns = [`${this._related.getTable()}.*`];
+      columns = [`${this._related.$getTable()}.*`];
     }
     return [...columns, ...this._aliasedPivotColumns()];
   }
@@ -481,7 +480,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
     alias?: string,
     signal?: Observable<any>): Observable<{ results: any, page: number }> {
     this._prepareQueryBuilder();
-    column = column ?? this.getRelated().qualifyColumn(this.getRelatedKeyName());
+    column = column ?? this.getRelated().$qualifyColumn(this.getRelatedKeyName());
     alias = alias ?? this.getRelatedKeyName();
     return this._query.chunkById(count, column, alias).pipe(
       tap(({ results }) => {
@@ -491,9 +490,9 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
   }
 
   /*Execute a callback over each item while chunking.*/
-  public each(count: number = 1000, signal?: Observable<any>) {
+  public each(count: number = 1000, concurrent?: number) {
     return this._prepareQueryBuilder()
-      .each(count, signal)
+      .each(count, concurrent)
       .pipe(
         tap(({ item, index }) => {
           this._hydratePivotRelation([item]);
@@ -507,17 +506,17 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
   }
 
   /*Hydrate the pivot table relationship on the models.*/
-  _hydratePivotRelation(models: any[]) {
+  _hydratePivotRelation(models: Model[]) {
     for (const model of models) {
       // _additionalProcessingGetter(model.constructor, 'pivot', undefined, true);
-      model.setRelation(this._accessor, this.newExistingPivot(this._migratePivotAttributes(model)));
+      model.$setRelation(this._accessor, this.newExistingPivot(this._migratePivotAttributes(model)));
     }
   }
 
   /*Get the pivot attributes from a model.*/
   _migratePivotAttributes(model: Model) {
     const values: any = {};
-    for (const [key, value] of Object.entries(model.getAttributes())) {
+    for (const [key, value] of Object.entries(model.$getAttributes())) {
       if (key.startsWith('pivot_')) {
         values[key.substr(6)] = value;
         delete model.key;
@@ -529,34 +528,34 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
   /*If we're touching the parent model, touch.*/
   public async touchIfTouching() {
     if (this._touchingParent()) {
-      await this.getParent().touch();
+      await this.getParent().$touch();
     }
-    if (this.getParent().touches(this._relationName)) {
-      await this.touch();
+    if (this.getParent().$touches(this._relationName)) {
+      await this.$touch();
     }
   }
 
   /*Determine if we should touch the parent on sync.*/
   _touchingParent() {
-    return this.getRelated().touches(this._guessInverseRelation());
+    return this.getRelated().$touches(this._guessInverseRelation());
   }
 
   /*Attempt to guess the name of the inverse of the relation.*/
   _guessInverseRelation() {
-    return camelCase(pluralStudy(this.getParent().getTable()));
+    return camelCase(pluralStudy(this.getParent().$getTable()));
   }
 
   /*Touch all of the related models for the relationship.
 
   E.g.: Touch all roles associated with this user.*/
-  public async touch() {
-    const key = this.getRelated().getKeyName();
+  public async $touch() {
+    const key = this.getRelated().$getKeyName();
     const columns = {
-      [this._related.getUpdatedAtColumn()]: this._related.freshTimestampString(),
+      [this._related.$getUpdatedAtColumn()]: this._related.$freshTimestampString(),
     };
     const ids = await this.allRelatedIds();
     if (ids.length > 0) {
-      await this.getRelated().newQueryWithoutRelationships().whereIn(key, ids).update(columns);
+      await this.getRelated().$newQueryWithoutRelationships().whereIn(key, ids).update(columns);
     }
   }
 
@@ -567,7 +566,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
 
   /*Save a new model and attach it to the parent model.*/
   public save(model: Model, pivotAttributes: any[] = [], touch = true) {
-    model.save({
+    model.$save({
       'touch': false
     });
     this.attach(model, pivotAttributes, touch);
@@ -584,13 +583,13 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
   }
 
   /*Create a new instance of the related model.*/
-  public async create(attributes: any = {}, joining: any[] = [], touch = true) {
-    const instance = this._related.newInstance(attributes);
-    await instance.save({
+  public async create<T extends Model>(attributes: any = {}, joining: any[] = [], touch = true): Promise<T> {
+    const instance = this._related.$newInstance(attributes);
+    await instance.$save({
       'touch': false
     });
     this.attach(instance, joining, touch);
-    return instance;
+    return instance as T;
   }
 
   /*Create an array of new instances of the related models.*/
@@ -619,8 +618,8 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
     columns: any[] | any = ['*']) {
     query.select(columns);
     const hash = this.getRelationCountHash();
-    query.from(`${this._related.getTable()} as ${hash}`);
-    this._related.setTable(hash);
+    query.from(`${this._related.$getTable()} as ${hash}`);
+    this._related.$setTable(hash);
     this._performJoin(query);
     return super.getRelationExistenceQuery(query, parentQuery, columns);
   }
@@ -640,12 +639,12 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
 
   /*Get the name of the "created at" column.*/
   public createdAt() {
-    return this._pivotCreatedAt || this._parent.getCreatedAtColumn();
+    return this._pivotCreatedAt || this._parent.$getCreatedAtColumn();
   }
 
   /*Get the name of the "updated at" column.*/
   public updatedAt() {
-    return this._pivotUpdatedAt || this._parent.getUpdatedAtColumn();
+    return this._pivotUpdatedAt || this._parent.$getUpdatedAtColumn();
   }
 
   /*Get the foreign key for the relation.*/
@@ -675,7 +674,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
 
   /*Get the fully qualified parent key name for the relation.*/
   public getQualifiedParentKeyName() {
-    return this._parent.qualifyColumn(this._parentKey);
+    return this._parent.$qualifyColumn(this._parentKey);
   }
 
   /*Get the related key for the relationship.*/
@@ -685,7 +684,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
 
   /*Get the fully qualified related key name for the relation.*/
   public getQualifiedRelatedKeyName() {
-    return this._related.qualifyColumn(this._relatedKey);
+    return this._related.$qualifyColumn(this._relatedKey);
   }
 
   /*Get the intermediate table for the relationship.*/

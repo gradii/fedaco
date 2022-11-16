@@ -4,9 +4,9 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isAnyEmpty, isArray, isString } from '@gradii/check-type';
+import { isAnyEmpty, isArray, isString } from '@gradii/nanofn';
 import { BaseGrammar } from '../../base-grammar';
-import { camelCase } from '../../helper/str';
+import { camelCase } from '@gradii/nanofn';
 import { AssignmentSetClause } from '../../query/ast/assignment-set-clause';
 import { BinaryUnionQueryExpression } from '../../query/ast/binary-union-query-expression';
 import { DeleteSpecification } from '../../query/ast/delete-specification';

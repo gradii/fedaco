@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isFunction } from '@gradii/check-type';
+import { isFunction } from '@gradii/nanofn';
 
 
 export function value(val: any | Function, ...args: any[]) {

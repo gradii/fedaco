@@ -16,6 +16,6 @@ export function resolveForwardRef<T>(type: ForwardRefFn<T> | T | undefined): T {
 }
 
 export function isForwardRef(fn: any): fn is() => any {
-  return typeof fn === 'function' && fn.hasOwnProperty('__forward_ref__') &&
+  return typeof fn === 'function' && Object.prototype.hasOwnProperty.call(fn, '__forward_ref__') &&
     fn.__forward_ref__ === forwardRef;
 }

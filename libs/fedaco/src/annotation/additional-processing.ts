@@ -4,9 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { has } from '@gradii/check-type';
 import type { Model } from '../fedaco/model';
-import { ColumnAnnotation } from './column';
 
 export const _additionalProcessingGetter = (target: any, name: string, decorator: any) => {
   const descriptor = Object.getOwnPropertyDescriptor(target, name);
@@ -20,7 +18,7 @@ export const _additionalProcessingGetter = (target: any, name: string, decorator
       enumerable  : false,
       configurable: true,
       get         : function () {
-        return (this as Model).getAttribute(field);
+        return (this as Model).$getAttribute(field);
       },
       set         : function () {
         throw new Error('the relation field is readonly');
@@ -45,12 +43,12 @@ export const _additionalProcessingGetterSetter = (target: any, name: string, dec
     };
     if (!hasGetter) {
       propertyDescriptor.get = function () {
-        return (this as Model).getAttribute(field);
+        return (this as Model).$getAttribute(field);
       };
     }
     if (!hasSetter) {
       propertyDescriptor.set = function (value) {
-        (this as Model).setAttribute(field, value);
+        (this as Model).$setAttribute(field, value);
       };
     }
     Object.defineProperty(target, name, propertyDescriptor);

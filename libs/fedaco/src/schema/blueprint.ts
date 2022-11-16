@@ -3,12 +3,12 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-import { has, isAnyEmpty, isArray, isBlank, isString } from '@gradii/check-type';
+import { has, isAnyEmpty, isArray, isBlank, isString } from '@gradii/nanofn';
 import type { Connection } from '../connection';
 // import { SqliteConnection } from '../connection/sqlite-connection';
 import type { Model } from '../fedaco/model';
 import { wrap } from '../helper/arr';
-import { lowerCaseFirst, upperCaseFirst } from '../helper/str';
+import { lowerFirst, upperFirst } from '@gradii/nanofn';
 import { raw } from '../query-builder/ast-factory';
 import { ColumnDefinition } from './column-definition';
 import { ForeignIdColumnDefinition } from './foreign-id-column-definition';
@@ -58,7 +58,7 @@ export class Blueprint {
     let statements: string[] = [];
     this.ensureCommandsAreValid(connection);
     for (const command of this.commands) {
-      const method = 'compile' + upperCaseFirst(command.name);
+      const method = 'compile' + upperFirst(command.name);
       if (method in grammar) {
         // @ts-ignore
         const sql = grammar[method](this, command, connection);
@@ -136,7 +136,7 @@ export class Blueprint {
   public addFluentCommands(grammar: SchemaGrammar) {
     for (const column of this.columns) {
       for (const commandName of grammar.getFluentCommands()) {
-        const attributeName = lowerCaseFirst(commandName);
+        const attributeName = lowerFirst(commandName);
         if (!column.isset(attributeName)) {
           continue;
         }
@@ -425,10 +425,10 @@ export class Blueprint {
     // if (isString(model)) {
     //   model = new model();
     // }
-    return (model as Model).getKeyType() === 'int' &&
-    (model as Model).getIncrementing() ?
-      this.foreignId(column || (model as Model).getForeignKey()) :
-      this.foreignUuid(column || (model as Model).getForeignKey());
+    return (model as Model).$getKeyType() === 'int' &&
+    (model as Model).$getIncrementing() ?
+      this.foreignId(column || (model as Model).$getForeignKey()) :
+      this.foreignUuid(column || (model as Model).$getForeignKey());
   }
 
   /*Create a new float column on the table.*/

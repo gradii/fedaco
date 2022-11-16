@@ -33,15 +33,15 @@ export const HasManyThroughColumn: FedacoDecorator<HasManyThroughRelationAnnotat
     _getRelation: function (m: Model, relation: string) {
       // @ts-ignore
       const throughClazz = resolveForwardRef(p.through);
-      const through      = new throughClazz();
-      const firstKey     = p.firstKey || m.getForeignKey();
-      const secondKey    = p.secondKey || through.getForeignKey();
+      const through: Model      = new throughClazz();
+      const firstKey     = p.firstKey || m.$getForeignKey();
+      const secondKey    = p.secondKey || through.$getForeignKey();
 
       const clazz = resolveForwardRef(p.related);
       const r     = new HasManyThrough(
-        m._newRelatedInstance(clazz).newQuery(), m,
-        through, firstKey, secondKey, p.localKey || m.getKeyName(),
-        p.secondLocalKey || through.getKeyName());
+        m._newRelatedInstance(clazz).$newQuery(), m,
+        through, firstKey, secondKey, p.localKey || m.$getKeyName(),
+        p.secondLocalKey || through.$getKeyName());
 
       if (p.onQuery) {
         p.onQuery(r);

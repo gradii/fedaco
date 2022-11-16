@@ -55,12 +55,12 @@ async function seedData() {
     'shortname': 'us'
   });
 
-  const user = await country.newRelation('users').create({
+  const user = await country.$newRelation('users').create({
     'id'           : 1,
     'email'        : 'linbolen@gradii.com',
     'country_short': 'us'
   });
-  const post = await user.newRelation('posts').createMany([
+  const post = await user.$newRelation('posts').createMany([
     {
       'title': 'A title',
       'body' : 'A body',
@@ -80,13 +80,13 @@ async function seedDataExtended() {
     'shortname': 'uk'
   });
 
-  const user = await country.newRelation('users').create({
+  const user = await country.$newRelation('users').create({
     'id'           : 2,
     'email'        : 'example1@gmail.com',
     'country_short': 'uk'
   });
 
-  await user.newRelation('posts').createMany([
+  await user.$newRelation('posts').createMany([
     {
       'title': 'Example1 title1',
       'body' : 'Example1 body1',
@@ -98,13 +98,13 @@ async function seedDataExtended() {
     }
   ]);
 
-  const user1 = await country.newRelation('users').create({
+  const user1 = await country.$newRelation('users').create({
     'id'           : 3,
     'email'        : 'example2@gmail.com',
     'country_short': 'uk'
   });
 
-  await user1.newRelation('posts').createMany([
+  await user1.$newRelation('posts').createMany([
     {
       'title': 'Example2 title1',
       'body' : 'Example2 body1',
@@ -116,12 +116,12 @@ async function seedDataExtended() {
     }
   ]);
 
-  const user2 = await country.newRelation('users').create({
+  const user2 = await country.$newRelation('users').create({
     'id'           : 4,
     'email'        : 'example3@gmail.com',
     'country_short': 'uk'
   });
-  await user2.newRelation('posts').createMany([
+  await user2.$newRelation('posts').createMany([
     {
       'title': 'Example3 title1',
       'body' : 'Example3 body1',
@@ -139,11 +139,11 @@ async function seedDefaultData() {
     'id'  : 1,
     'name': 'United States of America'
   });
-  const u = await r.newRelation('users').create({
+  const u = await r.$newRelation('users').create({
     'id'   : 1,
     'email': 'linbolen@gradii.com'
   });
-  await u.newRelation('posts').createMany([
+  await u.$newRelation('posts').createMany([
     {
       'title': 'A title',
       'body' : 'A body'
@@ -247,12 +247,12 @@ describe('test database fedaco has many through integration', () => {
       'name'     : 'United States of America',
       'shortname': 'us'
     });
-    const user    = await country.newRelation('users').create({
+    const user    = await country.$newRelation('users').create({
       'id'           : 1,
       'email'        : 'linbolen@gradii.com',
       'country_short': 'us'
     });
-    await user.newRelation('posts').createMany([
+    await user.$newRelation('posts').createMany([
       {
         'id'   : 1,
         'title': 'A title',
@@ -266,11 +266,11 @@ describe('test database fedaco has many through integration', () => {
       }
     ]);
     const country1 = await HasManyThroughTestCountry.createQuery().first();
-    const post     = await country1.newRelation('posts').find(1);
+    const post     = await country1.$newRelation('posts').find(1);
     expect(post).not.toBeNull();
     expect(post.title).toBe('A title');
-    expect(await country1.newRelation('posts').find([1, 2])).toHaveLength(2);
-    expect(await country1.newRelation('posts').find([1, 2])).toHaveLength(2);
+    expect(await country1.$newRelation('posts').find([1, 2])).toHaveLength(2);
+    expect(await country1.$newRelation('posts').find([1, 2])).toHaveLength(2);
   });
 
   it('find many method', async () => {
@@ -279,12 +279,12 @@ describe('test database fedaco has many through integration', () => {
       'name'     : 'United States of America',
       'shortname': 'us'
     });
-    const user    = await country.newRelation('users').create({
+    const user    = await country.$newRelation('users').create({
       'id'           : 1,
       'email'        : 'linbolen@gradii.com',
       'country_short': 'us'
     });
-    await user.newRelation('posts').createMany([
+    await user.$newRelation('posts').createMany([
       {
         'id'   : 1,
         'title': 'A title',
@@ -298,8 +298,8 @@ describe('test database fedaco has many through integration', () => {
       }
     ]);
     const country1 = await HasManyThroughTestCountry.createQuery().first();
-    expect(await country1.newRelation('posts').findMany([1, 2])).toHaveLength(2);
-    expect(await country1.newRelation('posts').findMany([1, 2])).toHaveLength(2);
+    expect(await country1.$newRelation('posts').findMany([1, 2])).toHaveLength(2);
+    expect(await country1.$newRelation('posts').findMany([1, 2])).toHaveLength(2);
   });
 
   it('first or fail throws an exception', async () => {
@@ -308,13 +308,13 @@ describe('test database fedaco has many through integration', () => {
       'name'     : 'United States of America',
       'shortname': 'us'
     });
-    await country.newRelation('users').create({
+    await country.$newRelation('users').create({
       'id'           : 1,
       'email'        : 'linbolen@gradii.com',
       'country_short': 'us'
     });
     await expect(async () => {
-      await (await HasManyThroughTestCountry.createQuery().first()).newRelation(
+      await (await HasManyThroughTestCountry.createQuery().first()).$newRelation(
         'posts').firstOrFail();
     }).rejects.toThrowError(
       'ModelNotFoundException No query results for model [HasManyThroughTestPost].');
@@ -326,14 +326,14 @@ describe('test database fedaco has many through integration', () => {
       'name'     : 'United States of America',
       'shortname': 'us'
     });
-    await country.newRelation('users').create({
+    await country.$newRelation('users').create({
       'id'           : 1,
       'email'        : 'linbolen@gradii.com',
       'country_short': 'us'
     });
     const user = await HasManyThroughTestCountry.createQuery().first();
     await expect(async () => {
-      await user.newRelation('posts').findOrFail(1);
+      await user.$newRelation('posts').findOrFail(1);
     }).rejects.toThrowError(
       'ModelNotFoundException No query results for model [HasManyThroughTestPost] [1]');
 
@@ -345,12 +345,12 @@ describe('test database fedaco has many through integration', () => {
       'name'     : 'United States of America',
       'shortname': 'us'
     });
-    const user    = await country.newRelation('users').create({
+    const user    = await country.$newRelation('users').create({
       'id'           : 1,
       'email'        : 'linbolen@gradii.com',
       'country_short': 'us'
     });
-    const post    = await user.newRelation('posts').create({
+    const post    = await user.$newRelation('posts').create({
       'id'   : 1,
       'title': 'A title',
       'body' : 'A body',
@@ -358,7 +358,7 @@ describe('test database fedaco has many through integration', () => {
     });
 
     await expect(async () => {
-      await (await HasManyThroughTestCountry.createQuery().first()).newRelation(
+      await (await HasManyThroughTestCountry.createQuery().first()).$newRelation(
         'posts').findOrFail([1, 2]);
     }).rejects.toThrowError(
       'ModelNotFoundException No query results for model [HasManyThroughTestPost] [1,2]');
@@ -366,7 +366,7 @@ describe('test database fedaco has many through integration', () => {
 
   it('first retrieves first record', async () => {
     await seedData();
-    const post = await (await HasManyThroughTestCountry.createQuery().first()).newRelation(
+    const post = await (await HasManyThroughTestCountry.createQuery().first()).$newRelation(
       'posts').first();
     expect(post).not.toBeNull();
     expect(post.title).toBe('A title');
@@ -374,9 +374,9 @@ describe('test database fedaco has many through integration', () => {
 
   it('all columns are retrieved by default', async () => {
     await seedData();
-    const post = await (await HasManyThroughTestCountry.createQuery().first()).newRelation(
+    const post = await (await HasManyThroughTestCountry.createQuery().first()).$newRelation(
       'posts').first();
-    expect(Object.keys(post.getAttributes())).toEqual(
+    expect(Object.keys(post.$getAttributes())).toEqual(
       [
         'id', 'user_id', 'title', 'body', 'email', 'created_at', 'updated_at', 'fedaco_through_key'
       ]);
@@ -384,9 +384,9 @@ describe('test database fedaco has many through integration', () => {
 
   it('only proper columns are selected if provided', async () => {
     await seedData();
-    const post = await (await HasManyThroughTestCountry.createQuery().first()).newRelation(
+    const post = await (await HasManyThroughTestCountry.createQuery().first()).$newRelation(
       'posts').first(['title', 'body']);
-    expect(Object.keys(post.getAttributes())).toEqual(['title', 'body', 'fedaco_through_key']);
+    expect(Object.keys(post.$getAttributes())).toEqual(['title', 'body', 'fedaco_through_key']);
   });
 
   it('chunk returns correct models', async () => {
@@ -394,11 +394,11 @@ describe('test database fedaco has many through integration', () => {
     await seedDataExtended();
     const country: HasManyThroughTestCountry = await HasManyThroughTestCountry.createQuery()
       .find(2);
-    await country.newRelation('posts')
+    await country.$newRelation('posts')
       .chunk(10).pipe(
         tap(({results: postsChunk}) => {
           const post = head(postsChunk);
-          expect(Object.keys(post.getAttributes())).toEqual([
+          expect(Object.keys(post.$getAttributes())).toEqual([
             'id', 'user_id', 'title', 'body', 'email', 'created_at', 'updated_at',
             'fedaco_through_key'
           ]);
@@ -415,7 +415,7 @@ describe('test database fedaco has many through integration', () => {
     let i     = 0;
     let count = 0;
 
-    await country.newRelation('posts').chunkById(2).pipe(
+    await country.$newRelation('posts').chunkById(2).pipe(
       tap(({results: collection}) => {
         i++;
         count += collection.length;
@@ -444,8 +444,8 @@ describe('test database fedaco has many through integration', () => {
     await seedData();
     await seedDataExtended();
     const country = await HasManyThroughTestCountry.createQuery().find(2);
-    await country.newRelation('posts').each().pipe(tap(({item: post}) => {
-      expect(Object.keys(post.getAttributes())).toEqual([
+    await country.$newRelation('posts').each().pipe(tap(({item: post}) => {
+      expect(Object.keys(post.$getAttributes())).toEqual([
         'id', 'user_id', 'title', 'body', 'email', 'created_at', 'updated_at', 'fedaco_through_key'
       ]);
     })).toPromise();
@@ -453,7 +453,7 @@ describe('test database fedaco has many through integration', () => {
 
   it('intermediate soft deletes are ignored', async () => {
     await seedData();
-    await (await HasManyThroughSoftDeletesTestUser.createQuery().first()).delete();
+    await (await HasManyThroughSoftDeletesTestUser.createQuery().first()).$delete();
     const posts = await (await HasManyThroughSoftDeletesTestCountry.createQuery().first()).posts;
     expect(posts[0].title).toBe('A title');
     expect(posts).toHaveLength(2);

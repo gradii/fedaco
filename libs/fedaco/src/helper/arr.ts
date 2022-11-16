@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray } from '@gradii/check-type';
+import { isArray } from '@gradii/nanofn';
 
 export function wrap(value: any[] | any) {
   return isArray(value) ? value : [value];

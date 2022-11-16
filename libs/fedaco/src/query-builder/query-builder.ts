@@ -6,7 +6,7 @@
 
 import {
   isAnyEmpty, isArray, isBlank, isBoolean, isFunction, isNumber, isString
-} from '@gradii/check-type';
+} from '@gradii/nanofn';
 import { FedacoBuilder } from '../fedaco/fedaco-builder';
 import { Relation } from '../fedaco/relations/relation';
 import { ColumnReferenceExpression } from '../query/ast/column-reference-expression';

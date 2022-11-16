@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank, isObject } from '@gradii/check-type';
+import { isBlank, isObject } from '@gradii/nanofn';
 import { last, uniq } from 'ramda';
 import type { Collection } from '../../define/collection';
 import { raw } from '../../query-builder/ast-factory';
@@ -64,17 +64,17 @@ export class Relation extends mixinForwardCallToQueryBuilder(class {
   }
 
   /*Set the constraints for an eager load of the relation.*/
-  public addEagerConstraints(models: any[]) {
+  public addEagerConstraints(models: Model[]) {
     throw new Error('not implemented');
   }
 
   /*Initialize the relation on a set of models.*/
-  public initRelation(models: any[], relation: string): Model[] {
+  public initRelation(models: Model[], relation: string): Model[] {
     throw new Error('not implemented');
   }
 
   /*Match the eagerly loaded results to their parents.*/
-  public match(models: any[], results: Collection, relation: string): Model[] {
+  public match(models: Model[], results: Collection, relation: string): Model[] {
     throw new Error('not implemented');
   }
 
@@ -106,11 +106,11 @@ export class Relation extends mixinForwardCallToQueryBuilder(class {
   }
 
   /*Touch all of the related models for the relationship.*/
-  public async touch() {
+  public async $touch() {
     const model = this.getRelated();
     if (!(model.constructor as typeof Model).isIgnoringTouch()) {
       await this.rawUpdate({
-        [model.getUpdatedAtColumn()]: model.freshTimestampString()
+        [model.$getUpdatedAtColumn()]: model.$freshTimestampString()
       });
     }
   }
@@ -151,9 +151,9 @@ export class Relation extends mixinForwardCallToQueryBuilder(class {
   /*Get all of the primary keys for an array of models.*/
 
   /*protected */
-  getKeys(models: any[], key: string | null = null) {
+  getKeys(models: Model[], key: string | null = null) {
     return uniq(models.map(value => {
-      return key ? value.getAttribute(key) : value.getKey();
+      return key ? value.$getAttribute(key) : value.$getKey();
     })).sort();
   }
 
@@ -184,33 +184,33 @@ export class Relation extends mixinForwardCallToQueryBuilder(class {
 
   /*Get the fully qualified parent key name.*/
   public getQualifiedParentKeyName() {
-    return this._parent.getQualifiedKeyName();
+    return this._parent.$getQualifiedKeyName();
   }
 
   /*Get the related model of the relation.*/
-  public getRelated() {
+  public getRelated(): Model {
     return this._related;
   }
 
   /*Get the name of the "created at" column.*/
   public createdAt() {
-    return this._parent.getCreatedAtColumn();
+    return this._parent.$getCreatedAtColumn();
   }
 
   /*Get the name of the "updated at" column.*/
   public updatedAt() {
-    return this._parent.getUpdatedAtColumn();
+    return this._parent.$getUpdatedAtColumn();
   }
 
   /*Get the name of the related model's "updated at" column.*/
   public relatedUpdatedAt() {
-    return this._related.getUpdatedAtColumn();
+    return this._related.$getUpdatedAtColumn();
   }
 
   /*Get the name of the "where in" method for eager loading.*/
   _whereInMethod(model: Model, key: string): 'whereIntegerInRaw' | 'whereIn' {
-    return model.getKeyName() === last(key.split('.')) &&
-    ['int', 'integer'].includes(model.getKeyType()) ? 'whereIntegerInRaw' : 'whereIn';
+    return model.$getKeyName() === last(key.split('.')) &&
+    ['int', 'integer'].includes(model.$getKeyType()) ? 'whereIntegerInRaw' : 'whereIn';
   }
 
   public whereKey(id: any) {
@@ -232,8 +232,8 @@ export class Relation extends mixinForwardCallToQueryBuilder(class {
     if (isBlank(models) || isObject(models)) {
       return models;
     }
-    return (models).reduce((prev: any, clazz: typeof Model) => {
-      const table = new clazz().getTable();
+    return (models as (typeof Model)[]).reduce((prev: any, clazz: typeof Model) => {
+      const table = new clazz().$getTable();
       prev[table] = clazz;
       return prev;
     }, {});

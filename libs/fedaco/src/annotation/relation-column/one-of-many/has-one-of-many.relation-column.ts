@@ -5,7 +5,7 @@
  */
 
 import { makePropDecorator } from '@gradii/annotation';
-import { isString } from '@gradii/check-type';
+import { isString } from '@gradii/nanofn';
 import type { FedacoBuilder } from '../../../fedaco/fedaco-builder';
 import type { Model } from '../../../fedaco/model';
 import { HasOne } from '../../../fedaco/relations/has-one';
@@ -36,12 +36,12 @@ export const HasOneOfManyColumn: FedacoDecorator<HasOneOfManyRelationAnnotation>
     _getRelation: function (m: Model, relation: string) {
       // region copied from has one annotation. don't modify it
       const instance   = m._newRelatedInstance(resolveForwardRef(p.related));
-      const foreignKey = p.foreignKey || m.getForeignKey();
-      const localKey   = p.localKey || m.getKeyName();
+      const foreignKey = p.foreignKey || m.$getForeignKey();
+      const localKey   = p.localKey || m.$getKeyName();
       const r          = new HasOne(
-        instance.newQuery(),
+        instance.$newQuery(),
         m,
-        `${instance.getTable()}.${foreignKey}`,
+        `${instance.$getTable()}.${foreignKey}`,
         localKey);
       // endregion
 
