@@ -564,7 +564,7 @@ export class QueryBuilder extends Builder {
   public upsert(values: any[], uniqueBy: any[] | string, update: any[] | null = null) {
     if (!values.length) {
       return 0;
-    } else if (update === []) {
+    } else if (!update?.length) {
       return /*cast type int*/ this.insert(values);
     }
     if (!isArray(values)) {
