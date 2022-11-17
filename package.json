@@ -37,7 +37,7 @@
     "@angular/platform-browser-dynamic": "14.2.10",
     "@angular/router": "14.2.10",
     "@gradii/annotation": "^1.0.0",
-    "@gradii/nanofn": "^1.0.3",
+    "@gradii/nanofn": "^1.0.5",
     "@nestjs/common": "9.2.0",
     "@nestjs/core": "9.2.0",
     "@nestjs/platform-express": "9.2.0",

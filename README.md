@@ -1,5 +1,7 @@
 # Fedaco Orm
 
+[![Build Status](https://github.com/gradii/fedaco/workflows/CI/badge.svg)](https://github.com/gradii/fedaco/actions?query=workflow%3ACI)
+
 ###
 No short description right now.
 can play fedaco here https://github.com/gradii/play-fedaco
