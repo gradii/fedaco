@@ -36,6 +36,8 @@ export class MysqlConnector extends Connector implements ConnectorInterface {
         user    : username,
         password: password,
         database: config['database'],
+        timezone: config['timezone'],
+        ssl     : config['ssl']
       }))
     );
 

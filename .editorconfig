@@ -1,12 +1,70 @@
-# Editor configuration, see http://editorconfig.org
 root = true
 
 [*]
 charset = utf-8
+end_of_line = lf
+insert_final_newline = false
 indent_style = space
 indent_size = 2
+
+ij_javascript_align_var_statements = 2
+ij_javascript_align_object_properties = 2
+
+[{.babelrc, .stylelintrc, .eslintrc, jest.config, *.bowerrc, *.jsb3, *.jsb2, *.json}]
+indent_style = space
+indent_size = 2
+
+[*.coffee]
+indent_style = space
+indent_size = 2
+ij_coffeescript_spaces_within_object_braces = true
+ij_coffeescript_spaces_within_object_literal_braces = true
+
+[*.less]
+indent_style = space
+indent_size = 2
+
+[*.scss]
+indent_style = space
+indent_size = 2
+ij_css_value_alignment = on_colon
+ij_scss_value_alignment = 1
+
+[{*.yml, *.yaml}]
+indent_style = space
+indent_size = 2
+
+[tslint.json]
+indent_style = space
+indent_size = 2
+end_of_line = lf
 insert_final_newline = true
-trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+
+
+
+[.editorconfig]
+ij_editorconfig_align_group_field_declarations = false
+
+[*.ts]
+ij_typescript_use_semicolon_after_statement = true
+ij_typescript_force_semicolon_style = true
+ij_typescript_use_double_quotes = false
+ij_typescript_force_quote_style = true
+ij_typescript_align_var_statements = 2
+ij_typescript_align_object_properties = 2
+ij_typescript_import_sort_module_name = true
+ij_typescript_spaces_within_imports = true
+ij_typescript_call_parameters_wrap = normal
+ij_typescript_method_parameters_wrap = normal
+ij_typescript_imports_wrap = normal
+# ij_typescript_imports_wrap = split_into_lines
+ij_typescript_import_sort_members = true
+ij_typescript_array_initializer_wrap = normal
+ij_typescript_array_initializer_new_line_after_left_brace = true
+ij_typescript_array_initializer_right_brace_on_new_line = true
 
 [*.md]
 max_line_length = off

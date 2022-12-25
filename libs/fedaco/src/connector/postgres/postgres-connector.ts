@@ -30,6 +30,7 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
     // try {
     const {Client}             = await import('pg');
     const client = new Client({
+      ...config,
       host    : config['host'],
       port    : config['port'],
       user    : username,
