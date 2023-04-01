@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/gradii/fedaco/workflows/CI/badge.svg)](https://github.com/gradii/fedaco/actions?query=workflow%3ACI)
 
 ###
-No short description right now.
+No short description right now. 
 can play fedaco here https://github.com/gradii/play-fedaco
 
 ### How To Use It
@@ -80,3 +80,17 @@ can play fedaco here https://github.com/gradii/play-fedaco
 - [ ] mssql full support
 - [ ] migration
 
+
+### Notice
+ecma class with field declaration not in constructor is not support. es2016 is support but es2022 is not.
+field declaration can use `declare` keyword to declare field in constructor, then the field will not generated in class when enabled es2022
+like this
+```typescript
+  @Table({
+    tableName: 'user'
+  })
+  class User extends Model {
+    @PrimaryColumn()
+    declare id;
+  }
+  ```
