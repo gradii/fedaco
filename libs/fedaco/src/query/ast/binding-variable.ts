@@ -16,7 +16,7 @@ export class BindingVariable extends SqlNode {
     super();
   }
 
-  accept(visitor: SqlVisitor) {
+  public accept(visitor: SqlVisitor, ctx?: any) {
     return visitor.visitBindingVariable(this);
   }
 }

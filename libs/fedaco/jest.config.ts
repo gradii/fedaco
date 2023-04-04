@@ -8,8 +8,8 @@ export default {
   globals: {},
   coverageDirectory: '../../coverage/libs/fedaco',
   transform: {
-    '^.+\\.(ts|js|html)$': [
-      'ts-jest',
+    '^.+\\.(ts|mjs|js|html)$': [
+      'jest-preset-angular',
       {
         tsconfig: '<rootDir>/tsconfig.spec.json',
         stringifyContentPathRegex: '\\.(html|svg)$',
@@ -17,5 +17,6 @@ export default {
       },
     ],
   },
+  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$)'],
   snapshotSerializers: [],
 };

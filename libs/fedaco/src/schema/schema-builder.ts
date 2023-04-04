@@ -3,6 +3,7 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
+import { isObject } from '@gradii/nanofn';
 import { intersection, tap } from 'ramda';
 import type { Connection } from '../connection';
 import { DbalTable } from '../dbal/dbal-table';
@@ -367,6 +368,9 @@ export class SchemaBuilder {
 
   /**/
   protected _getPortableTableDefinition(table: any) {
+    if(isObject(table)) {
+      return table['name'];
+    }
     return table;
   }
 
@@ -479,7 +483,8 @@ export class SchemaBuilder {
   /*Filters asset names if they are configured to return only a subset of all
   the found elements.*/
   protected filterAssetNames(assetNames: any[]) {
-    const filter = this.connection.getConfig().getSchemaAssetsFilter();
+    // todo getSchemaAssetsFilter function
+    const filter = this.connection.getConfig().schemaAssetsFilter;
     if (!filter) {
       return assetNames;
     }
@@ -488,7 +493,8 @@ export class SchemaBuilder {
 
   /**/
   protected getFilterSchemaAssetsExpression() {
-    return this.connection.getConfig().getFilterSchemaAssetsExpression();
+    // todo getFilterSchemaAssetsExpression function
+    return this.connection.getConfig().filterSchemaAssetsExpression;
   }
 
   /*Lists the tables for this connection.*/

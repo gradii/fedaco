@@ -13,10 +13,8 @@ function schema(connectionName = 'default'): SchemaBuilder {
 jest.setTimeout(100000);
 
 async function createSchema() {
-  await schema('default')
-    .dropAllTables();
-  await schema('second_connection')
-    .dropAllTables();
+  // await schema('default')
+  //   .dropAllTables();
 
   await schema('default')
     .create('test_orders', table => {
@@ -45,7 +43,7 @@ describe('schema operate', () => {
     await createSchema();
     const tableList = await schema().getAllTables();
 
-    expect(tableList).toBeTruthy()
+    expect(tableList).toBeTruthy();
   });
 
   it('table exist', async () => {
@@ -53,7 +51,7 @@ describe('schema operate', () => {
 
     const tableExist = await schema('default').tablesExist('test_orders');
 
-    expect(tableExist).toBeTruthy();
+    expect(tableExist).toBe(true);
   });
 
 });

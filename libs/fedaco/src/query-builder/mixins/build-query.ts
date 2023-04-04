@@ -8,6 +8,7 @@ import { isBlank } from '@gradii/nanofn';
 import { last } from 'ramda';
 import { BehaviorSubject, defer, EMPTY, from, Observable, of, Subject, Subscriber, takeUntil } from 'rxjs';
 import { catchError, finalize, mergeMap, tap } from 'rxjs/operators';
+import type { FedacoBuilder } from '../../fedaco/fedaco-builder';
 import type { Model } from '../../fedaco/model';
 import type { Constructor } from '../../helper/constructor';
 import type { QueryBuilder } from '../query-builder';
@@ -43,7 +44,7 @@ export function mixinBuildQueries<T extends Constructor<any>>(base: T): BuildQue
 
   return class _Self extends base {
 
-    public chunk(count: number, concurrent = 1): Observable<{ results: any[], page: number }> {
+    public chunk(this: any & _Self, count: number, concurrent = 1): Observable<{ results: any[], page: number }> {
       if (!(count > 0)) {
         return EMPTY;
       }
@@ -114,7 +115,7 @@ export function mixinBuildQueries<T extends Constructor<any>>(base: T): BuildQue
      * Chunk the results of a query by comparing IDs.
      * this version doesn't use callback. use callback can wait callback finish then emit next
      */
-    public chunkById<T extends Model = any>(this: QueryBuilder & _Self, count: number,
+    public chunkById<T extends Model = any>(this: QueryBuilder & FedacoBuilder & _Self, count: number,
                                             column?: string,
                                             alias?: string): Observable<{ results: T[], page: number }> {
       if (!(count > 0)) {

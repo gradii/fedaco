@@ -130,7 +130,8 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
     }
 
     /*Handle an exception from a transaction beginning.*/
-    protected async handleBeginTransactionException(e: Error) {
+    protected async handleBeginTransactionException(this: Connection & _Self, e: Error) {
+      // @ts-ignore
       if (this.causedByLostConnection(e)) {
         this.reconnect();
         await (await this.getPdo()).beginTransaction();
@@ -154,12 +155,13 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
     }
 
     /*Handle an exception encountered when committing a transaction.*/
-    protected handleCommitTransactionException(e: Error, currentAttempt: number,
+    protected handleCommitTransactionException(this: Connection & _Self, e: Error, currentAttempt: number,
                                                maxAttempts: number) {
       this._transactions = Math.max(0, this._transactions - 1);
       if (this.causedByConcurrencyError(e) && currentAttempt < maxAttempts) {
         return;
       }
+      // @ts-ignore
       if (this.causedByLostConnection(e)) {
         this._transactions = 0;
       }
@@ -195,7 +197,8 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
     }
 
     /*Handle an exception from a rollback.*/
-    protected handleRollBackException(e: Error) {
+    protected handleRollBackException(this: Connection & _Self, e: Error) {
+      // @ts-ignore
       if (this.causedByLostConnection(e)) {
         this._transactions = 0;
         if (this._transactionsManager) {
