@@ -1,9 +1,0 @@
-{
-  "version": 2,
-  "projects": {
-    "doc-site": "apps/doc-site",
-    "doc-site-e2e": "apps/doc-site-e2e",
-    "fedaco": "libs/fedaco"
-  },
-  "$schema": "./node_modules/nx/schemas/workspace-schema.json"
-}

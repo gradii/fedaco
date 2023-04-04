@@ -1,5 +1,6 @@
 {
   "name": "doc-site",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "apps/doc-site/src",
   "prefix": "fedaco",
@@ -77,7 +78,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/doc-site"],
+      "outputs": ["{workspaceRoot}/coverage/apps/doc-site"],
       "options": {
         "jestConfig": "apps/doc-site/jest.config.ts",
         "passWithNoTests": true

@@ -72,7 +72,7 @@ async function createSchema() {
 
   for (const name of ['default', 'second_connection']) {
     const index = ['default', 'second_connection'].indexOf(name);
-    await schema(name).create('users', function (table) {
+    await schema(name).create('users', function(table) {
       table.increments('id');
       table.string('name').withNullable();
       table.string('email');
@@ -80,13 +80,13 @@ async function createSchema() {
       table.timestamps();
     });
 
-    await schema(name).create('friends', function (table) {
+    await schema(name).create('friends', function(table) {
       table.integer('user_id');
       table.integer('friend_id');
       table.integer('friend_level_id').withNullable();
     });
 
-    await schema(name).create('posts', function (table) {
+    await schema(name).create('posts', function(table) {
       table.increments('id');
       table.integer('user_id');
       table.integer('parent_id').withNullable();
@@ -94,27 +94,27 @@ async function createSchema() {
       table.timestamps();
     });
 
-    await schema(name).create('comments', function (table) {
+    await schema(name).create('comments', function(table) {
       table.increments('id');
       table.integer('post_id');
       table.string('content');
       table.timestamps();
     });
 
-    await schema(name).create('friend_levels', function (table) {
+    await schema(name).create('friend_levels', function(table) {
       table.increments('id');
       table.string('level');
       table.timestamps();
     });
 
-    await schema(name).create('photos', function (table) {
+    await schema(name).create('photos', function(table) {
       table.increments('id');
       table.morphs('imageable');
       table.string('name');
       table.timestamps();
     });
 
-    await schema(name).create('soft_deleted_users', function (table) {
+    await schema(name).create('soft_deleted_users', function(table) {
       table.increments('id');
       table.string('name').withNullable();
       table.string('email');
@@ -122,13 +122,13 @@ async function createSchema() {
       table.softDeletes();
     });
 
-    await schema(name).create('tags', function (table) {
+    await schema(name).create('tags', function(table) {
       table.increments('id');
       table.string('name');
       table.timestamps();
     });
 
-    await schema(name).create('taggables', function (table) {
+    await schema(name).create('taggables', function(table) {
       table.integer('tag_id');
       table.morphs('taggable');
       table.string('taxonomy').withNullable();
@@ -140,7 +140,7 @@ async function createSchema() {
 
     await schema(name).create('non_incrementing_seconds', table => {
       table.string('name').withNullable();
-    })
+    });
 
   }
 }
@@ -149,10 +149,11 @@ const debug = true;
 let db: DatabaseConfig;
 describe('test database fedaco integration', () => {
   const random = Math.random().toString(36).substring(7);
-  const files = {
+  const files  = {
     'default': `tmp/integration-${random}.sqlite`,
     'second' : `tmp/integration-second-${random}.sqlite`
   };
+
   beforeEach(async () => {
     // for (const it of Object.values(files)) {
     //   if (it !== ':memory:') {
@@ -164,12 +165,12 @@ describe('test database fedaco integration', () => {
 
     db = new DatabaseConfig();
     db.addConnection({
-      'driver': 'sqlite',
+      'driver'  : 'sqlite',
       'database': files.default
       // 'database': ':memory:'
     });
     db.addConnection({
-      'driver': 'sqlite',
+      'driver'  : 'sqlite',
       'database': files.second
       // 'database': ':memory:'
     }, 'second_connection');
@@ -183,12 +184,12 @@ describe('test database fedaco integration', () => {
   afterEach(async () => {
     await fs.promises.writeFile(files.default, '');
     await fs.promises.writeFile(files.second, '');
-  })
+  });
 
   afterAll(async () => {
     await fs.promises.unlink(files.default);
     await fs.promises.unlink(files.second);
-  })
+  });
 
   // beforeEach(async () => {
   //   if (!debug) {
@@ -528,7 +529,7 @@ describe('test database fedaco integration', () => {
       'name': ' Third'
     });
     let i     = 0;
-    const spy = jest.fn(({results: users, page}) => {
+    const spy = jest.fn(({ results: users, page }) => {
       if (!i) {
         expect(users[0].name).toBe(' First');
         expect(users[1].name).toBe(' Second');
@@ -560,8 +561,8 @@ describe('test database fedaco integration', () => {
     await FedacoTestNonIncrementingSecond.createQuery().create({
       'name': ' Third'
     });
-    let i        = 0;
-    const spy    = jest.fn(({results: users, page}) => {
+    let i     = 0;
+    const spy = jest.fn(({ results: users, page }) => {
       if (!i) {
         // uncomment me test run successful.
         // try to comment me then test should hang on! works as expect
@@ -599,7 +600,7 @@ describe('test database fedaco integration', () => {
     await FedacoTestNonIncrementingSecond.createQuery()
       .eachById(2, 'name')
       .pipe(
-        tap(({item: user, index: i}) => {
+        tap(({ item: user, index: i }) => {
           users.push([user.name, i]);
         })
       ).toPromise();
@@ -1081,10 +1082,10 @@ describe('test database fedaco integration', () => {
     ).$newRelation('photos').create({
       'name': 'photo.jpg'
     });
-    const query                   = await FedacoTestUser.createQuery().has('postWithPhotos');
-    const {result: sql, bindings} = query.toSql();
-    const bindingsCount           = bindings.length;
-    const questionMarksCount      = sql.match(/\?/g)?.length || 0;
+    const query                     = await FedacoTestUser.createQuery().has('postWithPhotos');
+    const { result: sql, bindings } = query.toSql();
+    const bindingsCount             = bindings.length;
+    const questionMarksCount        = sql.match(/\?/g)?.length || 0;
     expect(bindingsCount).toEqual(questionMarksCount);
   });
 
@@ -1106,7 +1107,7 @@ describe('test database fedaco integration', () => {
     await user1.$newRelation('friends')
       .chunk(2)
       .pipe(
-        tap(({results: friends}) => {
+        tap(({ results: friends }) => {
           expect(friends.length).toBe(1);
           expect(head(friends).email).toBe('xsilen@gradii.com');
           expect(head(friends).$getRelation('pivot').$getAttribute('user_id')).toBe(user.id);
@@ -1125,7 +1126,7 @@ describe('test database fedaco integration', () => {
     await (await FedacoTestUser.createQuery().first()).$newRelation('friends')
       .each()
       .pipe(
-        tap(({item: result, index}) => {
+        tap(({ item: result, index }) => {
           expect(result.email).toBe('xsilen@gradii.com');
           expect(result.$getRelation('pivot').$getAttribute('user_id')).toBe(user.id);
           expect(result.$getRelation('pivot').$getAttribute('friend_id')).toBe(friend.id);
@@ -1300,7 +1301,7 @@ describe('test database fedaco integration', () => {
     };
     Relation.morphMap(map1);
     Relation.morphMap(map2);
-    expect(Relation.morphMap()).toEqual({...map1, ...map2});
+    expect(Relation.morphMap()).toEqual({ ...map1, ...map2 });
   });
 
   it('morph map overwrites current map', () => {
@@ -1754,7 +1755,7 @@ describe('test database fedaco integration', () => {
     expect(JSON.parse(JSON.stringify(notStoredUser.$toArray()))).toEqual({
       'id'      : 3,
       'email'   : 'linbolen@gradii.com',
-      'birthday': formatISO(new Date(nowWithFractionsSerialized)),
+      'birthday': formatISO(new Date(nowWithFractionsSerialized))
     });
     expect(freshNotStoredUser).toBeUndefined();
   });
@@ -2180,7 +2181,7 @@ describe('test database fedaco integration', () => {
 /*Fedaco Models...*/
 @Table({
   tableName    : 'users',
-  morphTypeName: 'user',
+  morphTypeName: 'user'
 })
 export class FedacoTestUser extends Model {
   // _table: any   = 'users';
@@ -2239,19 +2240,19 @@ export class FedacoTestUser extends Model {
 
   @HasManyColumn({
     related   : forwardRef(() => FedacoTestPost),
-    foreignKey: 'user_id',
+    foreignKey: 'user_id'
   })
   public posts: FedacoRelationListType<FedacoTestPost>;
 
   @HasOneColumn({
     related   : forwardRef(() => FedacoTestPost),
-    foreignKey: 'user_id',
+    foreignKey: 'user_id'
   })
   public post: FedacoRelationType<FedacoTestPost>;
 
   @MorphManyColumn({
     related  : forwardRef(() => FedacoTestPhoto),
-    morphName: 'imageable',
+    morphName: 'imageable'
   })
   public photos: FedacoRelationListType<FedacoTestPhoto>;
 
@@ -2269,7 +2270,7 @@ export class FedacoTestUser extends Model {
 }
 
 @Table({
-  tableName    : 'users',
+  tableName: 'users'
 })
 export class FedacoTestUserWithCustomFriendPivot extends FedacoTestUser {
   @BelongsToManyColumn({
@@ -2347,7 +2348,7 @@ export class FedacoTestUserWithOmittingGlobalScope extends FedacoTestUser {
 // }
 @Table({
   tableName    : 'posts',
-  morphTypeName: 'post',
+  morphTypeName: 'post'
 })
 export class FedacoTestPost extends Model {
   // _table: any   = 'posts';
@@ -2370,7 +2371,7 @@ export class FedacoTestPost extends Model {
 
   @MorphManyColumn({
     related  : forwardRef(() => FedacoTestPhoto),
-    morphName: 'imageable',
+    morphName: 'imageable'
   })
   photos: FedacoRelationListType<FedacoTestPhoto>;
 
@@ -2384,7 +2385,7 @@ export class FedacoTestPost extends Model {
 
   @HasManyColumn({
     related   : forwardRef(() => FedacoTestPost),
-    foreignKey: 'parent_id',
+    foreignKey: 'parent_id'
   })
   childPosts: Promise<any[]>;
 
@@ -2395,7 +2396,7 @@ export class FedacoTestPost extends Model {
 
   @BelongsToColumn({
     related   : forwardRef(() => FedacoTestPost),
-    foreignKey: 'parent_id',
+    foreignKey: 'parent_id'
   })
   parentPost: FedacoRelationType<FedacoTestPhoto>;
 
@@ -2430,7 +2431,7 @@ export class FedacoTestPhoto extends Model {
       'FedacoTestUser': FedacoTestUser,
       'FedacoTestPost': FedacoTestPost,
       'user'          : FedacoTestUser,
-      'post'          : FedacoTestPost,
+      'post'          : FedacoTestPost
     }
   })
   public imageable: FedacoRelationType<FedacoTestPhoto>;

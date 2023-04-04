@@ -7,7 +7,7 @@
   "targets": {
     "build": {
       "executor": "@nrwl/angular:package",
-      "outputs": ["dist/libs/fedaco"],
+      "outputs": ["{workspaceRoot}/dist/libs/fedaco"],
       "options": {
         "project": "libs/fedaco/ng-package.json"
       },
@@ -23,7 +23,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/fedaco"],
+      "outputs": ["{workspaceRoot}/coverage/libs/fedaco"],
       "options": {
         "jestConfig": "libs/fedaco/jest.config.ts",
         "passWithNoTests": true
