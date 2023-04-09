@@ -6,6 +6,7 @@
 
 import { Connector } from '../connector';
 import type { ConnectorInterface } from '../connector-interface';
+import { BetterSqliteWrappedConnection } from './better-sqlite/better-sqlite-wrapped-connection';
 import { SqliteWrappedConnection } from './sqlite-wrapped-connection';
 
 
@@ -25,20 +26,27 @@ export class SqliteConnector extends Connector implements ConnectorInterface {
 
   async createConnection(database: string, config: any, options: any) {
     const [username, password] = [config['username'] ?? null, config['password'] ?? null];
-    try {
-      const sqlite3 = await import('sqlite3');
-      return new Promise((ok, fail) => {
-        // @ts-ignore
-       const db = new (sqlite3.Database || sqlite3?.default.Database)(database, (err) => {
-          if (err) {
-            return fail(err);
-          }
-          ok(new SqliteWrappedConnection(db));
-        });
-      });
 
+    try {
+      const BetterSqlite3 = await import('better-sqlite3');
+      // @ts-ignore
+      return new BetterSqliteWrappedConnection(new (BetterSqlite3?.default || BetterSqlite3)(database, options));
     } catch (e) {
-      return this.tryAgainIfCausedByLostConnection(e, database, username, password, options);
+      try {
+        const sqlite3 = await import('sqlite3');
+        return new Promise((ok, fail) => {
+          // @ts-ignore
+          const db = new (sqlite3.Database || sqlite3?.default.Database)(database, (err) => {
+            if (err) {
+              return fail(err);
+            }
+            ok(new SqliteWrappedConnection(db));
+          });
+        });
+
+      } catch (e) {
+        return this.tryAgainIfCausedByLostConnection(e, database, username, password, options);
+      }
     }
   }
 }
