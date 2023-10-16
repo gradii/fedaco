@@ -6,6 +6,8 @@
 No short description right now. 
 can play fedaco here https://github.com/gradii/play-fedaco
 
+doc can see [eloquent](https://laravel.com/docs/master/eloquent)
+
 ### How To Use It
 
 - setup a connection
