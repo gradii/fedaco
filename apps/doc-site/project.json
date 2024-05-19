@@ -4,6 +4,7 @@
   "projectType": "application",
   "sourceRoot": "apps/doc-site/src",
   "prefix": "fedaco",
+  "tags": [],
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:browser",
@@ -71,19 +72,14 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "options": {
-        "lintFilePatterns": ["apps/doc-site/**/*.ts", "apps/doc-site/**/*.html"]
-      }
+      "executor": "@nx/eslint:lint"
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
+      "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/apps/doc-site"],
       "options": {
-        "jestConfig": "apps/doc-site/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "apps/doc-site/jest.config.ts"
       }
     }
-  },
-  "tags": []
+  }
 }

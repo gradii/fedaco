@@ -6,8 +6,7 @@
     "url": "https://github.com/gradii/fedaco.git"
   },
   "license": "MIT",
-  "peerDependencies": {
-  },
+  "peerDependencies": {},
   "dependencies": {
     "tslib": "^2.3.0"
   }
