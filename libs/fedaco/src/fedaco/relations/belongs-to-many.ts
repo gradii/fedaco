@@ -256,8 +256,8 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
     if (isBlank(value)) {
       throw new Error('InvalidArgumentException The provided value may not be null.');
     }
-    this._pivotValues.push({ column, value });
-    return this.wherePivot(column, '=', value);
+    this._pivotValues.push({column, value} as { column: string, value: any });
+    return this.wherePivot(column as string, '=', value);
   }
 
   /*Set an "or where in" clause for a pivot table column.*/
