@@ -122,6 +122,16 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
     return 'delete from sqlite_master where type in ' + `('view')`;
   }
 
+  public compileGetAllTables(withSize = false): string {
+    return withSize
+      ? 'select m.tbl_name as name, sum(s.pgsize) as size from sqlite_master as m '
+      + 'join dbstat as s on s.name = m.name '
+      + 'where m.type in (\'table\', \'index\') and m.tbl_name not like \'sqlite_%\' '
+      + 'group by m.tbl_name '
+      + 'order by m.tbl_name'
+      : 'select name from sqlite_master where type = \'table\' and name not like \'sqlite_%\' order by name';
+  }
+
   /*Compile the SQL needed to rebuild the database.*/
   public compileRebuild() {
     return 'vacuum';
@@ -129,7 +139,7 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
 
   /*Compile a drop column command.*/
   public async compileDropColumn(blueprint: Blueprint, command: ColumnDefinition,
-                           connection: Connection) {
+                                 connection: Connection) {
     const schema    = connection.getSchemaBuilder();
     const tableDiff = await this.getTableDiff(blueprint, schema);
     for (const name of command.columns) {

@@ -30,6 +30,11 @@ export class SqliteSchemaBuilder extends SchemaBuilder {
     this.connection.select(this.grammar.compileRebuild());
   }
 
+  public getAllTables() {
+
+    return this.connection.select(this.grammar.compileGetAllTables());
+  }
+
   /*Drop all views from the database.*/
   public dropAllViews() {
     this.connection.select(this.grammar.compileEnableWriteableSchema());

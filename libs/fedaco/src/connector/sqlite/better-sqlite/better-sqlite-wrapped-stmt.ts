@@ -27,6 +27,8 @@ export class BetterSqliteWrappedStmt implements WrappedStmt {
 
     this._lastInsertId = runResult.lastInsertRowid;
     this._affectRows   = runResult.changes;
+
+    return true;
   }
 
   async fetchAll(bindings?: any[]) {

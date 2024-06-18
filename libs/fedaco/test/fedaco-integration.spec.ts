@@ -401,7 +401,7 @@ describe('test database fedaco integration', () => {
     });
     const query = await FedacoTestUser.createQuery().select({
       0              : 'id',
-      'friends_count': await FedacoTestUser
+      'friends_count': await FedacoTestFriendPivot
         .createQuery()
         .whereColumn('friend_id', 'user_id')
         .count()

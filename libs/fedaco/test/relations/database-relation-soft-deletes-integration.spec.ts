@@ -488,32 +488,32 @@ describe('test database fedaco soft deletes integration', () => {
     await abigail.$newRelation('posts').create({
       'title': 'Third Title'
     });
-    let user = await SoftDeletesTestUser.createQuery().withCount('posts').orderBy('postsCount',
+    let user = await SoftDeletesTestUser.createQuery().withCount('posts').orderBy('posts_count',
       'desc').first();
     expect(user.$getAttribute('posts_count')).toEqual(2);
     user = await SoftDeletesTestUser.createQuery().withCount({
       'posts': q => {
         q.pipe(onlyTrashed());
       }
-    }).orderBy('postsCount', 'desc').first();
+    }).orderBy('posts_count', 'desc').first();
     expect(user.$getAttribute('posts_count')).toEqual(1);
     user = await SoftDeletesTestUser.createQuery().withCount({
       'posts': q => {
         q.pipe(withTrashed());
       }
-    }).orderBy('postsCount', 'desc').first();
+    }).orderBy('posts_count', 'desc').first();
     expect(user.$getAttribute('posts_count')).toEqual(3);
     user = await SoftDeletesTestUser.createQuery().withCount({
       'posts': q => {
         q.pipe(withTrashed()).where('title', 'First Title');
       }
-    }).orderBy('postsCount', 'desc').first();
+    }).orderBy('posts_count', 'desc').first();
     expect(user.$getAttribute('posts_count')).toEqual(1);
     user = await SoftDeletesTestUser.createQuery().withCount({
       'posts': q => {
         q.where('title', 'First Title');
       }
-    }).orderBy('postsCount', 'desc').first();
+    }).orderBy('posts_count', 'desc').first();
     expect(user.$getAttribute('posts_count')).toEqual(0);
   });
 
