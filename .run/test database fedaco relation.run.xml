@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="test database fedaco relation" type="JavaScriptTestRunnerJest" nameIsGenerated="true">
+    <node-interpreter value="project" />
+    <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+    <working-dir value="$PROJECT_DIR$" />
+    <jest-options value="--config libs/fedaco/jest.config.ts" />
+    <envs />
+    <scope-kind value="SUITE" />
+    <test-file value="$PROJECT_DIR$/libs/fedaco/test/relations/database-relation-relation.spec.ts" />
+    <test-names>
+      <test-name value="test database fedaco relation" />
+    </test-names>
+    <method v="2" />
+  </configuration>
+</component>

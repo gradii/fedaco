@@ -1,4 +1,6 @@
-import { SqliteWrappedConnection } from '../../src/connector/sqlite/sqlite-wrapped-connection';
+import {
+  BetterSqliteWrappedConnection
+} from '../../src/connector/sqlite/better-sqlite/better-sqlite-wrapped-connection';
 import { DatabaseConfig } from '../../src/database-config';
 
 let db: DatabaseConfig;
@@ -29,13 +31,13 @@ describe('test database connection factory', () => {
   });
 
   it('connection can be created', async () => {
-    expect(await db.getConnection().getPdo()).toBeInstanceOf(SqliteWrappedConnection);
-    expect(await db.getConnection().getReadPdo()).toBeInstanceOf(SqliteWrappedConnection);
-    expect(await db.getConnection('read_write').getPdo()).toBeInstanceOf(SqliteWrappedConnection);
+    expect(await db.getConnection().getPdo()).toBeInstanceOf(BetterSqliteWrappedConnection);
+    expect(await db.getConnection().getReadPdo()).toBeInstanceOf(BetterSqliteWrappedConnection);
+    expect(await db.getConnection('read_write').getPdo()).toBeInstanceOf(BetterSqliteWrappedConnection);
     expect(await db.getConnection('read_write').getReadPdo()).toBeInstanceOf(
-      SqliteWrappedConnection);
-    expect(await db.getConnection('url').getPdo()).toBeInstanceOf(SqliteWrappedConnection);
-    expect(await db.getConnection('url').getReadPdo()).toBeInstanceOf(SqliteWrappedConnection);
+      BetterSqliteWrappedConnection);
+    expect(await db.getConnection('url').getPdo()).toBeInstanceOf(BetterSqliteWrappedConnection);
+    expect(await db.getConnection('url').getReadPdo()).toBeInstanceOf(BetterSqliteWrappedConnection);
   });
 
   it('connection from url has proper config', () => {

@@ -32,6 +32,14 @@ export class SchemaGrammar extends BaseGrammar {
   /*The commands to be executed outside of create or alter command.*/
   protected ColumnDefinitionCommands: any[] = [];
 
+  public compileIndexes(table: string): string {
+    throw new Error('not implemented');
+  }
+
+  public compileColumns(table: string): string {
+    throw new Error('not implemented');
+  }
+
   /*Compile a create database command.*/
   public compileCreateDatabase(name: string, connection: Connection): string {
     throw new Error('LogicException This database driver does not support creating databases.');

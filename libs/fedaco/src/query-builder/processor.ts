@@ -23,4 +23,12 @@ export class Processor implements ProcessorInterface {
   processColumnListing(results: any[]): string[] {
     return results;
   }
+
+  processColumns(results: any[]) {
+    return results;
+  }
+
+  processIndexes(results: any[]) {
+    return results;
+  }
 }

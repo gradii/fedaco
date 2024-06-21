@@ -7,7 +7,7 @@
 import { isBlank } from '@gradii/nanofn';
 import type { Connection } from '../../connection';
 import type { Blueprint } from '../blueprint';
-import type { ColumnDefinition } from '../column-definition';
+import { ColumnDefinition } from '../column-definition';
 import type { ForeignKeyDefinition } from '../foreign-key-definition';
 import { SchemaGrammar } from './schema-grammar';
 
@@ -19,6 +19,22 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
   protected serials: string[] = [
     'bigInteger', 'integer', 'mediumInteger', 'smallInteger', 'tinyInteger'
   ];
+
+  public compileIndexes(table: string) {
+    return `select 'primary' as name, group_concat(col) as columns, 1 as "unique", 1 as "primary"
+            from (select name as col
+                  from pragma_table_info(${this.quoteString(table.replace(/\./g, '__'))})
+                  where pk > 0
+                  order by pk, cid)
+            group by name
+            union
+            select name, group_concat(col) as columns, "unique", origin = 'pk' as "primary"
+            from (select il.*, ii.name as col
+                  from pragma_index_list(${table}) il,
+                       pragma_index_info(il.name) ii
+                  order by il.seq, ii.seqno)
+            group by name, "unique", "primary"`;
+  }
 
   /*Compile the query to determine if a table exists.*/
   public compileTableExists() {
@@ -138,15 +154,11 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
   }
 
   /*Compile a drop column command.*/
-  public async compileDropColumn(blueprint: Blueprint, command: ColumnDefinition,
-                                 connection: Connection) {
-    const schema    = connection.getSchemaBuilder();
-    const tableDiff = await this.getTableDiff(blueprint, schema);
-    for (const name of command.columns) {
-      tableDiff.removedColumns[name] = connection.getDoctrineColumn(
-        this.getTablePrefix() + blueprint.getTable(), name);
-    }
-    return /*cast type array*/ this.getAlterTableSQL(tableDiff);
+  public compileDropColumn(blueprint: Blueprint, command: ColumnDefinition,
+                           connection: Connection) {
+    const table   = this.wrapTable(blueprint);
+    const columns = this.prefixArray('drop column', this.wrapArray(command.columns));
+    return columns.map(it => `alter table ${table}${it}`);
   }
 
   /*Compile a drop unique key command.*/
@@ -178,23 +190,34 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
   }
 
   /*Compile a rename index command.*/
-  public compileRenameIndex(blueprint: Blueprint, command: ColumnDefinition,
-                            connection: Connection) {
-    // var schemaManager = connection.getDoctrineSchemaManager();
-    // var indexes       = schemaManager.listTableIndexes(
-    //   this.getTablePrefix() + blueprint.getTable());
-    // var index         = Arr.get(indexes, command.from);
-    // if (!index) {
-    //   throw new RuntimeException('"Index [{$command->from}] does not exist."');
-    // }
-    // var newIndex = new Index(command.to, index.getColumns(), index.isUnique(), index.isPrimary(),
-    //   index.getFlags(), index.getOptions());
-    // var platform = schemaManager.getDatabasePlatform();
-    // return [
-    //   platform.getDropIndexSQL(command.from, this.getTablePrefix() + blueprint.getTable()),
-    //   platform.getCreateIndexSQL(newIndex, this.getTablePrefix() + blueprint.getTable())
-    // ];
+  public async compileRenameIndex(blueprint: Blueprint, command: ColumnDefinition,
+                                  connection: Connection) {
+    const indexes = await connection.getSchemaBuilder().getIndexes(blueprint.getTable());
+    const index   = indexes.find(index => index.name === command.from);
+    if (!index) {
+      throw new Error('Index [{$command->from}] does not exist.');
+    }
+    if (index['primary']) {
+      throw new Error('SQLite does not support altering primary keys.');
+    }
+
+    if (index['unique']) {
+      return [
+        this.compileDropUnique(blueprint, new ColumnDefinition({'index': index['name']})),
+        this.compileUnique(blueprint,
+          new ColumnDefinition({'index': command.to, 'columns': index['columns']})
+        )
+      ];
+    }
+
+    return [
+      this.compileDropIndex(blueprint, new ColumnDefinition({'index': index['name']})),
+      this.compileIndex(blueprint,
+        new ColumnDefinition({'index': command.to, 'columns': index['columns']})
+      ),
+    ];
   }
+
 
   /*Compile the command to enable foreign key constraints.*/
   public compileEnableForeignKeyConstraints() {

@@ -99,6 +99,13 @@ export class SchemaBuilder {
     return this.connection.getPostProcessor().processColumnListing(results);
   }
 
+  public async getColumns(table: string, columns: string[]): Promise<string[]> {
+    table = this.connection.getTablePrefix() + table;
+    return this.connection.getPostProcessor().processColumns(
+      await this.connection.selectFromWriteConnection(this.grammar.compileColumns(table))
+    )
+  }
+
   /*Modify a table on the schema.*/
   public async table(table: string, callback: (bp: Blueprint) => void) {
     await this.build(this.createBlueprint(table, callback));
@@ -368,7 +375,7 @@ export class SchemaBuilder {
 
   /**/
   protected _getPortableTableDefinition(table: any) {
-    if(isObject(table)) {
+    if (isObject(table)) {
       return table['name'];
     }
     return table;
@@ -578,5 +585,13 @@ export class SchemaBuilder {
   /*Set the Schema Blueprint resolver callback.*/
   public blueprintResolver(resolver: Function) {
     this.resolver = resolver;
+  }
+
+  public async getIndexes(table: string) {
+    table = this.connection.getTablePrefix() + table;
+
+    return this.connection.getPostProcessor().processIndexes(
+      await this.connection.selectFromWriteConnection(this.grammar.compileIndexes(table))
+    );
   }
 }
