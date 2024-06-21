@@ -3,8 +3,8 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-import { isObject } from '@gradii/nanofn';
-import { intersection, tap } from 'ramda';
+import { isBlank, isObject } from '@gradii/nanofn';
+import { intersection, pluck, tap } from 'ramda';
 import type { Connection } from '../connection';
 import { DbalTable } from '../dbal/dbal-table';
 import { wrap } from '../helper/arr';
@@ -93,17 +93,49 @@ export class SchemaBuilder {
 
   /*Get the column listing for a given table.*/
   public async getColumnListing(table: string): Promise<string[]> {
-    const results = await this.connection.selectFromWriteConnection(
-      this.grammar.compileColumnListing(this.connection.getTablePrefix() + table)
-    );
-    return this.connection.getPostProcessor().processColumnListing(results);
+    return pluck('name', await this.getColumns(table));
   }
 
-  public async getColumns(table: string, columns: string[]): Promise<string[]> {
+  public async getColumns(table: string): Promise<any[]> {
     table = this.connection.getTablePrefix() + table;
     return this.connection.getPostProcessor().processColumns(
       await this.connection.selectFromWriteConnection(this.grammar.compileColumns(table))
-    )
+    );
+  }
+
+  public async getIndexes(table: string): Promise<any[]> {
+    table = this.connection.getTablePrefix() + table;
+
+    return this.connection.getPostProcessor().processIndexes(
+      await this.connection.selectFromWriteConnection(this.grammar.compileIndexes(table))
+    );
+  }
+
+  public async getIndexListing(table: string): Promise<any[]> {
+    return pluck('name', await this.getIndexes(table));
+  }
+
+  public async hasIndex(table: string, index: string | string[], type?: string): Promise<boolean> {
+    type = isBlank(type) ? type : type.toLowerCase();
+    for (const value of await this.getIndexes(table)) {
+      const typeMatches = isBlank(value)
+        || (type === 'primary' && value['primary'])
+        || (type === 'unique' && value['unique'])
+        || type === value['type'];
+
+      if (value['name'] === index || value['column'] === index && typeMatches) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public async getForeignKeys(table: string) {
+    table = this.connection.getTablePrefix() + table;
+
+    return this.connection.getPostProcessor().processForeignKeys(
+      await this.connection.selectFromWriteConnection(this.grammar.compileForeignKeys(table))
+    );
   }
 
   /*Modify a table on the schema.*/
@@ -514,6 +546,10 @@ export class SchemaBuilder {
     return tables;
   }
 
+  /**
+   * @deprecated
+   * @param tableName
+   */
   public async listTableDetails(tableName: string): Promise<DbalTable> {
     const columns   = await this.listTableColumns(tableName);
     let foreignKeys = [];
@@ -585,13 +621,5 @@ export class SchemaBuilder {
   /*Set the Schema Blueprint resolver callback.*/
   public blueprintResolver(resolver: Function) {
     this.resolver = resolver;
-  }
-
-  public async getIndexes(table: string) {
-    table = this.connection.getTablePrefix() + table;
-
-    return this.connection.getPostProcessor().processIndexes(
-      await this.connection.selectFromWriteConnection(this.grammar.compileIndexes(table))
-    );
   }
 }

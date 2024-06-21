@@ -20,10 +20,24 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
     'bigInteger', 'integer', 'mediumInteger', 'smallInteger', 'tinyInteger'
   ];
 
+  public compileColumns(table: string): string {
+    return `select name,
+                   type,
+                   not "notnull" as "nullable",
+                   dflt_value    as "default",
+                   pk            as "primary",
+                   hidden        as "extra"
+            from pragma_table_xinfo(${
+              this.quoteString(table.replace(/\./g, '__'))
+            })
+            order by cid asc`;
+  }
+
   public compileIndexes(table: string) {
+    table = this.quoteString(table.replace(/\./g, '__'));
     return `select 'primary' as name, group_concat(col) as columns, 1 as "unique", 1 as "primary"
             from (select name as col
-                  from pragma_table_info(${this.quoteString(table.replace(/\./g, '__'))})
+                  from pragma_table_info(${table})
                   where pk > 0
                   order by pk, cid)
             group by name
@@ -34,6 +48,18 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
                        pragma_index_info(il.name) ii
                   order by il.seq, ii.seqno)
             group by name, "unique", "primary"`;
+  }
+
+  public compileForeignKeys(table: string) {
+    return `select group_concat("from") as columns,
+                   "table"              as foreign_table,
+                   group_concat("to")   as foreign_columns,
+                   on_update,
+                   on_delete
+            from (select * from pragma_foreign_key_list(${
+              this.quoteString(table.replace(/\./g, '__'))
+            }) order by id desc, seq)
+            group by id, "table", on_update, on_delete`;
   }
 
   /*Compile the query to determine if a table exists.*/
@@ -195,7 +221,7 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
     const indexes = await connection.getSchemaBuilder().getIndexes(blueprint.getTable());
     const index   = indexes.find(index => index.name === command.from);
     if (!index) {
-      throw new Error('Index [{$command->from}] does not exist.');
+      throw new Error(`Index [${command.from}] does not exist.`);
     }
     if (index['primary']) {
       throw new Error('SQLite does not support altering primary keys.');

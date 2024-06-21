@@ -36,6 +36,10 @@ export class SchemaGrammar extends BaseGrammar {
     throw new Error('not implemented');
   }
 
+  public compileForeignKeys(table: string): string {
+    throw new Error('not implemented');
+  }
+
   public compileColumns(table: string): string {
     throw new Error('not implemented');
   }

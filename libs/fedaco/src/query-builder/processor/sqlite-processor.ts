@@ -73,4 +73,18 @@ export class SqliteProcessor extends Processor {
 
     return indexes;
   }
+
+  public processForeignKeys(results: any[]) {
+    return results.map((result) => {
+      return {
+        'name'           : null,
+        'columns'        : result.columns.split(','),
+        'foreign_schema' : null,
+        'foreign_table'  : result.foreign_table,
+        'foreign_columns': result.foreign_columns.split(','),
+        'on_update'      : result.on_update.toLowerCase(),
+        'on_delete'      : result.on_delete.toLowerCase(),
+      };
+    });
+  }
 }

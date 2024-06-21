@@ -53,7 +53,7 @@ export class Blueprint {
   }
 
   /*Get the raw SQL statements for the blueprint.*/
-  public toSql(connection: Connection, grammar: SchemaGrammar) {
+  public async toSql(connection: Connection, grammar: SchemaGrammar) {
     this.addImpliedCommands(grammar);
     let statements: string[] = [];
     this.ensureCommandsAreValid(connection);
@@ -61,7 +61,7 @@ export class Blueprint {
       const method = 'compile' + upperFirst(command.name);
       if (method in grammar) {
         // @ts-ignore
-        const sql = grammar[method](this, command, connection);
+        const sql = await grammar[method](this, command, connection);
         if (isArray(sql) && sql.length > 0) {
           statements = [...statements, ...sql];
         } else if (isString(sql) && sql.length > 0) {

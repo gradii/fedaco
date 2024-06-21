@@ -31,4 +31,8 @@ export class Processor implements ProcessorInterface {
   processIndexes(results: any[]) {
     return results;
   }
+
+  processForeignKeys(results: any[]) {
+    return results;
+  }
 }
