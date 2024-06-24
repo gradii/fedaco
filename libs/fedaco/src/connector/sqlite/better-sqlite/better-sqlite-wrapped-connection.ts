@@ -14,7 +14,7 @@ export class BetterSqliteWrappedConnection implements WrappedConnection {
   }
 
   async execute(sql: string, bindings?: any[]): Promise<void> {
-    this.driver.prepare(sql).run(bindings);
+    await this.driver.prepare(sql).run(bindings ? bindings : []);
   }
 
   async prepare(sql: string): Promise<BetterSqliteWrappedStmt> {

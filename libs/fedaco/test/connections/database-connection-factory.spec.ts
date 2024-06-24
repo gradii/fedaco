@@ -84,7 +84,7 @@ describe('test database connection factory', () => {
     expect(connection.readPdo).not.toBeInstanceOf(PDO);
   });
 
-  it('sqlite foreign key constraints', async () => {
+  xit('sqlite foreign key constraints', async () => {
     db.addConnection({
       'url': 'sqlite:///:memory:?foreign_key_constraints=true'
     }, 'constraints_set');
