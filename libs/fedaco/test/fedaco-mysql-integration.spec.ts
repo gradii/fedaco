@@ -138,20 +138,23 @@ describe('test database fedaco mysql integration', () => {
     const db = new DatabaseConfig();
     db.addConnection({
       'driver'  : 'mysql',
-      'host'    : '127.0.0.1',
-      'port'    : 3306,
+      'host'    : process.env.DB_HOST || '127.0.0.1',
+      'port'    : process.env.DB_PORT || 3306,
       'database': 'fedaco_test',
-      'username': 'root',
-      'password': '123456',
+      'username': process.env.DB_USER || 'root',
+      'password': process.env.DB_PASSWORD || '123456',
       'timezone': '+08:00'
     });
+    db.bootFedaco();
+    db.setAsGlobal();
+    await db.getConnection('default').statement('create database if not exists `fedaco_second_test`')
     db.addConnection({
       'driver'  : 'mysql',
-      'host'    : '127.0.0.1',
-      'port'    : 3306,
+      'host'    : process.env.DB_HOST || '127.0.0.1',
+      'port'    : process.env.DB_PORT || 3306,
       'database': 'fedaco_second_test',
-      'username': 'root',
-      'password': '123456'
+      'username': process.env.DB_USER || 'root',
+      'password': process.env.DB_PASSWORD || '123456',
     }, 'second_connection');
     db.bootFedaco();
     db.setAsGlobal();
@@ -263,7 +266,6 @@ describe('test database fedaco mysql integration', () => {
 
   it('test insert get id method', async () => {
     const factory = new EloquentTestUser();
-    // factory.getConnection().enableQueryLog();
     await factory.$newQuery().create({
       'id'   : 1,
       'email': 'linbolen@gradii.com'
@@ -274,7 +276,6 @@ describe('test database fedaco mysql integration', () => {
       'email': 'xsilen@gradii.com'
     });
 
-    console.log(factory.$getConnection().getQueryLog());
   });
 
 });

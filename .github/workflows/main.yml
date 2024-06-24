@@ -2,12 +2,22 @@ name: CI
 'on':
   - push
 jobs:
-  bazel_build:
-    runs-on: ubuntu-18.04
+  mysql_57:
+    runs-on: ubuntu-22.04
+    services:
+      mysql:
+        image: mariadb:lts
+        env:
+          MARIADB_ALLOW_EMPTY_PASSWORD: yes
+          MARIADB_ROOT_PASSWORD: 123456
+          MARIADB_DATABASE: fedaco_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
     strategy:
       matrix:
         node:
-          - '16'
+          - '20'
     name: Node ${{ matrix.node }} sample
     steps:
       - uses: actions/checkout@v2
@@ -26,5 +36,12 @@ jobs:
       - name: Installing project dependencies
         run: yarn install --frozen-lockfile --non-interactive
       - name: test fedaco
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: "123456"
+          DB_COLLATION: utf8mb4_unicode_ci
         run: |
           yarn nx test --project fedaco
+          

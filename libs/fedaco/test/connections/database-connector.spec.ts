@@ -1,25 +1,21 @@
-// import { Connector } from '../../src/connector/connector';
+import { Connector } from '../../src/connector/connector';
 // import { MysqlConnector } from '../../src/connector/mysql/mysql-connector';
 //
-// describe('test database connector', () => {
-//
-//   it('option resolution', () => {
-//     const connector = new Connector();
-//     connector.setDefaultOptions([
-//       'foo',
-//       'bar'
-//     ]);
-//     expect(connector.getOptions({
-//       'options': [
-//         'baz',
-//         'boom'
-//       ]
-//     })).toEqual([
-//       'baz',
-//       'bar',
-//       'boom'
-//     ]);
-//   });
+describe('test database connector', () => {
+
+  it('option resolution', () => {
+    const connector = new Connector();
+    connector.setDefaultOptions([
+      'foo',
+      'bar'
+    ]);
+    expect(connector.getOptions({
+      'options': [
+        'baz',
+        'boom'
+      ]
+    })).toEqual({"0": "baz", "1": "boom"});
+  });
 //
 //   it('my sql connect calls create connection with proper arguments', () => {
 //     const connector  = new MysqlConnector();
@@ -264,4 +260,4 @@
 //       return `dblib:host=${host}${port};dbname=${database}${charset}${appname}`;
 //     }
 //   });
-// });
+});

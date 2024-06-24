@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { isArray, isNumber } from '@gradii/nanofn';
-import { format, formatISO, isSameDay, startOfSecond, subDays } from 'date-fns';
+import { format, formatISO, isSameDay, parse, startOfSecond, subDays } from 'date-fns';
 import { head } from 'ramda';
 import { finalize, tap } from 'rxjs/operators';
 import { ArrayColumn } from '../src/annotation/column/array.column';
@@ -1482,8 +1482,10 @@ describe('test database fedaco integration', () => {
       'updated_at': '2012-12-05'
     });
     const array = model.$toArray();
-    expect(array['created_at']).toBe('2012-12-04T00:00:00+08:00');
-    expect(array['updated_at']).toBe('2012-12-05T00:00:00+08:00');
+    // expect(array['created_at']).toBe('2012-12-04T00:00:00+08:00');
+    // expect(array['updated_at']).toBe('2012-12-05T00:00:00+08:00');
+    expect(array['created_at']).toBe(formatISO(parse('2012-12-04', 'yyyy-MM-dd', new Date())));
+    expect(array['updated_at']).toBe(formatISO(parse('2012-12-05', 'yyyy-MM-dd', new Date())));
   });
 
   it('to array includes custom formatted timestamps', () => {

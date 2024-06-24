@@ -23,9 +23,14 @@ export class MysqlSchemaGrammar extends SchemaGrammar {
 
   /*Compile a create database command.*/
   public compileCreateDatabase(name: string, connection: Connection) {
-    return `create database ${this.wrapValue(name)} default character set ${this.wrapValue(
-      connection.getConfig('charset'))} default collate ${this.wrapValue(
-      connection.getConfig('collation'))}`;
+    const charset = connection.getConfig('charset');
+    const collation = connection.getConfig('collation');
+
+    if (! charset || ! collation) {
+      return `create database ${this.wrapValue(name)}`
+    }
+
+    return `create database ${this.wrapValue(name)} default character set ${charset} default collate ${collation}`;
   }
 
   /*Compile a drop database if exists command.*/
