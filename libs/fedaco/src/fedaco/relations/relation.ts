@@ -106,11 +106,11 @@ export class Relation extends mixinForwardCallToQueryBuilder(class {
   }
 
   /*Touch all of the related models for the relationship.*/
-  public async $touch() {
+  public async Touch() {
     const model = this.getRelated();
     if (!(model.constructor as typeof Model).isIgnoringTouch()) {
       await this.rawUpdate({
-        [model.$getUpdatedAtColumn()]: model.$freshTimestampString()
+        [model.GetUpdatedAtColumn()]: model.FreshTimestampString()
       });
     }
   }
@@ -153,7 +153,7 @@ export class Relation extends mixinForwardCallToQueryBuilder(class {
   /*protected */
   getKeys(models: Model[], key: string | null = null) {
     return uniq(models.map(value => {
-      return key ? value.$getAttribute(key) : value.$getKey();
+      return key ? value.GetAttribute(key) : value.GetKey();
     })).sort();
   }
 
@@ -184,7 +184,7 @@ export class Relation extends mixinForwardCallToQueryBuilder(class {
 
   /*Get the fully qualified parent key name.*/
   public getQualifiedParentKeyName() {
-    return this._parent.$getQualifiedKeyName();
+    return this._parent.GetQualifiedKeyName();
   }
 
   /*Get the related model of the relation.*/
@@ -194,23 +194,23 @@ export class Relation extends mixinForwardCallToQueryBuilder(class {
 
   /*Get the name of the "created at" column.*/
   public createdAt() {
-    return this._parent.$getCreatedAtColumn();
+    return this._parent.GetCreatedAtColumn();
   }
 
   /*Get the name of the "updated at" column.*/
   public updatedAt() {
-    return this._parent.$getUpdatedAtColumn();
+    return this._parent.GetUpdatedAtColumn();
   }
 
   /*Get the name of the related model's "updated at" column.*/
   public relatedUpdatedAt() {
-    return this._related.$getUpdatedAtColumn();
+    return this._related.GetUpdatedAtColumn();
   }
 
   /*Get the name of the "where in" method for eager loading.*/
   _whereInMethod(model: Model, key: string): 'whereIntegerInRaw' | 'whereIn' {
-    return model.$getKeyName() === last(key.split('.')) &&
-    ['int', 'integer'].includes(model.$getKeyType()) ? 'whereIntegerInRaw' : 'whereIn';
+    return model.GetKeyName() === last(key.split('.')) &&
+    ['int', 'integer'].includes(model.GetKeyType()) ? 'whereIntegerInRaw' : 'whereIn';
   }
 
   public whereKey(id: any) {
@@ -233,7 +233,7 @@ export class Relation extends mixinForwardCallToQueryBuilder(class {
       return models;
     }
     return (models as (typeof Model)[]).reduce((prev: any, clazz: typeof Model) => {
-      const table = new clazz().$getTable();
+      const table = new clazz().GetTable();
       prev[table] = clazz;
       return prev;
     }, {});

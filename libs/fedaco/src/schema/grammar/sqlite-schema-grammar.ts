@@ -85,10 +85,10 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
     return foreigns.reduce((sql, foreign) => {
       sql += this.getForeignKey(foreign);
       if (!isBlank(foreign.onDelete)) {
-        sql += '" on delete {$foreign->onDelete}"';
+        sql += '" on delete {Foreign->onDelete}"';
       }
       if (!isBlank(foreign.onUpdate)) {
-        sql += '" on update {$foreign->onUpdate}"';
+        sql += '" on update {Foreign->onUpdate}"';
       }
       return sql;
     }, '');

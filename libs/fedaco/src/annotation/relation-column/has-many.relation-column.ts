@@ -28,12 +28,12 @@ export const HasManyColumn: FedacoDecorator<HasManyRelationAnnotation> = makePro
     type        : RelationType.HasMany,
     _getRelation: function (m: Model) {
       const instance   = m._newRelatedInstance(resolveForwardRef(p.related));
-      const foreignKey = p.foreignKey || m.$getForeignKey();
-      const localKey   = p.localKey || m.$getKeyName();
+      const foreignKey = p.foreignKey || m.GetForeignKey();
+      const localKey   = p.localKey || m.GetKeyName();
       const r          = new HasMany(
-        instance.$newQuery(),
+        instance.NewQuery(),
         m,
-        `${instance.$getTable()}.${foreignKey}`,
+        `${instance.GetTable()}.${foreignKey}`,
         localKey);
 
       if (p.onQuery) {

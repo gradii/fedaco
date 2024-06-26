@@ -80,9 +80,9 @@ describe('test database fedaco belongs to many sync return value type', () => {
     await seedData();
     const user       = await BelongsToManySyncTestTestUser.createQuery().first();
     const articleIDs = await BelongsToManySyncTestTestArticle.createQuery().pluck('id') as any[];
-    const changes    = await user.$newRelation('articles').sync(articleIDs);
+    const changes    = await user.NewRelation('articles').sync(articleIDs);
     changes['attached'].map(id => {
-      expect(new BelongsToManySyncTestTestArticle().$getKeyType()).toBe(typeof id);
+      expect(new BelongsToManySyncTestTestArticle().GetKeyType()).toBe(typeof id);
     });
   });
 });

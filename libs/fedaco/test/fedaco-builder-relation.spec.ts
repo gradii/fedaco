@@ -142,7 +142,7 @@ describe('fedaco builder relation', () => {
   it('test with count', () => {
     const model1 = new FedacoBuilderTestModelParentStub();
 
-    const builder1 = model1.$newQuery().withCount('foo');
+    const builder1 = model1.NewQuery().withCount('foo');
     const result   = builder1.toSql();
 
     expect(result.result).toBe(
@@ -152,7 +152,7 @@ describe('fedaco builder relation', () => {
   it('test with count and select', () => {
     const model1 = new FedacoBuilderTestModelParentStub();
 
-    const builder1 = model1.$newQuery().select('id').withCount('foo');
+    const builder1 = model1.NewQuery().select('id').withCount('foo');
     const result   = builder1.toSql();
 
     expect(result.result).toBe(
@@ -161,7 +161,7 @@ describe('fedaco builder relation', () => {
 
   it('test with count and merged wheres', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery().select('id').withCount({
+    const builder = model.NewQuery().select('id').withCount({
       'activeFoo': (q: FedacoBuilder) => {
         q.where('bam', '>', 'qux');
       }
@@ -181,7 +181,7 @@ describe('fedaco builder relation', () => {
     FedacoBuilderTestModelCloseRelatedStub.addGlobalScope('withCount', (q: FedacoBuilder) => {
       return q.addSelect('id');
     });
-    const builder = model.$newQuery().select('id').withCount(['foo']);
+    const builder = model.NewQuery().select('id').withCount(['foo']);
 
     FedacoBuilderTestModelCloseRelatedStub.addGlobalScope('withCount', (q: FedacoBuilder) => {
     });
@@ -195,7 +195,7 @@ describe('fedaco builder relation', () => {
   it('test with count and constraints and having', () => {
     const model   = new FedacoBuilderTestModelParentStub();
     // @ts-ignore
-    const builder = model.$newQuery().where('bar', 'baz');
+    const builder = model.NewQuery().where('bar', 'baz');
     builder.withCount({
       'foo': (q: FedacoBuilder) => {
         q.where('bam', '>', 'qux');
@@ -214,7 +214,7 @@ describe('fedaco builder relation', () => {
 
   it('test with count and rename', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery().withCount('foo as foo_bar');
+    const builder = model.NewQuery().withCount('foo as foo_bar');
 
     const result = builder.toSql();
 
@@ -225,7 +225,7 @@ describe('fedaco builder relation', () => {
 
   it('test with count multiple and partial rename', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery().withCount(['foo as foo_bar', 'foo']);
+    const builder = model.NewQuery().withCount(['foo as foo_bar', 'foo']);
 
     const result = builder.toSql();
 
@@ -234,7 +234,7 @@ describe('fedaco builder relation', () => {
   });
   it('test has with constraints and having in subquery', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery().where('bar', 'baz');
+    const builder = model.NewQuery().where('bar', 'baz');
     builder.whereHas('foo', (q: FedacoBuilder) => {
       q.having('bam', '>', 'qux');
     }).where('quux', 'quuux');
@@ -249,7 +249,7 @@ describe('fedaco builder relation', () => {
 
   it('test has with constraints with or where and having inSubquery', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery().where('name', 'larry');
+    const builder = model.NewQuery().where('name', 'larry');
     builder.whereHas('address', (q: FedacoBuilder) => {
       q.where((q: FedacoBuilder) => {
         q.where('zipcode', '90210');
@@ -268,7 +268,7 @@ describe('fedaco builder relation', () => {
 
   it('test has with constraints and join and having in subquery', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery().where('bar', 'baz');
+    const builder = model.NewQuery().where('bar', 'baz');
     builder.whereHas('foo', (q: FedacoBuilder) => {
       q.join('quuuux', (j: JoinClauseBuilder) => {
         j.where('quuuuux', '=', 'quuuuuux');
@@ -286,7 +286,7 @@ describe('fedaco builder relation', () => {
 
   it('test has with constraints and having in subquery with count', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery().where('bar', 'baz');
+    const builder = model.NewQuery().where('bar', 'baz');
     builder.whereHas('foo', (q: FedacoBuilder) => {
       q.having('bam', '>', 'qux');
     }, '>=', 2).where('quux', 'quuux');
@@ -302,11 +302,11 @@ describe('fedaco builder relation', () => {
 
   it('test with count and constraints with binding in select sub', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery();
+    const builder = model.NewQuery();
     builder.withCount({
       'foo': (q: FedacoBuilder) => {
         q.selectSub(
-          model.$newQuery()
+          model.NewQuery()
             .where('bam', '=', 3)
             .selectRaw('count(0)'),
           'bam_3_count'
@@ -324,12 +324,12 @@ describe('fedaco builder relation', () => {
 
   it('test has nested with constraints', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery().whereHas('foo', (q: FedacoBuilder) => {
+    const builder = model.NewQuery().whereHas('foo', (q: FedacoBuilder) => {
       q.whereHas('bar', (q: FedacoBuilder) => {
         q.where('baz', 'bam');
       });
     }).toSql();
-    const result  = model.$newQuery().whereHas('foo.bar', (q: FedacoBuilder) => {
+    const result  = model.NewQuery().whereHas('foo.bar', (q: FedacoBuilder) => {
       q.where('baz', 'bam');
     }).toSql();
     expect(builder.result).toBe(result.result);
@@ -337,20 +337,20 @@ describe('fedaco builder relation', () => {
 
   it('test has nested', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery().whereHas('foo', (q: FedacoBuilder) => {
+    const builder = model.NewQuery().whereHas('foo', (q: FedacoBuilder) => {
       q.has('bar');
     });
-    const result  = model.$newQuery().has('foo.bar').toSql();
+    const result  = model.NewQuery().has('foo.bar').toSql();
     expect(result).toEqual(builder.toSql());
   });
   it('test or has nested', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery().whereHas('foo', (q: FedacoBuilder) => {
+    const builder = model.NewQuery().whereHas('foo', (q: FedacoBuilder) => {
       q.has('bar');
     }).orWhereHas('foo', (q: FedacoBuilder) => {
       q.has('baz');
     });
-    const result  = model.$newQuery().has('foo.bar').orHas('foo.baz').toSql();
+    const result  = model.NewQuery().has('foo.bar').orHas('foo.baz').toSql();
 
     expect(builder.toSql().result).toBe(
       'SELECT * FROM `fedaco_builder_test_model_parent_stubs` WHERE EXISTS (SELECT * FROM `fedaco_builder_test_model_close_related_stubs` WHERE `fedaco_builder_test_model_parent_stubs`.`foo_id` = `fedaco_builder_test_model_close_related_stubs`.`id` AND EXISTS (SELECT * FROM `fedaco_builder_test_model_far_related_stubs` WHERE `fedaco_builder_test_model_close_related_stubs`.`id` = `fedaco_builder_test_model_far_related_stubs`.`fedaco_builder_test_model_close_related_stubs_id`)) OR EXISTS (SELECT * FROM `fedaco_builder_test_model_close_related_stubs` WHERE `fedaco_builder_test_model_parent_stubs`.`foo_id` = `fedaco_builder_test_model_close_related_stubs`.`id` AND EXISTS (SELECT * FROM `fedaco_builder_test_model_far_related_stubs` WHERE `fedaco_builder_test_model_close_related_stubs`.`id` = `fedaco_builder_test_model_far_related_stubs`.`fedaco_builder_test_model_close_related_stubs_id`))'
@@ -359,10 +359,10 @@ describe('fedaco builder relation', () => {
   });
   it('test self has nested', () => {
     const model        = new FedacoBuilderTestModelSelfRelatedStub();
-    const nestedSql    = model.$newQuery().whereHas('parentFoo', (q: FedacoBuilder) => {
+    const nestedSql    = model.NewQuery().whereHas('parentFoo', (q: FedacoBuilder) => {
       q.has('childFoo');
     }).toSql();
-    const dotSql       = model.$newQuery().has('parentFoo.childFoo').toSql();
+    const dotSql       = model.NewQuery().has('parentFoo.childFoo').toSql();
     const alias        = 'self_alias_hash';
     const aliasRegex   = /\b(fedaco_reserved_\d)(\b|$)/ig;
     const nestedSqlStr = nestedSql.result.replace(aliasRegex, alias);
@@ -373,7 +373,7 @@ describe('fedaco builder relation', () => {
 
   it('test self has nested uses alias', () => {
     const model      = new FedacoBuilderTestModelSelfRelatedStub();
-    let sql          = model.$newQuery().has('parentFoo.childFoo').toSql().result;
+    let sql          = model.NewQuery().has('parentFoo.childFoo').toSql().result;
     const alias      = 'self_alias_hash';
     const aliasRegex = /\b(fedaco_reserved_\d)(\b|$)/ig;
     sql              = sql.replace(aliasRegex, alias);
@@ -383,7 +383,7 @@ describe('fedaco builder relation', () => {
 
   it('test doesnt have', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery().doesntHave('foo');
+    const builder = model.NewQuery().doesntHave('foo');
 
     const result = builder.toSql();
 
@@ -393,7 +393,7 @@ describe('fedaco builder relation', () => {
 
   it('test doesnt have nested', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery().doesntHave('foo.bar');
+    const builder = model.NewQuery().doesntHave('foo.bar');
 
     const result = builder.toSql();
 
@@ -403,7 +403,7 @@ describe('fedaco builder relation', () => {
 
   it('test or doesnt have', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery().where('bar', 'baz').orDoesntHave('foo');
+    const builder = model.NewQuery().where('bar', 'baz').orDoesntHave('foo');
 
     const result = builder.toSql();
 
@@ -415,7 +415,7 @@ describe('fedaco builder relation', () => {
 
   it('test where doesnt have', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery().whereDoesntHave('foo', (q: FedacoBuilder) => {
+    const builder = model.NewQuery().whereDoesntHave('foo', (q: FedacoBuilder) => {
       q.where('bar', 'baz');
     });
 
@@ -430,7 +430,7 @@ describe('fedaco builder relation', () => {
 
   it('test or where doesnt have', () => {
     const model   = new FedacoBuilderTestModelParentStub();
-    const builder = model.$newQuery().where('bar', 'baz').orWhereDoesntHave('foo',
+    const builder = model.NewQuery().where('bar', 'baz').orWhereDoesntHave('foo',
       (q: FedacoBuilder) => {
         q.where('qux', 'quux');
       });

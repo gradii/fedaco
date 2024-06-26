@@ -185,7 +185,7 @@ public readonly ${relation};
         'getRelationExistenceCountQuery';
 
       const hasQuery: FedacoBuilder = (relation as any)[method](
-        (relation as Relation).getRelated().$newQueryWithoutRelationships(), this);
+        (relation as Relation).getRelated().NewQueryWithoutRelationships(), this);
 
       if (callback) {
         hasQuery.callScope(callback as any);
@@ -376,7 +376,7 @@ public readonly ${relation};
           let hashedColumn: string;
           if (
             this.getModel()._connection === relation.getQuery().getModel()._connection &&
-            this.getModel().$getTable() === relation.getQuery().getModel().$getTable()
+            this.getModel().GetTable() === relation.getQuery().getModel().GetTable()
           ) {
             hashedColumn = `${relation.getRelationCountHash(false)}.${column}`;
           } else {
@@ -385,7 +385,7 @@ public readonly ${relation};
 
           const wrappedColumn = this.getQuery().getGrammar().wrap(
             column === '*' ? column :
-              relation.getRelated().$qualifyColumn(hashedColumn)
+              relation.getRelated().QualifyColumn(hashedColumn)
           );
 
           expression = func === 'exists' ? wrappedColumn : `${func}(${wrappedColumn})`;
@@ -393,7 +393,7 @@ public readonly ${relation};
           expression = column;
         }
         const query = relation.getRelationExistenceQuery(
-          relation.getRelated().$newQuery(), this as unknown as FedacoBuilder, raw(expression)
+          relation.getRelated().NewQuery(), this as unknown as FedacoBuilder, raw(expression)
         ); // .setBindings([], 'select');
         query.callScope(constraints);
 
@@ -502,7 +502,7 @@ public readonly ${relation};
     /*Get the "has relation" base query instance.*/
     _getRelationWithoutConstraints(relation: string): Relation {
       return Relation.noConstraints(() => {
-        return (this.getModel() as Model).$newRelation(relation);
+        return (this.getModel() as Model).NewRelation(relation);
       });
     }
 

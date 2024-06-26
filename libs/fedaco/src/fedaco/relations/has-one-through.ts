@@ -24,7 +24,7 @@ export class HasOneThrough extends mixinInteractsWithDictionary(
   /*Initialize the relation on a set of models.*/
   public initRelation(models: Model[], relation: string) {
     for (const model of models) {
-      model.$setRelation(relation, this._getDefaultFor(model));
+      model.SetRelation(relation, this._getDefaultFor(model));
     }
     return models;
   }
@@ -33,10 +33,10 @@ export class HasOneThrough extends mixinInteractsWithDictionary(
   public match(models: Model[], results: Collection, relation: string) {
     const dictionary = this._buildDictionary(results);
     for (const model of models) {
-      const key = this._getDictionaryKey(model.$getAttribute(this._localKey));
+      const key = this._getDictionaryKey(model.GetAttribute(this._localKey));
       if (dictionary[key] !== undefined) {
         const value = dictionary[key];
-        model.$setRelation(relation, isArray(value) ? value[0] : value );
+        model.SetRelation(relation, isArray(value) ? value[0] : value );
       }
     }
     return models;
@@ -44,6 +44,6 @@ export class HasOneThrough extends mixinInteractsWithDictionary(
 
   /*Make a new related instance for the given model.*/
   public newRelatedInstanceFor(parent: Model) {
-    return this._related.$newInstance();
+    return this._related.NewInstance();
   }
 }

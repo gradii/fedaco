@@ -200,59 +200,59 @@ describe('test database fedaco mysql integration', () => {
   });
 
   it('basic create model', async () => {
-    const model = await new EloquentTestUser().$newQuery().create({
+    const model = await new EloquentTestUser().NewQuery().create({
       'id'   : 1,
       'email': 'linbolen@gradii.com'
     });
 
     expect(model.id).toBe(1);
     expect(model.email).toBe('linbolen@gradii.com');
-    await model.$delete();
+    await model.Delete();
   });
 
   it('basic model retrieval', async () => {
     const factory = new EloquentTestUser();
 
-    await factory.$newQuery().create({
+    await factory.NewQuery().create({
       'id'   : 1,
       'email': 'linbolen@gradii.com'
     });
 
-    await factory.$newQuery().create({
+    await factory.NewQuery().create({
       'id'   : 2,
       'email': 'xsilen@gradii.com'
     });
 
-    expect(await factory.$newQuery().count()).toEqual(2);
+    expect(await factory.NewQuery().count()).toEqual(2);
     expect(
-      await factory.$newQuery().where('email', 'linbolen@gradii.com').doesntExist()).toBeFalsy();
+      await factory.NewQuery().where('email', 'linbolen@gradii.com').doesntExist()).toBeFalsy();
     expect(
-      await factory.$newQuery().where('email', 'mohamed@laravel.com').doesntExist()).toBeTruthy();
-    let model: EloquentTestUser = await factory.$newQuery()
+      await factory.NewQuery().where('email', 'mohamed@laravel.com').doesntExist()).toBeTruthy();
+    let model: EloquentTestUser = await factory.NewQuery()
       .where('email', 'linbolen@gradii.com').first();
     expect(model.email).toBe('linbolen@gradii.com');
     expect(model.email !== undefined).toBeTruthy();
     const friends = await model.friends;
     expect(friends !== undefined).toBeTruthy();
     expect(friends).toEqual([]);
-    model = await factory.$newQuery().find(1);
+    model = await factory.NewQuery().find(1);
     expect(model).toBeInstanceOf(EloquentTestUser);
     expect(model.id).toEqual(1);
-    model = await factory.$newQuery().find(2);
+    model = await factory.NewQuery().find(2);
     expect(model).toBeInstanceOf(EloquentTestUser);
     expect(model.id).toEqual(2);
-    const missing = await factory.$newQuery().find(3);
+    const missing = await factory.NewQuery().find(3);
     expect(missing).toBeUndefined();
-    let collection = await factory.$newQuery().find([]);
+    let collection = await factory.NewQuery().find([]);
     expect(isArray(collection)).toBeTruthy();
     expect(collection.length).toBe(0);
-    collection = await factory.$newQuery().find([1, 2, 3]);
+    collection = await factory.NewQuery().find([1, 2, 3]);
     expect(isArray(collection)).toBeTruthy();
     expect(collection.length).toBe(2);
-    const models = await factory.$newQuery().where('id', 1).get(); // .cursor();
+    const models = await factory.NewQuery().where('id', 1).get(); // .cursor();
     for (const m of models) {
       expect(m.id).toEqual(1);
-      expect(m.$getConnectionName()).toBe('default');
+      expect(m.GetConnectionName()).toBe('default');
     }
     // let records = DB.table('users').where('id', 1).cursor();
     // for (let record of records) {
@@ -266,12 +266,12 @@ describe('test database fedaco mysql integration', () => {
 
   it('test insert get id method', async () => {
     const factory = new EloquentTestUser();
-    await factory.$newQuery().create({
+    await factory.NewQuery().create({
       'id'   : 1,
       'email': 'linbolen@gradii.com'
     });
 
-    await factory.$newQuery().create({
+    await factory.NewQuery().create({
       'id'   : 2,
       'email': 'xsilen@gradii.com'
     });
@@ -535,7 +535,7 @@ export class EloquentTestUserWithStringCastId extends EloquentTestUser {
 }
 
 export class EloquentTestUserWithCustomDateSerialization extends EloquentTestUser {
-  $serializeDate(date: Date) {
+  SerializeDate(date: Date) {
     return format(date, 'yyyy-MM-dd');
   }
 }

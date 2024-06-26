@@ -417,8 +417,8 @@ describe('test database connection', () => {
 // }
 //
 // export class DatabaseConnectionTestMockPDOException {
-//   /*Overrides Exception::__construct, which casts $code to integer, so that we can create
-//   an exception with a string $code consistent with the real PDOException behavior.*/
+//   /*Overrides Exception::__construct, which casts Code to integer, so that we can create
+//   an exception with a string Code consistent with the real PDOException behavior.*/
 //   public constructor(message: string | null = null, code: string | null = null) {
 //     this.message = message;
 //     this.code    = code;

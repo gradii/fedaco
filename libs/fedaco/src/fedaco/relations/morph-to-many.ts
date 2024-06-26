@@ -33,8 +33,8 @@ export class MorphToMany extends BelongsToMany {
     this._inverse    = inverse;
     this._morphType  = name + '_type';
     this._morphClass = inverse ?
-      query.getModel().$getMorphClass() :
-      parent.$getMorphClass();
+      query.getModel().GetMorphClass() :
+      parent.GetMorphClass();
     this.addConstraints();
   }
 
@@ -80,7 +80,7 @@ export class MorphToMany extends BelongsToMany {
   async _getCurrentlyAttachedPivots() {
     return (await super._getCurrentlyAttachedPivots())
       .map(record => {
-        return record instanceof MorphPivot ? record.$setMorphType(this._morphType).$setMorphClass(
+        return record instanceof MorphPivot ? record.SetMorphType(this._morphType).SetMorphClass(
           this._morphClass) : record;
       });
   }
@@ -95,9 +95,9 @@ export class MorphToMany extends BelongsToMany {
     const using = this._using;
     const pivot = using ? using.fromRawAttributes(this._parent, attributes, this._table,
       exists) : MorphPivot.fromAttributes(this._parent, attributes, this._table, exists);
-    pivot.$setPivotKeys(this._foreignPivotKey, this._relatedPivotKey)
-      .$setMorphType(this._morphType)
-      .$setMorphClass(this._morphClass);
+    pivot.SetPivotKeys(this._foreignPivotKey, this._relatedPivotKey)
+      .SetMorphType(this._morphType)
+      .SetMorphClass(this._morphClass);
     return pivot;
   }
 

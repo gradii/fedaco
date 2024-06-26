@@ -390,82 +390,82 @@
 // export const $GRAVE = 0x60;
 //
 // // Character 'a'.
-// export const $a = 0x61;
+// export const A = 0x61;
 //
 // // Character 'b'.
-// export const $b = 0x62;
+// export const B = 0x62;
 //
 // // Character 'c'.
-// export const $c = 0x63;
+// export const C = 0x63;
 //
 // // Character 'd'.
-// export const $d = 0x64;
+// export const D = 0x64;
 //
 // // Character 'e'.
-// export const $e = 0x65;
+// export const E = 0x65;
 //
 // // Character 'f'.
-// export const $f = 0x66;
+// export const F = 0x66;
 //
 // // Character 'g'.
-// export const $g = 0x67;
+// export const G = 0x67;
 //
 // // Character 'h'.
-// export const $h = 0x68;
+// export const H = 0x68;
 //
 // // Character 'i'.
-// export const $i = 0x69;
+// export const I = 0x69;
 //
 // // Character 'j'.
-// export const $j = 0x6A;
+// export const J = 0x6A;
 //
 // // Character 'k'.
-// export const $k = 0x6B;
+// export const K = 0x6B;
 //
 // // Character 'l'.
-// export const $l = 0x6C;
+// export const L = 0x6C;
 //
 // // Character 'm'.
-// export const $m = 0x6D;
+// export const M = 0x6D;
 //
 // // Character 'n'.
-// export const $n = 0x6E;
+// export const N = 0x6E;
 //
 // // Character 'o'.
-// export const $o = 0x6F;
+// export const O = 0x6F;
 //
 // // Character 'p'.
-// export const $p = 0x70;
+// export const P = 0x70;
 //
 // // Character 'q'.
-// export const $q = 0x71;
+// export const Q = 0x71;
 //
 // // Character 'r'.
-// export const $r = 0x72;
+// export const R = 0x72;
 //
 // // Character 's'.
-// export const $s = 0x73;
+// export const S = 0x73;
 //
 // // Character 't'.
-// export const $t = 0x74;
+// export const T = 0x74;
 //
 // // Character 'u'.
-// export const $u = 0x75;
+// export const U = 0x75;
 //
 // // Character 'v'.
-// export const $v = 0x76;
+// export const V = 0x76;
 //
 // // Character 'w'.
-// export const $w = 0x77;
+// export const W = 0x77;
 //
 // // Character 'x'.
-// export const $x = 0x78;
+// export const X = 0x78;
 //
 // // Character 'y'.
-// export const $y = 0x79;
+// export const Y = 0x79;
 //
 // // Character 'z'.
-// export const $z = 0x7A;
+// export const Z = 0x7A;
 //
 // // Character '{'.
 // export const $LBRACE = 0x7B;
@@ -547,17 +547,17 @@ export const $RBRACKET  = 93;
 export const $CARET     = 94;
 export const $_         = 95;
 
-export const $a = 97;
-export const $b = 98;
-export const $e = 101;
-export const $f = 102;
-export const $n = 110;
-export const $r = 114;
-export const $t = 116;
-export const $u = 117;
-export const $v = 118;
-export const $x = 120;
-export const $z = 122;
+export const A = 97;
+export const B = 98;
+export const E = 101;
+export const F = 102;
+export const N = 110;
+export const R = 114;
+export const T = 116;
+export const U = 117;
+export const V = 118;
+export const X = 120;
+export const Z = 122;
 
 /*{*/export const $LBRACE = 123;
 /*|*/export const $BAR    = 124;
@@ -579,11 +579,11 @@ export function isDigit(code: number): boolean {
 }
 
 export function isAsciiLetter(code: number): boolean {
-  return code >= $a && code <= $z || code >= $A && code <= $Z;
+  return code >= A && code <= Z || code >= $A && code <= $Z;
 }
 
 export function isAsciiHexDigit(code: number): boolean {
-  return code >= $a && code <= $f || code >= $A && code <= $F || isDigit(code);
+  return code >= A && code <= F || code >= $A && code <= $F || isDigit(code);
 }
 
 export function isNewLine(code: number): boolean {

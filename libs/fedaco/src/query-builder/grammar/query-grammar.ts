@@ -242,45 +242,45 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
 
   protected concatenate(segments: any[]) {
     return '';
-    // return implode(' ', array_filter($segments, function ($value) {
-    //   return (string) $value !== '';
+    // return implode(' ', array_filter(Segments, function (Value) {
+    //   return (string) Value !== '';
     // }));
   }
 
   protected compileUnions(builder: Builder) {
-    // $sql = '';
+    // Sql = '';
     //
-    // foreach($query->unions as $union);
+    // foreach(Query->unions as Union);
     // {
-    //   $sql. = $this->compileUnion($union);
+    //   Sql. = This->compileUnion(Union);
     // }
     //
-    // if (!empty($query->unionOrders)) {
-    //   $sql. = ' '.$this;
+    // if (!empty(Query->unionOrders)) {
+    //   Sql. = ' '.This;
     // ->
-    //   compileOrders($query, $query->unionOrders);
+    //   compileOrders(Query, Query->unionOrders);
     // }
     //
-    // if (isset($query->unionLimit)) {
-    //   $sql. = ' '.$this;
+    // if (isset(Query->unionLimit)) {
+    //   Sql. = ' '.This;
     // ->
-    //   compileLimit($query, $query->unionLimit);
+    //   compileLimit(Query, Query->unionLimit);
     // }
     //
-    // if (isset($query->unionOffset)) {
-    //   $sql. = ' '.$this;
+    // if (isset(Query->unionOffset)) {
+    //   Sql. = ' '.This;
     // ->
-    //   compileOffset($query, $query->unionOffset);
+    //   compileOffset(Query, Query->unionOffset);
     // }
     //
-    // return ltrim($sql);
+    // return ltrim(Sql);
     return '';
   }
 
   /**
    * Compile the components necessary for a select clause.
    *
-   * @param  \Illuminate\Database\Query\Builder  $query
+   * @param  \Illuminate\Database\Query\Builder  Query
    * @return array
    */
   protected compileComponents(builder: Builder) {
@@ -288,15 +288,15 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
 
     // this._selectComponents.forEach();
     //
-    // foreach ($this->selectComponents as $component) {
-    // if (isset($query->$component)) {
-    // $method = 'compile'.ucfirst($component);
+    // foreach (This->selectComponents as Component) {
+    // if (isset(Query->Component)) {
+    // Method = 'compile'.ucfirst(Component);
 //
-//   $sql[$component] = $this->$method($query, $query->$component);
+//   Sql[Component] = This->Method(Query, Query->Component);
 // }
 // }
 
-// return $sql;
+// return Sql;
     return '';
   }
 

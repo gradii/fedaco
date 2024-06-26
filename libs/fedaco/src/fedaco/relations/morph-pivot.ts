@@ -34,9 +34,9 @@ export class MorphPivot extends Pivot {
   }
 
   /*Delete the pivot model record from the database.*/
-  public async $delete() {
-    if (this._attributes[this.$getKeyName()] !== undefined) {
-      return /*cast type int*/ super.$delete();
+  public async Delete() {
+    if (this._attributes[this.GetKeyName()] !== undefined) {
+      return /*cast type int*/ super.Delete();
     }
     if (this._fireModelEvent('deleting') === false) {
       return 0;
@@ -49,42 +49,42 @@ export class MorphPivot extends Pivot {
   }
 
   /*Get the morph type for the pivot.*/
-  public $getMorphType() {
+  public GetMorphType() {
     return this._morphType;
   }
 
   /*Set the morph type for the pivot.*/
-  public $setMorphType(morphType: string) {
+  public SetMorphType(morphType: string) {
     this._morphType = morphType;
     return this;
   }
 
   /*Set the morph class for the pivot.*/
-  public $setMorphClass(morphClass: string) {
+  public SetMorphClass(morphClass: string) {
     this._morphClass = morphClass;
     return this;
   }
 
   /*Get the queueable identity for the entity.*/
-  public $getQueueableId() {
-    if (this._attributes[this.$getKeyName()] !== undefined) {
-      return this.$getKey();
+  public GetQueueableId() {
+    if (this._attributes[this.GetKeyName()] !== undefined) {
+      return this.GetKey();
     }
-    return `${this._foreignKey}:${this.$getAttribute(
-      this._foreignKey)}:${this._relatedKey}:${this.$getAttribute(
+    return `${this._foreignKey}:${this.GetAttribute(
+      this._foreignKey)}:${this._relatedKey}:${this.GetAttribute(
       this._relatedKey)}:${this._morphType}:${this._morphClass}`;
   }
 
   /*Get a new query to restore one or more models by their queueable IDs.*/
-  public $newQueryForRestoration(ids: number[] | string[] | string): FedacoBuilder<this> {
+  public NewQueryForRestoration(ids: number[] | string[] | string): FedacoBuilder<this> {
     if (isArray(ids)) {
       return this._newQueryForCollectionRestoration(ids);
     }
     if (!ids.includes(':')) {
-      return super.$newQueryForRestoration(ids);
+      return super.NewQueryForRestoration(ids);
     }
     const segments = ids.split(':');
-    return this.$newQueryWithoutScopes().where(
+    return this.NewQueryWithoutScopes().where(
       segments[0], segments[1]
     ).where(
       segments[2], segments[3]
@@ -94,9 +94,9 @@ export class MorphPivot extends Pivot {
   /*Get a new query to restore multiple models by their queueable IDs.*/
   protected newQueryForCollectionRestoration(ids: any[]): FedacoBuilder<this> {
     if (!ids[0].includes(':')) {
-      return super.$newQueryForRestoration(ids);
+      return super.NewQueryForRestoration(ids);
     }
-    const query = this.$newQueryWithoutScopes();
+    const query = this.NewQueryWithoutScopes();
     for (const id of ids) {
       const segments = id.split(':');
       query.orWhere((q: Relation) => {

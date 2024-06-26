@@ -62,12 +62,12 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
   public make(attributes: any = {}) {
     return tap(instance => {
       this._setForeignAttributesForCreate(instance);
-    }, this._related.$newInstance(attributes));
+    }, this._related.NewInstance(attributes));
   }
 
   /*Create and return an un-saved instance of the related models.*/
   public makeMany(records: []) {
-    const instances = this._related.$newCollection();
+    const instances = this._related.NewCollection();
     for (const record of records) {
       instances.push(this.make(record));
     }
@@ -103,9 +103,9 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
   /*protected*/ matchOneOrMany(models: Model[], results: Collection, relation: string, type: string) {
     const dictionary = this.buildDictionary(results);
     for (const model of models) {
-      const key = this._getDictionaryKey(model.$getAttribute(this._localKey));
+      const key = this._getDictionaryKey(model.GetAttribute(this._localKey));
       if (dictionary[key] !== undefined) {
-        model.$setRelation(relation, this.getRelationValue(dictionary, key, type));
+        model.SetRelation(relation, this.getRelationValue(dictionary, key, type));
       }
     }
     return models;
@@ -114,7 +114,7 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
   /*Get the value of a relationship by one or many type.*/
   /*protected*/ getRelationValue(dictionary: any, key: string, type: string) {
     const value = dictionary[key];
-    return type === 'one' ? value[0] : this._related.$newCollection(value);
+    return type === 'one' ? value[0] : this._related.NewCollection(value);
   }
 
   /*Build model dictionary keyed by the relation's foreign key.*/
@@ -122,7 +122,7 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
     const foreign = this.getForeignKeyName();
     return results.reduce((prev: any, result) => {
       // @ts-ignore
-      const key = this._getDictionaryKey(result.$getAttribute(foreign));
+      const key = this._getDictionaryKey(result.GetAttribute(foreign));
       if (!prev[key]) {
         prev[key] = [];
       }
@@ -135,7 +135,7 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
   public async findOrNew(id: any, columns: any[] = ['*']) {
     let instance = await this.find(id, columns);
     if (isBlank(instance)) {
-      instance = this._related.$newInstance();
+      instance = this._related.NewInstance();
       this._setForeignAttributesForCreate(instance);
     }
     return instance;
@@ -145,7 +145,7 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
   public async firstOrNew(attributes: Record<string, any> = {}, values: any = {}) {
     let instance = await this.where(attributes).first() as Model;
     if (isBlank(instance)) {
-      instance = this._related.$newInstance({...attributes, ...values});
+      instance = this._related.NewInstance({...attributes, ...values});
       this._setForeignAttributesForCreate(instance);
     }
     return instance;
@@ -163,8 +163,8 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
   /*Create or update a related record matching the attributes, and fill it with values.*/
   public async updateOrCreate(attributes: any, values: any = {}) {
     const instance: Model = await this.firstOrNew(attributes);
-    await instance.$fill(values);
-    await instance.$save();
+    await instance.Fill(values);
+    await instance.Save();
 
     return instance;
   }
@@ -172,7 +172,7 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
   /*Attach a model instance to the parent model.*/
   public async save(model: Model) {
     this._setForeignAttributesForCreate(model);
-    return await model.$save() ? model : false;
+    return await model.Save() ? model : false;
   }
 
   /*Attach a collection of models to the parent instance.*/
@@ -185,15 +185,15 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
 
   /*Create a new instance of the related model.*/
   public async create(attributes: any = {}) {
-    const instance = this._related.$newInstance(attributes);
+    const instance = this._related.NewInstance(attributes);
     this._setForeignAttributesForCreate(instance);
-    await instance.$save();
+    await instance.Save();
     return instance;
   }
 
   /*Create a Collection of new instances of the related model.*/
   public async createMany(records: any[]) {
-    const instances = this._related.$newCollection();
+    const instances = this._related.NewCollection();
     for (const record of records) {
       instances.push(await this.create(record));
     }
@@ -202,7 +202,7 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
 
   /*Set the foreign ID for creating a related model.*/
   _setForeignAttributesForCreate(model: Model) {
-    model.$setAttribute(this.getForeignKeyName(), this.getParentKey());
+    model.SetAttribute(this.getForeignKeyName(), this.getParentKey());
   }
 
   /*Add the constraints for a relationship query.*/
@@ -210,7 +210,7 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
                                    columns: any[] | any = ['*']) {
     // if (query.getQuery()._from == parentQuery.getQuery()._from) {
     // refactor try to use get table
-    if (query.getModel().$getTable() == parentQuery.getModel().$getTable()) {
+    if (query.getModel().GetTable() == parentQuery.getModel().GetTable()) {
       return this.getRelationExistenceQueryForSelfRelation(query, parentQuery, columns);
     }
     return super.getRelationExistenceQuery(query, parentQuery, columns);
@@ -220,8 +220,8 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
   public getRelationExistenceQueryForSelfRelation(query: FedacoBuilder, parentQuery: FedacoBuilder,
                                                   columns: any[] | any = ['*']) {
     const hash = this.getRelationCountHash();
-    query.from(`${query.getModel().$getTable()} as ${hash}`);
-    query.getModel().$setTable(hash);
+    query.from(`${query.getModel().GetTable()} as ${hash}`);
+    query.getModel().SetTable(hash);
     return query.select(columns).whereColumn(
       this.getQualifiedParentKeyName(),
       '=',
@@ -235,12 +235,12 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
 
   /*Get the key value of the parent's local key.*/
   public getParentKey() {
-    return this._parent.$getAttribute(this._localKey);
+    return this._parent.GetAttribute(this._localKey);
   }
 
   /*Get the fully qualified parent key name.*/
   public getQualifiedParentKeyName() {
-    return this._parent.$qualifyColumn(this._localKey);
+    return this._parent.QualifyColumn(this._localKey);
   }
 
   /*Get the plain foreign key.*/

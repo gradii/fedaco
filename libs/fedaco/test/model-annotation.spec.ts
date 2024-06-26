@@ -87,7 +87,7 @@ describe('model annotation', () => {
 
     const meta = reflector.propMetadata(RelationModel);
 
-    const spy1 = jest.spyOn(relationModel, '$getAttribute').mockReturnValue('foo');
+    const spy1 = jest.spyOn(relationModel, 'GetAttribute').mockReturnValue('foo');
     const data = relationModel.columnFoo;
 
     expect(spy1).toBeCalled();

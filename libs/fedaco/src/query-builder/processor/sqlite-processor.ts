@@ -25,7 +25,7 @@ export class SqliteProcessor extends Processor {
       const collation = matches != null ? matches[1] : undefined;
 
       const isGenerated = [2, 3].includes(result.extra);
-      matches           = /\b'.preg_quote($result->name).'\b[^,]+\s+as\s+\(((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*)\)/i.exec(
+      matches           = /\b'.preg_quote(Result->name).'\b[^,]+\s+as\s+\(((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*)\)/i.exec(
         sql);
       const expression  = isGenerated && matches != null ? matches[1] : undefined;
       return {

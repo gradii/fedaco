@@ -147,10 +147,10 @@ describe('fedaco builder', () => {
 
     resolveModel(_model);
 
-    jest.spyOn(_model, '$getKeyName').mockReturnValue('foo');
-    jest.spyOn(_model, '$getTable').mockReturnValue('foo_table');
-    jest.spyOn(_model, '$getQualifiedKeyName').mockReturnValue('foo_table.foo');
-    jest.spyOn(_model, '$newBaseQueryBuilder').mockReturnValue(mockNewQueryBuilder());
+    jest.spyOn(_model, 'GetKeyName').mockReturnValue('foo');
+    jest.spyOn(_model, 'GetTable').mockReturnValue('foo_table');
+    jest.spyOn(_model, 'GetQualifiedKeyName').mockReturnValue('foo_table.foo');
+    jest.spyOn(_model, 'NewBaseQueryBuilder').mockReturnValue(mockNewQueryBuilder());
     return _model;
   }
 
@@ -160,7 +160,7 @@ describe('fedaco builder', () => {
     resolveModel(_model);
 
     // jest.spyOn(_model, 'getKeyName').mockReturnValue('foo');
-    jest.spyOn(_model, '$getTable').mockReturnValue('stub');
+    jest.spyOn(_model, 'GetTable').mockReturnValue('stub');
     // jest.spyOn(_model, 'getQualifiedKeyName').mockReturnValue('foo_table.foo');
     return _model;
   }
@@ -183,7 +183,7 @@ describe('fedaco builder', () => {
   ) {
     const grammar    = new SqliteQueryGrammar();
     const processor  = new Processor();
-    const connection = new Conn(); // m::mock(ConnectionInterface::class, ['getQueryGrammar' => $grammar, 'getPostProcessor' => $processor]);
+    const connection = new Conn(); // m::mock(ConnectionInterface::class, ['getQueryGrammar' => Grammar, 'getPostProcessor' => Processor]);
     jest.spyOn(connection, 'getQueryGrammar').mockReturnValue(grammar);
     jest.spyOn(connection, 'getPostProcessor').mockReturnValue(processor);
 
@@ -250,7 +250,7 @@ describe('fedaco builder', () => {
     builder = getBuilder();
     model   = getModel();
     builder.setModel(model);
-    const modelQuery = builder.getModel().$newQuery();
+    const modelQuery = builder.getModel().NewQuery();
 
     spy1 = jest.spyOn(builder.getQuery(), 'where');
     // @ts-ignore
@@ -274,7 +274,7 @@ describe('fedaco builder', () => {
     builder = getBuilder();
     model   = getModel();
     builder.setModel(model);
-    const modelQuery = builder.getModel().$newQuery();
+    const modelQuery = builder.getModel().NewQuery();
 
     spy1 = jest.spyOn(builder.getQuery(), 'where');
     spy2 = jest.spyOn(modelQuery, 'findOrNew').mockReturnValue(Promise.resolve(getModel()));
@@ -842,7 +842,7 @@ describe('fedaco builder', () => {
       }
     };
 
-    spy1 = jest.spyOn(model.constructor.prototype, '$newRelation').mockReturnValue(relation);
+    spy1 = jest.spyOn(model.constructor.prototype, 'NewRelation').mockReturnValue(relation);
     // @ts-ignore
     spy2 = jest.spyOn(builder, '_relationsNestedUnder');
     spy3 = jest.spyOn(relation, 'getQuery').mockReturnValue({
@@ -880,7 +880,7 @@ describe('fedaco builder', () => {
       }
     };
 
-    spy1 = jest.spyOn(model.constructor.prototype, '$newRelation').mockReturnValue(relation);
+    spy1 = jest.spyOn(model.constructor.prototype, 'NewRelation').mockReturnValue(relation);
     // @ts-ignore
     spy2 = jest.spyOn(builder, '_relationsNestedUnder');
     spy3 = jest.spyOn(relation, 'getQuery').mockReturnValue(groupQuery);
@@ -1040,7 +1040,7 @@ describe('fedaco builder', () => {
 
     const spy1 = jest.spyOn(builder.getQuery(), 'from');
     const spy2 = jest.spyOn(builder.getQuery(), 'addNestedWhereQuery').mockReturnThis();
-    const spy3 = jest.spyOn(model, '$newQueryWithoutRelationships').mockReturnValue({
+    const spy3 = jest.spyOn(model, 'NewQueryWithoutRelationships').mockReturnValue({
       // @ts-ignore
       foo     : jest.fn(),
       getQuery: jest.fn()
@@ -1061,7 +1061,7 @@ describe('fedaco builder', () => {
   it('real nested where with scopes', () => {
     const model1 = new FedacoBuilderTestNestedStub();
     mockConnectionForModel(FedacoBuilderTestNestedStub, 'SQLite');
-    const query = model1.$newQuery()
+    const query = model1.NewQuery()
       .where('foo', '=', 'bar')
       .where((q: FedacoBuilder) => {
         q.where('baz', '>', 9000);
@@ -1076,7 +1076,7 @@ describe('fedaco builder', () => {
   it('real nested where with scopes macro', () => {
     const model1 = new FedacoBuilderTestNestedStub();
     mockConnectionForModel(FedacoBuilderTestNestedStub, 'SQLite');
-    const query = model1.$newQuery()
+    const query = model1.NewQuery()
       .where('foo', '=', 'bar')
       .where((q: FedacoBuilder) => {
         q.where('baz', '>', 9000).pipe(
@@ -1094,7 +1094,7 @@ describe('fedaco builder', () => {
   it('real nested where with multiple scopes and one dead scope', () => {
     const model1 = new FedacoBuilderTestNestedStub();
     mockConnectionForModel(FedacoBuilderTestNestedStub, 'SQLite');
-    const query = model1.$newQuery()
+    const query = model1.NewQuery()
       .scope('empty')
       .where('foo', '=', 'bar')
       .scope('empty')
@@ -1110,7 +1110,7 @@ describe('fedaco builder', () => {
   it('real query higher order or where scopes', () => {
     const model1 = new FedacoBuilderTestHigherOrderWhereScopeStub();
     mockConnectionForModel(FedacoBuilderTestHigherOrderWhereScopeStub, 'SQLite');
-    const query = model1.$newQuery()
+    const query = model1.NewQuery()
       .scope('one')
       .orWhere(
         (q: FedacoBuilder) => {
@@ -1126,7 +1126,7 @@ describe('fedaco builder', () => {
   it('real query chained higher order or where scopes', () => {
     const model1 = new FedacoBuilderTestHigherOrderWhereScopeStub();
     mockConnectionForModel(FedacoBuilderTestHigherOrderWhereScopeStub, 'SQLite');
-    const query = model1.$newQuery()
+    const query = model1.NewQuery()
       .scope('one')
       .orWhere(
         (q: FedacoBuilder) => {
@@ -1184,7 +1184,7 @@ describe('fedaco builder', () => {
     builder.setModel(model);
 
     spy1          = jest.spyOn(builder.getQuery(), 'where');
-    const keyName = model.$getQualifiedKeyName();
+    const keyName = model.GetQualifiedKeyName();
     const int     = 1;
     builder.whereKey(int);
     expect(spy1).toBeCalledWith(keyName, '=', int, 'and');
@@ -1198,7 +1198,7 @@ describe('fedaco builder', () => {
     builder.setModel(model);
 
     spy1          = jest.spyOn(builder.getQuery(), 'whereIn');
-    const keyName = model.$getQualifiedKeyName();
+    const keyName = model.GetQualifiedKeyName();
     const array   = [1, 2, 3];
     builder.whereKey(array);
 
@@ -1213,7 +1213,7 @@ describe('fedaco builder', () => {
     builder.setModel(model);
 
     spy1             = jest.spyOn(builder.getQuery(), 'whereIn');
-    const keyName    = model.$getQualifiedKeyName();
+    const keyName    = model.GetQualifiedKeyName();
     const collection = [1, 2, 3];
     builder.whereKey(collection);
 
@@ -1228,7 +1228,7 @@ describe('fedaco builder', () => {
     builder.setModel(model);
 
     spy1          = jest.spyOn(builder.getQuery(), 'where');
-    const keyName = model.$getQualifiedKeyName();
+    const keyName = model.GetQualifiedKeyName();
     const int     = 1;
     builder.whereKeyNot(int);
 
@@ -1244,7 +1244,7 @@ describe('fedaco builder', () => {
     builder.setModel(model);
 
     spy1          = jest.spyOn(builder.getQuery(), 'whereNotIn');
-    const keyName = model.$getQualifiedKeyName();
+    const keyName = model.GetQualifiedKeyName();
     const array   = [1, 2, 3];
     builder.whereKeyNot(array);
 
@@ -1259,7 +1259,7 @@ describe('fedaco builder', () => {
     builder.setModel(model);
 
     spy1             = jest.spyOn(builder.getQuery(), 'whereNotIn');
-    const keyName    = model.$getQualifiedKeyName();
+    const keyName    = model.GetQualifiedKeyName();
     const collection = [1, 2, 3];
     builder.whereKeyNot(collection);
 
@@ -1269,8 +1269,8 @@ describe('fedaco builder', () => {
   it('where in', () => {
     model = new FedacoBuilderTestNestedStub();
     mockConnectionForModel(FedacoBuilderTestNestedStub, '');
-    const query  = model.$newQuery().withoutGlobalScopes().whereIn('foo',
-      model.$newQuery().select('id'));
+    const query  = model.NewQuery().withoutGlobalScopes().whereIn('foo',
+      model.NewQuery().select('id'));
     const result = query.toSql();
 
     expect(result.result).toBe(
@@ -1284,7 +1284,7 @@ describe('fedaco builder', () => {
 
     builder.setModel(model);
 
-    spy1 = jest.spyOn(model, '$getCreatedAtColumn').mockReturnValue('foo');
+    spy1 = jest.spyOn(model, 'GetCreatedAtColumn').mockReturnValue('foo');
     spy2 = jest.spyOn(builder.getQuery(), 'latest');
 
     builder.latest();
@@ -1300,7 +1300,7 @@ describe('fedaco builder', () => {
 
     builder.setModel(model);
 
-    spy1 = jest.spyOn(model, '$getCreatedAtColumn').mockReturnValue(null);
+    spy1 = jest.spyOn(model, 'GetCreatedAtColumn').mockReturnValue(null);
     spy2 = jest.spyOn(builder.getQuery(), 'latest');
 
     builder.latest();
@@ -1330,7 +1330,7 @@ describe('fedaco builder', () => {
 
     builder.setModel(model);
 
-    spy1 = jest.spyOn(model, '$getCreatedAtColumn').mockReturnValue('foo');
+    spy1 = jest.spyOn(model, 'GetCreatedAtColumn').mockReturnValue('foo');
     spy2 = jest.spyOn(builder.getQuery(), 'oldest');
 
     builder.oldest();
@@ -1345,7 +1345,7 @@ describe('fedaco builder', () => {
 
     builder.setModel(model);
 
-    spy1 = jest.spyOn(model, '$getCreatedAtColumn').mockReturnValue(null);
+    spy1 = jest.spyOn(model, 'GetCreatedAtColumn').mockReturnValue(null);
     spy2 = jest.spyOn(builder.getQuery(), 'oldest');
 
     builder.oldest();

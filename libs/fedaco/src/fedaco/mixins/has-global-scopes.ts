@@ -11,7 +11,7 @@ import type { Scope } from '../scope';
 
 export interface HasGlobalScopes {
 
-  $getGlobalScopes(): { [key: string]: Scope | Function };
+  GetGlobalScopes(): { [key: string]: Scope | Function };
 }
 
 export declare class HasGlobalScopes {
@@ -50,7 +50,7 @@ export function mixinHasGlobalScopes<T extends Constructor<{}>>(base: T): HasGlo
     }
 
     /*Get the global scopes for this class instance.*/
-    public $getGlobalScopes(this: Model & _Self) {
+    public GetGlobalScopes(this: Model & _Self) {
       const target = globalScopes.get(this.constructor);
       return target || [];
     }

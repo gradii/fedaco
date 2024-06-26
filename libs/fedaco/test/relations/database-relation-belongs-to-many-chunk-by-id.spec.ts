@@ -56,7 +56,7 @@ async function seedData() {
       'title': 'Another title'
     }
   ]);
-  await user.$newRelation('articles').sync([3, 1, 2]);
+  await user.NewRelation('articles').sync([3, 1, 2]);
 }
 
 describe('test database fedaco belongs to many chunk by id', () => {
@@ -85,7 +85,7 @@ describe('test database fedaco belongs to many chunk by id', () => {
 
     let i = 0;
 
-    await user.$newRelation('articles').chunkById(1).pipe(
+    await user.NewRelation('articles').chunkById(1).pipe(
       tap(({results: collection}: { results: any[] }) => {
         i++;
         //must be string!

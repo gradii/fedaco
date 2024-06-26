@@ -18,28 +18,28 @@ export interface HidesAttributes {
 
   _visible: any[];
 
-  $getHidden(): any[];
+  GetHidden(): any[];
 
   /*Set the hidden attributes for the model.*/
-  $setHidden(hidden: any[]): this;
+  SetHidden(hidden: any[]): this;
 
   /*Get the visible attributes for the model.*/
-  $getVisible(): any[];
+  GetVisible(): any[];
 
   /*Set the visible attributes for the model.*/
-  $setVisible(visible: any[]): this;
+  SetVisible(visible: any[]): this;
 
   /*Make the given, typically hidden, attributes visible.*/
-  $makeVisible(attributes: any[] | string | null): this;
+  MakeVisible(attributes: any[] | string | null): this;
 
   /*Make the given, typically hidden, attributes visible if the given truth test passes.*/
-  $makeVisibleIf(condition: boolean | Function, attributes: any[] | string | null): this;
+  MakeVisibleIf(condition: boolean | Function, attributes: any[] | string | null): this;
 
   /*Make the given, typically visible, attributes hidden.*/
-  $makeHidden(attributes: any[] | string | null): this;
+  MakeHidden(attributes: any[] | string | null): this;
 
   /*Make the given, typically visible, attributes hidden if the given truth test passes.*/
-  $makeHiddenIf(condition: boolean | Function, attributes: any[] | string | null): this;
+  MakeHiddenIf(condition: boolean | Function, attributes: any[] | string | null): this;
 }
 
 type HidesAttributesCtor = Constructor<HidesAttributes>;
@@ -53,7 +53,7 @@ export function mixinHidesAttributes<T extends Constructor<{}>>(base: T): HidesA
     _visible: any[];
 
     /*Get the hidden attributes for the model.*/
-    public $getHidden(): any[] {
+    public GetHidden(): any[] {
       if (isBlank(this._hidden)) {
         const metas                 = reflector.annotations(this.constructor);
         const meta: TableAnnotation = findLast((it) => {
@@ -69,13 +69,13 @@ export function mixinHidesAttributes<T extends Constructor<{}>>(base: T): HidesA
     }
 
     /*Set the hidden attributes for the model.*/
-    public $setHidden(hidden: any[]): this {
+    public SetHidden(hidden: any[]): this {
       this._hidden = hidden;
       return this;
     }
 
     /*Get the visible attributes for the model.*/
-    public $getVisible(): any[] {
+    public GetVisible(): any[] {
       if (isBlank(this._visible)) {
         const metas                 = reflector.annotations(this.constructor);
         const meta: TableAnnotation = findLast((it) => {
@@ -91,35 +91,35 @@ export function mixinHidesAttributes<T extends Constructor<{}>>(base: T): HidesA
     }
 
     /*Set the visible attributes for the model.*/
-    public $setVisible(visible: any[]): this {
+    public SetVisible(visible: any[]): this {
       this._visible = visible;
       return this;
     }
 
     /*Make the given, typically hidden, attributes visible.*/
-    public $makeVisible(attributes: any[] | string | null): this {
+    public MakeVisible(attributes: any[] | string | null): this {
       attributes   = isArray(attributes) ? attributes : [...arguments] as unknown as any[];
       this._hidden = difference(this._hidden, attributes);
-      if (this.$getVisible().length) {
+      if (this.GetVisible().length) {
         this._visible = [...this._visible, ...attributes];
       }
       return this;
     }
 
     /*Make the given, typically hidden, attributes visible if the given truth test passes.*/
-    public $makeVisibleIf(condition: boolean | Function, attributes: any[] | string | null): this {
-      return value(condition, this) ? this.$makeVisible(attributes) : this;
+    public MakeVisibleIf(condition: boolean | Function, attributes: any[] | string | null): this {
+      return value(condition, this) ? this.MakeVisible(attributes) : this;
     }
 
     /*Make the given, typically visible, attributes hidden.*/
-    public $makeHidden(attributes: any[] | string | null): this {
+    public MakeHidden(attributes: any[] | string | null): this {
       this._hidden = [...this._hidden, ...(isArray(attributes) ? attributes : arguments)];
       return this;
     }
 
     /*Make the given, typically visible, attributes hidden if the given truth test passes.*/
-    public $makeHiddenIf(condition: boolean | Function, attributes: any[] | string | null): this {
-      return value(condition, this) ? this.$makeHidden(attributes) : this;
+    public MakeHiddenIf(condition: boolean | Function, attributes: any[] | string | null): this {
+      return value(condition, this) ? this.MakeHidden(attributes) : this;
     }
   };
 }

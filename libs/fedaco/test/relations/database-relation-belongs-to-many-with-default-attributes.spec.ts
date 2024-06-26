@@ -4,17 +4,17 @@ import { getBuilder } from './relation-testing-helper';
 
 function getRelationArguments() {
   const parent = new Model();
-  jest.spyOn(parent, '$getKey').mockReturnValue(1);
-  jest.spyOn(parent, '$getCreatedAtColumn').mockReturnValue('created_at');
-  jest.spyOn(parent, '$getUpdatedAtColumn').mockReturnValue('updated_at');
-  jest.spyOn(parent, '$getAttribute').mockReturnValue(1);
+  jest.spyOn(parent, 'GetKey').mockReturnValue(1);
+  jest.spyOn(parent, 'GetCreatedAtColumn').mockReturnValue('created_at');
+  jest.spyOn(parent, 'GetUpdatedAtColumn').mockReturnValue('updated_at');
+  jest.spyOn(parent, 'GetAttribute').mockReturnValue(1);
 
   const builder = getBuilder();
   const related = new Model();
 
   jest.spyOn(builder, 'getModel').mockReturnValue(related);
-  jest.spyOn(related, '$getTable').mockReturnValue('users');
-  jest.spyOn(related, '$getKeyName').mockReturnValue('id');
+  jest.spyOn(related, 'GetTable').mockReturnValue('users');
+  jest.spyOn(related, 'GetKeyName').mockReturnValue('id');
   return [builder, parent, 'club_user', 'club_id', 'user_id', 'id', 'id', null, false];
 }
 

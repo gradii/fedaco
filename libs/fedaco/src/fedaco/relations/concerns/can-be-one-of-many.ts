@@ -86,7 +86,7 @@ export function mixinCanBeOneOfMany<T extends Constructor<any>>(base: T) {
                   relation: string): this {
       this._isOneOfMany  = true;
       this._relationName = relation; // || this._getDefaultOneOfManyJoinAlias();
-      const keyName      = (this._query.getModel() as Model).$getKeyName();
+      const keyName      = (this._query.getModel() as Model).GetKeyName();
       const columns      = isString(column) ? {
         [column] : aggregate,
         [keyName]: aggregate,
@@ -159,7 +159,7 @@ export function mixinCanBeOneOfMany<T extends Constructor<any>>(base: T) {
     /*Get a new query for the related model, grouping the query by the given column, often the foreign key of the relationship.*/
     _newOneOfManySubQuery(this: MorphOneOrMany & _Self, groupBy: string | any[], column?: string,
                           aggregate?: string): FedacoBuilder {
-      const subQuery = this._query.getModel().$newQuery();
+      const subQuery = this._query.getModel().NewQuery();
       for (const group of wrap(groupBy)) {
         subQuery.groupBy(this._qualifyRelatedColumn(group));
       }
@@ -207,7 +207,7 @@ export function mixinCanBeOneOfMany<T extends Constructor<any>>(base: T) {
 
     /*Qualify related column using the related table name if it is not already qualified.*/
     _qualifyRelatedColumn(column: string): string {
-      return column.includes('.') ? column : (this._query.getModel() as Model).$getTable() + '.' + column;
+      return column.includes('.') ? column : (this._query.getModel() as Model).GetTable() + '.' + column;
     }
 
     /*Guess the "hasOne" relationship's name via backtrace.*/

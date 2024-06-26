@@ -35,7 +35,7 @@ export class MorphOne extends mixinCanBeOneOfMany(
   /*Initialize the relation on a set of models.*/
   public initRelation(models: Model[], relation: string) {
     for (const model of models) {
-      model.$setRelation(relation, this._getDefaultFor(model));
+      model.SetRelation(relation, this._getDefaultFor(model));
     }
     return models;
   }
@@ -80,13 +80,13 @@ export class MorphOne extends mixinCanBeOneOfMany(
 
   /*Make a new related instance for the given model.*/
   public newRelatedInstanceFor(parent: Model) {
-    return this._related.$newInstance()
-      .$setAttribute(this.getForeignKeyName(), parent[this._localKey])
-      .$setAttribute(this.getMorphType(), this._morphClass);
+    return this._related.NewInstance()
+      .SetAttribute(this.getForeignKeyName(), parent[this._localKey])
+      .SetAttribute(this.getMorphType(), this._morphClass);
   }
 
   /*Get the value of the model's foreign key.*/
   _getRelatedKeyFrom(model: Model) {
-    return model.$getAttribute(this.getForeignKeyName());
+    return model.GetAttribute(this.getForeignKeyName());
   }
 }

@@ -8,19 +8,19 @@ import { Table } from '../../src/annotation/table/table';
 
 function getRelationArguments() {
   const parent = new Model();
-  jest.spyOn(parent, '$getMorphClass').mockReturnValue(parent.constructor.name);
-  jest.spyOn(parent, '$getKey').mockReturnValue(1);
-  jest.spyOn(parent, '$getCreatedAtColumn').mockReturnValue('created_at');
-  jest.spyOn(parent, '$getUpdatedAtColumn').mockReturnValue('updated_at');
-  jest.spyOn(parent, '$getAttribute').mockReturnValue(1);
+  jest.spyOn(parent, 'GetMorphClass').mockReturnValue(parent.constructor.name);
+  jest.spyOn(parent, 'GetKey').mockReturnValue(1);
+  jest.spyOn(parent, 'GetCreatedAtColumn').mockReturnValue('created_at');
+  jest.spyOn(parent, 'GetUpdatedAtColumn').mockReturnValue('updated_at');
+  jest.spyOn(parent, 'GetAttribute').mockReturnValue(1);
 
   const builder = getBuilder();
   const related = new Model();
 
   jest.spyOn(builder, 'getModel').mockReturnValue(related);
-  jest.spyOn(related, '$getTable').mockReturnValue('tags');
-  jest.spyOn(related, '$getKeyName').mockReturnValue('id');
-  jest.spyOn(related, '$getMorphClass').mockReturnValue(related.constructor.name);
+  jest.spyOn(related, 'GetTable').mockReturnValue('tags');
+  jest.spyOn(related, 'GetKeyName').mockReturnValue('id');
+  jest.spyOn(related, 'GetMorphClass').mockReturnValue(related.constructor.name);
 
   return [
     builder, parent, 'taggable', 'taggables', 'taggable_id', 'tag_id', 'id', 'id', 'relation_name',
@@ -40,8 +40,8 @@ describe('test database fedaco morph to many', () => {
   it('eager constraints are properly added', () => {
     const relation = getRelation();
 
-    const spy1 = jest.spyOn(relation.getParent(), '$getKeyName').mockReturnValue('id');
-    const spy2 = jest.spyOn(relation.getParent(), '$getKeyType').mockReturnValue('int');
+    const spy1 = jest.spyOn(relation.getParent(), 'GetKeyName').mockReturnValue('id');
+    const spy2 = jest.spyOn(relation.getParent(), 'GetKeyType').mockReturnValue('int');
     const spy3 = jest.spyOn(relation.getQuery(), 'whereIntegerInRaw');
     const spy4 = jest.spyOn(relation.getQuery(), 'where');
 

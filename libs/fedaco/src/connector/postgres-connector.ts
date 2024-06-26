@@ -30,20 +30,20 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
   //     if (!(config["charset"] !== undefined)) {
   //         return;
   //     }
-  //     connection.prepare("\"set names '{$config['charset']}'\"").execute();
+  //     connection.prepare("\"set names '{Config['charset']}'\"").execute();
   // }
   // /*Set the timezone on the connection.*/
   // protected configureTimezone(connection: PDO, config: any[]) {
   //     if (config["timezone"] !== undefined) {
   //         var timezone = config["timezone"];
-  //         connection.prepare("\"set time zone '{$timezone}'\"").execute();
+  //         connection.prepare("\"set time zone '{Timezone}'\"").execute();
   //     }
   // }
   // /*Set the "search_path" on the database connection.*/
   // protected configureSearchPath(connection: PDO, config: any[]) {
   //     if (config["search_path"] !== undefined) {
   //         var searchPath = this.quoteSearchPath(this.parseSearchPath(config["search_path"]));
-  //         connection.prepare("\"set search_path to {$searchPath}\"").execute();
+  //         connection.prepare("\"set search_path to {SearchPath}\"").execute();
   //     }
   // }
   // /*Parse the "search_path" configuration value into an array.*/
@@ -65,16 +65,16 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
   // protected configureApplicationName(connection: PDO, config: any[]) {
   //     if (config["application_name"] !== undefined) {
   //         var applicationName = config["application_name"];
-  //         connection.prepare("\"set application_name to '$applicationName'\"").execute();
+  //         connection.prepare("\"set application_name to 'ApplicationName'\"").execute();
   //     }
   // }
   // /*Create a DSN string from a configuration.*/
   // protected getDsn(config: any[]) {
   //     extract(config, EXTR_SKIP);
-  //     var host = host !== undefined ? "\"host={$host};\" " : "";
-  //     var dsn = "\"pgsql:{$host}dbname={$database}\"";
+  //     var host = host !== undefined ? "\"host={Host};\" " : "";
+  //     var dsn = "\"pgsql:{Host}dbname={Database}\"";
   //     if (config["port"] !== undefined) {
-  //         dsn += "\";port={$port}\"";
+  //         dsn += "\";port={Port}\"";
   //     }
   //     return this.addSslOptions(dsn, config);
   // }
@@ -89,6 +89,6 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
   //     if (!(config["synchronous_commit"] !== undefined)) {
   //         return;
   //     }
-  //     connection.prepare("\"set synchronous_commit to '{$config['synchronous_commit']}'\"").execute();
+  //     connection.prepare("\"set synchronous_commit to '{Config['synchronous_commit']}'\"").execute();
   // }
 }

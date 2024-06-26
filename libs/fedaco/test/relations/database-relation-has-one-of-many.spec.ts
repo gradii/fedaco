@@ -78,27 +78,27 @@ describe('test database fedaco has one of many', () => {
 
   it('it guesses relation name', async () => {
     const user = new HasOneOfManyTestUser;
-    expect(user.$newRelation('latest_login').getRelationName()).toBe('latest_login_of_many');
+    expect(user.NewRelation('latest_login').getRelationName()).toBe('latest_login_of_many');
   });
 
   it('it guesses relation name and adds of many when table name is relation name', () => {
     const model = new HasOneOfManyTestUser;
-    expect(model.$newRelation('logins').getRelationName()).toBe('logins_of_many');
+    expect(model.NewRelation('logins').getRelationName()).toBe('logins_of_many');
   });
 
   it('relation name can be set', async () => {
     const user   = await HasOneOfManyTestUser.createQuery().create();
-    let relation = user.$newRelation('latest_login').ofMany('id', 'max', 'foo');
+    let relation = user.NewRelation('latest_login').ofMany('id', 'max', 'foo');
     expect(relation.getRelationName()).toBe('foo');
-    relation = user.$newRelation('latest_login').latestOfMany('id', 'bar');
+    relation = user.NewRelation('latest_login').latestOfMany('id', 'bar');
     expect(relation.getRelationName()).toBe('bar');
-    relation = user.$newRelation('latest_login').oldestOfMany('id', 'baz');
+    relation = user.NewRelation('latest_login').oldestOfMany('id', 'baz');
     expect(relation.getRelationName()).toBe('baz');
   });
 
   it('eager loading applies constraints to inner join sub query', async () => {
     const user     = await HasOneOfManyTestUser.createQuery().create();
-    const relation = user.$newRelation('latest_login');
+    const relation = user.NewRelation('latest_login');
     relation.addEagerConstraints([user]);
     expect(relation.getOneOfManySubQuery().toSql()).toEqual({
       result  : 'SELECT MAX("id") AS "id", "logins"."user_id" FROM "logins" WHERE "logins"."user_id" = ? AND "logins"."user_id" IS NOT NULL AND "logins"."user_id" IN (?) GROUP BY "logins"."user_id"',
@@ -108,84 +108,84 @@ describe('test database fedaco has one of many', () => {
 
   it('qualifying sub select column', async () => {
     const user = await HasOneOfManyTestUser.createQuery().create();
-    expect(user.$newRelation('latest_login')._qualifySubSelectColumn('id')).toBe(
+    expect(user.NewRelation('latest_login')._qualifySubSelectColumn('id')).toBe(
       'latest_login_of_many.id');
   });
 
   it('it fails when using invalid aggregate', async () => {
     const user = new HasOneOfManyTestUser();
     expect(() => {
-      user.$newRelation('latest_login_with_invalid_aggregate');
+      user.NewRelation('latest_login_with_invalid_aggregate');
     }).toThrowError(
       `InvalidArgumentException Invalid aggregate [count] used within ofMany relation. Available aggregates: MIN, MAX`);
   });
 
   it('it gets correct results', async () => {
     const user          = await HasOneOfManyTestUser.createQuery().create();
-    const previousLogin = await user.$newRelation('logins').create();
-    const latestLogin   = await user.$newRelation('logins').create();
-    const result        = await user.$newRelation('latest_login').getResults();
+    const previousLogin = await user.NewRelation('logins').create();
+    const latestLogin   = await user.NewRelation('logins').create();
+    const result        = await user.NewRelation('latest_login').getResults();
     expect(result).not.toBeNull();
     expect(result.id).toEqual(latestLogin.id);
   });
 
   it('it gets correct results using shortcut method', async () => {
     const user          = await HasOneOfManyTestUser.createQuery().create();
-    const previousLogin = await user.$newRelation('logins').create();
-    const latestLogin   = await user.$newRelation('logins').create();
-    const result        = await user.$newRelation('latest_login_with_shortcut').getResults();
+    const previousLogin = await user.NewRelation('logins').create();
+    const latestLogin   = await user.NewRelation('logins').create();
+    const result        = await user.NewRelation('latest_login_with_shortcut').getResults();
     expect(result).not.toBeNull();
     expect(result.id).toEqual(latestLogin.id);
   });
 
   it('it gets correct results using shortcut receiving multiple columns method', async () => {
     const user = await HasOneOfManyTestUser.createQuery().create();
-    await user.$newRelation('prices').create({
+    await user.NewRelation('prices').create({
       'published_at': '2021-05-01 00:00:00'
     });
-    const price  = await user.$newRelation('prices').create({
+    const price  = await user.NewRelation('prices').create({
       'published_at': '2021-05-01 00:00:00'
     });
-    const result = await user.$newRelation('price_with_shortcut').getResults();
+    const result = await user.NewRelation('price_with_shortcut').getResults();
     expect(result).not.toBeNull();
     expect(result.id).toEqual(price.id);
   });
 
   it('key is added to aggregates when missing', async () => {
     const user = await HasOneOfManyTestUser.createQuery().create();
-    await user.$newRelation('prices').create({
+    await user.NewRelation('prices').create({
       'published_at': '2021-05-01 00:00:00'
     });
-    const price  = await user.$newRelation('prices').create({
+    const price  = await user.NewRelation('prices').create({
       'published_at': '2021-05-01 00:00:00'
     });
-    const result = await user.$newRelation('price_without_key_in_aggregates').getResults();
+    const result = await user.NewRelation('price_without_key_in_aggregates').getResults();
     expect(result).not.toBeNull();
     expect(result.id).toEqual(price.id);
   });
 
   it('it gets with constraints correct results', async () => {
     const user          = await HasOneOfManyTestUser.createQuery().create();
-    const previousLogin = await user.$newRelation('logins').create();
-    await user.$newRelation('logins').create();
-    const result = await user.$newRelation('latest_login').whereKey(
-      previousLogin.$getKey()).getResults();
+    const previousLogin = await user.NewRelation('logins').create();
+    await user.NewRelation('logins').create();
+    const result = await user.NewRelation('latest_login').whereKey(
+      previousLogin.GetKey()).getResults();
     expect(result).toBeNull();
   });
 
   it('it eager loads correct models', async () => {
     let user = await HasOneOfManyTestUser.createQuery().create();
-    await user.$newRelation('logins').create();
-    const latestLogin = await user.$newRelation('logins').create();
+    await user.NewRelation('logins').create();
+    const latestLogin = await user.NewRelation('logins').create();
     user              = await HasOneOfManyTestUser.createQuery().with('latest_login').first();
-    expect(user.$relationLoaded('latest_login')).toBeTruthy();
+    expect(user.RelationLoaded('latest_login')).toBeTruthy();
     expect((user.latest_login as HasOneOfManyTestLogin).id).toEqual(latestLogin.id);
   });
 
   it('has nested', async () => {
     const user          = await HasOneOfManyTestUser.createQuery().create();
-    const previousLogin = await user.$newRelation('logins').create();
-    const latestLogin   = await user.$newRelation('logins').create();
+    const previousLogin = await user.NewRelation('logins').create();
+    const latestLogin   = await user.NewRelation('logins').create();
     let found           = await HasOneOfManyTestUser.createQuery()
       .whereHas('latest_login', query => {
         query.where('logins.id', latestLogin.id);
@@ -201,75 +201,75 @@ describe('test database fedaco has one of many', () => {
 
   it('has count', async () => {
     let user = await HasOneOfManyTestUser.createQuery().create();
-    await user.$newRelation('logins').create();
-    await user.$newRelation('logins').create();
+    await user.NewRelation('logins').create();
+    await user.NewRelation('logins').create();
     user = await HasOneOfManyTestUser.createQuery().withCount('latest_login').first();
-    expect(user.$getAttribute('latest_login_count')).toEqual(1);
+    expect(user.GetAttribute('latest_login_count')).toEqual(1);
   });
 
   it('exists', async () => {
     const user          = await HasOneOfManyTestUser.createQuery().create();
-    const previousLogin = await user.$newRelation('logins').create();
-    const latestLogin   = await user.$newRelation('logins').create();
+    const previousLogin = await user.NewRelation('logins').create();
+    const latestLogin   = await user.NewRelation('logins').create();
     expect(
-      await user.$newRelation('latest_login').whereKey(previousLogin.$getKey()).exists()).toBeFalsy();
+      await user.NewRelation('latest_login').whereKey(previousLogin.GetKey()).exists()).toBeFalsy();
     expect(
-      await user.$newRelation('latest_login').whereKey(latestLogin.$getKey()).exists()).toBeTruthy();
+      await user.NewRelation('latest_login').whereKey(latestLogin.GetKey()).exists()).toBeTruthy();
   });
 
   it('is method', async () => {
     const user   = await HasOneOfManyTestUser.createQuery().create();
-    const login1 = await user.$newRelation('latest_login').create();
-    const login2 = await user.$newRelation('latest_login').create();
-    expect(await user.$newRelation('latest_login').is(login1)).toBeFalsy();
-    expect(await user.$newRelation('latest_login').is(login2)).toBeTruthy();
+    const login1 = await user.NewRelation('latest_login').create();
+    const login2 = await user.NewRelation('latest_login').create();
+    expect(await user.NewRelation('latest_login').is(login1)).toBeFalsy();
+    expect(await user.NewRelation('latest_login').is(login2)).toBeTruthy();
   });
 
   it('is not method', async () => {
     const user   = await HasOneOfManyTestUser.createQuery().create();
-    const login1 = await user.$newRelation('latest_login').create();
-    const login2 = await user.$newRelation('latest_login').create();
-    expect(await user.$newRelation('latest_login').isNot(login1)).toBeTruthy();
-    expect(await user.$newRelation('latest_login').isNot(login2)).toBeFalsy();
+    const login1 = await user.NewRelation('latest_login').create();
+    const login2 = await user.NewRelation('latest_login').create();
+    expect(await user.NewRelation('latest_login').isNot(login1)).toBeTruthy();
+    expect(await user.NewRelation('latest_login').isNot(login2)).toBeFalsy();
   });
 
   it('get', async () => {
     const user          = await HasOneOfManyTestUser.createQuery().create();
-    const previousLogin = await user.$newRelation('logins').create();
-    const latestLogin   = await user.$newRelation('logins').create();
-    let latestLogins    = await user.$newRelation('latest_login').get();
+    const previousLogin = await user.NewRelation('logins').create();
+    const latestLogin   = await user.NewRelation('logins').create();
+    let latestLogins    = await user.NewRelation('latest_login').get();
     expect(latestLogins).toHaveLength(1);
     expect(head(latestLogins as any[]).id).toEqual(latestLogin.id);
-    latestLogins = await user.$newRelation('latest_login').whereKey(previousLogin.$getKey()).get();
+    latestLogins = await user.NewRelation('latest_login').whereKey(previousLogin.GetKey()).get();
     expect(latestLogins).toHaveLength(0);
   });
 
   it('count', async () => {
     const user = await HasOneOfManyTestUser.createQuery().create();
-    await user.$newRelation('logins').create();
-    await user.$newRelation('logins').create();
-    expect(await user.$newRelation('latest_login').count()).toEqual(1);
+    await user.NewRelation('logins').create();
+    await user.NewRelation('logins').create();
+    expect(await user.NewRelation('latest_login').count()).toEqual(1);
   });
 
   it('aggregate', async () => {
     let user         = await HasOneOfManyTestUser.createQuery().create();
-    const firstLogin = await user.$newRelation('logins').create();
-    await user.$newRelation('logins').create();
+    const firstLogin = await user.NewRelation('logins').create();
+    await user.NewRelation('logins').create();
     user = await HasOneOfManyTestUser.createQuery().first();
     expect((await user.first_login).id).toEqual(firstLogin.id);
   });
 
   it('join constraints', async () => {
     let user = await HasOneOfManyTestUser.createQuery().create();
-    await user.$newRelation('states').create({
+    await user.NewRelation('states').create({
       'type' : 'foo',
       'state': 'draft'
     });
-    const currentForState = await user.$newRelation('states').create({
+    const currentForState = await user.NewRelation('states').create({
       'type' : 'foo',
       'state': 'active'
     });
-    await user.$newRelation('states').create({
+    await user.NewRelation('states').create({
       'type' : 'bar',
       'state': 'baz'
     });
@@ -279,10 +279,10 @@ describe('test database fedaco has one of many', () => {
 
   it('multiple aggregates', async () => {
     let user = await HasOneOfManyTestUser.createQuery().create();
-    await user.$newRelation('prices').create({
+    await user.NewRelation('prices').create({
       'published_at': '2021-05-01 00:00:00'
     });
-    const price = await user.$newRelation('prices').create({
+    const price = await user.NewRelation('prices').create({
       'published_at': '2021-05-01 00:00:00'
     });
     user        = await HasOneOfManyTestUser.createQuery().first();
@@ -292,19 +292,19 @@ describe('test database fedaco has one of many', () => {
   it('eager loading with multiple aggregates', async () => {
     const user1 = await HasOneOfManyTestUser.createQuery().create();
     const user2 = await HasOneOfManyTestUser.createQuery().create();
-    await user1.$newRelation('prices').create({
+    await user1.NewRelation('prices').create({
       'published_at': '2021-05-01 00:00:00'
     });
-    const user1Price = await user1.$newRelation('prices').create({
+    const user1Price = await user1.NewRelation('prices').create({
       'published_at': '2021-05-01 00:00:00'
     });
-    await user1.$newRelation('prices').create({
+    await user1.NewRelation('prices').create({
       'published_at': '2021-04-01 00:00:00'
     });
-    const user2Price = await user2.$newRelation('prices').create({
+    const user2Price = await user2.NewRelation('prices').create({
       'published_at': '2021-05-01 00:00:00'
     });
-    await user2.$newRelation('prices').create({
+    await user2.NewRelation('prices').create({
       'published_at': '2021-04-01 00:00:00'
     });
     const users = await HasOneOfManyTestUser.createQuery()
@@ -319,27 +319,27 @@ describe('test database fedaco has one of many', () => {
   it('with exists', async () => {
     await HasOneOfManyTestUser.createQuery().create();
     let user = await HasOneOfManyTestUser.createQuery().withExists('latest_login').first();
-    expect(user.$getAttribute('latest_login_exists')).toBeFalsy();
-    await user.$newRelation('logins').create();
+    expect(user.GetAttribute('latest_login_exists')).toBeFalsy();
+    await user.NewRelation('logins').create();
     user = await HasOneOfManyTestUser.createQuery().withExists('latest_login').first();
-    expect(user.$getAttribute('latest_login_exists')).toBeTruthy();
+    expect(user.GetAttribute('latest_login_exists')).toBeTruthy();
   });
 
   it('with exists with constraints in join sub select', async () => {
     await HasOneOfManyTestUser.createQuery().create();
     let user = await HasOneOfManyTestUser.createQuery().withExists('foo_state').first();
-    expect(user.$getAttribute('foo_state_exists')).toBeFalsy();
-    await user.$newRelation('states').create({
+    expect(user.GetAttribute('foo_state_exists')).toBeFalsy();
+    await user.NewRelation('states').create({
       'type' : 'foo',
       'state': 'bar'
     });
     user = await HasOneOfManyTestUser.createQuery().withExists('foo_state').first();
-    expect(user.$getAttribute('foo_state_exists')).toBeTruthy();
+    expect(user.GetAttribute('foo_state_exists')).toBeTruthy();
   });
 
   it('with soft deletes', async () => {
     const user = await HasOneOfManyTestUser.createQuery().create();
-    await user.$newRelation('logins').create();
+    await user.NewRelation('logins').create();
     await user.latest_login_with_soft_deletes;
     expect(user.latest_login_with_soft_deletes).not.toBeNull();
   });

@@ -38,9 +38,9 @@ export const BelongsToColumn: FedacoDecorator<BelongsToRelationAnnotation> = mak
       }
 
       const instance = m._newRelatedInstance(resolveForwardRef(p.related));
-      p.foreignKey   = p.foreignKey || `${snakeCase(p.relation)}_${instance.$getKeyName()}`;
-      p.ownerKey     = p.ownerKey || instance.$getKeyName();
-      const r        = new BelongsTo(instance.$newQuery(), m, p.foreignKey, p.ownerKey, p.relation);
+      p.foreignKey   = p.foreignKey || `${snakeCase(p.relation)}_${instance.GetKeyName()}`;
+      p.ownerKey     = p.ownerKey || instance.GetKeyName();
+      const r        = new BelongsTo(instance.NewQuery(), m, p.foreignKey, p.ownerKey, p.relation);
       if (p.onQuery) {
         p.onQuery(r);
       }

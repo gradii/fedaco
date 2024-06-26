@@ -108,7 +108,7 @@ export class PostgresSchemaBuilder extends SchemaBuilder {
       database = parts[0];
       parts.shift();
     }
-    let schema = searchPath[0] === '$user' ? this.connection.getConfig(
+    let schema = searchPath[0] === 'User' ? this.connection.getConfig(
       'username') : searchPath[0];
     if (parts.length === 2) {
       schema = parts[0];
@@ -126,7 +126,7 @@ export class PostgresSchemaBuilder extends SchemaBuilder {
     // }
     // array_walk(searchPath, schema => {
     //   let schema   = trim(schema, '\'"');
-    //   const schema = schema === '$user' ? this.connection.getConfig('username') : schema;
+    //   const schema = schema === 'User' ? this.connection.getConfig('username') : schema;
     // });
     return searchPath;
   }

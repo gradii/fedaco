@@ -74,7 +74,7 @@ describe('test database fedaco irregular plural', () => {
 
   it('it pluralizes the table name', async () => {
     const model = new IrregularPluralHuman();
-    expect(model.$getTable()).toBe('irregular_plural_humans');
+    expect(model.GetTable()).toBe('irregular_plural_humans');
   });
 
   it('it touches the parent with an irregular plural', async () => {
@@ -91,9 +91,9 @@ describe('test database fedaco irregular plural', () => {
     const human    = await IrregularPluralHuman.createQuery().first();
     const tokenIds = await IrregularPluralToken.createQuery().pluck('id');
     // Carbon.setTestNow('2018-05-01 15:16:17');
-    await human.$newRelation('irregularPluralTokens').sync(tokenIds as any[]);
+    await human.NewRelation('irregularPluralTokens').sync(tokenIds as any[]);
     const now = formatISO(new Date());
-    await human.$refresh();
+    await human.Refresh();
     expect(+human.created_at - +new Date() < 1000).toBeTruthy();
     expect(+human.updated_at - +new Date() < 1000).toBeTruthy();
     // expect(/*cast type string*/ formatISO(human.created_at)).toBe(now);
@@ -104,7 +104,7 @@ describe('test database fedaco irregular plural', () => {
     const human = await IrregularPluralHuman.createQuery().create({
       'email': 'bobby@example.com'
     });
-    await human.$newRelation('mottoes').create({
+    await human.NewRelation('mottoes').create({
       'name': 'Real eyes realize real lies'
     });
     const motto = await IrregularPluralMotto.createQuery().first();

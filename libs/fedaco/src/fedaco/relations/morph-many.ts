@@ -14,13 +14,13 @@ export class MorphMany extends MorphOneOrMany {
   public async getResults() {
     return !isBlank(this.getParentKey()) ?
       await this._query.get() :
-      this._related.$newCollection();
+      this._related.NewCollection();
   }
 
   /*Initialize the relation on a set of models.*/
   public initRelation(models: Model[], relation: string) {
     for (const model of models) {
-      model.setRelation(relation, this._related.$newCollection());
+      model.setRelation(relation, this._related.NewCollection());
     }
     return models;
   }

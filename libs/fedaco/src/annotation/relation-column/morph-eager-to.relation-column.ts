@@ -15,7 +15,7 @@ import { FedacoRelationColumn } from '../relation-column';
 
 /*Define a polymorphic, inverse one-to-one or many relationship.*/
 function morphEagerTo(m: Model, name: string, type: string, id: string, ownerKey: string) {
-  return new MorphTo(m.$newQuery().setEagerLoads([]), m, id, ownerKey, type, name);
+  return new MorphTo(m.NewQuery().setEagerLoads([]), m, id, ownerKey, type, name);
 }
 
 /*Define a polymorphic, inverse one-to-one or many relationship.*/
@@ -43,7 +43,7 @@ export const MorphEagerToColumn: FedacoDecorator<MorphEagerToRelationAnnotation>
     type        : RelationType.MorphTo,
     _getRelation: function (m: Model, relation: string) {
       const name = p.name || relation;
-      const r = new MorphTo(m.$newQuery().setEagerLoads([]), m, p.id, p.ownerKey, p.type, name);
+      const r = new MorphTo(m.NewQuery().setEagerLoads([]), m, p.id, p.ownerKey, p.type, name);
 
       if (p.onQuery) {
         p.onQuery(r);
