@@ -1,3 +1,4 @@
+import { timer } from 'rxjs';
 import { PrimaryColumn } from '../../src/annotation/column/primary.column';
 import { BelongsToManyColumn } from '../../src/annotation/relation-column/belongs-to-many.relation-column';
 import { DatabaseConfig } from '../../src/database-config';
@@ -60,7 +61,8 @@ describe('test database fedaco belongs to many sync return value type', () => {
     const db = new DatabaseConfig();
     db.addConnection({
       'driver'  : 'sqlite',
-      'database': ':memory:'
+      'database': ':memory:',
+      'foreign_key_constraints': false
     });
     db.bootFedaco();
     db.setAsGlobal();
@@ -68,6 +70,7 @@ describe('test database fedaco belongs to many sync return value type', () => {
   });
 
   afterAll(async () => {
+    await schema().disableForeignKeyConstraints();
     await schema().drop('users');
     await schema().drop('articles');
     await schema().drop('article_user');

@@ -63,8 +63,8 @@ describe('test database fedaco belongs to many chunk by id', () => {
   beforeAll(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      'driver'  : 'sqlite',
-      'database': ':memory:',
+      'driver'                 : 'sqlite',
+      'database'               : ':memory:',
       'foreign_key_constraints': false
     });
     db.bootFedaco();
@@ -73,6 +73,7 @@ describe('test database fedaco belongs to many chunk by id', () => {
   });
 
   afterAll(async () => {
+    await schema().disableForeignKeyConstraints();
     await schema().drop('users');
     await schema().drop('articles');
     await schema().drop('article_user');
