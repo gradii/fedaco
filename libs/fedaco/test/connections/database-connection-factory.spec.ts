@@ -84,14 +84,13 @@ describe('test database connection factory', () => {
     expect(connection.readPdo).not.toBeInstanceOf(PDO);
   });
 
-  xit('sqlite foreign key constraints', async () => {
+  it('sqlite foreign key constraints', async () => {
     db.addConnection({
       'url': 'sqlite:///:memory:?foreign_key_constraints=true'
     }, 'constraints_set');
 
     // init has a not important statement. it must be called
-    db.getConnection('constraints_set');
-
+    await db.getConnection().getSchemaBuilder().disableForeignKeyConstraints();
     expect((await db.getConnection().select('PRAGMA foreign_keys'))[0].foreign_keys).toEqual(0);
     expect((await db.getConnection('constraints_set').select(
       'PRAGMA foreign_keys'
