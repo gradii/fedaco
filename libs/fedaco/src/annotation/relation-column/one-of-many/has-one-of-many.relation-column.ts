@@ -36,12 +36,12 @@ export const HasOneOfManyColumn: FedacoDecorator<HasOneOfManyRelationAnnotation>
     _getRelation: function (m: Model, relation: string) {
       // region copied from has one annotation. don't modify it
       const instance   = m._newRelatedInstance(resolveForwardRef(p.related));
-      const foreignKey = p.foreignKey || m.$getForeignKey();
-      const localKey   = p.localKey || m.$getKeyName();
+      const foreignKey = p.foreignKey || m.GetForeignKey();
+      const localKey   = p.localKey || m.GetKeyName();
       const r          = new HasOne(
-        instance.$newQuery(),
+        instance.NewQuery(),
         m,
-        `${instance.$getTable()}.${foreignKey}`,
+        `${instance.GetTable()}.${foreignKey}`,
         localKey);
       // endregion
 

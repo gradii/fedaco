@@ -221,59 +221,59 @@ describe('test database fedaco integration', () => {
   // });
 
   it('basic create model', async () => {
-    const model = await new FedacoTestUser().$newQuery().create({
+    const model = await new FedacoTestUser().NewQuery().create({
       'id'   : 1,
       'email': 'linbolen@gradii.com'
     });
 
     expect(model.id).toBe(1);
     expect(model.email).toBe('linbolen@gradii.com');
-    await model.$delete();
+    await model.Delete();
   });
 
   it('basic model retrieval', async () => {
     const factory = new FedacoTestUser();
 
-    await factory.$newQuery().create({
+    await factory.NewQuery().create({
       'id'   : 1,
       'email': 'linbolen@gradii.com'
     });
 
-    await factory.$newQuery().create({
+    await factory.NewQuery().create({
       'id'   : 2,
       'email': 'xsilen@gradii.com'
     });
 
-    expect(await factory.$newQuery().count()).toEqual(2);
+    expect(await factory.NewQuery().count()).toEqual(2);
     expect(
-      await factory.$newQuery().where('email', 'linbolen@gradii.com').doesntExist()).toBeFalsy();
+      await factory.NewQuery().where('email', 'linbolen@gradii.com').doesntExist()).toBeFalsy();
     expect(
-      await factory.$newQuery().where('email', 'mohamed@laravel.com').doesntExist()).toBeTruthy();
-    let model: FedacoTestUser = await factory.$newQuery()
+      await factory.NewQuery().where('email', 'mohamed@laravel.com').doesntExist()).toBeTruthy();
+    let model: FedacoTestUser = await factory.NewQuery()
       .where('email', 'linbolen@gradii.com').first();
     expect(model.email).toBe('linbolen@gradii.com');
     expect(model.email !== undefined).toBeTruthy();
     const friends = await model.friends;
     expect(friends !== undefined).toBeTruthy();
     expect(friends).toEqual([]);
-    model = await factory.$newQuery().find(1);
+    model = await factory.NewQuery().find(1);
     expect(model).toBeInstanceOf(FedacoTestUser);
     expect(model.id).toEqual(1);
-    model = await factory.$newQuery().find(2);
+    model = await factory.NewQuery().find(2);
     expect(model).toBeInstanceOf(FedacoTestUser);
     expect(model.id).toEqual(2);
-    const missing = await factory.$newQuery().find(3);
+    const missing = await factory.NewQuery().find(3);
     expect(missing).toBeUndefined();
-    let collection = await factory.$newQuery().find([]);
+    let collection = await factory.NewQuery().find([]);
     expect(isArray(collection)).toBeTruthy();
     expect(collection.length).toBe(0);
-    collection = await factory.$newQuery().find([1, 2, 3]);
+    collection = await factory.NewQuery().find([1, 2, 3]);
     expect(isArray(collection)).toBeTruthy();
     expect(collection.length).toBe(2);
-    const models = await factory.$newQuery().where('id', 1).get(); // .cursor();
+    const models = await factory.NewQuery().where('id', 1).get(); // .cursor();
     for (const m of models) {
       expect(m.id).toEqual(1);
-      expect(m.$getConnectionName()).toBe('default');
+      expect(m.GetConnectionName()).toBe('default');
     }
     // let records = DB.table('users').where('id', 1).cursor();
     // for (let record of records) {
@@ -294,7 +294,7 @@ describe('test database fedaco integration', () => {
       'id'   : 2,
       'email': 'xsilen@gradii.com'
     });
-    const models = await new FedacoTestUser().$newQuery().oldest('id').get();
+    const models = await new FedacoTestUser().NewQuery().oldest('id').get();
     expect(models.length).toBe(2);
     expect(isArray(models)).toBeTruthy();
     expect(models[0]).toBeInstanceOf(FedacoTestUser);
@@ -304,22 +304,22 @@ describe('test database fedaco integration', () => {
   });
 
   it('paginated model collection retrieval', async () => {
-    await new FedacoTestUser().$newQuery().create({
+    await new FedacoTestUser().NewQuery().create({
       'id'   : 1,
       'email': 'linbolen@gradii.com'
     });
-    await new FedacoTestUser().$newQuery().create({
+    await new FedacoTestUser().NewQuery().create({
       'id'   : 2,
       'email': 'xsilen@gradii.com'
     });
-    await new FedacoTestUser().$newQuery().create({
+    await new FedacoTestUser().NewQuery().create({
       'id'   : 3,
       'email': 'foo@gmail.com'
     });
     // Paginator.currentPageResolver(() => {
     //   return 1;
     // });
-    let models = await new FedacoTestUser().$newQuery()
+    let models = await new FedacoTestUser().NewQuery()
       .oldest('id').paginate(1, 2);
     expect(models.items.length).toBe(2);
     expect(models.items[0]).toBeInstanceOf(FedacoTestUser);
@@ -329,7 +329,7 @@ describe('test database fedaco integration', () => {
     // Paginator.currentPageResolver(() => {
     //   return 2;
     // });
-    models = await new FedacoTestUser().$newQuery()
+    models = await new FedacoTestUser().NewQuery()
       .oldest('id').paginate(2, 2);
     expect(models.items.length).toBe(1);
     expect(models.items[0]).toBeInstanceOf(FedacoTestUser);
@@ -340,18 +340,18 @@ describe('test database fedaco integration', () => {
     // Paginator.currentPageResolver(() => {
     //   return 1;
     // });
-    let models = await new FedacoTestUser().$newQuery().oldest('id').paginate(1, 2);
+    let models = await new FedacoTestUser().NewQuery().oldest('id').paginate(1, 2);
     expect(models.items.length).toBe(0);
     // expect(models).toInstanceOf(LengthAwarePaginator);
     // Paginator.currentPageResolver(() => {
     //   return 2;
     // });
-    models = await new FedacoTestUser().$newQuery().oldest('id').paginate(2, 2);
+    models = await new FedacoTestUser().NewQuery().oldest('id').paginate(2, 2);
     expect(models.items.length).toBe(0);
   });
 
   it('paginated model collection retrieval when no elements and default per page', async () => {
-    const models = await new FedacoTestUser().$newQuery().oldest('id').paginate();
+    const models = await new FedacoTestUser().NewQuery().oldest('id').paginate();
     expect(models.items.length).toBe(0);
     // expect(models).toInstanceOf(LengthAwarePaginator);
   });
@@ -394,7 +394,7 @@ describe('test database fedaco integration', () => {
       'id'   : 4,
       'email': 'foo@gmail.com'
     });
-    const friendsRelation = user1.$newRelation('friends') as BelongsToMany;
+    const friendsRelation = user1.NewRelation('friends') as BelongsToMany;
     await friendsRelation.create({
       'id'   : 5,
       'email': 'friend@gmail.com'
@@ -488,8 +488,8 @@ describe('test database fedaco integration', () => {
     let user2 = await FedacoTestUser.useConnection('second_connection').findOrNew(2);
     expect(user1._exists).toBeFalsy();
     expect(user2._exists).toBeTruthy();
-    expect(user1.$getConnectionName()).toBe('second_connection');
-    expect(user2.$getConnectionName()).toBe('second_connection');
+    expect(user1.GetConnectionName()).toBe('second_connection');
+    expect(user2.GetConnectionName()).toBe('second_connection');
     user1 = await FedacoTestUser.useConnection('second_connection').firstOrNew({
       'email': 'linbolen@gradii.com'
     });
@@ -498,8 +498,8 @@ describe('test database fedaco integration', () => {
     });
     expect(user1._exists).toBeFalsy();
     expect(user2._exists).toBeTruthy();
-    expect(user1.$getConnectionName()).toBe('second_connection');
-    expect(user2.$getConnectionName()).toBe('second_connection');
+    expect(user1.GetConnectionName()).toBe('second_connection');
+    expect(user2.GetConnectionName()).toBe('second_connection');
     expect(await FedacoTestUser.useConnection('second_connection').count()).toEqual(1);
     user1 = await FedacoTestUser.useConnection('second_connection').firstOrCreate({
       'email': 'linbolen@gradii.com'
@@ -507,8 +507,8 @@ describe('test database fedaco integration', () => {
     user2 = await FedacoTestUser.useConnection('second_connection').firstOrCreate({
       'email': 'tony.stark@gradii.com'
     });
-    expect(user1.$getConnectionName()).toBe('second_connection');
-    expect(user2.$getConnectionName()).toBe('second_connection');
+    expect(user1.GetConnectionName()).toBe('second_connection');
+    expect(user2.GetConnectionName()).toBe('second_connection');
     expect(await FedacoTestUser.useConnection('second_connection').count()).toEqual(2);
   });
 
@@ -638,11 +638,11 @@ describe('test database fedaco integration', () => {
       'id'   : 2,
       'email': 'xsilen@gradii.com'
     });
-    await (user2.$newRelation('posts') as HasMany).create({
+    await (user2.NewRelation('posts') as HasMany).create({
       'id'  : 1,
       'name': 'First post'
     });
-    await (user1.$newRelation('posts') as HasMany).create({
+    await (user1.NewRelation('posts') as HasMany).create({
       'id'  : 2,
       'name': 'Second post'
     });
@@ -733,7 +733,7 @@ describe('test database fedaco integration', () => {
     let user = await FedacoTestUser.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
-    await user.$newRelation('post').create({
+    await user.NewRelation('post').create({
       'name': 'First Post'
     });
     const post = await user.post;
@@ -750,7 +750,7 @@ describe('test database fedaco integration', () => {
     const user = await FedacoTestUser.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
-    await user.$newRelation('post').create({
+    await user.NewRelation('post').create({
       'name': 'First Post'
     });
     expect((await user.post).name).not.toBeUndefined();
@@ -760,14 +760,14 @@ describe('test database fedaco integration', () => {
     const user = await FedacoTestUser.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
-    await (user.$newRelation('posts') as HasMany).create({
+    await (user.NewRelation('posts') as HasMany).create({
       'name': 'First Post'
     });
-    await user.$newRelation('posts').create({
+    await user.NewRelation('posts').create({
       'name': 'Second Post'
     });
     const posts = await user.posts;
-    const post2 = await user.$newRelation('posts').where('name', 'Second Post').first();
+    const post2 = await user.NewRelation('posts').where('name', 'Second Post').first();
     expect(isArray(posts)).toBeTruthy();
     expect(posts.length).toBe(2);
     expect(posts[0]).toBeInstanceOf(FedacoTestPost);
@@ -782,19 +782,19 @@ describe('test database fedaco integration', () => {
     let user = FedacoTestUser.initAttributes({
       'email': 'linbolen@gradii.com'
     });
-    user.$setConnection('second_connection');
-    await user.$save();
+    user.SetConnection('second_connection');
+    await user.Save();
     user = FedacoTestUser.initAttributes({
       'email': 'xsilen@gradii.com'
     });
-    user.$setConnection('second_connection');
-    await user.$save();
+    user.SetConnection('second_connection');
+    await user.Save();
     const models = await FedacoTestUser.useConnection('second_connection').fromQuery(
       'SELECT * FROM users WHERE email = ?', ['xsilen@gradii.com']);
     expect(isArray(models)).toBeTruthy();
     expect(models[0]).toBeInstanceOf(FedacoTestUser);
     expect(models[0].email).toBe('xsilen@gradii.com');
-    expect(models[0].$getConnectionName()).toBe('second_connection');
+    expect(models[0].GetConnectionName()).toBe('second_connection');
     expect(models.length).toBe(1);
   });
 
@@ -802,7 +802,7 @@ describe('test database fedaco integration', () => {
     const user = await FedacoTestUser.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
-    await user.$newRelation('friends').create({
+    await user.NewRelation('friends').create({
       'email': 'xsilen@gradii.com'
     });
     expect((await user.friends)[0].id !== undefined).toBeTruthy();
@@ -815,7 +815,7 @@ describe('test database fedaco integration', () => {
     const user = await FedacoTestUser.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
-    await user.$newRelation('friends').create({
+    await user.NewRelation('friends').create({
       'email': 'xsilen@gradii.com'
     });
     const results: FedacoTestUser[] = await FedacoTestUser.createQuery()
@@ -830,10 +830,10 @@ describe('test database fedaco integration', () => {
     const user   = await FedacoTestUser.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
-    const friend = await user.$newRelation('friends').create({
+    const friend = await user.NewRelation('friends').create({
       'email': 'xsilen@gradii.com'
     });
-    await friend.$newRelation('friends').create({
+    await friend.NewRelation('friends').create({
       'email': 'foo@gmail.com'
     });
     const results = await FedacoTestUser.createQuery().has('friends.friends').get();
@@ -845,10 +845,10 @@ describe('test database fedaco integration', () => {
     const user   = await FedacoTestUser.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
-    const friend = await user.$newRelation('friends').create({
+    const friend = await user.NewRelation('friends').create({
       'email': 'xsilen@gradii.com'
     });
-    await friend.$newRelation('friends').create({
+    await friend.NewRelation('friends').create({
       'email': 'foo@gmail.com'
     });
     const results: FedacoTestUser[] = await FedacoTestUser.createQuery()
@@ -864,7 +864,7 @@ describe('test database fedaco integration', () => {
       id     : 1,
       'email': 'linbolen@gradii.com'
     });
-    await user.$newRelation('friends').create({
+    await user.NewRelation('friends').create({
       id     : 2,
       'email': 'xsilen@gradii.com'
     });
@@ -878,11 +878,11 @@ describe('test database fedaco integration', () => {
       id     : 1,
       'email': 'linbolen@gradii.com'
     });
-    const friend = await user.$newRelation('friends').create({
+    const friend = await user.NewRelation('friends').create({
       id     : 2,
       'email': 'xsilen@gradii.com'
     });
-    await friend.$newRelation('friends').create({
+    await friend.NewRelation('friends').create({
       id     : 3,
       'email': 'foo@gmail.com'
     });
@@ -1076,10 +1076,10 @@ describe('test database fedaco integration', () => {
       'email': 'linbolen@gradii.com'
     });
     await (
-      await user.$newRelation('posts').create({
+      await user.NewRelation('posts').create({
         'name': 'Post 2'
       })
-    ).$newRelation('photos').create({
+    ).NewRelation('photos').create({
       'name': 'photo.jpg'
     });
     const query                     = await FedacoTestUser.createQuery().has('postWithPhotos');
@@ -1100,18 +1100,18 @@ describe('test database fedaco integration', () => {
     const user                  = await FedacoTestUser.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
-    const friend                = await user.$newRelation('friends').create({
+    const friend                = await user.NewRelation('friends').create({
       'email': 'xsilen@gradii.com'
     });
     const user1: FedacoTestUser = await FedacoTestUser.createQuery().first();
-    await user1.$newRelation('friends')
+    await user1.NewRelation('friends')
       .chunk(2)
       .pipe(
         tap(({ results: friends }) => {
           expect(friends.length).toBe(1);
           expect(head(friends).email).toBe('xsilen@gradii.com');
-          expect(head(friends).$getRelation('pivot').$getAttribute('user_id')).toBe(user.id);
-          expect(head(friends).$getRelation('pivot').$getAttribute('friend_id')).toBe(friend.id);
+          expect(head(friends).GetRelation('pivot').GetAttribute('user_id')).toBe(user.id);
+          expect(head(friends).GetRelation('pivot').GetAttribute('friend_id')).toBe(friend.id);
         })
       ).toPromise();
   });
@@ -1120,32 +1120,32 @@ describe('test database fedaco integration', () => {
     const user   = await FedacoTestUser.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
-    const friend = await user.$newRelation('friends').create({
+    const friend = await user.NewRelation('friends').create({
       'email': 'xsilen@gradii.com'
     });
-    await (await FedacoTestUser.createQuery().first()).$newRelation('friends')
+    await (await FedacoTestUser.createQuery().first()).NewRelation('friends')
       .each()
       .pipe(
         tap(({ item: result, index }) => {
           expect(result.email).toBe('xsilen@gradii.com');
-          expect(result.$getRelation('pivot').$getAttribute('user_id')).toBe(user.id);
-          expect(result.$getRelation('pivot').$getAttribute('friend_id')).toBe(friend.id);
+          expect(result.GetRelation('pivot').GetAttribute('user_id')).toBe(user.id);
+          expect(result.GetRelation('pivot').GetAttribute('friend_id')).toBe(friend.id);
         })
       ).toPromise();
   });
 
-  xit('belongs to many relationship models are properly hydrated over cursor request', async () => {
+  it('belongs to many relationship models are properly hydrated over cursor request', async () => {
     const user   = await FedacoTestUser.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
-    const friend = await user.$newRelation('friends').create({
+    const friend = await user.NewRelation('friends').create({
       'email': 'xsilen@gradii.com'
     });
-    for (const result of await (await FedacoTestUser.createQuery().first()).$newRelation(
-      'friends').get()) {
+    for (const result of (await (await FedacoTestUser.createQuery().first()).NewRelation(
+      'friends').get()) as FedacoTestUser[]) {
       expect(result.email).toBe('xsilen@gradii.com');
-      expect(result.getRelation('pivot').getAttribute('user_id')).toEqual(user.id);
-      expect(result.getRelation('pivot').getAttribute('friend_id')).toEqual(friend.id);
+      expect(result.GetRelation('pivot').GetAttribute('user_id')).toEqual(user.id);
+      expect(result.GetRelation('pivot').GetAttribute('friend_id')).toEqual(friend.id);
     }
   });
 
@@ -1154,7 +1154,7 @@ describe('test database fedaco integration', () => {
     let user: FedacoTestUser = await FedacoTestUser.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
-    await user.$newRelation('posts').create({
+    await user.NewRelation('posts').create({
       'name': 'First Post'
     });
     user = await FedacoTestUser.createQuery()
@@ -1173,10 +1173,10 @@ describe('test database fedaco integration', () => {
       'email': 'linbolen@gradii.com'
     });
     // @ts-ignore
-    const post: FedacoTestPost = await user.$newRelation('posts').create({
+    const post: FedacoTestPost = await user.NewRelation('posts').create({
       'name': 'First Post'
     });
-    await post.$newRelation('childPosts').create({
+    await post.NewRelation('childPosts').create({
       'name'   : 'Child Post',
       'user_id': user.id
     });
@@ -1199,19 +1199,19 @@ describe('test database fedaco integration', () => {
     const user = await FedacoTestUser.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
-    await user.$newRelation('photos').create({
+    await user.NewRelation('photos').create({
       'name': 'Avatar 1'
     });
-    await user.$newRelation('photos').create({
+    await user.NewRelation('photos').create({
       'name': 'Avatar 2'
     });
-    const post = await user.$newRelation('posts').create({
+    const post = await user.NewRelation('posts').create({
       'name': 'First Post'
     });
-    await post.$newRelation('photos').create({
+    await post.NewRelation('photos').create({
       'name': 'Hero 1'
     });
-    await post.$newRelation('photos').create({
+    await post.NewRelation('photos').create({
       'name': 'Hero 2'
     });
 
@@ -1245,19 +1245,19 @@ describe('test database fedaco integration', () => {
     const user = await FedacoTestUser.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
-    await user.$newRelation('photos').create({
+    await user.NewRelation('photos').create({
       'name': 'Avatar 1'
     });
-    await user.$newRelation('photos').create({
+    await user.NewRelation('photos').create({
       'name': 'Avatar 2'
     });
-    const post: FedacoTestPost = await user.$newRelation('posts').create<FedacoTestPost>({
+    const post: FedacoTestPost = await user.NewRelation('posts').create<FedacoTestPost>({
       'name': 'First Post'
     });
-    await post.$newRelation('photos').create({
+    await post.NewRelation('photos').create({
       'name': 'Hero 1'
     });
-    await post.$newRelation('photos').create({
+    await post.NewRelation('photos').create({
       'name': 'Hero 2'
     });
     expect(isArray(await user.photos)).toBeTruthy();
@@ -1270,10 +1270,10 @@ describe('test database fedaco integration', () => {
     expect((await user.photos)[1].name).toBe('Avatar 2');
     expect((await post.photos)[0].name).toBe('Hero 1');
     expect((await post.photos)[1].name).toBe('Hero 2');
-    expect((await user.photos)[0].$getAttribute('imageable_type')).toBe('user');
-    expect((await user.photos)[1].$getAttribute('imageable_type')).toBe('user');
-    expect((await post.photos)[0].$getAttribute('imageable_type')).toBe('post');
-    expect((await post.photos)[1].$getAttribute('imageable_type')).toBe('post');
+    expect((await user.photos)[0].GetAttribute('imageable_type')).toBe('user');
+    expect((await user.photos)[1].GetAttribute('imageable_type')).toBe('user');
+    expect((await post.photos)[0].GetAttribute('imageable_type')).toBe('post');
+    expect((await post.photos)[1].GetAttribute('imageable_type')).toBe('post');
   });
 
   it('morph map is used when fetching parent', async () => {
@@ -1284,11 +1284,11 @@ describe('test database fedaco integration', () => {
     const user = await FedacoTestUser.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
-    await user.$newRelation('photos').create({
+    await user.NewRelation('photos').create({
       'name': 'Avatar 1'
     });
     const photo = await FedacoTestPhoto.createQuery().first();
-    expect(photo.$getAttribute('imageable_type')).toBe('user');
+    expect(photo.GetAttribute('imageable_type')).toBe('user');
     expect(await photo.imageable).toBeInstanceOf(FedacoTestUser);
   });
 
@@ -1330,7 +1330,7 @@ describe('test database fedaco integration', () => {
       'created_at': date,
       'updated_at': date
     });
-    expect(await post.$saveOrFail()).toBeTruthy();
+    expect(await post.SaveOrFail()).toBeTruthy();
     expect(await FedacoTestPost.createQuery().count()).toEqual(1);
   });
 
@@ -1343,19 +1343,19 @@ describe('test database fedaco integration', () => {
     expect(model.json).toEqual({
       'x': 0
     });
-    model.$fillable(['json->y', 'json->a->b']);
-    await model.$update({
+    model.Fillable(['json->y', 'json->a->b']);
+    await model.Update({
       'json->y': '1'
     });
-    expect('json->y' in model.$toArray()).toBeFalsy();
+    expect('json->y' in model.ToArray()).toBeFalsy();
     expect(model.json).toEqual({
       'x': 0,
       'y': '1'
     });
-    await model.$update({
+    await model.Update({
       'json->a->b': '3'
     });
-    expect('json->a->b' in model.$toArray()).toBeFalsy();
+    expect('json->a->b' in model.ToArray()).toBeFalsy();
     expect(model.json).toEqual({
       'x': 0,
       'y': '1',
@@ -1383,7 +1383,7 @@ describe('test database fedaco integration', () => {
     });
 
     await expect(async () => {
-      await post.$saveOrFail();
+      await post.SaveOrFail();
     }).rejects.toThrowErrorMatchingSnapshot('SQLITE_CONSTRAINT');
   });
 
@@ -1477,11 +1477,11 @@ describe('test database fedaco integration', () => {
 
   it('to array includes default formatted timestamps', () => {
     const model = new FedacoTestUser();
-    model.$setRawAttributes({
+    model.SetRawAttributes({
       'created_at': '2012-12-04',
       'updated_at': '2012-12-05'
     });
-    const array = model.$toArray();
+    const array = model.ToArray();
     // expect(array['created_at']).toBe('2012-12-04T00:00:00+08:00');
     // expect(array['updated_at']).toBe('2012-12-05T00:00:00+08:00');
     expect(array['created_at']).toBe(formatISO(parse('2012-12-04', 'yyyy-MM-dd', new Date())));
@@ -1490,11 +1490,11 @@ describe('test database fedaco integration', () => {
 
   it('to array includes custom formatted timestamps', () => {
     const model = new FedacoTestUserWithCustomDateSerialization();
-    model.$setRawAttributes({
+    model.SetRawAttributes({
       'created_at': '2012-12-04',
       'updated_at': '2012-12-05'
     });
-    const array = model.$toArray();
+    const array = model.ToArray();
     expect(array['created_at']).toBe('04-12-12');
     expect(array['updated_at']).toBe('05-12-12');
   });
@@ -1519,11 +1519,11 @@ describe('test database fedaco integration', () => {
     const user = await FedacoTestUserWithGlobalScope.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
-    await user.$newRelation('posts').create({
+    await user.NewRelation('posts').create({
       'name': 'My Post'
     });
     const result: FedacoTestUserWithGlobalScope = await FedacoTestUserWithGlobalScope.createQuery().first();
-    expect(Object.keys(result.$getRelations())).toHaveLength(1);
+    expect(Object.keys(result.GetRelations())).toHaveLength(1);
   });
 
   it('model ignored by global scope can be refreshed', async () => {
@@ -1531,7 +1531,7 @@ describe('test database fedaco integration', () => {
       'id'   : 1,
       'email': 'linbolen@gradii.com'
     });
-    expect(await user.$fresh()).not.toBeNull();
+    expect(await user.Fresh()).not.toBeNull();
   });
 
 //   it('global scope can be removed by other global scope', () => {
@@ -1662,13 +1662,13 @@ describe('test database fedaco integration', () => {
       'id'   : 3,
       'level': 'bff'
     });
-    await john.$newRelation('friends').attach(jane, {
+    await john.NewRelation('friends').attach(jane, {
       'friend_level_id': 1
     });
-    await john.$newRelation('friends').attach(jack, {
+    await john.NewRelation('friends').attach(jack, {
       'friend_level_id': 2
     });
-    await john.$newRelation('friends').attach(jule, {
+    await john.NewRelation('friends').attach(jule, {
       'friend_level_id': 3
     });
 
@@ -1676,10 +1676,10 @@ describe('test database fedaco integration', () => {
       .with('friends').find(1);
     expect((johnWithFriends.friends as FedacoTestUser[]).length).toBe(3);
     expect(await (await (johnWithFriends.friends as FedacoTestUser[]).find(
-      it => it.id === 3).$getAttribute(
+      it => it.id === 3).GetAttribute(
       'pivot').level).level).toBe('friend');
     expect(
-      (await (johnWithFriends.friends as FedacoTestUser[]).find(it => it.id === 4).$getAttribute(
+      (await (johnWithFriends.friends as FedacoTestUser[]).find(it => it.id === 4).GetAttribute(
         'pivot').friend).name).toBe('Jule Doe');
   });
 
@@ -1689,7 +1689,7 @@ describe('test database fedaco integration', () => {
       'email': 'linbolen@gradii.com'
     });
     const retrieved = await FedacoTestUser.createQuery().find(1);
-    expect(saved.$is(retrieved)).toBeTruthy();
+    expect(saved.Is(retrieved)).toBeTruthy();
   });
 
   it('fresh method on model', async () => {
@@ -1702,34 +1702,34 @@ describe('test database fedaco integration', () => {
       'email'   : 'linbolen@gradii.com',
       'birthday': now
     });
-    await storedUser1.$newQuery().update({
+    await storedUser1.NewQuery().update({
       'email': 'dev@mathieutu.ovh',
       'name' : 'Mathieu TUDISCO'
     });
-    const freshStoredUser1 = await storedUser1.$fresh();
+    const freshStoredUser1 = await storedUser1.Fresh();
     const storedUser2      = await FedacoTestUser.createQuery().create({
       'id'      : 2,
       'email'   : 'linbolen@gradii.com',
       'birthday': now
     });
-    await storedUser2.$newQuery().update({
+    await storedUser2.NewQuery().update({
       'email': 'dev@mathieutu.ovh'
     });
-    const freshStoredUser2   = await storedUser2.$fresh();
+    const freshStoredUser2   = await storedUser2.Fresh();
     const notStoredUser      = FedacoTestUser.initAttributes({
       'id'      : 3,
       'email'   : 'linbolen@gradii.com',
       'birthday': now
     });
-    const freshNotStoredUser = await notStoredUser.$fresh();
-    expect(JSON.parse(JSON.stringify(storedUser1.$toArray()))).toEqual({
+    const freshNotStoredUser = await notStoredUser.Fresh();
+    expect(JSON.parse(JSON.stringify(storedUser1.ToArray()))).toEqual({
       'id'        : 1,
       'email'     : 'linbolen@gradii.com',
       'birthday'  : formatISO(new Date(nowWithFractionsSerialized)),
       'created_at': nowSerialized,
       'updated_at': nowSerialized
     });
-    expect(JSON.parse(JSON.stringify(freshStoredUser1.$toArray()))).toEqual({
+    expect(JSON.parse(JSON.stringify(freshStoredUser1.ToArray()))).toEqual({
       'id'        : 1,
       'name'      : 'Mathieu TUDISCO',
       'email'     : 'dev@mathieutu.ovh',
@@ -1738,14 +1738,14 @@ describe('test database fedaco integration', () => {
       'updated_at': nowSerialized
     });
     expect(storedUser1).toBeInstanceOf(FedacoTestUser);
-    expect(JSON.parse(JSON.stringify(storedUser2.$toArray()))).toEqual({
+    expect(JSON.parse(JSON.stringify(storedUser2.ToArray()))).toEqual({
       'id'        : 2,
       'email'     : 'linbolen@gradii.com',
       'birthday'  : formatISO(new Date(nowWithFractionsSerialized)),
       'created_at': nowSerialized,
       'updated_at': nowSerialized
     });
-    expect(JSON.parse(JSON.stringify(freshStoredUser2.$toArray()))).toEqual({
+    expect(JSON.parse(JSON.stringify(freshStoredUser2.ToArray()))).toEqual({
       'id'        : 2,
       'name'      : null,
       'email'     : 'dev@mathieutu.ovh',
@@ -1754,7 +1754,7 @@ describe('test database fedaco integration', () => {
       'updated_at': nowSerialized
     });
     expect(storedUser2).toBeInstanceOf(FedacoTestUser);
-    expect(JSON.parse(JSON.stringify(notStoredUser.$toArray()))).toEqual({
+    expect(JSON.parse(JSON.stringify(notStoredUser.ToArray()))).toEqual({
       'id'      : 3,
       'email'   : 'linbolen@gradii.com',
       'birthday': formatISO(new Date(nowWithFractionsSerialized))
@@ -1787,56 +1787,56 @@ describe('test database fedaco integration', () => {
 
   it('timestamps using default date format', () => {
     const model = new FedacoTestUser();
-    model.$setDateFormat('yyyy-MM-dd HH:mm:ss');
-    model.$setRawAttributes({
+    model.SetDateFormat('yyyy-MM-dd HH:mm:ss');
+    model.SetRawAttributes({
       'created_at': '2017-11-14 08:23:19'
     });
-    expect(model.$fromDateTime(model.$getAttribute('created_at'))).toBe('2017-11-14 08:23:19');
+    expect(model.FromDateTime(model.GetAttribute('created_at'))).toBe('2017-11-14 08:23:19');
   });
 
   it('timestamps using default sql server date format', () => {
     const model = new FedacoTestUser();
-    model.$setDateFormat('yyyy-MM-dd HH:mm:ss.SSS');
-    model.$setRawAttributes({
+    model.SetDateFormat('yyyy-MM-dd HH:mm:ss.SSS');
+    model.SetRawAttributes({
       'created_at': '2017-11-14 08:23:19.000',
       'updated_at': '2017-11-14 08:23:19.734'
     });
-    expect(model.$fromDateTime(model.$getAttribute('created_at'))).toBe('2017-11-14 08:23:19.000');
-    expect(model.$fromDateTime(model.$getAttribute('updated_at'))).toBe('2017-11-14 08:23:19.734');
+    expect(model.FromDateTime(model.GetAttribute('created_at'))).toBe('2017-11-14 08:23:19.000');
+    expect(model.FromDateTime(model.GetAttribute('updated_at'))).toBe('2017-11-14 08:23:19.734');
   });
 
   it('timestamps using custom date format', () => {
     const model = new FedacoTestUser();
-    model.$setDateFormat('yyyy-MM-dd HH:mm:ss.SSSS');
-    model.$setRawAttributes({
+    model.SetDateFormat('yyyy-MM-dd HH:mm:ss.SSSS');
+    model.SetRawAttributes({
       'created_at': '2017-11-14 08:23:19.0000',
       'updated_at': '2017-11-14 08:23:19.7348'
     });
-    expect(model.$fromDateTime(model.$getAttribute('created_at'))).toBe('2017-11-14 08:23:19.0000');
-    expect(model.$fromDateTime(model.$getAttribute('updated_at'))).toBe('2017-11-14 08:23:19.7340');
+    expect(model.FromDateTime(model.GetAttribute('created_at'))).toBe('2017-11-14 08:23:19.0000');
+    expect(model.FromDateTime(model.GetAttribute('updated_at'))).toBe('2017-11-14 08:23:19.7340');
   });
 
   it('timestamps using old sql server date format', () => {
     const model = new FedacoTestUser();
-    model.$setDateFormat('yyyy-MM-dd HH:mm:ss.000');
-    model.$setRawAttributes({
+    model.SetDateFormat('yyyy-MM-dd HH:mm:ss.000');
+    model.SetRawAttributes({
       'created_at': '2017-11-14 08:23:19.000'
     });
-    expect(model.$fromDateTime(model.$getAttribute('created_at'))).toBe('2017-11-14 08:23:19.000');
+    expect(model.FromDateTime(model.GetAttribute('created_at'))).toBe('2017-11-14 08:23:19.000');
   });
 
   it('timestamps using old sql server date format fallback to default parsing', () => {
     const model = new FedacoTestUser();
-    model.$setDateFormat('yyyy-MM-dd HH:mm:ss.SSS');
-    model.$setRawAttributes({
+    model.SetDateFormat('yyyy-MM-dd HH:mm:ss.SSS');
+    model.SetRawAttributes({
       'updated_at': '2017-11-14 08:23:19.734'
     });
-    const date = model.$getAttribute('updated_at');
+    const date = model.GetAttribute('updated_at');
 
     // the date should not contains the precision
     expect(format(date, 'yyyy-MM-dd HH:mm:ss.SSS')).toBe('2017-11-14 08:23:19.734');
     // the format should trims it
-    expect(model.$fromDateTime(date)).toBe('2017-11-14 08:23:19.734');
+    expect(model.FromDateTime(date)).toBe('2017-11-14 08:23:19.734');
   });
 
   it('updating child model touches parent', async () => {
@@ -1852,7 +1852,7 @@ describe('test database fedaco integration', () => {
     expect(isSameDay(before, user.updated_at)).toBeTruthy();
     expect(isSameDay(before, post.updated_at)).toBeTruthy();
 
-    await post.$update({
+    await post.Update({
       'name': 'Updated'
     });
 
@@ -1872,10 +1872,10 @@ describe('test database fedaco integration', () => {
       isSameDay(old, (await FedacoTouchingPost.createQuery().first()).updated_at)).toBeTruthy();
 
     // It is not touching model own timestamps.
-    expect(isSameDay(old, (await post.$fresh()).updated_at)).toBeTruthy();
+    expect(isSameDay(old, (await post.Fresh()).updated_at)).toBeTruthy();
 
     // It is not touching models related timestamps.
-    expect(isSameDay(old, (await user.$fresh()).updated_at)).toBeTruthy();
+    expect(isSameDay(old, (await user.Fresh()).updated_at)).toBeTruthy();
     // Carbon.setTestNow(before);
   });
 
@@ -1910,9 +1910,9 @@ describe('test database fedaco integration', () => {
     });
 
     // It will touch models related timestamps.
-    expect(isSameDay(before, (await post.$fresh()).updated_at)).toBeTruthy();
+    expect(isSameDay(before, (await post.Fresh()).updated_at)).toBeTruthy();
     // It will touch models related timestamps.
-    expect(isSameDay(before, (await user.$fresh()).updated_at)).toBeTruthy();
+    expect(isSameDay(before, (await user.Fresh()).updated_at)).toBeTruthy();
     // Carbon.setTestNow(before);
   });
 
@@ -2318,8 +2318,8 @@ export class FedacoTestNonIncrementingSecond extends FedacoTestNonIncrementing {
   tableName: 'users'
 })
 export class FedacoTestUserWithGlobalScope extends FedacoTestUser {
-  public $boot() {
-    super.$boot();
+  public Boot() {
+    super.Boot();
     FedacoTestUserWithGlobalScope.addGlobalScope('withPosts', (builder: FedacoBuilder) => {
       builder.with('posts');
     });
@@ -2330,8 +2330,8 @@ export class FedacoTestUserWithGlobalScope extends FedacoTestUser {
   tableName: 'users'
 })
 export class FedacoTestUserWithOmittingGlobalScope extends FedacoTestUser {
-  public $boot() {
-    super.$boot();
+  public Boot() {
+    super.Boot();
     FedacoTestUserWithOmittingGlobalScope.addGlobalScope('notEmail', (builder: FedacoBuilder) => {
       builder.where('email', '!=', 'linbolen@gradii.com');
     });
@@ -2455,7 +2455,7 @@ export class FedacoTestUserWithStringCastId extends FedacoTestUser {
   tableName: 'fedaco_test_user_with_custom_date_serialization'
 })
 export class FedacoTestUserWithCustomDateSerialization extends FedacoTestUser {
-  $serializeDate(date: Date) {
+  SerializeDate(date: Date) {
     return format(date, 'dd-MM-yy');
   }
 }

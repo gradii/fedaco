@@ -273,7 +273,7 @@ export class ColumnDefinition {
   /**
    * Convert the fluent instance to JSON.
    */
-  public toJson($options = 0) {
+  public toJson(Options = 0) {
     return JSON.stringify(this.toArray());
   }
 

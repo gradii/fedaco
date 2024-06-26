@@ -1,4 +1,4 @@
-# Function whereHas
+# Function WhereHas
 ### where has on nested self referencing belongs to many relationship
 
 ```typescript
@@ -25,7 +25,7 @@ const results: FedacoTestUser[] = await FedacoTestUser.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### where has on nested self referencing belongs to relationship
 
@@ -58,7 +58,7 @@ const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### where has on nested self referencing has many relationship
 
@@ -91,7 +91,7 @@ const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### where has on self referencing belongs to many relationship
 
@@ -116,7 +116,7 @@ const results: FedacoTestUser[] = await FedacoTestUser.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### where has on self referencing belongs to relationship
 
@@ -144,7 +144,7 @@ const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### where has on self referencing has many relationship
 
@@ -172,4 +172,4 @@ const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

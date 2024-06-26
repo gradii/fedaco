@@ -1,4 +1,4 @@
-# Function pluck
+# Function Pluck
 ### pluck with column name containing a space
 
 ```typescript
@@ -19,16 +19,13 @@ const keyed = await FedacoTestUserWithSpaceInColumnName.createQuery()
 ```
 
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `keyed` | match | `({
-      1: 'linbolen@gradii.com',
-      2: 'xsilen@gradii.com'
-    });` |
+> | Reference | Looks Like | Value                                                                     |
+> | ------ | ----- |---------------------------------------------------------------------------|
+> | `keyed` | match | ({<br/>&nbsp;&nbsp;1: 'linbolen@gradii.com',<br/>&nbsp;&nbsp;2: 'xsilen@gradii.com'<br/>}); |
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### pluck with join
 
@@ -58,20 +55,14 @@ const query = FedacoTestUser.createQuery().join(
 ```
 
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `await query.pluck('posts.name', 'users.id')` | match | `({
-      2: 'First post',
-      1: 'Second post'
-    });` |
-> | `await query.pluck('posts.name', 'users.email AS user_email')` | match | `({
-      'xsilen@gradii.com': 'First post',
-      'linbolen@gradii.com' : 'Second post'
-    });` |
+> | Reference | Looks Like | Value                                                                         |
+> | ------ | ----- |-------------------------------------------------------------------------------|
+> | `await query.pluck('posts.name', 'users.id')` | match | ({<br/>&nbsp;&nbsp;2: 'First post',<br/>&nbsp;&nbsp; 1: 'Second post'<br/>}); |
+> | `await query.pluck('posts.name', 'users.email AS user_email')` | match | ({<br/>&nbsp;&nbsp;'xsilen@gradii.com': 'First post',<br/>&nbsp;&nbsp; 'linbolen@gradii.com' : 'Second post'<br/>    }); |
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### pluck
 
@@ -95,11 +86,8 @@ const keyed = await FedacoTestUser.createQuery()
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | `keyed` | match | `({
-      1: 'linbolen@gradii.com',
-      2: 'xsilen@gradii.com'
-    });` |
+> | `keyed` | match | ({1: 'linbolen@gradii.com',2: 'xsilen@gradii.com'}); |
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

@@ -478,7 +478,7 @@ export class SchemaBuilder {
   In contrast to other libraries and to the old version of Doctrine,
   this column definition does try to contain the 'primary' field for
   the reason that it is not portable across different RDBMS. Use
-  {@see listTableIndexes($tableName)} to retrieve the primary key
+  {@see listTableIndexes(TableName)} to retrieve the primary key
   of a table. Where a RDBMS specifies more details, these are held
   in the platformDetails array.*/
   public async listTableColumns(table: string, database?: string) {
@@ -502,7 +502,7 @@ export class SchemaBuilder {
 
   /*Returns true if all the given tables exist.
 
-  The usage of a string $tableNames is deprecated. Pass a one-element array instead.*/
+  The usage of a string TableNames is deprecated. Pass a one-element array instead.*/
   public async tablesExist(tableNames: string | string[]) {
     tableNames = wrap(tableNames).map(it => it.toLowerCase());
     return tableNames.length === intersection(

@@ -1,30 +1,48 @@
-import { defineConfig } from 'vitepress'
+import {defineConfig} from 'vitepress';
+import {sidebarGuide} from './sidebar-guide';
+import {sidebarRelationships} from './sidebar-relationships';
+import {sidebarModelFunctions} from './sidebar-model-functions';
+import {sidebarDatabase} from './sidebar-database';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Fedaco Project",
+  title: "Fedaco ORM",
   description: "Laravel Eloquent With Typescript",
   ignoreDeadLinks: true,
   base: '/fedaco/',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Examples', link: '/markdown-examples' }
+      {text: 'Home', link: '/'},
+      {text: 'Guide', link: '/guide/getting-started'},
+      {text: 'Database', link: '/database/getting-started'},
+      {text: 'Relationships', link: '/relationships/defining-relationships/relation-one-to-one'},
+      {text: 'Model Functions', link: '/model-functions/attach'}
     ],
 
-    sidebar: [
-      {
-        text: 'Examples',
-        items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
-        ]
+    sidebar: {
+      '/guide/': {
+        base: '/guide/',
+        items: sidebarGuide()
+      },
+      '/database/': {
+        base: '/database/',
+        items: sidebarDatabase()
+      },
+      'relationships': {
+        base: '/relationships',
+        items: sidebarRelationships()
+      },
+      '/model-functions/': {
+        base: '/model-functions/',
+        items: sidebarModelFunctions()
       }
-    ],
+    },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/gradii/fedaco' }
+      {icon: 'github', link: 'https://github.com/gradii/fedaco'}
     ]
   }
 })
+
+

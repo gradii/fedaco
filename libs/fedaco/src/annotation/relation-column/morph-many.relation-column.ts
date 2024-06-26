@@ -33,10 +33,10 @@ export const MorphManyColumn: FedacoDecorator<MorphManyRelationAnnotation> = mak
       const instance = m._newRelatedInstance(resolveForwardRef(p.related));
 
       const [type, id] = m._getMorphs(p.morphName, p.type, p.id);
-      const table      = instance.$getTable();
-      const localKey   = p.localKey || m.$getKeyName();
+      const table      = instance.GetTable();
+      const localKey   = p.localKey || m.GetKeyName();
       const r          = new MorphMany(
-        instance.$newQuery(), m,
+        instance.NewQuery(), m,
         `${table}.${type}`,
         `${table}.${id}`, localKey);
 

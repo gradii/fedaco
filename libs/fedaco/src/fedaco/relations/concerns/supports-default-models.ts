@@ -50,7 +50,7 @@ export function mixinSupportsDefaultModels<T extends Constructor<{}>>(base: T): 
         return this._withDefault.call(this, instance, parent) || instance;
       }
       if (isObject(this._withDefault)) {
-        instance.$forceFill(this._withDefault as any[]);
+        instance.ForceFill(this._withDefault as any[]);
       }
       return instance;
     }

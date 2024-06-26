@@ -1,27 +1,35 @@
-# Function attach
+# Function Attach
 ### belongs to many custom pivot
 
 ```typescript
-const john = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-  id: 1,
-  name: 'John Doe',
-  email: 'johndoe@example.com'
-});
-const jane = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-  id: 2,
-  name: 'Jane Doe',
-  email: 'janedoe@example.com'
-});
-const jack = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-  id: 3,
-  name: 'Jack Doe',
-  email: 'jackdoe@example.com'
-});
-const jule = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-  id: 4,
-  name: 'Jule Doe',
-  email: 'juledoe@example.com'
-});
+const john = await FedacoTestUserWithCustomFriendPivot
+  .createQuery()
+  .create({
+    id: 1,
+    name: 'John Doe',
+    email: 'johndoe@example.com'
+  });
+const jane = await FedacoTestUserWithCustomFriendPivot
+  .createQuery()
+  .create({
+    id: 2,
+    name: 'Jane Doe',
+    email: 'janedoe@example.com'
+  });
+const jack = await FedacoTestUserWithCustomFriendPivot
+  .createQuery()
+  .create({
+    id: 3,
+    name: 'Jack Doe',
+    email: 'jackdoe@example.com'
+  });
+const jule = await FedacoTestUserWithCustomFriendPivot
+  .createQuery()
+  .create({
+    id: 4,
+    name: 'Jule Doe',
+    email: 'juledoe@example.com'
+  });
 await FedacoTestFriendLevel.createQuery().create({
   id: 1,
   level: 'acquaintance'
@@ -56,4 +64,4 @@ const johnWithFriends = await FedacoTestUserWithCustomFriendPivot.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

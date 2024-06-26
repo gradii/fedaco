@@ -37,7 +37,7 @@ export class SqlServerSchemaGrammar extends SchemaGrammar {
 
   /*Compile the query to determine the list of columns.*/
   public compileColumnListing(table: string) {
-    return '"select name from sys.columns where object_id = object_id(\'$table\')"';
+    return '"select name from sys.columns where object_id = object_id(\'Table\')"';
   }
 
   /*Compile a create table command.*/

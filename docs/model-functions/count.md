@@ -1,4 +1,4 @@
-# Function count
+# Function Count
 ### basic model retrieval
 
 ```typescript
@@ -16,7 +16,7 @@ await factory.newQuery().create({
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | `      await factory.newQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match false | `();` |
+> | `      await factory.newQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
 > | `      await factory.newQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
 
 
@@ -69,7 +69,7 @@ for (const m of models) {
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### check and create methods on multi connections
 
@@ -125,7 +125,7 @@ user2 = await FedacoTestUser.useConnection('second_connection').firstOrCreate({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### count for pagination with grouping and sub selects
 
@@ -164,7 +164,7 @@ const query = await FedacoTestUser.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### multi inserts with different values
 
@@ -193,7 +193,7 @@ const result = await FedacoTestPost.createQuery().insert([
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### multi inserts with same values
 
@@ -222,7 +222,7 @@ const result = await FedacoTestPost.createQuery().insert([
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### save or fail
 
@@ -243,7 +243,7 @@ const post = FedacoTestPost.initAttributes({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### update or create on different connection
 
@@ -276,7 +276,7 @@ await FedacoTestUser.useConnection('second_connection').updateOrCreate(
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### update or create
 
@@ -308,4 +308,4 @@ const user2 = await FedacoTestUser.createQuery().updateOrCreate(
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

@@ -744,7 +744,7 @@ export class JoinClauseBuilder extends QueryBuilder {
 
   On clauses can be chained, e.g.
 
-  $join->on('contacts.user_id', '=', 'users.id')
+  Join->on('contacts.user_id', '=', 'users.id')
   ->on('contacts.info_id', '=', 'info.id')
 
   will produce the following SQL:

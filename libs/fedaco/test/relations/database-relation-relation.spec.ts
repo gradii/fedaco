@@ -10,23 +10,23 @@ describe('test database fedaco relation', () => {
   it('set relation fail', () => {
     const parent   = new EloquentRelationResetModelStub();
     const relation = new EloquentRelationResetModelStub();
-    parent.$setRelation('test', relation);
-    parent.$setRelation('foo', 'bar');
-    expect(parent.$toArray()).not.toHaveProperty('foo');
+    parent.SetRelation('test', relation);
+    parent.SetRelation('foo', 'bar');
+    expect(parent.ToArray()).not.toHaveProperty('foo');
   });
 
   it('unset existing relation', () => {
     const parent   = new EloquentRelationResetModelStub();
     const relation = new EloquentRelationResetModelStub();
-    parent.$setRelation('foo', relation);
-    parent.$unsetRelation('foo');
-    expect(parent.$relationLoaded('foo')).toBeFalsy();
+    parent.SetRelation('foo', relation);
+    parent.UnsetRelation('foo');
+    expect(parent.RelationLoaded('foo')).toBeFalsy();
   });
 
   it('touch method updates related timestamps', async() => {
     const builder  = getBuilder();
     const parent   = new (Model);
-    const spy1     = jest.spyOn(parent, '$getAttribute').mockReturnValue(1);
+    const spy1     = jest.spyOn(parent, 'GetAttribute').mockReturnValue(1);
     // parent.shouldReceive('getAttribute')._with('id').andReturn(1);
     const related  = new (EloquentNoTouchingModelStub);
     const spy2     = jest.spyOn(builder, 'getModel').mockReturnValue(related);
@@ -36,29 +36,29 @@ describe('test database fedaco relation', () => {
     const spy4     = jest.spyOn(builder, 'where');
     const spy5     = jest.spyOn(builder, 'withoutGlobalScopes').mockReturnValue(builder);
     const relation = new HasOne(builder, parent, 'foreign_key', 'id');
-    const spy6     = jest.spyOn(related, '$getTable').mockReturnValue('table');
-    const spy7     = jest.spyOn(related, '$getUpdatedAtColumn').mockReturnValue('updated_at');
+    const spy6     = jest.spyOn(related, 'GetTable').mockReturnValue('table');
+    const spy7     = jest.spyOn(related, 'GetUpdatedAtColumn').mockReturnValue('updated_at');
     const now      = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
-    const spy8     = jest.spyOn(related, '$freshTimestampString').mockReturnValue(
+    const spy8     = jest.spyOn(related, 'FreshTimestampString').mockReturnValue(
       now
     );
 
     const spy9 = jest.spyOn(builder, 'update').mockReturnValue(Promise.resolve());
 
-    await relation.$touch();
+    await relation.Touch();
     expect(spy9).toBeCalledWith({'updated_at': now});
   });
 
   it('can disable parent touching for all models', async () => {
     const related = new EloquentNoTouchingModelStub();
-    const spy1    = jest.spyOn(related, '$getUpdatedAtColumn').mockReturnValue('updated_at');
-    const spy2    = jest.spyOn(related, '$freshTimestampString').mockReturnValue('');
+    const spy1    = jest.spyOn(related, 'GetUpdatedAtColumn').mockReturnValue('updated_at');
+    const spy2    = jest.spyOn(related, 'FreshTimestampString').mockReturnValue('');
     expect(EloquentNoTouchingModelStub.isIgnoringTouch()).toBeFalsy();
     await Model.withoutTouching(async () => {
       expect(EloquentNoTouchingModelStub.isIgnoringTouch()).toBeTruthy();
       const builder  = getBuilder();
       const parent   = new (Model);
-      const spy11    = jest.spyOn(parent, '$getAttribute').mockReturnValue(1);
+      const spy11    = jest.spyOn(parent, 'GetAttribute').mockReturnValue(1);
       const spy2     = jest.spyOn(builder, 'getModel').mockReturnValue(related);
       // @ts-ignore
       builder._model = related;
@@ -69,7 +69,7 @@ describe('test database fedaco relation', () => {
       const relation = new HasOne(builder, parent, 'foreign_key', 'id');
 
       const spy6 = jest.spyOn(builder, 'update');
-      await relation.$touch();
+      await relation.Touch();
 
       expect(spy11).toBeCalledWith('id');
       expect(spy6).not.toBeCalled();
@@ -82,8 +82,8 @@ describe('test database fedaco relation', () => {
 
   it('can disable touching for specific model', async () => {
     const related        = new EloquentNoTouchingModelStub();
-    const spy1           = jest.spyOn(related, '$getUpdatedAtColumn');
-    const spy2           = jest.spyOn(related, '$freshTimestampString');
+    const spy1           = jest.spyOn(related, 'GetUpdatedAtColumn');
+    const spy2           = jest.spyOn(related, 'FreshTimestampString');
     const anotherRelated = new EloquentNoTouchingAnotherModelStub();
     expect(EloquentNoTouchingModelStub.isIgnoringTouch()).toBeFalsy();
     expect(EloquentNoTouchingAnotherModelStub.isIgnoringTouch()).toBeFalsy();
@@ -92,7 +92,7 @@ describe('test database fedaco relation', () => {
       expect(EloquentNoTouchingAnotherModelStub.isIgnoringTouch()).toBeFalsy();
       const builder  = getBuilder();
       const parent   = new Model;
-      const spy10    = jest.spyOn(parent, '$getAttribute').mockReturnValue(1);
+      const spy10    = jest.spyOn(parent, 'GetAttribute').mockReturnValue(1);
       const spy11    = jest.spyOn(builder, 'getModel').mockReturnValue(related);
       // @ts-ignore
       builder._model = related;
@@ -102,14 +102,14 @@ describe('test database fedaco relation', () => {
 
       const relation = new HasOne(builder, parent, 'foreign_key', 'id');
       const spy15    = jest.spyOn(builder, 'update');
-      await relation.$touch();
+      await relation.Touch();
 
       expect(spy15).not.toBeCalled();
 
       const anotherBuilder = getBuilder();
       const anotherParent  = new Model();
 
-      const spy16           = jest.spyOn(anotherParent, '$getAttribute').mockReturnValue(2);
+      const spy16           = jest.spyOn(anotherParent, 'GetAttribute').mockReturnValue(2);
       const spy17           = jest.spyOn(anotherBuilder, 'getModel').mockReturnValue(
         anotherRelated);
       // @ts-ignore
@@ -122,12 +122,12 @@ describe('test database fedaco relation', () => {
       const anotherRelation = new HasOne(anotherBuilder, anotherParent, 'foreign_key', 'id');
       const now             = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
 
-      const spy21 = jest.spyOn(anotherRelated, '$freshTimestampString').mockReturnValue(
+      const spy21 = jest.spyOn(anotherRelated, 'FreshTimestampString').mockReturnValue(
         now
       );
       const spy22 = jest.spyOn(anotherBuilder, 'update').mockReturnValue(Promise.resolve(true));
 
-      await anotherRelation.$touch();
+      await anotherRelation.Touch();
 
       expect(spy10).toBeCalledWith('id');
       expect(spy16).toBeCalledWith('id');
@@ -144,13 +144,13 @@ describe('test database fedaco relation', () => {
 
   it('parent model is not touched when child model is ignored', async () => {
     const related = new EloquentNoTouchingModelStub();
-    const spy1    = jest.spyOn(related, '$getUpdatedAtColumn');
-    const spy2    = jest.spyOn(related, '$freshTimestampString');
+    const spy1    = jest.spyOn(related, 'GetUpdatedAtColumn');
+    const spy2    = jest.spyOn(related, 'FreshTimestampString');
 
     const relatedChild = new EloquentNoTouchingChildModelStub();
 
-    const spy3 = jest.spyOn(relatedChild, '$getUpdatedAtColumn');
-    const spy4 = jest.spyOn(relatedChild, '$freshTimestampString');
+    const spy3 = jest.spyOn(relatedChild, 'GetUpdatedAtColumn');
+    const spy4 = jest.spyOn(relatedChild, 'FreshTimestampString');
     expect(await EloquentNoTouchingModelStub.isIgnoringTouch()).toBeFalsy();
     expect(await EloquentNoTouchingChildModelStub.isIgnoringTouch()).toBeFalsy();
 
@@ -165,7 +165,7 @@ describe('test database fedaco relation', () => {
       const builder = getBuilder();
       const parent  = new Model();
 
-      const spy11    = jest.spyOn(parent, '$getAttribute').mockReturnValue(1);
+      const spy11    = jest.spyOn(parent, 'GetAttribute').mockReturnValue(1);
       const spy12    = jest.spyOn(builder, 'getModel').mockReturnValue(related);
       // @ts-ignore
       builder._model = related;
@@ -181,14 +181,14 @@ describe('test database fedaco relation', () => {
       const spy16    = jest.spyOn(builder, 'update');
 
       // builder.shouldReceive('update').never();
-      await relation.$touch();
+      await relation.Touch();
       expect(spy11).toBeCalledWith('id');
       expect(spy16).not.toBeCalled();
 
       const anotherBuilder = getBuilder();
       const anotherParent  = new Model();
 
-      const spy17           = jest.spyOn(anotherParent, '$getAttribute').mockReturnValue(2);
+      const spy17           = jest.spyOn(anotherParent, 'GetAttribute').mockReturnValue(2);
       const spy18           = jest.spyOn(anotherBuilder, 'getModel').mockReturnValue(relatedChild);
       // @ts-ignore
       anotherBuilder._model = relatedChild;
@@ -198,7 +198,7 @@ describe('test database fedaco relation', () => {
 
       const anotherRelation = new HasOne(anotherBuilder, anotherParent, 'foreign_key', 'id');
       const spy22           = jest.spyOn(anotherBuilder, 'update');
-      await anotherRelation.$touch();
+      await anotherRelation.Touch();
 
       expect(spy17).toBeCalledWith('id');
       expect(spy22).not.toBeCalled();
@@ -209,11 +209,11 @@ describe('test database fedaco relation', () => {
 
   xit('ignored models state is reset when there are exceptions', async () => {
     const related      = new EloquentNoTouchingModelStub();
-    const spy          = jest.spyOn(related, '$getUpdatedAtColumn');
-    const spy2         = jest.spyOn(related, '$freshTimestampString');
+    const spy          = jest.spyOn(related, 'GetUpdatedAtColumn');
+    const spy2         = jest.spyOn(related, 'FreshTimestampString');
     const relatedChild = new EloquentNoTouchingChildModelStub();
-    const spy3         = jest.spyOn(relatedChild, '$getUpdatedAtColumn');
-    const spy4         = jest.spyOn(relatedChild, '$freshTimestampString');
+    const spy3         = jest.spyOn(relatedChild, 'GetUpdatedAtColumn');
+    const spy4         = jest.spyOn(relatedChild, 'FreshTimestampString');
     expect(await EloquentNoTouchingModelStub.isIgnoringTouch()).toBeFalsy();
     expect(await EloquentNoTouchingChildModelStub.isIgnoringTouch()).toBeFalsy();
     expect(() => {
@@ -247,16 +247,16 @@ describe('test database fedaco relation', () => {
 
   it('without relations', async () => {
     const original = new EloquentNoTouchingModelStub();
-    original.$setRelation('foo', 'baz');
-    expect(original.$getRelation('foo')).toBe('baz');
-    let model = await original.$withoutRelations();
+    original.SetRelation('foo', 'baz');
+    expect(original.GetRelation('foo')).toBe('baz');
+    let model = await original.WithoutRelations();
     expect(model).toBeInstanceOf(EloquentNoTouchingModelStub);
-    expect(original.$relationLoaded('foo')).toBeTruthy();
-    expect(model.$relationLoaded('foo')).toBeFalsy();
-    model = original.$unsetRelations();
+    expect(original.RelationLoaded('foo')).toBeTruthy();
+    expect(model.RelationLoaded('foo')).toBeFalsy();
+    model = original.UnsetRelations();
     expect(model).toBeInstanceOf(EloquentNoTouchingModelStub);
-    expect(original.$relationLoaded('foo')).toBeFalsy();
-    expect(model.$relationLoaded('foo')).toBeFalsy();
+    expect(original.RelationLoaded('foo')).toBeFalsy();
+    expect(model.RelationLoaded('foo')).toBeFalsy();
   });
 
   // it('macroable', () => {
@@ -287,7 +287,7 @@ export class EloquentRelationResetModelStub extends Model {
   _table: any = 'reset';
 
   public getQuery() {
-    return this.$newQuery().getQuery();
+    return this.NewQuery().getQuery();
   }
 }
 

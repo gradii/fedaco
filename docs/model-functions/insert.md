@@ -1,4 +1,4 @@
-# Function insert
+# Function Insert
 ### check and create methods on multi connections
 
 ```typescript
@@ -53,7 +53,7 @@ user2 = await FedacoTestUser.useConnection('second_connection').firstOrCreate({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### multi inserts with different values
 
@@ -82,7 +82,7 @@ const result = await FedacoTestPost.createQuery().insert([
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### multi inserts with same values
 
@@ -111,4 +111,4 @@ const result = await FedacoTestPost.createQuery().insert([
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

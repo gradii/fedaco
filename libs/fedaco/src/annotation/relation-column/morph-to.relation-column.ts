@@ -20,14 +20,14 @@ import { FedacoRelationColumn } from '../relation-column';
 
 /*Define a polymorphic, inverse one-to-one or many relationship.*/
 function morphEagerTo(m: Model, name: string, type: string, id: string, ownerKey: string) {
-  return new MorphTo(m.$newQuery().setEagerLoads([]), m, id, ownerKey, type, name);
+  return new MorphTo(m.NewQuery().setEagerLoads([]), m, id, ownerKey, type, name);
 }
 
 /*Define a polymorphic, inverse one-to-one or many relationship.*/
 function morphInstanceTo(m: Model, target: typeof Model, name: string, type: string,
                                 id: string, ownerKey: string) {
   const instance = m._newRelatedInstance(target);
-  return new MorphTo(instance.$newQuery(), m, id, ownerKey ?? instance.$getKeyName(), type, name);
+  return new MorphTo(instance.NewQuery(), m, id, ownerKey ?? instance.GetKeyName(), type, name);
 }
 
 export interface MorphToRelationAnnotation extends RelationColumnAnnotation {

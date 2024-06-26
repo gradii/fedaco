@@ -1,4 +1,4 @@
-# Function newQuery
+# Function NewQuery
 ### basic create model
 
 ```typescript
@@ -15,7 +15,7 @@ const model = await new FedacoTestUser().newQuery().create({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### basic model collection retrieval
 
@@ -42,7 +42,7 @@ const models = await new FedacoTestUser().newQuery().oldest('id').get();
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### basic model retrieval
 
@@ -61,7 +61,7 @@ await factory.newQuery().create({
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | `      await factory.newQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match false | `();` |
+> | `      await factory.newQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
 > | `      await factory.newQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
 
 
@@ -114,7 +114,7 @@ for (const m of models) {
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### fresh method on model
 
@@ -187,7 +187,7 @@ const freshNotStoredUser = await notStoredUser.fresh();
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### paginated model collection retrieval when no elements and default per page
 
@@ -197,7 +197,7 @@ const models = await new FedacoTestUser().newQuery().oldest('id').paginate();
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### paginated model collection retrieval when no elements
 
@@ -217,7 +217,7 @@ models = await new FedacoTestUser().newQuery().oldest('id').paginate(2, 2);
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### paginated model collection retrieval
 
@@ -257,4 +257,4 @@ let models = await new FedacoTestUser().newQuery().oldest('id').paginate(1, 2);
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

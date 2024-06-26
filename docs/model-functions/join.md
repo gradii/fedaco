@@ -1,4 +1,4 @@
-# Function join
+# Function Join
 ### pluck with join
 
 ```typescript
@@ -40,4 +40,4 @@ const query = FedacoTestUser.createQuery().join(
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

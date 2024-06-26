@@ -65,7 +65,7 @@ export class BelongsTo extends mixinComparesRelatedModels(
 
   /*Get the results of the relationship.*/
   public async getResults() {
-    if (isBlank(this._child.$getAttribute(this._foreignKey))) {
+    if (isBlank(this._child.GetAttribute(this._foreignKey))) {
       return this._getDefaultFor(this._parent);
     }
     return await this._query.first() || this._getDefaultFor(this._parent);
@@ -74,17 +74,17 @@ export class BelongsTo extends mixinComparesRelatedModels(
   /*Set the base constraints on the relation query.*/
   public addConstraints() {
     if ((this.constructor as typeof BelongsTo).constraints) {
-      const table = this._related.$getTable();
+      const table = this._related.GetTable();
       this._query.where(
         `${table}.${this._ownerKey}`,
         '=',
-        this._child.$getAttribute(this._foreignKey));
+        this._child.GetAttribute(this._foreignKey));
     }
   }
 
   /*Set the constraints for an eager load of the relation.*/
   public addEagerConstraints(models: Model[]) {
-    const key     = `${this._related.$getTable()}.${this._ownerKey}`;
+    const key     = `${this._related.GetTable()}.${this._ownerKey}`;
     const whereIn = this._whereInMethod(this._related, this._ownerKey);
     this._query[whereIn](key, this.getEagerModelKeys(models));
   }
@@ -93,7 +93,7 @@ export class BelongsTo extends mixinComparesRelatedModels(
   protected getEagerModelKeys(models: Model[]) {
     const keys = [];
     for (const model of models) {
-      const value = model.$getAttribute(this._foreignKey);
+      const value = model.GetAttribute(this._foreignKey);
       if (!isBlank(value)) {
         keys.push(value);
       }
@@ -105,7 +105,7 @@ export class BelongsTo extends mixinComparesRelatedModels(
   /*Initialize the relation on a set of models.*/
   public initRelation(models: Model[], relation: string) {
     for (const model of models) {
-      model.$setRelation(relation, this._getDefaultFor(model));
+      model.SetRelation(relation, this._getDefaultFor(model));
     }
     return models;
   }
@@ -116,13 +116,13 @@ export class BelongsTo extends mixinComparesRelatedModels(
     const owner      = this._ownerKey;
     const dictionary: Record<string, any> = {};
     for (const result of results) {
-      const attribute       = this._getDictionaryKey(result.$getAttribute(owner));
+      const attribute       = this._getDictionaryKey(result.GetAttribute(owner));
       dictionary[attribute] = result;
     }
     for (const model of models) {
-      const attribute = this._getDictionaryKey(model.$getAttribute(foreign));
+      const attribute = this._getDictionaryKey(model.GetAttribute(foreign));
       if (dictionary[attribute] !== undefined) {
-        model.$setRelation(relation, dictionary[attribute]);
+        model.SetRelation(relation, dictionary[attribute]);
       }
     }
     return models;
@@ -131,20 +131,20 @@ export class BelongsTo extends mixinComparesRelatedModels(
   /*Associate the model instance to the given parent.*/
   public associate(model: Model | number | string) {
     const ownerKey = model instanceof BaseModel ?
-      model.$getAttribute(this._ownerKey) : model;
-    this._child.$setAttribute(this._foreignKey, ownerKey);
+      model.GetAttribute(this._ownerKey) : model;
+    this._child.SetAttribute(this._foreignKey, ownerKey);
     if (model instanceof BaseModel) {
-      this._child.$setRelation(this._relationName, model);
+      this._child.SetRelation(this._relationName, model);
     } else {
-      this._child.$unsetRelation(this._relationName);
+      this._child.UnsetRelation(this._relationName);
     }
     return this._child;
   }
 
   /*Dissociate previously associated model from the given parent.*/
   public dissociate() {
-    this._child.$setAttribute(this._foreignKey, null);
-    return this._child.$setRelation(this._relationName, null);
+    this._child.SetAttribute(this._foreignKey, null);
+    return this._child.SetRelation(this._relationName, null);
   }
 
   /*Alias of "dissociate" method.*/
@@ -156,7 +156,7 @@ export class BelongsTo extends mixinComparesRelatedModels(
   public getRelationExistenceQuery(query: FedacoBuilder, parentQuery: FedacoBuilder,
                                    columns: any[] | any = ['*']): FedacoBuilder {
     // todo check
-    if (parentQuery.getModel().$getTable() == query.getModel().$getTable()) {
+    if (parentQuery.getModel().GetTable() == query.getModel().GetTable()) {
       return this.getRelationExistenceQueryForSelfRelation(query, parentQuery, columns);
     }
     return query.select(columns).whereColumn(
@@ -168,20 +168,20 @@ export class BelongsTo extends mixinComparesRelatedModels(
   public getRelationExistenceQueryForSelfRelation(query: FedacoBuilder, parentQuery: FedacoBuilder,
                                                   columns: any[] | any = ['*']): FedacoBuilder {
     const hash = this.getRelationCountHash();
-    query.select(columns).from(query.getModel().$getTable() + ' as ' + hash);
-    query.getModel().$setTable(hash);
+    query.select(columns).from(query.getModel().GetTable() + ' as ' + hash);
+    query.getModel().SetTable(hash);
     return (query as FedacoBuilder).whereColumn(`${hash}.${this._ownerKey}`, '=', this.getQualifiedForeignKeyName());
   }
 
   /*Determine if the related model has an auto-incrementing ID.*/
   protected relationHasIncrementingId() {
-    return this._related.$getIncrementing() && ['int', 'integer'].includes(
-      this._related.$getKeyType());
+    return this._related.GetIncrementing() && ['int', 'integer'].includes(
+      this._related.GetKeyType());
   }
 
   /*Make a new related instance for the given model.*/
   protected newRelatedInstanceFor(parent: Model) {
-    return this._related.$newInstance();
+    return this._related.NewInstance();
   }
 
   /*Get the child of the relationship.*/
@@ -196,7 +196,7 @@ export class BelongsTo extends mixinComparesRelatedModels(
 
   /*Get the fully qualified foreign key of the relationship.*/
   public getQualifiedForeignKeyName() {
-    return this._child.$qualifyColumn(this._foreignKey);
+    return this._child.QualifyColumn(this._foreignKey);
   }
 
   /*Get the key value of the child's foreign key.*/
@@ -211,7 +211,7 @@ export class BelongsTo extends mixinComparesRelatedModels(
 
   /*Get the fully qualified associated key of the relationship.*/
   public getQualifiedOwnerKeyName() {
-    return this._related.$qualifyColumn(this._ownerKey);
+    return this._related.QualifyColumn(this._ownerKey);
   }
 
   /*Get the value of the model's associated key.*/

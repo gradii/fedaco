@@ -29,12 +29,12 @@ export const HasOneColumn: FedacoDecorator<HasOneRelationAnnotation> = makePropD
     type        : RelationType.HasOne,
     _getRelation: function (m: Model, relation: string) {
       const instance     = m._newRelatedInstance(resolveForwardRef(p.related));
-      const foreignKey = p.foreignKey || m.$getForeignKey();
-      const localKey   = p.localKey || m.$getKeyName();
+      const foreignKey = p.foreignKey || m.GetForeignKey();
+      const localKey   = p.localKey || m.GetKeyName();
       const r          = new HasOne(
-        instance.$newQuery(),
+        instance.NewQuery(),
         m,
-        `${instance.$getTable()}.${foreignKey}`,
+        `${instance.GetTable()}.${foreignKey}`,
         localKey);
 
       if (p.onQuery) {

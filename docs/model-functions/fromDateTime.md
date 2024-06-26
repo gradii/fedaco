@@ -1,4 +1,4 @@
-# Function fromDateTime
+# Function FromDateTime
 ### timestamps using custom date format
 
 ```typescript
@@ -17,7 +17,7 @@ model.setRawAttributes({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### timestamps using default sql server date format
 
@@ -37,7 +37,7 @@ model.setRawAttributes({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### timestamps using old sql server date format
 
@@ -51,4 +51,4 @@ model.setRawAttributes({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

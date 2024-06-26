@@ -37,10 +37,10 @@ export function mixinComparesRelatedModels<T extends Constructor<any>>(base: T):
     public async is(this: Relation & this, model: Model | null) {
       const match = !isBlank(model) && this._compareKeys(this.getParentKey(),
         this._getRelatedKeyFrom(
-          model)) && this._related.$getTable() === model!.$getTable() && this._related.$getConnectionName() === model.$getConnectionName();
+          model)) && this._related.GetTable() === model!.GetTable() && this._related.GetConnectionName() === model.GetConnectionName();
       // @ts-ignore
       if (match && (this as HasOne | MorphOne).supportsPartialRelations && this.isOneOfMany()) {
-        return this._query.whereKey(model!.$getKey()).exists();
+        return this._query.whereKey(model!.GetKey()).exists();
       }
       return match;
     }

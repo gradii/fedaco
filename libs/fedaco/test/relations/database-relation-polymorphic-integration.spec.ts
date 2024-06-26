@@ -22,15 +22,15 @@ async function seedData() {
     'id': 1,
     'email': 'linbolen@gradii.com'
   });
-  const post = await taylor.$newRelation('posts').create({
+  const post = await taylor.NewRelation('posts').create({
     'title': 'A title',
     'body': 'A body'
   });
-  const comment = await post.$newRelation('comments').create({
+  const comment = await post.NewRelation('comments').create({
     'body': 'A comment body',
     'user_id': 1
   });
-  await comment.$newRelation('likes').create([]);
+  await comment.NewRelation('likes').create([]);
 }
 
 async function createSchema() {
@@ -83,30 +83,30 @@ describe('test database fedaco polymorphic integration', () => {
   it('it loads relationships automatically', async () => {
     await seedData();
     const like = await TestLikeWithSingleWith.createQuery().first();
-    expect(like.$relationLoaded('likeable')).toBeTruthy();
+    expect(like.RelationLoaded('likeable')).toBeTruthy();
     expect(await like.likeable).toEqual(await TestComment.createQuery().first());
   });
 
   it('it loads chained relationships automatically', async () => {
     await seedData();
     const like = await TestLikeWithSingleWith.createQuery().first();
-    expect(like.likeable.$relationLoaded('commentable')).toBeTruthy();
+    expect(like.likeable.RelationLoaded('commentable')).toBeTruthy();
     expect(like.likeable.commentable.toJSON()).toEqual((await TestPost.createQuery().first()).toJSON());
   });
 
   it('it loads nested relationships automatically', async () => {
     await seedData();
     const like = await TestLikeWithNestedWith.createQuery().first();
-    expect(like.$relationLoaded('likeable')).toBeTruthy();
-    expect(like.likeable.$relationLoaded('owner')).toBeTruthy();
+    expect(like.RelationLoaded('likeable')).toBeTruthy();
+    expect(like.likeable.RelationLoaded('owner')).toBeTruthy();
     expect(like.likeable.owner.toJSON()).toEqual((await TestUser.createQuery().first()).toJSON());
   });
 
   it('it loads nested relationships on demand', async () => {
     await seedData();
     const like = await TestLike.createQuery().with('likeable.owner').first();
-    expect(like.$relationLoaded('likeable')).toBeTruthy();
-    expect(like.likeable.$relationLoaded('owner')).toBeTruthy();
+    expect(like.RelationLoaded('likeable')).toBeTruthy();
+    expect(like.likeable.RelationLoaded('owner')).toBeTruthy();
     expect(like.likeable.owner.toJSON()).toEqual((await TestUser.createQuery().first()).toJSON());
   });
 
@@ -125,23 +125,23 @@ describe('test database fedaco polymorphic integration', () => {
 
   it('it loads nested morph relationship counts on demand', async () => {
     await seedData();
-    await (await TestPost.createQuery().first()).$newRelation('likes').create([]);
-    await (await TestComment.createQuery().first()).$newRelation('likes').create([]);
+    await (await TestPost.createQuery().first()).NewRelation('likes').create([]);
+    await (await TestComment.createQuery().first()).NewRelation('likes').create([]);
     const likes = await Promise.all(
       (await TestLike.createQuery().with('likeable.owner').get())
-        .map(it => it.$loadMorphCount('likeable', {
+        .map(it => it.LoadMorphCount('likeable', {
           'TestComment': ['likes'],
           'TestPost': 'comments',
         })));
-    expect(likes[0].$relationLoaded('likeable')).toBeTruthy();
-    expect(likes[0].likeable.$relationLoaded('owner')).toBeTruthy();
-    expect(likes[0].likeable.$getAttribute('likes_count')).toEqual(2);
-    expect(likes[1].$relationLoaded('likeable')).toBeTruthy();
-    expect(likes[1].likeable.$relationLoaded('owner')).toBeTruthy();
-    expect(likes[1].likeable.$getAttribute('comments_count')).toEqual(1);
-    expect(likes[2].$relationLoaded('likeable')).toBeTruthy();
-    expect(likes[2].likeable.$relationLoaded('owner')).toBeTruthy();
-    expect(likes[2].likeable.$getAttribute('likes_count')).toEqual(2);
+    expect(likes[0].RelationLoaded('likeable')).toBeTruthy();
+    expect(likes[0].likeable.RelationLoaded('owner')).toBeTruthy();
+    expect(likes[0].likeable.GetAttribute('likes_count')).toEqual(2);
+    expect(likes[1].RelationLoaded('likeable')).toBeTruthy();
+    expect(likes[1].likeable.RelationLoaded('owner')).toBeTruthy();
+    expect(likes[1].likeable.GetAttribute('comments_count')).toEqual(1);
+    expect(likes[2].RelationLoaded('likeable')).toBeTruthy();
+    expect(likes[2].likeable.RelationLoaded('owner')).toBeTruthy();
+    expect(likes[2].likeable.GetAttribute('likes_count')).toEqual(2);
   });
 
 });

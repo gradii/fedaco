@@ -25,7 +25,7 @@ export class MorphOneOrMany extends HasOneOrMany {
                      localKey: string) {
     super(query, parent, id, localKey);
     this._morphType  = type;
-    this._morphClass = parent.$getMorphClass();
+    this._morphClass = parent.GetMorphClass();
     this.addConstraints();
   }
 
@@ -49,8 +49,8 @@ export class MorphOneOrMany extends HasOneOrMany {
 
   /*Set the foreign ID and type for creating a related model.*/
   _setForeignAttributesForCreate(model: Model) {
-    model.$setAttribute(this.getForeignKeyName(), this.getParentKey());
-    model.$setAttribute(this.getMorphType(), this._morphClass);
+    model.SetAttribute(this.getForeignKeyName(), this.getParentKey());
+    model.SetAttribute(this.getMorphType(), this._morphClass);
   }
 
   /*Get the relationship query.*/

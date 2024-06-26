@@ -386,7 +386,7 @@ export class PostgresSchemaGrammar extends SchemaGrammar {
       isBlank(column.precision) ?
         '' : `(${column.precision})`
     } without time zone`;
-    return column.useCurrent ? '"$columnType default CURRENT_TIMESTAMP" ' : columnType;
+    return column.useCurrent ? '"ColumnType default CURRENT_TIMESTAMP" ' : columnType;
   }
 
   /*Create the column definition for a timestamp (with time zone) type.*/

@@ -1,4 +1,4 @@
-# Function fresh
+# Function Fresh
 ### fresh method on model
 
 ```typescript
@@ -70,7 +70,7 @@ const freshNotStoredUser = await notStoredUser.fresh();
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### model ignored by global scope can be refreshed
 
@@ -83,4 +83,4 @@ const user = await FedacoTestUserWithOmittingGlobalScope.createQuery().create({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

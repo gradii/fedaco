@@ -1,4 +1,4 @@
-# Function getConnectionName
+# Function GetConnectionName
 ### basic model hydration
 
 ```typescript
@@ -27,7 +27,7 @@ const models = await FedacoTestUser.useConnection(
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### basic model retrieval
 
@@ -46,7 +46,7 @@ await factory.newQuery().create({
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | `      await factory.newQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match false | `();` |
+> | `      await factory.newQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
 > | `      await factory.newQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
 
 
@@ -99,7 +99,7 @@ for (const m of models) {
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### check and create methods on multi connections
 
@@ -155,4 +155,4 @@ user2 = await FedacoTestUser.useConnection('second_connection').firstOrCreate({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

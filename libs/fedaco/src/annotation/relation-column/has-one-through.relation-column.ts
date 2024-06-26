@@ -34,14 +34,14 @@ export const HasOneThroughColumn: FedacoDecorator<HasOneThroughRelationAnnotatio
       // @ts-ignore
       const throughClazz   = resolveForwardRef(p.through);
       const through: Model = new throughClazz();
-      const firstKey       = p.firstKey || m.$getForeignKey();
-      const secondKey      = p.secondKey || through.$getForeignKey();
+      const firstKey       = p.firstKey || m.GetForeignKey();
+      const secondKey      = p.secondKey || through.GetForeignKey();
       const clazz          = resolveForwardRef(p.related);
 
       const r = new HasOneThrough(
-        m._newRelatedInstance(clazz).$newQuery(),
+        m._newRelatedInstance(clazz).NewQuery(),
         m, through, firstKey, secondKey,
-        p.localKey || m.$getKeyName(), p.secondLocalKey || through.$getKeyName()
+        p.localKey || m.GetKeyName(), p.secondLocalKey || through.GetKeyName()
       );
 
       if (p.onQuery) {

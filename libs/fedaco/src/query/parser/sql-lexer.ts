@@ -184,7 +184,7 @@ class _Scanner {
         let unescapedCode: number;
         // Workaround for TS2.1-introduced type strictness
         this.peek = this.peek;
-        if (this.peek == asciiChars.$u) {
+        if (this.peek == asciiChars.U) {
           // 4 character hex code for unicode character.
           const hex: string = input.substring(this.index + 1, this.index + 5);
           if (/^[0-9a-f]+$/i.test(hex)) {

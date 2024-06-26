@@ -1,4 +1,4 @@
-# Function chunkById
+# Function ChunkById
 ### chunk by id with non incrementing key test signal
 
 ```typescript
@@ -26,7 +26,7 @@ const spy = jest.fn(({ results: users, page }) => {
 });
 const signal = new Subject();
 await FedacoTestNonIncrementingSecond.createQuery()
-  .chunkById(2, 'name', undefined, signal)
+  .chunkById(2, 'name', undefined)
   .pipe(
     finalize(() => {
       expect(i).toEqual(2);
@@ -38,7 +38,7 @@ await FedacoTestNonIncrementingSecond.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### chunk by id with non incrementing key
 
@@ -75,4 +75,4 @@ await FedacoTestNonIncrementingSecond.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

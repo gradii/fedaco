@@ -1,4 +1,4 @@
-# Function match
+# Function Match
 ### has with non where bindings
 
 ```typescript
@@ -23,4 +23,4 @@ const questionMarksCount = sql.match(/\?/g)?.length || 0;
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

@@ -34,59 +34,59 @@ export interface HasRelationships {
   _touches: string[];
 
   /*Get the joining table name for a many-to-many relation.*/
-  $joiningTable(related: typeof Model, instance?: Model | null): string;
+  JoiningTable(related: typeof Model, instance?: Model | null): string;
 
   /*Get this model's half of the intermediate table name for belongsToMany relationships.*/
-  $joiningTableSegment(): string;
+  JoiningTableSegment(): string;
 
   /*Determine if the model touches a given relation.*/
-  $touches(relation: string): boolean;
+  Touches(relation: string): boolean;
 
   /*Touch the owning relations of the model.*/
-  $touchOwners(): Promise<void>;
+  TouchOwners(): Promise<void>;
 
   /*Get the polymorphic relationship columns.*/
   _getMorphs(name: string, type: string, id: string): string[];
 
   /*Get the class name for polymorphic relations.*/
-  $getMorphClass(): string;
+  GetMorphClass(): string;
 
   /*Create a new model instance for a related model.*/
   _newRelatedInstance(this: Model & this, clazz: typeof Model): Model;
 
-  $newRelation<T extends BelongsTo & BelongsToMany & HasMany & HasManyThrough &
+  NewRelation<T extends BelongsTo & BelongsToMany & HasMany & HasManyThrough &
     HasOne & HasOneOrMany & HasOneThrough & MorphMany & MorphOne & MorphOneOrMany & Omit<MorphPivot, keyof Model> &
     MorphTo & MorphToMany, K extends keyof this>(relation: K): T;
 
   /*Get all the loaded relations for the instance.*/
-  $getRelations(): Record<string, any>;
+  GetRelations(): Record<string, any>;
 
   /*Get a specified relationship.*/
-  $getRelation(relation: string): any;
+  GetRelation(relation: string): any;
 
   /*Determine if the given relation is loaded.*/
-  $relationLoaded(key: string): boolean;
+  RelationLoaded(key: string): boolean;
 
   /*Set the given relationship on the model.*/
-  $setRelation(relation: string, value: any): this;
+  SetRelation(relation: string, value: any): this;
 
   /*Unset a loaded relationship.*/
-  $unsetRelation(relation: string): this;
+  UnsetRelation(relation: string): this;
 
   /*Set the entire relations array on the model.*/
-  $setRelations(relations: Record<string, Model | Model[]>): this;
+  SetRelations(relations: Record<string, Model | Model[]>): this;
 
   /*Duplicate the instance and unset all the loaded relations.*/
-  $withoutRelations(): this;
+  WithoutRelations(): this;
 
   /*Unset all the loaded relations for the instance.*/
-  $unsetRelations(): this;
+  UnsetRelations(): this;
 
   /*Get the relationships that are touched on save.*/
-  $getTouchedRelations(): any[];
+  GetTouchedRelations(): any[];
 
   /*Set the relationships that are touched on save.*/
-  $setTouchedRelations(touches: any[]): this;
+  SetTouchedRelations(touches: any[]): this;
 }
 
 type HasRelationshipsCtor = Constructor<HasRelationships>;
@@ -107,36 +107,36 @@ export function mixinHasRelationships<T extends Constructor<{}>>(base: T): HasRe
     static _relationResolvers: any[] = [];
 
     /*Get the joining table name for a many-to-many relation.*/
-    public $joiningTable(this: Model & _Self, related: typeof Model, instance: Model | null = null): string {
+    public JoiningTable(this: Model & _Self, related: typeof Model, instance: Model | null = null): string {
       const segments = [
-        instance ? instance.$joiningTableSegment() : snakeCase(related.name),
-        this.$joiningTableSegment()
+        instance ? instance.JoiningTableSegment() : snakeCase(related.name),
+        this.JoiningTableSegment()
       ];
       segments.sort();
       return segments.join('_').toLowerCase();
     }
 
     /*Get this model's half of the intermediate table name for belongsToMany relationships.*/
-    public $joiningTableSegment(this: Model & _Self): string {
-      return snakeCase(this.$getTable());
+    public JoiningTableSegment(this: Model & _Self): string {
+      return snakeCase(this.GetTable());
     }
 
     /*Determine if the model touches a given relation.*/
-    public $touches(relation: string): boolean {
-      return this.$getTouchedRelations().includes(relation);
+    public Touches(relation: string): boolean {
+      return this.GetTouchedRelations().includes(relation);
     }
 
     /*Touch the owning relations of the model.*/
-    public async $touchOwners(this: Model & _Self): Promise<void> {
-      for (const relation of this.$getTouchedRelations()) {
-        await this.$newRelation(relation).$touch();
+    public async TouchOwners(this: Model & _Self): Promise<void> {
+      for (const relation of this.GetTouchedRelations()) {
+        await this.NewRelation(relation).Touch();
         await this[relation];
         if (this[relation] instanceof _Self) {
-          this[relation].$fireModelEvent('saved', false);
-          await this[relation].$touchOwners();
+          this[relation].FireModelEvent('saved', false);
+          await this[relation].TouchOwners();
         } else if (isArray(this[relation])) {
           for (const it of this[relation]) {
-            await it.$touchOwners();
+            await it.TouchOwners();
           }
         }
       }
@@ -151,7 +151,7 @@ export function mixinHasRelationships<T extends Constructor<{}>>(base: T): HasRe
     * @todo fixme maybe remove this.constructor.name
     * Get the class name for polymorphic relations.
     */
-    public $getMorphClass(): string {
+    public GetMorphClass(): string {
 
       const metas                 = reflector.annotations(this.constructor);
       const meta: TableAnnotation = findLast(it => Table.isTypeOf(it), metas);
@@ -172,14 +172,14 @@ export function mixinHasRelationships<T extends Constructor<{}>>(base: T): HasRe
     /*Create a new model instance for a related model.*/
     _newRelatedInstance(this: _Self & Model & this, clazz: typeof Model): Model {
       return tap(instance => {
-        if (!instance.$getConnectionName()) {
-          instance.$setConnection(this._connection);
+        if (!instance.GetConnectionName()) {
+          instance.SetConnection(this._connection);
         }
       }, new clazz());
     }
 
-    $newRelation(this: Model & _Self, relation: string): Relation {
-      const metadata = this.$isRelation(relation);
+    NewRelation(this: Model & _Self, relation: string): Relation {
+      const metadata = this.IsRelation(relation);
       if (metadata) {
         return (metadata as RelationColumnAnnotation)._getRelation(this, relation);
       }
@@ -187,57 +187,57 @@ export function mixinHasRelationships<T extends Constructor<{}>>(base: T): HasRe
     }
 
     /*Get all the loaded relations for the instance.*/
-    public $getRelations(): Record<string, any> {
+    public GetRelations(): Record<string, any> {
       return this._relations;
     }
 
     /*Get a specified relationship.*/
-    public $getRelation(relation: string): any {
+    public GetRelation(relation: string): any {
       return this._relations[relation];
     }
 
     /*Determine if the given relation is loaded.*/
-    public $relationLoaded(key: string): boolean {
+    public RelationLoaded(key: string): boolean {
       return key in this._relations;
     }
 
     /*Set the given relationship on the model.*/
-    public $setRelation(relation: string, value: any): this {
+    public SetRelation(relation: string, value: any): this {
       this._relations[relation] = value;
       return this;
     }
 
     /*Unset a loaded relationship.*/
-    public $unsetRelation(relation: string): this {
+    public UnsetRelation(relation: string): this {
       delete this._relations[relation];
       return this;
     }
 
     /*Set the entire relations array on the model.*/
-    public $setRelations(relations: Record<string, Model | Model[]>): this {
+    public SetRelations(relations: Record<string, Model | Model[]>): this {
       this._relations = relations;
       return this;
     }
 
     /*Duplicate the instance and unset all the loaded relations.*/
-    public $withoutRelations(this: _Self & Model & this) {
+    public WithoutRelations(this: _Self & Model & this) {
       const model = this.clone();
-      return model.$unsetRelations();
+      return model.UnsetRelations();
     }
 
     /*Unset all the loaded relations for the instance.*/
-    public $unsetRelations(): this {
+    public UnsetRelations(): this {
       this._relations = {};
       return this;
     }
 
     /*Get the relationships that are touched on save.*/
-    public $getTouchedRelations(): any[] {
+    public GetTouchedRelations(): any[] {
       return this._touches;
     }
 
     /*Set the relationships that are touched on save.*/
-    public $setTouchedRelations(touches: any[]): this {
+    public SetTouchedRelations(touches: any[]): this {
       this._touches = touches;
       return this;
     }

@@ -11,6 +11,7 @@ import { FedacoColumn } from '../column';
 
 
 export interface PrimaryGeneratedColumnAnnotation extends ColumnAnnotation {
+  field?: string;
   keyType: string | 'increment';
 }
 

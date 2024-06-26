@@ -131,7 +131,7 @@ export class ConnectionFactory {
     if (!(config['driver'] !== undefined)) {
       throw new Error('InvalidArgumentException A driver must be specified.');
     }
-    // if (this.container.bound(key = '"db.connector.{$config[\'driver\']}"')) {
+    // if (this.container.bound(key = '"db.connector.{Config[\'driver\']}"')) {
     //   return this.container.make(key);
     // }
     switch (config['driver']) {

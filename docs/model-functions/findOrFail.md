@@ -1,4 +1,4 @@
-# Function findOrFail
+# Function FindOrFail
 ### find or fail with multiple ids throws model not found exception
 
 ```typescript
@@ -15,7 +15,7 @@ await expect(async () => {
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### find or fail with single id throws model not found exception
 
@@ -29,7 +29,7 @@ await expect(async () => {
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### find or fail
 
@@ -56,4 +56,4 @@ const multiple = await FedacoTestUser.createQuery().findOrFail([1, 2]);
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

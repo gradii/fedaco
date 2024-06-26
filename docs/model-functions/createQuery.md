@@ -1,4 +1,4 @@
-# Function createQuery
+# Function CreateQuery
 ### creating model with empty attributes
 
 ```typescript
@@ -8,8 +8,8 @@ const model = await FedacoTestNonIncrementing.createQuery().create({});
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | `model._wasRecentlyCreated` | exactly match false | `();` |
+> | `model._wasRecentlyCreated` | exactly match | `false` |
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

@@ -1,4 +1,4 @@
-# Function isNumber
+# Function IsNumber
 ### incrementing primary keys are cast to integers by default
 
 ```typescript
@@ -10,4 +10,4 @@ const user = await FedacoTestUser.createQuery().first();
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

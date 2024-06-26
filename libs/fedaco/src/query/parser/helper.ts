@@ -8,7 +8,7 @@ import * as chars from './ascii-chars';
 
 
 export function isIdentifierStart(code: number): boolean {
-  return (chars.$a <= code && code <= chars.$z) || (chars.$A <= code && code <= chars.$Z) ||
+  return (chars.A <= code && code <= chars.Z) || (chars.$A <= code && code <= chars.$Z) ||
     (code == chars.$_) || (code == chars.$$);
 }
 
@@ -18,7 +18,7 @@ export function isIdentifierPart(code: number): boolean {
 }
 
 export function isExponentStart(code: number): boolean {
-  return code == chars.$e || code == chars.$E;
+  return code == chars.E || code == chars.$E;
 }
 
 export function isExponentSign(code: number): boolean {
@@ -31,15 +31,15 @@ export function isQuote(code: number): boolean {
 
 export function unescape(code: number): number {
   switch (code) {
-    case chars.$n:
+    case chars.N:
       return chars.$LF;
-    case chars.$f:
+    case chars.F:
       return chars.$FF;
-    case chars.$r:
+    case chars.R:
       return chars.$CR;
-    case chars.$t:
+    case chars.T:
       return chars.$TAB;
-    case chars.$v:
+    case chars.V:
       return chars.$VTAB;
     default:
       return code;

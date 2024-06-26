@@ -18,37 +18,37 @@ export interface HasTimestamps {
   _timestamps: boolean;
 
   /*Update the model's update timestamp.*/
-  $touch(attribute?: string): Promise<boolean>;
+  Touch(attribute?: string): Promise<boolean>;
 
   /*Update the creation and update timestamps.*/
-  $updateTimestamps(): boolean;
+  UpdateTimestamps(): boolean;
 
   /*Set the value of the "created at" attribute.*/
-  $setCreatedAt(value: any): this;
+  SetCreatedAt(value: any): this;
 
   /*Set the value of the "updated at" attribute.*/
-  $setUpdatedAt(value: any): this;
+  SetUpdatedAt(value: any): this;
 
   /*Get a fresh timestamp for the model.*/
-  $freshTimestamp(): Date;
+  FreshTimestamp(): Date;
 
   /*Get a fresh timestamp for the model.*/
-  $freshTimestampString(): string;
+  FreshTimestampString(): string;
 
   /*Determine if the model uses timestamps.*/
-  $usesTimestamps(): boolean;
+  UsesTimestamps(): boolean;
 
   /*Get the name of the "created at" column.*/
-  $getCreatedAtColumn(): string;
+  GetCreatedAtColumn(): string;
 
   /*Get the name of the "updated at" column.*/
-  $getUpdatedAtColumn(): string;
+  GetUpdatedAtColumn(): string;
 
   /*Get the fully qualified "created at" column.*/
-  $getQualifiedCreatedAtColumn(this: Model & this): string;
+  GetQualifiedCreatedAtColumn(this: Model & this): string;
 
   /*Get the fully qualified "updated at" column.*/
-  $getQualifiedUpdatedAtColumn(this: Model & this): string;
+  GetQualifiedUpdatedAtColumn(this: Model & this): string;
 }
 
 
@@ -64,80 +64,80 @@ export function mixinHasTimestamps<T extends Constructor<any>>(base: T): HasTime
     public _timestamps = true;
 
     /*Update the model's update timestamp.*/
-    public async $touch(this: Model & _Self, attribute: string = null): Promise<boolean> {
+    public async Touch(this: Model & _Self, attribute: string = null): Promise<boolean> {
       if (attribute) {
         // @ts-ignore
-        this[attribute] = this.$freshTimestamp();
-        return this.$save();
+        this[attribute] = this.FreshTimestamp();
+        return this.Save();
       }
-      if (!this.$usesTimestamps()) {
+      if (!this.UsesTimestamps()) {
         return false;
       }
-      this.$updateTimestamps();
-      return this.$save();
+      this.UpdateTimestamps();
+      return this.Save();
     }
 
     /*Update the creation and update timestamps.*/
-    public $updateTimestamps(this: Model & _Self): void {
-      const time            = this.$freshTimestamp();
-      const createdAtColumn = this.$getCreatedAtColumn();
-      if (!this._exists && !isBlank(createdAtColumn) && !this.$isDirty(createdAtColumn)) {
-        this.$setCreatedAt(time);
+    public UpdateTimestamps(this: Model & _Self): void {
+      const time            = this.FreshTimestamp();
+      const createdAtColumn = this.GetCreatedAtColumn();
+      if (!this._exists && !isBlank(createdAtColumn) && !this.IsDirty(createdAtColumn)) {
+        this.SetCreatedAt(time);
       }
 
-      const updatedAtColumn = this.$getUpdatedAtColumn();
-      if (!isBlank(updatedAtColumn) && !this.$isDirty(updatedAtColumn)) {
-        this.$setUpdatedAt(time);
+      const updatedAtColumn = this.GetUpdatedAtColumn();
+      if (!isBlank(updatedAtColumn) && !this.IsDirty(updatedAtColumn)) {
+        this.SetUpdatedAt(time);
       }
     }
 
     /*Set the value of the "created at" attribute.*/
-    public $setCreatedAt(value: any): this {
-      this[this.$getCreatedAtColumn()] = value;
+    public SetCreatedAt(value: any): this {
+      this[this.GetCreatedAtColumn()] = value;
       return this;
     }
 
     /*Set the value of the "updated at" attribute.*/
-    public $setUpdatedAt(value: any): this {
-      this[this.$getUpdatedAtColumn()] = value;
+    public SetUpdatedAt(value: any): this {
+      this[this.GetUpdatedAtColumn()] = value;
       return this;
     }
 
     /*Get a fresh timestamp for the model.*/
-    public $freshTimestamp(): number {
+    public FreshTimestamp(): number {
       return getUnixTime(new Date());
     }
 
     /*Get a fresh timestamp for the model.*/
-    public $freshTimestampString(this: Model & this) {
-      return this.$fromDateTime(this.$freshTimestamp());
+    public FreshTimestampString(this: Model & this) {
+      return this.FromDateTime(this.FreshTimestamp());
     }
 
     /*Determine if the model uses timestamps.*/
-    public $usesTimestamps(): boolean {
+    public UsesTimestamps(): boolean {
       return this._timestamps;
     }
 
     /*Get the name of the "created at" column.*/
-    public $getCreatedAtColumn() {
+    public GetCreatedAtColumn() {
       return 'CREATED_AT' in (this.constructor as any) ?
         (this.constructor as any).CREATED_AT : 'created_at';
     }
 
     /*Get the name of the "updated at" column.*/
-    public $getUpdatedAtColumn() {
+    public GetUpdatedAtColumn() {
       return 'UPDATED_AT' in (this.constructor as any) ?
         (this.constructor as any).UPDATED_AT : 'updated_at';
     }
 
     /*Get the fully qualified "created at" column.*/
-    public $getQualifiedCreatedAtColumn(this: Model & this) {
-      return this.$qualifyColumn(this.$getCreatedAtColumn());
+    public GetQualifiedCreatedAtColumn(this: Model & this) {
+      return this.QualifyColumn(this.GetCreatedAtColumn());
     }
 
     /*Get the fully qualified "updated at" column.*/
-    public $getQualifiedUpdatedAtColumn(this: Model & this) {
-      return this.$qualifyColumn(this.$getUpdatedAtColumn());
+    public GetQualifiedUpdatedAtColumn(this: Model & this) {
+      return this.QualifyColumn(this.GetUpdatedAtColumn());
     }
   };
 }

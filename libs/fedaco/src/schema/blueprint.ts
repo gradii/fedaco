@@ -425,10 +425,10 @@ export class Blueprint {
     // if (isString(model)) {
     //   model = new model();
     // }
-    return (model as Model).$getKeyType() === 'int' &&
-    (model as Model).$getIncrementing() ?
-      this.foreignId(column || (model as Model).$getForeignKey()) :
-      this.foreignUuid(column || (model as Model).$getForeignKey());
+    return (model as Model).GetKeyType() === 'int' &&
+    (model as Model).GetIncrementing() ?
+      this.foreignId(column || (model as Model).GetForeignKey()) :
+      this.foreignUuid(column || (model as Model).GetForeignKey());
   }
 
   /*Create a new float column on the table.*/

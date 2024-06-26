@@ -1,4 +1,4 @@
-# Function delete
+# Function Delete
 ### basic create model
 
 ```typescript
@@ -15,4 +15,4 @@ const model = await new FedacoTestUser().newQuery().create({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

@@ -41,21 +41,21 @@ export interface GuardsAttributes {
   /*The attributes that aren't mass assignable.*/
   _guarded: string[];
 
-  $getFillable(): this;
+  GetFillable(): this;
 
-  $fillable(fillable: string[]): this;
+  Fillable(fillable: string[]): this;
 
-  $mergeFillable(): this;
+  MergeFillable(): this;
 
-  $totallyGuarded(): boolean;
+  TotallyGuarded(): boolean;
 
-  $isFillable(key: string): boolean;
+  IsFillable(key: string): boolean;
 
-  $getGuarded(): this;
+  GetGuarded(): this;
 
-  $guard(guarded: any[]): this;
+  Guard(guarded: any[]): this;
 
-  $mergeGuarded(guarded: any[]): this;
+  MergeGuarded(guarded: any[]): this;
 
   _fillableFromArray(attributes: any): this;
 }
@@ -76,35 +76,35 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
     static _guardableColumns: any[];
 
     /*Get the fillable attributes for the model.*/
-    public $getFillable() {
+    public GetFillable() {
       return this._fillable;
     }
 
     /*Set the fillable attributes for the model.*/
-    public $fillable(fillable: string[]) {
+    public Fillable(fillable: string[]) {
       this._fillable = fillable;
       return this;
     }
 
     /*Merge new fillable attributes with existing fillable attributes on the model.*/
-    public $mergeFillable(fillable: any[]) {
+    public MergeFillable(fillable: any[]) {
       this._fillable = [...this._fillable, ...fillable];
       return this;
     }
 
     /*Get the guarded attributes for the model.*/
-    public $getGuarded() {
+    public GetGuarded() {
       return this._guarded;
     }
 
     /*Set the guarded attributes for the model.*/
-    public $guard(guarded: any[]) {
+    public Guard(guarded: any[]) {
       this._guarded = guarded;
       return this;
     }
 
     /*Merge new guarded attributes with existing guarded attributes on the model.*/
-    public $mergeGuarded(guarded: any[]) {
+    public MergeGuarded(guarded: any[]) {
       this._guarded = [...this._guarded, ...guarded];
       return this;
     }
@@ -145,28 +145,28 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
     }
 
     /*Determine if the given attribute may be mass assigned.*/
-    public $isFillable(key: string) {
+    public IsFillable(key: string) {
       if ((this.constructor as typeof _Self)._unguarded) {
         return true;
       }
-      if (this.$getFillable().includes(key)) {
+      if (this.GetFillable().includes(key)) {
         return true;
       }
-      if (this.$isGuarded(key)) {
+      if (this.IsGuarded(key)) {
         return false;
       }
-      return !this.$getFillable().length &&
+      return !this.GetFillable().length &&
         !key.includes('.') &&
         !key.startsWith('_');
     }
 
     /*Determine if the given key is guarded.*/
-    public $isGuarded(key: string) {
-      if (!this.$getGuarded().length) {
+    public IsGuarded(key: string) {
+      if (!this.GetGuarded().length) {
         return false;
       }
-      return isAnyGuarded(this.$getGuarded()) ||
-        this.$getGuarded().includes(key) ||
+      return isAnyGuarded(this.GetGuarded()) ||
+        this.GetGuarded().includes(key) ||
         !this._isGuardableColumn(key);
     }
 
@@ -192,14 +192,14 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
     }
 
     /*Determine if the model is totally guarded.*/
-    public $totallyGuarded() {
-      return this.$getFillable().length === 0 && isAnyGuarded(this.$getGuarded());
+    public TotallyGuarded() {
+      return this.GetFillable().length === 0 && isAnyGuarded(this.GetGuarded());
     }
 
     /*Get the fillable attributes of a given array.*/
     _fillableFromArray(attributes: any) {
-      if (this.$getFillable().length > 0 && !(this.constructor as typeof _Self)._unguarded) {
-        const rst: any = {}, fillable = this.$getFillable();
+      if (this.GetFillable().length > 0 && !(this.constructor as typeof _Self)._unguarded) {
+        const rst: any = {}, fillable = this.GetFillable();
         for (const key of Object.keys(attributes)) {
           if (fillable.includes(key)) {
             rst[key] = attributes[key];

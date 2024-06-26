@@ -1,4 +1,4 @@
-# Function firstOrCreate
+# Function FirstOrCreate
 ### check and create methods on multi connections
 
 ```typescript
@@ -53,7 +53,7 @@ user2 = await FedacoTestUser.useConnection('second_connection').firstOrCreate({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### first or create
 
@@ -84,4 +84,4 @@ const user1 = await FedacoTestUser.createQuery().firstOrCreate({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

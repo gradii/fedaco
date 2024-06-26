@@ -1,4 +1,4 @@
-# Function update
+# Function Update
 ### fresh method on model
 
 ```typescript
@@ -70,7 +70,7 @@ const freshNotStoredUser = await notStoredUser.fresh();
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### saving json fields
 
@@ -99,7 +99,7 @@ await model.update({
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | `'json->a->b' in model.toArray()` | exactly match false | `();` |
+> | `'json->a->b' in model.toArray()` | exactly match | `false` |
 > | `model.json` | match | `({
       'x': 0,
       'y': '1',
@@ -110,4 +110,4 @@ await model.update({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

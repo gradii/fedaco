@@ -18,23 +18,23 @@ export async function loadAggregate(models: any[], relations: any, column: strin
 
   const first = models[0];
 
-  const _models = await first.$newModelQuery()
-    .whereKey(models.map(it => it.$getKey()))
-    .select(first.$getKeyName())
+  const _models = await first.NewModelQuery()
+    .whereKey(models.map(it => it.GetKey()))
+    .select(first.GetKeyName())
     .withAggregate(relations, column, func)
     .get()
 
   const _attributes = except(
-    Object.keys(_models[0].$getAttributes()),
-    _models[0].$getKeyName()
+    Object.keys(_models[0].GetAttributes()),
+    _models[0].GetKeyName()
   );
   for (const model of models) {
     const extraAttributes = pick(
       _attributes,
-      _models.find((it: Model) => it.$getAttribute(first.$getKeyName()) === model.$getKey()).$getAttributes()
+      _models.find((it: Model) => it.GetAttribute(first.GetKeyName()) === model.GetKey()).GetAttributes()
     );
 
-    model.$forceFill(extraAttributes).$syncOriginalAttributes(_attributes);
+    model.ForceFill(extraAttributes).SyncOriginalAttributes(_attributes);
   }
   return models;
 }

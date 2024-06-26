@@ -18,7 +18,7 @@ export const _additionalProcessingGetter = (target: any, name: string, decorator
       enumerable  : false,
       configurable: true,
       get         : function () {
-        return (this as Model).$getAttribute(field);
+        return (this as Model).GetAttribute(field);
       },
       set         : function () {
         throw new Error('the relation field is readonly');
@@ -43,12 +43,12 @@ export const _additionalProcessingGetterSetter = (target: any, name: string, dec
     };
     if (!hasGetter) {
       propertyDescriptor.get = function () {
-        return (this as Model).$getAttribute(field);
+        return (this as Model).GetAttribute(field);
       };
     }
     if (!hasSetter) {
       propertyDescriptor.set = function (value) {
-        (this as Model).$setAttribute(field, value);
+        (this as Model).SetAttribute(field, value);
       };
     }
     Object.defineProperty(target, name, propertyDescriptor);

@@ -40,23 +40,23 @@ import type { Scope } from './scope';
 /*Begin querying the model on a given connection.*/
 export function on(clazz: typeof Model, connection: string | null = null) {
   const instance = new clazz();
-  instance.$setConnection(connection);
-  return instance.$newQuery();
+  instance.SetConnection(connection);
+  return instance.NewQuery();
 }
 
 /*Begin querying the model on the write connection.*/
 export function onWriteConnection(clazz: typeof Model) {
-  return (new clazz()).$newQuery().useWriteConnection();
+  return (new clazz()).NewQuery().useWriteConnection();
 }
 
 /*Get all of the models from the database.*/
 export function all(clazz: typeof Model, columns: any[] = ['*']) {
-  return (new clazz()).$newQuery().get(columns);
+  return (new clazz()).NewQuery().get(columns);
 }
 
 /*Begin querying a model with eager loading.*/
 export function withRelations(clazz: typeof Model, ...relations: string[]) {
-  return (new clazz()).$newQuery().with(relations);
+  return (new clazz()).NewQuery().with(relations);
 }
 
 
@@ -170,41 +170,41 @@ export class Model extends mixinHasAttributes(
   /*Create a new Eloquent model instance.*/
   public constructor() {
     super();
-    this.$bootIfNotBooted();
+    this.BootIfNotBooted();
     // this.initializeTraits();
   }
 
   static initAttributes(attributes: any = {}): Model {
     const m = new (this)();
-    m.$syncOriginal();
-    m.$fill(attributes);
+    m.SyncOriginal();
+    m.Fill(attributes);
     return m;
   }
 
-  $bootIfNotBooted() {
+  BootIfNotBooted() {
     if (!((this.constructor as typeof Model).booted.has(this.constructor))) {
       (this.constructor as typeof Model).booted.set(this.consturctor, true);
-      this.$fireModelEvent('booting', false);
-      this.$boot();
-      this.$fireModelEvent('booted', false);
+      this.FireModelEvent('booting', false);
+      this.Boot();
+      this.FireModelEvent('booted', false);
     }
   }
 
   /*Bootstrap the model and its traits.*/
-  $boot() {
+  Boot() {
     // Model.bootTraits()
   }
 
-  $fireModelEvent(event: string, arg: boolean) {
+  FireModelEvent(event: string, arg: boolean) {
 
   }
 
   /*Fill the model with an array of attributes.*/
-  public $fill(attributes: Record<string, any>) {
-    const totallyGuarded = this.$totallyGuarded();
+  public Fill(attributes: Record<string, any>) {
+    const totallyGuarded = this.TotallyGuarded();
     for (const [key, value] of Object.entries(this._fillableFromArray(attributes))) {
-      if (this.$isFillable(key)) {
-        this.$setAttribute(key, value);
+      if (this.IsFillable(key)) {
+        this.SetAttribute(key, value);
       } else if (totallyGuarded) {
         throw new Error(
           `MassAssignmentException(\`Add [${key}] to fillable property to allow mass assignment on [${this.constructor.name}].\`)`);
@@ -214,50 +214,50 @@ export class Model extends mixinHasAttributes(
   }
 
   /*Fill the model with an array of attributes. Force mass assignment.*/
-  public $forceFill(attributes: Record<string, any>) {
+  public ForceFill(attributes: Record<string, any>) {
     return (this.constructor as typeof Model).unguarded(() => {
-      return this.$fill(attributes);
+      return this.Fill(attributes);
     });
   }
 
   /*Qualify the given column name by the model's table.*/
-  public $qualifyColumn(column: string) {
+  public QualifyColumn(column: string) {
     if (column.includes('.')) {
       return column;
     }
-    return `${this.$getTable()}.${column}`;
+    return `${this.GetTable()}.${column}`;
   }
 
   /*Qualify the given columns with the model's table.*/
-  public $qualifyColumns(columns: any[]) {
+  public QualifyColumns(columns: any[]) {
     return columns.map(column => {
-      return this.$qualifyColumn(column);
+      return this.QualifyColumn(column);
     });
   }
 
   /*Create a new instance of the given model.*/
-  public $newInstance(attributes: any = {}, exists = false): this {
+  public NewInstance(attributes: any = {}, exists = false): this {
     const model   = (<typeof Model>this.constructor).initAttributes(/*cast type array*/ attributes);
     model._exists = exists;
-    model.$setConnection(this.$getConnectionName());
-    model.$setTable(this.$getTable());
+    model.SetConnection(this.GetConnectionName());
+    model.SetTable(this.GetTable());
     // model.mergeCasts(this._casts); todo remove me
     return model as this;
   }
 
   /*Create a new model instance that is existing.*/
-  public $newFromBuilder(attributes: any = {}, connection: string | null = null) {
-    const model = this.$newInstance({}, true);
-    model.$setRawAttributes(/*cast type array*/ attributes, true);
-    model.$setConnection(connection || this.$getConnectionName());
+  public NewFromBuilder(attributes: any = {}, connection: string | null = null) {
+    const model = this.NewInstance({}, true);
+    model.SetRawAttributes(/*cast type array*/ attributes, true);
+    model.SetConnection(connection || this.GetConnectionName());
     // todo fixme
     // model._fireModelEvent('retrieved', false);
     return model;
   }
 
   /*Eager load relations on the model.*/
-  public async $load(relations: any[] | string) {
-    const query = this.$newQueryWithoutRelationships().with(
+  public async Load(relations: any[] | string) {
+    const query = this.NewQueryWithoutRelationships().with(
       // @ts-ignore
       isString(relations) ? arguments : relations
     );
@@ -276,53 +276,53 @@ export class Model extends mixinHasAttributes(
   // }
 
   /*Eager load relations on the model if they are not already eager loaded.*/
-  public $loadMissing(relations: any[] | string) {
+  public LoadMissing(relations: any[] | string) {
     // relations = isString(relations) ? arguments : relations;
     // this.newCollection([this]).loadMissing(relations);
     return this;
   }
 
   /*Eager load relation's column aggregations on the model.*/
-  public $loadAggregate(relations: any[] | string, column: string, func?: string) {
+  public LoadAggregate(relations: any[] | string, column: string, func?: string) {
     // this.newCollection([this]).loadAggregate(relations, column, func);
     loadAggregate([this], relations, column, func);
     return this;
   }
 
   /*Eager load relation counts on the model.*/
-  public $loadCount(relations: any[] | string) {
+  public LoadCount(relations: any[] | string) {
     // @ts-ignore
     relations = isString(relations) ? arguments : relations;
-    return this.$loadAggregate(relations, '*', 'count');
+    return this.LoadAggregate(relations, '*', 'count');
   }
 
   /*Eager load relation max column values on the model.*/
-  public $loadMax(relations: any[] | string, column: string) {
-    return this.$loadAggregate(relations, column, 'max');
+  public LoadMax(relations: any[] | string, column: string) {
+    return this.LoadAggregate(relations, column, 'max');
   }
 
   /*Eager load relation min column values on the model.*/
-  public $loadMin(relations: any[] | string, column: string) {
-    return this.$loadAggregate(relations, column, 'min');
+  public LoadMin(relations: any[] | string, column: string) {
+    return this.LoadAggregate(relations, column, 'min');
   }
 
   /*Eager load relation's column summations on the model.*/
-  public $loadSum(relations: any[] | string, column: string) {
-    return this.$loadAggregate(relations, column, 'sum');
+  public LoadSum(relations: any[] | string, column: string) {
+    return this.LoadAggregate(relations, column, 'sum');
   }
 
   /*Eager load relation average column values on the model.*/
-  public $loadAvg(relations: any[] | string, column: string) {
-    return this.$loadAggregate(relations, column, 'avg');
+  public LoadAvg(relations: any[] | string, column: string) {
+    return this.LoadAggregate(relations, column, 'avg');
   }
 
   /*Eager load related model existence values on the model.*/
-  public $loadExists(relations: any[] | string) {
-    return this.$loadAggregate(relations, '*', 'exists');
+  public LoadExists(relations: any[] | string) {
+    return this.LoadAggregate(relations, '*', 'exists');
   }
 
   /*Eager load relationship column aggregation on the polymorphic relation of a model.*/
-  public async $loadMorphAggregate(relation: string, relations: Record<string, string[] | string>,
+  public async LoadMorphAggregate(relation: string, relations: Record<string, string[] | string>,
                                   column: string,
                                   func?: string) {
     const relationValue = await this[relation];
@@ -336,48 +336,48 @@ export class Model extends mixinHasAttributes(
   }
 
   /*Eager load relationship counts on the polymorphic relation of a model.*/
-  public $loadMorphCount(relation: string, relations: Record<string, string[] | string>) {
-    return this.$loadMorphAggregate(relation, relations, '*', 'count');
+  public LoadMorphCount(relation: string, relations: Record<string, string[] | string>) {
+    return this.LoadMorphAggregate(relation, relations, '*', 'count');
   }
 
   /*Eager load relationship max column values on the polymorphic relation of a model.*/
-  public $loadMorphMax(relation: string, relations: Record<string, string[] | string>,
+  public LoadMorphMax(relation: string, relations: Record<string, string[] | string>,
                       column: string) {
-    return this.$loadMorphAggregate(relation, relations, column, 'max');
+    return this.LoadMorphAggregate(relation, relations, column, 'max');
   }
 
   /*Eager load relationship min column values on the polymorphic relation of a model.*/
-  public $loadMorphMin(relation: string, relations: Record<string, string[] | string>,
+  public LoadMorphMin(relation: string, relations: Record<string, string[] | string>,
                       column: string) {
-    return this.$loadMorphAggregate(relation, relations, column, 'min');
+    return this.LoadMorphAggregate(relation, relations, column, 'min');
   }
 
   /*Eager load relationship column summations on the polymorphic relation of a model.*/
-  public $loadMorphSum(relation: string, relations: Record<string, string[] | string>,
+  public LoadMorphSum(relation: string, relations: Record<string, string[] | string>,
                       column: string) {
-    return this.$loadMorphAggregate(relation, relations, column, 'sum');
+    return this.LoadMorphAggregate(relation, relations, column, 'sum');
   }
 
   /*Eager load relationship average column values on the polymorphic relation of a model.*/
-  public $loadMorphAvg(relation: string, relations: Record<string, string[] | string>,
+  public LoadMorphAvg(relation: string, relations: Record<string, string[] | string>,
                       column: string) {
-    return this.$loadMorphAggregate(relation, relations, column, 'avg');
+    return this.LoadMorphAggregate(relation, relations, column, 'avg');
   }
 
   /*Increment a column's value by a given amount.*/
-  protected $increment(column: string, amount: number = 1, extra: any[] = []) {
-    return this.$incrementOrDecrement(column, amount, extra, 'increment');
+  protected Increment(column: string, amount: number = 1, extra: any[] = []) {
+    return this.IncrementOrDecrement(column, amount, extra, 'increment');
   }
 
   /*Decrement a column's value by a given amount.*/
-  protected $decrement(column: string, amount: number = 1, extra: any[] = []) {
-    return this.$incrementOrDecrement(column, amount, extra, 'decrement');
+  protected Decrement(column: string, amount: number = 1, extra: any[] = []) {
+    return this.IncrementOrDecrement(column, amount, extra, 'decrement');
   }
 
   /*Run the increment or decrement method on the model.*/
-  protected $incrementOrDecrement(column: string, amount: number, extra: any[],
+  protected IncrementOrDecrement(column: string, amount: number, extra: any[],
                                  method: string) {
-    const query = this.$newQueryWithoutRelationships();
+    const query = this.NewQueryWithoutRelationships();
     if (!this._exists) {
       // @ts-ignore
       return query[method](column, amount, extra);
@@ -388,44 +388,44 @@ export class Model extends mixinHasAttributes(
     } else {
       this[column] = this[column] + (method === 'increment' ? amount : amount * -1);
     }
-    this.$forceFill(extra);
+    this.ForceFill(extra);
     if (this._fireModelEvent('updating') === false) {
       return false;
     }
     // @ts-ignore
     return tap(this._setKeysForSaveQuery(query)[method](column, amount, extra), () => {
-      this.$syncChanges();
+      this.SyncChanges();
       this._fireModelEvent('updated', false);
-      this.$syncOriginalAttribute(column);
+      this.SyncOriginalAttribute(column);
     });
   }
 
   /*Update the model in the database.*/
-  public $update(attributes: any = {}, options: any = {}) {
+  public Update(attributes: any = {}, options: any = {}) {
     if (!this._exists) {
       return false;
     }
-    return this.$fill(attributes).$save(options);
+    return this.Fill(attributes).Save(options);
   }
 
   /*Update the model in the database without raising any events.*/
-  public $updateQuietly(attributes: any[] = [], options: any[] = []) {
+  public UpdateQuietly(attributes: any[] = [], options: any[] = []) {
     if (!this._exists) {
       return false;
     }
-    return this.$fill(attributes).$saveQuietly(options);
+    return this.Fill(attributes).SaveQuietly(options);
   }
 
   /*Save the model and all of its relationships.*/
-  public async $push() {
-    if (!await this.$save()) {
+  public async Push() {
+    if (!await this.Save()) {
       return false;
     }
     for (let models of Object.values(this._relations)) {
       models = isArray(models) ? models : [models];
       for (const model of models) {
         if (!isBlank(model)) {
-          if (!await model.$push()) {
+          if (!await model.Push()) {
             return false;
           }
         }
@@ -435,63 +435,63 @@ export class Model extends mixinHasAttributes(
   }
 
   /*Save the model to the database without raising any events.*/
-  public $saveQuietly(options: any = {}) {
+  public SaveQuietly(options: any = {}) {
     // return Model.withoutEvents(() => {
-    return this.$save(options);
+    return this.Save(options);
     // });
   }
 
   /*Save the model to the database.*/
-  public async $save(options: { touch?: boolean } = {}): Promise<boolean> {
-    this.$mergeAttributesFromClassCasts();
-    const query = this.$newModelQuery();
+  public async Save(options: { touch?: boolean } = {}): Promise<boolean> {
+    this.MergeAttributesFromClassCasts();
+    const query = this.NewModelQuery();
     if (this._fireModelEvent('saving') === false) {
       return false;
     }
     let saved;
     if (this._exists) {
-      saved = this.$isDirty() ? await this.$performUpdate(query) : true;
+      saved = this.IsDirty() ? await this.PerformUpdate(query) : true;
     } else {
-      saved            = await this.$performInsert(query);
+      saved            = await this.PerformInsert(query);
       const connection = query.getConnection();
-      if (!this.$getConnectionName() && connection) {
-        this.$setConnection(connection.getName());
+      if (!this.GetConnectionName() && connection) {
+        this.SetConnection(connection.getName());
       }
     }
     if (saved) {
-      await this.$finishSave(options);
+      await this.FinishSave(options);
     }
     return saved;
   }
 
   /*Save the model to the database using transaction.*/
-  public async $saveOrFail(options: any = {}) {
-    return this.$getConnection().transaction(async () => {
-      return this.$save(options);
+  public async SaveOrFail(options: any = {}) {
+    return this.GetConnection().transaction(async () => {
+      return this.Save(options);
     });
   }
 
   /*Perform any actions that are necessary after the model is saved.*/
-  protected async $finishSave(options: { touch?: boolean }) {
+  protected async FinishSave(options: { touch?: boolean }) {
     this._fireModelEvent('saved', false);
-    if (this.$isDirty() && (options['touch'] ?? true)) {
-      await this.$touchOwners();
+    if (this.IsDirty() && (options['touch'] ?? true)) {
+      await this.TouchOwners();
     }
-    this.$syncOriginal();
+    this.SyncOriginal();
   }
 
   /*Perform a model update operation.*/
-  protected async $performUpdate(query: FedacoBuilder) {
+  protected async PerformUpdate(query: FedacoBuilder) {
     if (this._fireModelEvent('updating') === false) {
       return false;
     }
-    if (this.$usesTimestamps()) {
-      this.$updateTimestamps();
+    if (this.UsesTimestamps()) {
+      this.UpdateTimestamps();
     }
-    const dirty = this.$getDirty();
+    const dirty = this.GetDirty();
     if (!isObjectEmpty(dirty)) {
       await this._setKeysForSaveQuery(query).update(dirty);
-      this.$syncChanges();
+      this.SyncChanges();
       this._fireModelEvent('updated', false);
     }
     return true;
@@ -499,37 +499,37 @@ export class Model extends mixinHasAttributes(
 
   /*Set the keys for a select query.*/
   _setKeysForSelectQuery(query: FedacoBuilder<this>): FedacoBuilder<this> {
-    query.where(this.$getKeyName(), '=', this._getKeyForSelectQuery());
+    query.where(this.GetKeyName(), '=', this._getKeyForSelectQuery());
     return query;
   }
 
   /*Get the primary key value for a select query.*/
   _getKeyForSelectQuery() {
-    return this._original[this.$getKeyName()] ?? this.$getKey();
+    return this._original[this.GetKeyName()] ?? this.GetKey();
   }
 
   /*Set the keys for a save update query.*/
   _setKeysForSaveQuery(query: FedacoBuilder): FedacoBuilder {
-    query.where(this.$getKeyName(), '=', this.$getKeyForSaveQuery());
+    query.where(this.GetKeyName(), '=', this.GetKeyForSaveQuery());
     return query;
   }
 
   /*Get the primary key value for a save query.*/
-  protected $getKeyForSaveQuery() {
-    return this._original[this.$getKeyName()] ?? this.$getKey();
+  protected GetKeyForSaveQuery() {
+    return this._original[this.GetKeyName()] ?? this.GetKey();
   }
 
   /*Perform a model insert operation.*/
-  protected async $performInsert(query: FedacoBuilder) {
+  protected async PerformInsert(query: FedacoBuilder) {
     if (this._fireModelEvent('creating') === false) {
       return false;
     }
-    if (this.$usesTimestamps()) {
-      this.$updateTimestamps();
+    if (this.UsesTimestamps()) {
+      this.UpdateTimestamps();
     }
-    const attributes = this.$getAttributesForInsert();
-    if (this.$getIncrementing()) {
-      await this.$insertAndSetId(query, attributes);
+    const attributes = this.GetAttributesForInsert();
+    if (this.GetIncrementing()) {
+      await this.InsertAndSetId(query, attributes);
     } else {
       if (isAnyEmpty(attributes)) {
         return true;
@@ -543,10 +543,10 @@ export class Model extends mixinHasAttributes(
   }
 
   /*Insert the given attributes and set the ID on the model.*/
-  protected async $insertAndSetId(query: FedacoBuilder, attributes: Record<string, any>) {
-    const keyName = this.$getKeyName();
+  protected async InsertAndSetId(query: FedacoBuilder, attributes: Record<string, any>) {
+    const keyName = this.GetKeyName();
     const id      = await query.insertGetId(attributes, keyName);
-    this.$setAttribute(keyName, id);
+    this.SetAttribute(keyName, id);
   }
 
   // /*Destroy the models for the given IDs.*/
@@ -572,9 +572,9 @@ export class Model extends mixinHasAttributes(
   // }
 
   /*Delete the model from the database.*/
-  public async $delete(): Promise<boolean | number> {
-    this.$mergeAttributesFromClassCasts();
-    if (isBlank(this.$getKeyName())) {
+  public async Delete(): Promise<boolean | number> {
+    this.MergeAttributesFromClassCasts();
+    if (isBlank(this.GetKeyName())) {
       throw new Error('LogicException No primary key defined on model.');
     }
     if (!this._exists) {
@@ -583,7 +583,7 @@ export class Model extends mixinHasAttributes(
     if (this._fireModelEvent('deleting') === false) {
       return false;
     }
-    await this.$touchOwners();
+    await this.TouchOwners();
     await this._performDeleteOnModel();
     this._fireModelEvent('deleted', false);
     return true;
@@ -592,94 +592,94 @@ export class Model extends mixinHasAttributes(
   /*Force a hard delete on a soft deleted model.
 
   This method protects developers from running forceDelete when the trait is missing.*/
-  public async $forceDelete() {
-    return this.$delete();
+  public async ForceDelete() {
+    return this.Delete();
   }
 
   /*Perform the actual delete query on this model instance.*/
   protected async _performDeleteOnModel() {
-    await this._setKeysForSaveQuery(this.$newModelQuery()).delete();
+    await this._setKeysForSaveQuery(this.NewModelQuery()).delete();
     this._exists = false;
   }
 
   /*Begin querying the model.*/
   public static createQuery<T extends typeof Model>(this: T): FedacoBuilder<InstanceType<T>> {
-    return (new this() as InstanceType<T>).$newQuery<InstanceType<T>>();
+    return (new this() as InstanceType<T>).NewQuery<InstanceType<T>>();
   }
 
   /*Get a new query builder for the model's table.*/
-  public $newQuery<T extends Model>(this: T): FedacoBuilder<T> {
+  public NewQuery<T extends Model>(this: T): FedacoBuilder<T> {
     // @ts-ignore
-    return this.$registerGlobalScopes(this.$newQueryWithoutScopes());
+    return this.RegisterGlobalScopes(this.NewQueryWithoutScopes());
   }
 
   /*Get a new query builder that doesn't have any global scopes or eager loading.*/
-  public $newModelQuery(): FedacoBuilder<this> {
-    return this.$newEloquentBuilder(this.$newBaseQueryBuilder()).setModel(this);
+  public NewModelQuery(): FedacoBuilder<this> {
+    return this.NewEloquentBuilder(this.NewBaseQueryBuilder()).setModel(this);
   }
 
   /*Get a new query builder with no relationships loaded.*/
-  public $newQueryWithoutRelationships(): FedacoBuilder {
-    return this.$registerGlobalScopes(this.$newModelQuery());
+  public NewQueryWithoutRelationships(): FedacoBuilder {
+    return this.RegisterGlobalScopes(this.NewModelQuery());
   }
 
   /*Register the global scopes for this builder instance.*/
-  public $registerGlobalScopes(builder: FedacoBuilder) {
-    for (const [identifier, scope] of Object.entries(this.$getGlobalScopes())) {
+  public RegisterGlobalScopes(builder: FedacoBuilder) {
+    for (const [identifier, scope] of Object.entries(this.GetGlobalScopes())) {
       builder.withGlobalScope(identifier, scope);
     }
     return builder;
   }
 
   /*Get a new query builder that doesn't have any global scopes.*/
-  public $newQueryWithoutScopes(): FedacoBuilder<this> {
-    return this.$newModelQuery().with(this._with).withCount(this._withCount);
+  public NewQueryWithoutScopes(): FedacoBuilder<this> {
+    return this.NewModelQuery().with(this._with).withCount(this._withCount);
   }
 
   /*Get a new query instance without a given scope.*/
-  public $newQueryWithoutScope(scope: string) {
-    return this.$newQuery().withoutGlobalScope(scope);
+  public NewQueryWithoutScope(scope: string) {
+    return this.NewQuery().withoutGlobalScope(scope);
   }
 
   /*Get a new query to restore one or more models by their queueable IDs.*/
-  public $newQueryForRestoration(ids: any[] | number | string): FedacoBuilder<this> {
+  public NewQueryForRestoration(ids: any[] | number | string): FedacoBuilder<this> {
     return isArray(ids) ?
-      this.$newQueryWithoutScopes().whereIn(this.$getQualifiedKeyName(), ids) :
-      this.$newQueryWithoutScopes().whereKey(ids);
+      this.NewQueryWithoutScopes().whereIn(this.GetQualifiedKeyName(), ids) :
+      this.NewQueryWithoutScopes().whereKey(ids);
   }
 
   /*Create a new Eloquent query builder for the model.*/
-  public $newEloquentBuilder(query: QueryBuilder) {
+  public NewEloquentBuilder(query: QueryBuilder) {
     return new FedacoBuilder<this>(query);
   }
 
   /*Get a new query builder instance for the connection.*/
-  protected $newBaseQueryBuilder() {
-    return this.$getConnection().query();
+  protected NewBaseQueryBuilder() {
+    return this.GetConnection().query();
   }
 
   /*Create a new Eloquent Collection instance.*/
-  public $newCollection(models: any[] = []): this[] {
+  public NewCollection(models: any[] = []): this[] {
     return models;
   }
 
   /*Determine if the model has a given scope.*/
-  public $hasNamedScope(scope: string) {
+  public HasNamedScope(scope: string) {
     return `scope${upperFirst(scope)}` in this;
   }
 
   /*Apply the given named scope if possible.*/
-  public $callNamedScope(scope: string, ...parameters: any[]) {
+  public CallNamedScope(scope: string, ...parameters: any[]) {
     return (this['scope' + upperFirst(scope)]).apply(this, parameters);
   }
 
   /*Convert the model instance to an array.*/
-  public $toArray() {
-    return {...this.$attributesToArray(), ...this.$relationsToArray()};
+  public ToArray() {
+    return {...this.AttributesToArray(), ...this.RelationsToArray()};
   }
 
-  public $toArray2() {
-    return {...this.$attributesToArray2(), ...this.$relationsToArray2()};
+  public ToArray2() {
+    return {...this.AttributesToArray2(), ...this.RelationsToArray2()};
   }
 
   /*Convert the model instance to JSON.*/
@@ -692,71 +692,71 @@ export class Model extends mixinHasAttributes(
   // }
 
   /*Convert the object into something JSON serializable.*/
-  public $jsonSerialize() {
-    return this.$toArray();
+  public JsonSerialize() {
+    return this.ToArray();
   }
 
   /*Reload a fresh model instance from the database.*/
-  public $fresh(_with: any[] | string = []) {
+  public Fresh(_with: any[] | string = []) {
     if (!this._exists) {
       return void 0;
     }
-    return this._setKeysForSelectQuery(this.$newQueryWithoutScopes())
+    return this._setKeysForSelectQuery(this.NewQueryWithoutScopes())
       .with(isString(_with) ? [...arguments] : _with).first();
   }
 
   /*Reload the current model instance with fresh attributes from the database.*/
-  public async $refresh() {
+  public async Refresh() {
     if (!this._exists) {
       return this;
     }
     const result: Model = await this._setKeysForSelectQuery(
-      this.$newQueryWithoutScopes()).firstOrFail();
-    this.$setRawAttributes(result._attributes);
+      this.NewQueryWithoutScopes()).firstOrFail();
+    this.SetRawAttributes(result._attributes);
     // this.load(this._relations.reject(relation => {
     //   return relation instanceof Pivot || is_object(relation) && in_array(AsPivot,
     //     class_uses_recursive(relation), true);
     // }).keys().all());
-    this.$syncOriginal();
+    this.SyncOriginal();
     return this;
   }
 
   /*Clone the model into a new, non-existing instance.*/
-  public $replicate(excepts: any[] | null = null) {
-    const defaults   = [this.$getKeyName(), this.$getCreatedAtColumn(), this.$getUpdatedAtColumn()];
-    const attributes = except(this.$getAttributes(),
+  public Replicate(excepts: any[] | null = null) {
+    const defaults   = [this.GetKeyName(), this.GetCreatedAtColumn(), this.GetUpdatedAtColumn()];
+    const attributes = except(this.GetAttributes(),
       excepts ? uniq([...excepts, ...defaults]) : defaults);
     return tap((instance: Model) => {
-      instance.$setRawAttributes(attributes);
-      instance.$setRelations(this._relations);
-      instance.$fireModelEvent('replicating', false);
+      instance.SetRawAttributes(attributes);
+      instance.SetRelations(this._relations);
+      instance.FireModelEvent('replicating', false);
     }, new (this.constructor as typeof Model)());
   }
 
   /*Determine if two models have the same ID and belong to the same table.*/
-  public $is(model: Model | null) {
+  public Is(model: Model | null) {
     return !isBlank(model) &&
-      this.$getKey() === model.$getKey() &&
-      this.$getTable() === model.$getTable() &&
-      this.$getConnectionName() === model.$getConnectionName();
+      this.GetKey() === model.GetKey() &&
+      this.GetTable() === model.GetTable() &&
+      this.GetConnectionName() === model.GetConnectionName();
   }
 
   /*Determine if two models are not the same.*/
-  public $isNot(model: Model | null) {
-    return !this.$is(model);
+  public IsNot(model: Model | null) {
+    return !this.Is(model);
   }
 
   /*Get the database connection for the model.*/
-  public $getConnection(): Connection {
+  public GetConnection(): Connection {
     return (this.constructor as any).resolveConnection(
-      this.$getConnectionName()
+      this.GetConnectionName()
     );
   }
 
   static connectionName: string;
 
   /*Get the current connection name for the model.*/
-  public $getConnectionName() {
+  public GetConnectionName() {
     if (isBlank(this._connection)) {
       const metas                 = reflector.annotations(this.constructor);
       const meta: TableAnnotation = findLast((it) => {
@@ -774,7 +774,7 @@ export class Model extends mixinHasAttributes(
   }
 
   /*Set the connection associated with the model.*/
-  public $setConnection(name: string | null) {
+  public SetConnection(name: string | null) {
     this._connection = name;
     return this;
   }
@@ -800,7 +800,7 @@ export class Model extends mixinHasAttributes(
   }
 
   /*Get the table associated with the model.*/
-  public $getTable(): string {
+  public GetTable(): string {
     if (isBlank(this._table)) {
       // const metas                 = reflector.annotations(this.constructor);
       // const meta: TableAnnotation = findLast((it) => {
@@ -808,9 +808,9 @@ export class Model extends mixinHasAttributes(
       // }, metas);
       // if (meta) {
       //   if (!meta.noPluralTable) {
-      //     this.$setTable(pluralStudy(meta.tableName));
+      //     this.SetTable(pluralStudy(meta.tableName));
       //   } else {
-      //     this.$setTable(snakeCase(meta.tableName));
+      //     this.SetTable(snakeCase(meta.tableName));
       //   }
       // } else {
         throw new Error('must define table in annotation or `_table` property');
@@ -820,19 +820,19 @@ export class Model extends mixinHasAttributes(
   }
 
   /*Set the table alias.*/
-  public $setTable(table: string): this {
+  public SetTable(table: string): this {
     this._table = table;
     return this;
   }
 
   /*Set the table alias.*/
-  public $setTableAlias(tableAlias: string) {
+  public SetTableAlias(tableAlias: string) {
     this._tableAlias = tableAlias;
     return this;
   }
 
   /*Get the primary key for the model.*/
-  public $getKeyName() {
+  public GetKeyName() {
     if (this._primaryKey === undefined) {
       return 'id';
       // throw new Error('must define primary column by @PrimaryColumn');
@@ -854,18 +854,18 @@ export class Model extends mixinHasAttributes(
   }
 
   // /*Set the primary key for the model.*/
-  // public $setKeyName(key: string) {
+  // public SetKeyName(key: string) {
   //   this._primaryKey = key;
   //   return this;
   // }
 
   /*Get the table qualified key name.*/
-  public $getQualifiedKeyName() {
-    return this.$qualifyColumn(this.$getKeyName());
+  public GetQualifiedKeyName() {
+    return this.QualifyColumn(this.GetKeyName());
   }
 
   /*Get the auto-incrementing key type.*/
-  public $getKeyType() {
+  public GetKeyType() {
     return this._keyType;
   }
 
@@ -876,24 +876,24 @@ export class Model extends mixinHasAttributes(
   // }
 
   /*Get the value indicating whether the IDs are incrementing.*/
-  public $getIncrementing() {
+  public GetIncrementing() {
     return this._incrementing;
   }
 
   /*Set whether IDs are incrementing.*/
-  public $setIncrementing(value: boolean) {
+  public SetIncrementing(value: boolean) {
     this._incrementing = value;
     return this;
   }
 
   /*Get the value of the model's primary key.*/
-  public $getKey() {
-    return this.$getAttribute(this.$getKeyName());
+  public GetKey() {
+    return this.GetAttribute(this.GetKeyName());
   }
 
   /*Get the queueable identity for the entity.*/
-  public $getQueueableId() {
-    return this.$getKey();
+  public GetQueueableId() {
+    return this.GetKey();
   }
 
   /*Get the queueable relationships for the entity.*/
@@ -919,43 +919,43 @@ export class Model extends mixinHasAttributes(
   // }
 
   /*Get the queueable connection for the entity.*/
-  public $getQueueableConnection() {
-    return this.$getConnectionName();
+  public GetQueueableConnection() {
+    return this.GetConnectionName();
   }
 
   /*Get the value of the model's route key.*/
-  public $getRouteKey() {
-    return this.$getAttribute(this.$getRouteKeyName());
+  public GetRouteKey() {
+    return this.GetAttribute(this.GetRouteKeyName());
   }
 
   /*Get the route key for the model.*/
-  public $getRouteKeyName() {
-    return this.$getKeyName();
+  public GetRouteKeyName() {
+    return this.GetKeyName();
   }
 
   /*Retrieve the model for a bound value.*/
-  public $resolveRouteBinding(value: any, field: string | null = null) {
-    return this.where(field ?? this.$getRouteKeyName(), value).first();
+  public ResolveRouteBinding(value: any, field: string | null = null) {
+    return this.where(field ?? this.GetRouteKeyName(), value).first();
   }
 
   /*Retrieve the model for a bound value.*/
-  public $resolveSoftDeletableRouteBinding(value: any, field: string | null = null) {
-    return this.where(field ?? this.$getRouteKeyName(), value).withTrashed().first();
+  public ResolveSoftDeletableRouteBinding(value: any, field: string | null = null) {
+    return this.where(field ?? this.GetRouteKeyName(), value).withTrashed().first();
   }
 
   /*Retrieve the child model for a bound value.*/
-  public $resolveChildRouteBinding(childType: string, value: any, field: string | null) {
-    return this.$resolveChildRouteBindingQuery(childType, value, field).first();
+  public ResolveChildRouteBinding(childType: string, value: any, field: string | null) {
+    return this.ResolveChildRouteBindingQuery(childType, value, field).first();
   }
 
   /*Retrieve the child model for a bound value.*/
-  public $resolveSoftDeletableChildRouteBinding(childType: string, value: any,
+  public ResolveSoftDeletableChildRouteBinding(childType: string, value: any,
                                                field: string | null) {
-    return this.$resolveChildRouteBindingQuery(childType, value, field).withTrashed().first();
+    return this.ResolveChildRouteBindingQuery(childType, value, field).withTrashed().first();
   }
 
   /*Retrieve the child model query for a bound value.*/
-  protected $resolveChildRouteBindingQuery(childType: string, value: any, field: string | null) {
+  protected ResolveChildRouteBindingQuery(childType: string, value: any, field: string | null) {
     // todo recovery me
     const relationship = this[plural(camelCase(childType))]();
     field              = field || relationship.getRelated().getRouteKeyName();
@@ -969,29 +969,29 @@ export class Model extends mixinHasAttributes(
   /**
    * Get the default foreign key name for the model.
    */
-  public $getForeignKey() {
-    return snakeCase(this.$getTable()) + '_' + this.$getKeyName();
+  public GetForeignKey() {
+    return snakeCase(this.GetTable()) + '_' + this.GetKeyName();
   }
 
   /*Get the number of models to return per page.*/
-  public $getPerPage() {
+  public GetPerPage() {
     return this._perPage;
   }
 
   /*Set the number of models to return per page.*/
-  public $setPerPage(perPage: number) {
+  public SetPerPage(perPage: number) {
     this._perPage = perPage;
     return this;
   }
 
   public toJSON() {
-    return this.$toArray();
+    return this.ToArray();
   }
 
   public clone() {
     const cloned = new (this.constructor as typeof Model)();
 
-    cloned.$setTable(this._table);
+    cloned.SetTable(this._table);
     cloned._guarded    = this._guarded && [...this._guarded];
     cloned._visible    = this._visible && [...this._visible];
     cloned._hidden     = this._hidden && [...this._hidden];
@@ -1009,8 +1009,8 @@ export class Model extends mixinHasAttributes(
   /*Begin querying the model on a given connection.*/
   public static useConnection(connection?: string) {
     const instance = new this();
-    instance.$setConnection(connection);
-    return instance.$newQuery();
+    instance.SetConnection(connection);
+    return instance.NewQuery();
   }
 
   /*Disables relationship model touching for the current class during given callback scope.*/
