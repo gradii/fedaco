@@ -12,6 +12,7 @@ import { FedacoColumn } from '../column';
 
 
 export interface PrimaryColumnAnnotation extends ColumnAnnotation {
+  field?: string;
   keyType?: string;
 }
 

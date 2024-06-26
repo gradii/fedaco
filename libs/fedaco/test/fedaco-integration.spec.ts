@@ -1134,18 +1134,18 @@ describe('test database fedaco integration', () => {
       ).toPromise();
   });
 
-  xit('belongs to many relationship models are properly hydrated over cursor request', async () => {
+  it('belongs to many relationship models are properly hydrated over cursor request', async () => {
     const user   = await FedacoTestUser.createQuery().create({
       'email': 'linbolen@gradii.com'
     });
     const friend = await user.NewRelation('friends').create({
       'email': 'xsilen@gradii.com'
     });
-    for (const result of await (await FedacoTestUser.createQuery().first()).NewRelation(
-      'friends').get()) {
+    for (const result of (await (await FedacoTestUser.createQuery().first()).NewRelation(
+      'friends').get()) as FedacoTestUser[]) {
       expect(result.email).toBe('xsilen@gradii.com');
-      expect(result.getRelation('pivot').getAttribute('user_id')).toEqual(user.id);
-      expect(result.getRelation('pivot').getAttribute('friend_id')).toEqual(friend.id);
+      expect(result.GetRelation('pivot').GetAttribute('user_id')).toEqual(user.id);
+      expect(result.GetRelation('pivot').GetAttribute('friend_id')).toEqual(friend.id);
     }
   });
 

@@ -26,7 +26,7 @@ export interface Pivot extends AsPivotCtor, Omit<Model, keyof AsPivot>, Construc
 
 export class Pivot extends mixinAsPivot(Model) {
   /*Indicates if the IDs are auto-incrementing.*/
-  public incrementing = false;
+  public _incrementing = false;
   /*The attributes that aren't mass assignable.*/
-  protected guarded: any[] = [];
+  public _guarded: string[] = [];
 }

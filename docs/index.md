@@ -7,11 +7,11 @@ hero:
   text: "Laravel Eloquent With Typescript"
   actions:
     - theme: brand
+      text: Guide
+      link: /guide/getting-started
+    - theme: alt
       text: Model Functions
       link: /model-functions/attach
-#    - theme: alt
-#      text: API Examples
-#      link: /api-examples
 
 #features:
 #  - title: Feature A
