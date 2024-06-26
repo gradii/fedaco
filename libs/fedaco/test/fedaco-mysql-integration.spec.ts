@@ -138,20 +138,20 @@ describe('test database fedaco mysql integration', () => {
     const db = new DatabaseConfig();
     db.addConnection({
       'driver'  : 'mysql',
-      'host'    : '127.0.0.1',
-      'port'    : 3306,
+      'host'    : process.env.DB_HOST || '127.0.0.1',
+      'port'    : process.env.DB_PORT || 3306,
       'database': 'fedaco_test',
-      'username': 'root',
-      'password': '123456',
+      'username': process.env.DB_USER || 'root',
+      'password': process.env.DB_PASSWORD || '123456',
       'timezone': '+08:00'
     });
     db.addConnection({
       'driver'  : 'mysql',
-      'host'    : '127.0.0.1',
-      'port'    : 3306,
+      'host'    : process.env.DB_HOST || '127.0.0.1',
+      'port'    : process.env.DB_PORT || 3306,
       'database': 'fedaco_second_test',
-      'username': 'root',
-      'password': '123456'
+      'username': process.env.DB_USER || 'root',
+      'password': process.env.DB_PASSWORD || '123456',
     }, 'second_connection');
     db.bootFedaco();
     db.setAsGlobal();
