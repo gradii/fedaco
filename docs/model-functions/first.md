@@ -41,7 +41,7 @@ await factory.newQuery().create({
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | `      await factory.newQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match false | `();` |
+> | `      await factory.newQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
 > | `      await factory.newQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
 
 

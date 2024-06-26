@@ -8,7 +8,7 @@ const model = await FedacoTestNonIncrementing.createQuery().create({});
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | `model._wasRecentlyCreated` | exactly match false | `();` |
+> | `model._wasRecentlyCreated` | exactly match | `false` |
 
 
 ----

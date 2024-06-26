@@ -5,12 +5,12 @@
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | `Model.isIgnoringTouch()` | exactly match false | `();` |
-> | `User.isIgnoringTouch()` | exactly match false | `();` |
-> | `Post.isIgnoringTouch()` | exactly match false | `();` |
-> | `Model.isIgnoringTouch()` | exactly match false | `();` |
-> | `Post.isIgnoringTouch()` | exactly match false | `();` |
-> | `User.isIgnoringTouch()` | exactly match false | `();` |
+> | `Model.isIgnoringTouch()` | exactly match | `false` |
+> | `User.isIgnoringTouch()` | exactly match | `false` |
+> | `Post.isIgnoringTouch()` | exactly match | `false` |
+> | `Model.isIgnoringTouch()` | exactly match | `false` |
+> | `Post.isIgnoringTouch()` | exactly match | `false` |
+> | `User.isIgnoringTouch()` | exactly match | `false` |
 
 
 ----

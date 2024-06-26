@@ -26,7 +26,7 @@ await model.update({
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | `'json->a->b' in model.toArray()` | exactly match false | `();` |
+> | `'json->a->b' in model.toArray()` | exactly match | `false` |
 > | `model.json` | match | `({
       'x': 0,
       'y': '1',
