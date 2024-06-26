@@ -6,10 +6,11 @@ jobs:
     runs-on: ubuntu-22.04
     services:
       mysql:
-        image: mysql:5.7
+        image: mariadb:lts
         env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_DATABASE: fedaco
+          MARIADB_ALLOW_EMPTY_PASSWORD: yes
+          MARIADB_ROOT_PASSWORD: 123456
+          MARIADB_DATABASE: fedaco_test
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -36,10 +37,10 @@ jobs:
         run: yarn install --frozen-lockfile --non-interactive
       - name: test fedaco
         env:
-          DB_HOST: mysql
+          DB_HOST: 127.0.0.1
           DB_PORT: 3306
           DB_USER: root
-          DB_PASSWORD: ""
+          DB_PASSWORD: "123456"
           DB_COLLATION: utf8mb4_unicode_ci
         run: |
           yarn nx test --project fedaco

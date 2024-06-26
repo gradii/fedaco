@@ -145,6 +145,9 @@ describe('test database fedaco mysql integration', () => {
       'password': process.env.DB_PASSWORD || '123456',
       'timezone': '+08:00'
     });
+    db.bootFedaco();
+    db.setAsGlobal();
+    await db.getConnection('default').statement('create database if not exists `fedaco_second_test`')
     db.addConnection({
       'driver'  : 'mysql',
       'host'    : process.env.DB_HOST || '127.0.0.1',
