@@ -266,7 +266,6 @@ describe('test database fedaco mysql integration', () => {
 
   it('test insert get id method', async () => {
     const factory = new EloquentTestUser();
-    // factory.getConnection().enableQueryLog();
     await factory.$newQuery().create({
       'id'   : 1,
       'email': 'linbolen@gradii.com'
@@ -277,7 +276,6 @@ describe('test database fedaco mysql integration', () => {
       'email': 'xsilen@gradii.com'
     });
 
-    console.log(factory.$getConnection().getQueryLog());
   });
 
 });

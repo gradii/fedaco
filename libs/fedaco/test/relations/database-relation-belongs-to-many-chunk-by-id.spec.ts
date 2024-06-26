@@ -64,7 +64,8 @@ describe('test database fedaco belongs to many chunk by id', () => {
     const db = new DatabaseConfig();
     db.addConnection({
       'driver'  : 'sqlite',
-      'database': ':memory:'
+      'database': ':memory:',
+      'foreign_key_constraints': false
     });
     db.bootFedaco();
     db.setAsGlobal();
