@@ -26,7 +26,7 @@ const spy = jest.fn(({ results: users, page }) => {
 });
 const signal = new Subject();
 await FedacoTestNonIncrementingSecond.createQuery()
-  .chunkById(2, 'name', undefined, signal)
+  .chunkById(2, 'name', undefined)
   .pipe(
     finalize(() => {
       expect(i).toEqual(2);
