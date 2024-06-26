@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Fedaco Project",
+  title: "Fedaco ORM",
   description: "Laravel Eloquent With Typescript",
   ignoreDeadLinks: true,
   base: '/fedaco/',

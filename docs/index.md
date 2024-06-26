@@ -3,8 +3,8 @@
 layout: home
 
 hero:
-  name: "Fedaco Project"
-  text: "A VitePress Site"
+  name: "Fedaco ORM"
+  text: "Laravel Eloquent With Typescript"
   tagline: My great project tagline
   actions:
     - theme: brand
