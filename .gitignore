@@ -42,3 +42,7 @@ Thumbs.db
 tmp
 
 .nx/cache
+
+dist
+.temp
+cache
