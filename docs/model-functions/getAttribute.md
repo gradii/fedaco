@@ -1,4 +1,4 @@
-# Function getAttribute
+# Function GetAttribute
 ### belongs to many custom pivot
 
 ```typescript
@@ -56,7 +56,7 @@ const johnWithFriends = await FedacoTestUserWithCustomFriendPivot.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### belongs to many relationship models are properly hydrated over chunked request
 
@@ -88,7 +88,7 @@ await user1
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### belongs to many relationship models are properly hydrated over each request
 
@@ -116,7 +116,7 @@ await (
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### morph map is used for creating and fetching through relation
 
@@ -164,7 +164,7 @@ await post.newRelation('photos').create({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### morph map is used when fetching parent
 
@@ -189,7 +189,7 @@ const photo = await FedacoTestPhoto.createQuery().first();
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### timestamps using custom date format
 
@@ -209,7 +209,7 @@ model.setRawAttributes({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### timestamps using default sql server date format
 
@@ -229,7 +229,7 @@ model.setRawAttributes({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### timestamps using old sql server date format
 
@@ -243,4 +243,4 @@ model.setRawAttributes({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

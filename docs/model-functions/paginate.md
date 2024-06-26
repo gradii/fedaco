@@ -1,4 +1,4 @@
-# Function paginate
+# Function Paginate
 ### paginated model collection retrieval when no elements and default per page
 
 ```typescript
@@ -7,7 +7,7 @@ const models = await new FedacoTestUser().newQuery().oldest('id').paginate();
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### paginated model collection retrieval when no elements
 
@@ -27,7 +27,7 @@ models = await new FedacoTestUser().newQuery().oldest('id').paginate(2, 2);
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### paginated model collection retrieval
 
@@ -67,4 +67,4 @@ let models = await new FedacoTestUser().newQuery().oldest('id').paginate(1, 2);
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

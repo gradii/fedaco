@@ -1,4 +1,4 @@
-# Function fillable
+# Function Fillable
 ### saving json fields
 
 ```typescript
@@ -37,4 +37,4 @@ await model.update({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

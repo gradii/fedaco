@@ -1,4 +1,4 @@
-# Function each
+# Function Each
 ### belongs to many relationship models are properly hydrated over each request
 
 ```typescript
@@ -25,4 +25,4 @@ await (
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

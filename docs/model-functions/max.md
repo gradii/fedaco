@@ -1,4 +1,4 @@
-# Function max
+# Function Max
 ### aggregated values of datetime field
 
 ```typescript
@@ -23,4 +23,4 @@ await FedacoTestUser.createQuery().create({
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

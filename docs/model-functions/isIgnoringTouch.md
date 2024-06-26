@@ -1,4 +1,4 @@
-# Function isIgnoringTouch
+# Function IsIgnoringTouch
 ### child models are ignored
 
 
@@ -14,4 +14,4 @@
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

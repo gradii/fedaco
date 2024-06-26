@@ -1,4 +1,4 @@
-# Function pluck
+# Function Pluck
 ### pluck with column name containing a space
 
 ```typescript
@@ -28,7 +28,7 @@ const keyed = await FedacoTestUserWithSpaceInColumnName.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### pluck with join
 
@@ -71,7 +71,7 @@ const query = FedacoTestUser.createQuery().join(
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### pluck
 
@@ -102,4 +102,4 @@ const keyed = await FedacoTestUser.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

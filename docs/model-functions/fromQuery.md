@@ -1,4 +1,4 @@
-# Function fromQuery
+# Function FromQuery
 ### basic model hydration
 
 ```typescript
@@ -27,4 +27,4 @@ const models = await FedacoTestUser.useConnection(
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

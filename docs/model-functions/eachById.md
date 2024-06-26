@@ -1,4 +1,4 @@
-# Function eachById
+# Function EachById
 ### each by id with non incrementing key
 
 ```typescript
@@ -24,4 +24,4 @@ await FedacoTestNonIncrementingSecond.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

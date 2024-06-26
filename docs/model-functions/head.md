@@ -1,4 +1,4 @@
-# Function head
+# Function Head
 ### belongs to many relationship models are properly hydrated over chunked request
 
 ```typescript
@@ -29,4 +29,4 @@ await user1
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

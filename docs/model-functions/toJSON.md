@@ -1,4 +1,4 @@
-# Function toJson
+# Function ToJson
 ### fresh method on model
 
 ```typescript
@@ -70,4 +70,4 @@ const freshNotStoredUser = await notStoredUser.fresh();
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

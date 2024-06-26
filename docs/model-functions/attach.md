@@ -1,4 +1,4 @@
-# Function attach
+# Function Attach
 ### belongs to many custom pivot
 
 ```typescript
@@ -56,4 +56,4 @@ const johnWithFriends = await FedacoTestUserWithCustomFriendPivot.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

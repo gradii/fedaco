@@ -1,4 +1,4 @@
-# Function toThrowError
+# Function ToThrowError
 ### find or fail with multiple ids throws model not found exception
 
 ```typescript
@@ -15,7 +15,7 @@ await expect(async () => {
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### find or fail with single id throws model not found exception
 
@@ -29,7 +29,7 @@ await expect(async () => {
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### has on morph to relationship
 
@@ -43,7 +43,7 @@ await expect(async () => {
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### save or fail with duplicated entry
 
@@ -70,4 +70,4 @@ await expect(async () => {
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

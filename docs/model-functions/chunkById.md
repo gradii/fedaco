@@ -1,4 +1,4 @@
-# Function chunkById
+# Function ChunkById
 ### chunk by id with non incrementing key test signal
 
 ```typescript
@@ -38,7 +38,7 @@ await FedacoTestNonIncrementingSecond.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### chunk by id with non incrementing key
 
@@ -75,4 +75,4 @@ await FedacoTestNonIncrementingSecond.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)

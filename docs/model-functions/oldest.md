@@ -1,4 +1,4 @@
-# Function oldest
+# Function Oldest
 ### basic model collection retrieval
 
 ```typescript
@@ -24,7 +24,7 @@ const models = await new FedacoTestUser().newQuery().oldest('id').get();
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### paginated model collection retrieval when no elements and default per page
 
@@ -34,7 +34,7 @@ const models = await new FedacoTestUser().newQuery().oldest('id').paginate();
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### paginated model collection retrieval when no elements
 
@@ -54,7 +54,7 @@ models = await new FedacoTestUser().newQuery().oldest('id').paginate(2, 2);
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### paginated model collection retrieval
 
@@ -94,7 +94,7 @@ let models = await new FedacoTestUser().newQuery().oldest('id').paginate(1, 2);
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### pluck with column name containing a space
 
@@ -125,7 +125,7 @@ const keyed = await FedacoTestUserWithSpaceInColumnName.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ### pluck
 
@@ -156,4 +156,4 @@ const keyed = await FedacoTestUser.createQuery()
 
 
 ----
-see also [prerequisites]("./../database fedaco integration/prerequisite.md")
+see also [prerequisites](./../database-fedaco-integration/prerequisite)
