@@ -7,5 +7,12 @@
   ],
   "lib": {
     "entryFile": "index.ts"
-  }
+  },
+  "allowedNonPeerDependencies": [
+    "@gradii/annotation",
+    "@gradii/nanofn",
+    "date-fns",
+    "ramda",
+    "rxjs"
+  ]
 }

@@ -8,6 +8,11 @@
   "license": "MIT",
   "peerDependencies": {},
   "dependencies": {
+    "@gradii/annotation": "^1.0.0",
+    "@gradii/nanofn": "^1.0.5",
+    "date-fns": "^3.6.0",
+    "ramda": "^0.30.1",
+    "rxjs": "^7.8.1",
     "tslib": "^2.3.0"
   }
 }

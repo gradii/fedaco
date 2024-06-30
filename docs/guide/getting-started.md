@@ -10,11 +10,11 @@
 ::: code-group
 
 ```sh [npm]
-$ npm add @gradii/fedaco @gradii/annotation @gradii/nanofn ramda date-fns
+$ npm add @gradii/fedaco
 ```
 
 ```sh [yarn]
-$ yarn add @gradii/fedaco @gradii/annotation @gradii/nanofn ramda date-fns
+$ yarn add @gradii/fedaco
 ```
 
 ::: tip NOTE

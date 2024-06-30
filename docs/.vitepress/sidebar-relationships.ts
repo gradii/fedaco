@@ -2,11 +2,16 @@ import { DefaultTheme } from 'vitepress';
 
 export function sidebarRelationships(): DefaultTheme.SidebarItem[] {
   return [
+    {text: 'Query Relationships', link: '/query-relationships',},
+    {text: 'Aggregating Related Models', link: '/aggregating-related-models'},
+    {text: 'Eager Loading', link: '/eager-loading'},
+    {text: 'Inserting and Updating Related Models', link: 'inserting-and-updating-related-models'},
+    {text: 'Touching Parent Timestamps', link: 'touching-parent-timestamps'},
     {
-      text: 'Defining Relationships',
-      base: '/relationships/defining-relationships',
+      text     : 'Defining Relationships',
+      base     : '/relationships/defining-relationships',
       collapsed: false,
-      items: [
+      items    : [
         {text: 'Relation One To One', link: '/relation-one-to-one'},
         {text: 'Relation One To Many', link: '/relation-one-to-many'},
         {text: 'Relation Has One Of Many', link: '/relation-has-one-of-many'},
@@ -15,10 +20,10 @@ export function sidebarRelationships(): DefaultTheme.SidebarItem[] {
       ]
     },
     {
-      text: 'Many To Many',
-      base: '/relationships/many-to-many-relationship',
+      text     : 'Many To Many',
+      base     : '/relationships/many-to-many-relationship',
       collapsed: false,
-      items: [
+      items    : [
         {
           text: 'Relation Many To Many',
           link: '/relation-many-to-many'
@@ -40,6 +45,19 @@ export function sidebarRelationships(): DefaultTheme.SidebarItem[] {
           link: '/defining-custom-intermediate-table-models'
         }
       ]
+    },
+    {
+      text     : 'Polymorphic Relationships',
+      base     : '/relationships/polymorphic-relationships',
+      collapsed: false,
+      items    : [
+        {text: 'Polymorphic Introduction', link: '/polymorphic-introduction'},
+        {text: 'Polymorphic One To One', link: '/polymorphic-one-to-one'},
+        {text: 'Polymorphic One To Many', link: '/polymorphic-one-to-many'},
+        {text: 'Polymorphic One Of Many', link: '/polymorphic-one-of-many'},
+        {text: 'Polymorphic Many To Many', link: '/polymorphic-many-to-many'},
+        {text: 'Custom Polymorphic Types', link: '/custom-polymorphic-types'},
+      ]
     }
-  ]
+  ];
 }
