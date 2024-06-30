@@ -12,6 +12,7 @@ import { SqlServerConnection } from '../connection/sql-server-connection';
 import { SqliteConnection } from '../connection/sqlite-connection';
 import { wrap } from '../helper/arr';
 import { MysqlConnector } from './mysql/mysql-connector';
+import { PostgresConnector } from './postgres/postgres-connector';
 import { SqliteConnector } from './sqlite/sqlite-connector';
 
 export class ConnectionFactory {
@@ -137,8 +138,8 @@ export class ConnectionFactory {
     switch (config['driver']) {
       case 'mysql':
         return new MysqlConnector();
-      // case 'pgsql':
-      //   return new PostgresConnector();
+      case 'pgsql':
+        return new PostgresConnector();
       case 'sqlite':
         return new SqliteConnector();
       // case 'sqlsrv':

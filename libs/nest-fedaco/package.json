@@ -1,0 +1,10 @@
+{
+  "name": "@gradii/nest-fedaco",
+  "version": "0.0.1",
+  "peerDependencies": {
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}

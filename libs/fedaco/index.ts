@@ -270,3 +270,4 @@ export * from './src/database-transaction-record';
 export * from './src/database-transactions-manager';
 export * from './src/manages-transactions';
 export * from './src/query-exception';
+export * from './src/db'

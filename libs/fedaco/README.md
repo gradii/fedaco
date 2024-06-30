@@ -74,7 +74,7 @@ can play fedaco here https://github.com/gradii/play-fedaco
 - sqlite and mysql support
 
 ### Progressing
-- [ ] postgres full support
+- [x] postgres full support
 - [ ] mssql full support
 - [ ] migration
 

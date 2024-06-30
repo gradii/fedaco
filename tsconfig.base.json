@@ -33,7 +33,8 @@
     "types": ["jest"],
     "baseUrl": ".",
     "paths": {
-      "@gradii/fedaco": ["libs/fedaco/src/index.ts"]
+      "@gradii/fedaco": ["libs/fedaco/index.ts"],
+      "@gradii/nest-fedaco": ["libs/nest-fedaco/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
