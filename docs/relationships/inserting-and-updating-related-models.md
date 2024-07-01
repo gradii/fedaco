@@ -1,18 +1,16 @@
-## Inserting and Updating Related Models
+# Inserting and Updating Related Models
 
-<a name="the-save-method"></a>
-### The `save` Method
+## The `save` Method
 
 Eloquent provides convenient methods for adding new models to relationships. For example, perhaps you need to add a new comment to a post. Instead of manually setting the `post_id` attribute on the `Comment` model you may insert the comment using the relationship's `save` method:
 
-    use App\Models\Comment;
-    use App\Models\Post;
+```typescript
+const comment = new Comment({'message':'A new comment.'});
 
-    $comment = new Comment(['message' => 'A new comment.']);
+const post = await Post.createQuery().find(1);
 
-    $post = Post::find(1);
-
-    $post->comments()->save($comment);
+await post.NewRelation('comments').save(comment);
+```
 
 Note that we did not access the `comments` relationship as a dynamic property. Instead, we called the `comments` method to obtain an instance of the relationship. The `save` method will automatically add the appropriate `post_id` value to the new `Comment` model.
 
@@ -109,10 +107,8 @@ To remove a parent model from a child model, you may use the `dissociate` method
 
     $user->save();
 
-<a name="updating-many-to-many-relationships"></a>
 ### Many to Many Relationships
 
-<a name="attaching-detaching"></a>
 #### Attaching / Detaching
 
 Eloquent also provides methods to make working with many-to-many relationships more convenient. For example, let's imagine a user can have many roles and a role can have many users. You may use the `attach` method to attach a role to a user by inserting a record in the relationship's intermediate table:
