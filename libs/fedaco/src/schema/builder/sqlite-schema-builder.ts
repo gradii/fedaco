@@ -20,27 +20,26 @@ export class SqliteSchemaBuilder extends SchemaBuilder {
   }
 
   /*Drop all tables from the database.*/
-  public dropAllTables() {
+  public async dropAllTables() {
     if (this.connection.getDatabaseName() !== ':memory:') {
       return this.refreshDatabaseFile();
     }
-    this.connection.select(this.grammar.compileEnableWriteableSchema());
-    this.connection.select(this.grammar.compileDropAllTables());
-    this.connection.select(this.grammar.compileDisableWriteableSchema());
-    this.connection.select(this.grammar.compileRebuild());
+    await this.connection.select(this.grammar.compileEnableWriteableSchema());
+    await this.connection.select(this.grammar.compileDropAllTables());
+    await this.connection.select(this.grammar.compileDisableWriteableSchema());
+    await this.connection.select(this.grammar.compileRebuild());
   }
 
-  public getAllTables() {
-
+  public async getAllTables() {
     return this.connection.select(this.grammar.compileGetAllTables());
   }
 
   /*Drop all views from the database.*/
-  public dropAllViews() {
-    this.connection.select(this.grammar.compileEnableWriteableSchema());
-    this.connection.select(this.grammar.compileDropAllViews());
-    this.connection.select(this.grammar.compileDisableWriteableSchema());
-    this.connection.select(this.grammar.compileRebuild());
+  public async dropAllViews() {
+    await this.connection.select(this.grammar.compileEnableWriteableSchema());
+    await this.connection.select(this.grammar.compileDropAllViews());
+    await this.connection.select(this.grammar.compileDisableWriteableSchema());
+    await this.connection.select(this.grammar.compileRebuild());
   }
 
   /*Empty the database file.*/
