@@ -18,7 +18,7 @@ export type ForeignKeyDefinitionAttributes = {
 };
 
 export class ForeignKeyDefinition extends ColumnDefinition {
-  attributes: ColumnDefineAttributes & ForeignKeyDefinitionAttributes;
+  public declare attributes: ColumnDefineAttributes & ForeignKeyDefinitionAttributes;
 
 
   public get deferrable() {

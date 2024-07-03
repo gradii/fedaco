@@ -18,7 +18,7 @@ export class FedacoCoreModule implements OnApplicationShutdown {
       provide : SEQUELIZE_MODULE_OPTIONS,
       useValue: options,
     };
-    const connectionProvider     = {
+    const connectionProvider  = {
       provide   : 'DB',
       useFactory: () => this.createConnectionFactory(options),
     };
@@ -38,12 +38,12 @@ export class FedacoCoreModule implements OnApplicationShutdown {
   }
 
   private static createConnectionFactory(
-    options: ConnectionConfig,
+    options: { [key: string]: ConnectionConfig },
   ): DatabaseConfig {
     const db = new DatabaseConfig();
 
     for (const key in options) {
-      db.addConnection(options, key);
+      db.addConnection(options[key], key);
     }
 
     db.bootFedaco();
