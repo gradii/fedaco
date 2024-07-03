@@ -1,0 +1,52 @@
+{
+  "name": "nest-startkit",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/nest-startkit/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/nest-startkit",
+        "main": "apps/nest-startkit/src/main.ts",
+        "tsConfig": "apps/nest-startkit/tsconfig.app.json",
+        "assets": ["apps/nest-startkit/src/assets"],
+        "webpackConfig": "apps/nest-startkit/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "nest-startkit:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "nest-startkit:build:development"
+        },
+        "production": {
+          "buildTarget": "nest-startkit:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/nest-startkit/jest.config.ts"
+      }
+    }
+  }
+}
