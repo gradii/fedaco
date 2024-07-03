@@ -2,35 +2,32 @@
   "name": "nest-fedaco",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/nest-fedaco/src",
-  "prefix": "lib",
   "projectType": "library",
+  "release": {
+    "version": {
+      "generatorOptions": {
+        "packageRoot": "dist/{projectRoot}",
+        "currentVersionResolver": "git-tag"
+      }
+    }
+  },
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/angular:package",
-      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
       "options": {
-        "project": "libs/nest-fedaco/ng-package.json"
-      },
-      "configurations": {
-        "production": {
-          "tsConfig": "libs/nest-fedaco/tsconfig.lib.prod.json"
-        },
-        "development": {
-          "tsConfig": "libs/nest-fedaco/tsconfig.lib.json"
-        }
-      },
-      "defaultConfiguration": "production"
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
-      "options": {
-        "jestConfig": "libs/nest-fedaco/jest.config.ts"
+        "outputPath": "dist/libs/nest-fedaco",
+        "tsConfig": "libs/nest-fedaco/tsconfig.lib.json",
+        "packageJson": "libs/nest-fedaco/package.json",
+        "main": "libs/nest-fedaco/src/index.ts",
+        "assets": ["libs/nest-fedaco/*.md"]
       }
     },
-    "lint": {
-      "executor": "@nx/eslint:lint"
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "dist/{projectRoot}"
+      }
     }
   }
 }

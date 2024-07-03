@@ -1,0 +1,52 @@
+{
+  "name": "nest-postgresql",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/nest-postgresql/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/nest-postgresql",
+        "main": "apps/nest-postgresql/src/main.ts",
+        "tsConfig": "apps/nest-postgresql/tsconfig.app.json",
+        "assets": ["apps/nest-postgresql/src/assets"],
+        "webpackConfig": "apps/nest-postgresql/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "nest-postgresql:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "nest-postgresql:build:development"
+        },
+        "production": {
+          "buildTarget": "nest-postgresql:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/nest-postgresql/jest.config.ts"
+      }
+    }
+  }
+}

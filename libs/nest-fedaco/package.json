@@ -1,10 +1,10 @@
 {
   "name": "@gradii/nest-fedaco",
-  "version": "0.0.1",
-  "peerDependencies": {
-  },
+  "version": "0.0.2",
   "dependencies": {
     "tslib": "^2.3.0"
   },
-  "sideEffects": false
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "typings": "./src/index.d.ts"
 }
