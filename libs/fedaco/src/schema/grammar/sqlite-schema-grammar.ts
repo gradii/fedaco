@@ -4,21 +4,70 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank } from '@gradii/nanofn';
+import { camelCase, isBlank } from '@gradii/nanofn';
+import { unique } from 'ng-packagr/lib/utils/array';
+import { partition } from 'ramda';
 import type { Connection } from '../../connection';
+import { Expression } from '../../query/ast/expression/expression';
 import type { Blueprint } from '../blueprint';
 import { ColumnDefinition } from '../column-definition';
-import type { ForeignKeyDefinition } from '../foreign-key-definition';
+import { ForeignKeyDefinition } from '../foreign-key-definition';
+import { IndexDefinition } from '../index-definition';
 import { SchemaGrammar } from './schema-grammar';
 
 
 export class SqliteSchemaGrammar extends SchemaGrammar {
   /*The possible column modifiers.*/
-  protected modifiers: string[] = ['VirtualAs', 'StoredAs', 'Nullable', 'Default', 'Increment'];
+  protected modifiers: string[] = ['Increment', 'Nullable', 'Default', 'Collate', 'VirtualAs', 'StoredAs'];
   /*The columns available as serials.*/
   protected serials: string[] = [
     'bigInteger', 'integer', 'mediumInteger', 'smallInteger', 'tinyInteger'
   ];
+
+  public compileSqlCreateStatement(name: string, type = 'table') {
+    return `select "sql" from sqlite_master
+            where type = '${type.replace(/['"]/g, '')}'
+              and name = '${name.replace(/\./g, '__').replace(/['"]/g, '')}'`;
+  }
+
+  /**
+   * Compile the query to determine if the dbstat table is available.
+   *
+   * @return string
+   */
+  public compileDbstatExists() {
+    return 'select exists (select 1 from pragma_compile_options where compile_options = \'ENABLE_DBSTAT_VTAB\') as enabled';
+  }
+
+  /**
+   * Compile the query to determine the tables.
+   *
+   * @param withSize
+   * @return string
+   */
+  public compileTables(withSize = false) {
+    return withSize
+      ? `select m.tbl_name as name, sum(s.pgsize) as size
+         from sqlite_master as m join dbstat as s
+         on s.name = m.name
+         where m.type in ('table', 'index') and m.tbl_name not like 'sqlite_%'
+         group by m.tbl_name
+         order by m.tbl_name`
+      : `select name
+         from sqlite_master
+         where type = 'table'
+           and name not like 'sqlite_%'
+         order by name`;
+  }
+
+  /**
+   * Compile the query to determine the views.
+   *
+   * @return string
+   */
+  public compileViews() {
+    return 'select name, sql as definition from sqlite_master where type = \'view\' order by name';
+  }
 
   public compileColumns(table: string): string {
     return `select name,
@@ -62,34 +111,22 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
             group by id, "table", on_update, on_delete`;
   }
 
-  /*Compile the query to determine if a table exists.*/
-  public compileTableExists() {
-    return 'select * from sqlite_master where type = \'table\' and name = ?';
-  }
-
-  /*Compile the query to determine the list of columns.*/
-  public compileColumnListing(table: string) {
-    return 'pragma table_info(' + this.wrap(table.replace(/\./g, '__')) + ')';
-  }
-
   /*Compile a create table command.*/
   public compileCreate(blueprint: Blueprint, command: ColumnDefinition) {
-    return `${blueprint._temporary ? 'create temporary' : 'create'} table ${this.wrapTable(
-      blueprint)} (${this.getColumns(blueprint).join(', ')}${this.addForeignKeys(
-      blueprint)}${this.addPrimaryKeys(blueprint)})`;
+    return `${blueprint._temporary ? 'create temporary' : 'create'} table ${
+      this.wrapTable(blueprint)} (${
+      this.getColumns(blueprint).join(', ')
+    }${
+      this.addForeignKeys(this.getCommandsByName(blueprint, 'foreign'))
+    }${
+      this.addPrimaryKeys(this.getCommandByName(blueprint, 'primary'))
+    })`;
   }
 
   /*Get the foreign key syntax for a table creation statement.*/
-  protected addForeignKeys(blueprint: Blueprint) {
-    const foreigns = this.getCommandsByName(blueprint, 'foreign');
-    return foreigns.reduce((sql, foreign) => {
+  protected addForeignKeys(foreignKeys: ForeignKeyDefinition[]) {
+    return foreignKeys.reduce((sql, foreign) => {
       sql += this.getForeignKey(foreign);
-      if (!isBlank(foreign.onDelete)) {
-        sql += '" on delete {Foreign->onDelete}"';
-      }
-      if (!isBlank(foreign.onUpdate)) {
-        sql += '" on update {Foreign->onUpdate}"';
-      }
       return sql;
     }, '');
   }
@@ -101,8 +138,7 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
   }
 
   /*Get the primary key syntax for a table creation statement.*/
-  protected addPrimaryKeys(blueprint: Blueprint) {
-    const primary = this.getCommandByName(blueprint, 'primary');
+  protected addPrimaryKeys(primary: ColumnDefinition) {
     if (!isBlank(primary)) {
       return `, primary key (${this.columnize(primary.columns)})`;
     }
@@ -117,6 +153,112 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
     }).map(column => {
       return `alter table ${this.wrapTable(blueprint)} ${column}`;
     });
+  }
+
+  /**
+   * Compile a change column command into a series of SQL statements.
+   *
+   * @throws \RuntimeException
+   */
+  public async compileChange(blueprint: Blueprint, command: ColumnDefinition, connection: Connection) {
+    const schema = connection.getSchemaBuilder();
+    const table  = blueprint.getTable();
+
+    const changedColumns        = blueprint.getChangedColumns();
+    const columnNames: string[] = [];
+    let autoIncrementColumn: any;
+
+    const columns = (await schema.getColumns(table)).map(column => {
+      column = changedColumns.find((col) => col.name === column['name']) || column;
+
+      if (column instanceof ColumnDefinition) {
+        const name          = this.wrap(column);
+        autoIncrementColumn = column.autoIncrement ? column.name : autoIncrementColumn;
+
+        if (isBlank(column.virtualAs) && isBlank(column.virtualAsJson) &&
+          isBlank(column.storedAs) && isBlank(column.storedAsJson)) {
+          columnNames.push(name);
+        }
+
+        return this.addModifiers(name + ' ' + this.getType(column), blueprint, column);
+      } else {
+        const name          = this.wrap(column['name']);
+        autoIncrementColumn = column['auto_increment'] ? column['name'] : autoIncrementColumn;
+        const isGenerated   = !isBlank(column['generation']);
+
+        if (!isGenerated) {
+          columnNames.push(name);
+        }
+
+        return this.addModifiers(name + ' ' + column['type'], blueprint,
+          new ColumnDefinition({
+            'change'       : true,
+            'type'         : column['type_name'],
+            'nullable'     : column['nullable'],
+            'default'      : column['default'] ? column['default'] : null,
+            'autoIncrement': column['auto_increment'],
+            'collation'    : column['collation'],
+            'comment'      : column['comment'],
+            'virtualAs'    : isGenerated && column['generation']['type'] === 'virtual'
+              ? column['generation']['expression'] : null,
+            'storedAs'     : isGenerated && column['generation']['type'] === 'stored'
+              ? column['generation']['expression'] : null,
+          })
+        );
+      }
+    });
+
+    const foreignKeys = (await schema.getForeignKeys(table)).map(
+      foreignKey => new ForeignKeyDefinition({
+        'columns'   : foreignKey['columns'],
+        'on'        : foreignKey['foreign_table'],
+        'references': foreignKey['foreign_columns'],
+        'onUpdate'  : foreignKey['on_update'],
+        'onDelete'  : foreignKey['on_delete'],
+      }));
+
+    let primary        = [], indexes = [];
+    [primary, indexes] = partition(
+      index => index['name'] === 'primary',
+      (await schema.getIndexes(table)).map(
+        (index: ColumnDefinition) => new IndexDefinition({
+          name     : index['primary'] ? 'primary' : index['unique'] ? 'unique' : 'default',
+          'index'  : index['name'],
+          'columns': index['columns']
+        })
+      ));
+
+    indexes = indexes.filter(index => !index['index'].startsWith('sqlite_')).map(
+      // @ts-ignore
+      index => this['compile' + camelCase(index.name)](blueprint, index)
+    );
+
+    const tempTable      = this.wrap('__temp__' + blueprint.getPrefix() + table);
+    const tableStr       = this.wrapTable(blueprint);
+    const columnNamesStr = columnNames.join(', ');
+
+    const foreignKeyConstraintsEnabled = await connection.scalar('pragma foreign_keys');
+
+    const sqls = [];
+    if (foreignKeyConstraintsEnabled) {
+      sqls.push(this.compileDisableForeignKeyConstraints());
+    }
+    sqls.push(
+      `create table ${tempTable}
+        ${columns.join(', ')}${this.addForeignKeys(foreignKeys)}${
+          autoIncrementColumn ? '' : this.addPrimaryKeys(primary[0])
+        }`,
+      `insert into ${tempTable} (${columnNamesStr})
+       select ${columnNamesStr}
+       from ${tableStr}`,
+      `drop table ${tableStr}`,
+      `alter table ${tempTable} rename to ${tableStr}`,
+    );
+    sqls.push(...indexes);
+    if (foreignKeyConstraintsEnabled) {
+      sqls.push(this.compileDisableForeignKeyConstraints());
+    }
+    return sqls;
   }
 
   /*Compile a unique key command.*/
@@ -164,16 +306,6 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
     return 'delete from sqlite_master where type in ' + `('view')`;
   }
 
-  public compileGetAllTables(withSize = false): string {
-    return withSize
-      ? 'select m.tbl_name as name, sum(s.pgsize) as size from sqlite_master as m '
-      + 'join dbstat as s on s.name = m.name '
-      + 'where m.type in (\'table\', \'index\') and m.tbl_name not like \'sqlite_%\' '
-      + 'group by m.tbl_name '
-      + 'order by m.tbl_name'
-      : 'select name from sqlite_master where type = \'table\' and name not like \'sqlite_%\' order by name';
-  }
-
   /*Compile the SQL needed to rebuild the database.*/
   public compileRebuild() {
     return 'vacuum';
@@ -197,10 +329,6 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
   public compileDropIndex(blueprint: Blueprint, command: ColumnDefinition) {
     const index = this.wrap(command.index);
     return 'drop index ' + `${index}`;
-  }
-
-  public compilePrimary(blueprint: Blueprint, command: ColumnDefinition): string {
-    return null;
   }
 
   /*Compile a drop spatial index command.*/
@@ -422,6 +550,16 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
     return 'geometry';
   }
 
+  protected typeGeography(column: ColumnDefinition) {
+    return this.typeGeometry(column);
+  }
+
+  /*Create the column definition for a generated, computed column type.*/
+  protected typeComputed(column: ColumnDefinition) {
+    throw new Error(
+      'RuntimeException This database driver requires a type, see the virtualAs / storedAs modifiers.');
+  }
+
   /*Create the column definition for a spatial Point type.*/
   public typePoint(column: ColumnDefinition) {
     return 'point';
@@ -455,12 +593,6 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
   /*Create the column definition for a spatial MultiPolygon type.*/
   public typeMultiPolygon(column: ColumnDefinition) {
     return 'multipolygon';
-  }
-
-  /*Create the column definition for a generated, computed column type.*/
-  protected typeComputed(column: ColumnDefinition) {
-    throw new Error(
-      'RuntimeException This database driver requires a type, see the virtualAs / storedAs modifiers.');
   }
 
   /*Get the SQL for a generated virtual column modifier.*/
@@ -526,42 +658,16 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
     return '';
   }
 
+  protected modifyCollate(blueprint: Blueprint, column: ColumnDefinition) {
+    if (!isBlank(column.collation)) {
+      return ` collate '${column.collation}'`;
+    }
+    return '';
+  }
+
   /*Wrap the given JSON selector.*/
   protected wrapJsonSelector(value: string) {
     const [field, path] = this.wrapJsonFieldAndPath(value);
     return 'json_extract(' + field + path + ')';
-  }
-
-  getListTableColumnsSQL(table: string, database: string): string {
-    table = table.replace(/\./g, '__');
-    return `PRAGMA table_info(${this.quoteStringLiteral(table)})`;
-  }
-
-  getListTableIndexesSQL(table: string, database: string): string {
-    table = table.replace(/\./g, '__');
-    return `PRAGMA index_list(${table})`;
-  }
-
-  getListTableForeignKeysSQL(table: string, database?: string) {
-    table = table.replace(/\./g, '__');
-    return `PRAGMA foreign_key_list(${this.quoteStringLiteral(table)})`;
-  }
-
-  getListTablesSQL(): string {
-    return `SELECT name
-            FROM sqlite_master
-            WHERE type = 'table'
-              AND name != 'sqlite_sequence'
-              AND name != 'geometry_columns'
-              AND name != 'spatial_ref_sys'
-            UNION ALL
-    SELECT name
-    FROM sqlite_temp_master
-    WHERE type = 'table'
-    ORDER BY name`;
-  }
-
-  getAlterTableSQL(tableDiff: any) {
-    return 'undo sql';
   }
 }

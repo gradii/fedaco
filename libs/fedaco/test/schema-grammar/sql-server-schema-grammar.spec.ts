@@ -112,14 +112,14 @@ describe('test database sql server schema grammar', () => {
     let statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'create table "users" ("id" int identity primary key not null, "email" nvarchar(255) not null)');
+      'create table "users" ("id" int not null identity primary key, "email" nvarchar(255) not null)');
     blueprint = new Blueprint('users');
     blueprint.increments('id');
     blueprint.string('email');
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add "id" int identity primary key not null, "email" nvarchar(255) not null');
+      'alter table "users" add "id" int not null identity primary key, "email" nvarchar(255) not null');
     blueprint = new Blueprint('users');
     blueprint.create();
     blueprint.increments('id');
@@ -128,7 +128,7 @@ describe('test database sql server schema grammar', () => {
       getGrammar().setTablePrefix('prefix_'));
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'create table "prefix_users" ("id" int identity primary key not null, "email" nvarchar(255) not null)');
+      'create table "prefix_users" ("id" int not null identity primary key, "email" nvarchar(255) not null)');
   });
   it('create temporary table', async () => {
     const blueprint = new Blueprint('users');
@@ -139,7 +139,7 @@ describe('test database sql server schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'create table "#users" ("id" int identity primary key not null, "email" nvarchar(255) not null)');
+      'create table "#users" ("id" int not null identity primary key, "email" nvarchar(255) not null)');
   });
   it('drop table', async () => {
     let blueprint = new Blueprint('users');
@@ -160,14 +160,14 @@ describe('test database sql server schema grammar', () => {
     let statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'if exists (select * from sys.sysobjects where id = object_id(\'users\', \'U\')) drop table "users"');
+      'if object_id(N\'"users"\', \'U\') is not null drop table "users"');
     blueprint = new Blueprint('users');
     blueprint.dropIfExists();
     statements = await blueprint.toSql(getConnection(),
       getGrammar().setTablePrefix('prefix_'));
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'if exists (select * from sys.sysobjects where id = object_id(\'prefix_users\', \'U\')) drop table "prefix_users"');
+      'if object_id(N\'"prefix_users"\', \'U\') is not null drop table "prefix_users"');
   });
   it('drop column', async () => {
     let blueprint = new Blueprint('users');
@@ -322,7 +322,7 @@ describe('test database sql server schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add "id" int identity primary key not null');
+      'alter table "users" add "id" int not null identity primary key');
   });
   it('adding small incrementing id', async () => {
     const blueprint = new Blueprint('users');
@@ -330,7 +330,7 @@ describe('test database sql server schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add "id" smallint identity primary key not null');
+      'alter table "users" add "id" smallint not null identity primary key');
   });
   it('adding medium incrementing id', async () => {
     const blueprint = new Blueprint('users');
@@ -338,7 +338,7 @@ describe('test database sql server schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add "id" int identity primary key not null');
+      'alter table "users" add "id" int not null identity primary key');
   });
   it('adding id', async () => {
     let blueprint = new Blueprint('users');
@@ -346,13 +346,13 @@ describe('test database sql server schema grammar', () => {
     let statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add "id" bigint identity primary key not null');
+      'alter table "users" add "id" bigint not null identity primary key');
     blueprint = new Blueprint('users');
     blueprint.id('foo');
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add "foo" bigint identity primary key not null');
+      'alter table "users" add "foo" bigint not null identity primary key');
   });
   it('adding foreign id', async () => {
     const blueprint = new Blueprint('users');
@@ -377,7 +377,7 @@ describe('test database sql server schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add "id" bigint identity primary key not null');
+      'alter table "users" add "id" bigint not null identity primary key');
   });
   it('adding string', async () => {
     let blueprint = new Blueprint('users');
@@ -415,7 +415,7 @@ describe('test database sql server schema grammar', () => {
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add "foo" bigint identity primary key not null');
+      'alter table "users" add "foo" bigint not null identity primary key');
   });
   it('adding integer', async () => {
     let blueprint = new Blueprint('users');
@@ -428,7 +428,7 @@ describe('test database sql server schema grammar', () => {
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add "foo" int identity primary key not null');
+      'alter table "users" add "foo" int not null identity primary key');
   });
   it('adding medium integer', async () => {
     let blueprint = new Blueprint('users');
@@ -441,7 +441,7 @@ describe('test database sql server schema grammar', () => {
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add "foo" int identity primary key not null');
+      'alter table "users" add "foo" int not null identity primary key');
   });
   it('adding tiny integer', async () => {
     let blueprint = new Blueprint('users');
@@ -454,7 +454,7 @@ describe('test database sql server schema grammar', () => {
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add "foo" tinyint identity primary key not null');
+      'alter table "users" add "foo" tinyint not null identity primary key');
   });
   it('adding small integer', async () => {
     let blueprint = new Blueprint('users');
@@ -467,7 +467,7 @@ describe('test database sql server schema grammar', () => {
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add "foo" smallint identity primary key not null');
+      'alter table "users" add "foo" smallint not null identity primary key');
   });
   it('adding float', async () => {
     const blueprint = new Blueprint('users');

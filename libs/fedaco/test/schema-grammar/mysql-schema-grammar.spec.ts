@@ -341,7 +341,7 @@ describe('test database my sql schema grammar', () => {
     blueprint.primary(['foo'], 'bar');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe('alter table `users` add primary key `bar`(`foo`)');
+    expect(statements[0]).toBe('alter table `users` add primary key (`foo`)');
   });
 
   it('adding primary key with algorithm', async () => {
@@ -349,7 +349,7 @@ describe('test database my sql schema grammar', () => {
     blueprint.primary(['foo'], 'bar', 'hash');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe('alter table `users` add primary key `bar` using hash(`foo`)');
+    expect(statements[0]).toBe('alter table `users` add primary key using hash(`foo`)');
   });
 
   it('adding unique key', async () => {

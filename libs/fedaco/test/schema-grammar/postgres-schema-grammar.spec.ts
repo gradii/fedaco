@@ -114,14 +114,14 @@ describe('test database postgres schema grammar', () => {
     let statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'create table "users" ("id" serial primary key not null, "email" varchar(255) not null, "name" varchar(255) collate "nb_NO.utf8" not null)');
+      'create table "users" ("id" serial not null primary key, "email" varchar(255) not null, "name" varchar(255) collate "nb_NO.utf8" not null)');
     blueprint = new Blueprint('users');
     blueprint.increments('id');
     blueprint.string('email');
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "id" serial primary key not null, add column "email" varchar(255) not null');
+      'alter table "users" add column "id" serial not null primary key, add column "email" varchar(255) not null');
   });
   it('create table and comment column', async () => {
     const blueprint = new Blueprint('users');
@@ -131,7 +131,7 @@ describe('test database postgres schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(2);
     expect(statements[0]).toBe(
-      'create table "users" ("id" serial primary key not null, "email" varchar(255) not null)');
+      'create table "users" ("id" serial not null primary key, "email" varchar(255) not null)');
     expect(statements[1]).toBe('comment on column "users"."email" is \'my first comment\'');
   });
   it('create temporary table', async () => {
@@ -143,7 +143,7 @@ describe('test database postgres schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'create temporary table "users" ("id" serial primary key not null, "email" varchar(255) not null)');
+      'create temporary table "users" ("id" serial not null primary key, "email" varchar(255) not null)');
   });
   it('drop table', async () => {
     const blueprint = new Blueprint('users');
@@ -307,7 +307,7 @@ describe('test database postgres schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "id" serial primary key not null');
+      'alter table "users" add column "id" serial not null primary key');
   });
   it('adding small incrementing id', async () => {
     const blueprint = new Blueprint('users');
@@ -315,7 +315,7 @@ describe('test database postgres schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "id" smallserial primary key not null');
+      'alter table "users" add column "id" smallserial not null primary key');
   });
   it('adding medium incrementing id', async () => {
     const blueprint = new Blueprint('users');
@@ -323,7 +323,7 @@ describe('test database postgres schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "id" serial primary key not null');
+      'alter table "users" add column "id" serial not null primary key');
   });
   it('adding id', async () => {
     let blueprint = new Blueprint('users');
@@ -331,13 +331,13 @@ describe('test database postgres schema grammar', () => {
     let statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "id" bigserial primary key not null');
+      'alter table "users" add column "id" bigserial not null primary key');
     blueprint = new Blueprint('users');
     blueprint.id('foo');
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "foo" bigserial primary key not null');
+      'alter table "users" add column "foo" bigserial not null primary key');
   });
   it('adding foreign id', async () => {
     const blueprint = new Blueprint('users');
@@ -362,7 +362,7 @@ describe('test database postgres schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "id" bigserial primary key not null');
+      'alter table "users" add column "id" bigserial not null primary key');
   });
   it('adding string', async () => {
     let blueprint = new Blueprint('users');
@@ -400,7 +400,7 @@ describe('test database postgres schema grammar', () => {
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "foo" bigserial primary key not null');
+      'alter table "users" add column "foo" bigserial not null primary key');
   });
   it('adding integer', async () => {
     let blueprint = new Blueprint('users');
@@ -413,7 +413,7 @@ describe('test database postgres schema grammar', () => {
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "foo" serial primary key not null');
+      'alter table "users" add column "foo" serial not null primary key');
   });
   it('adding medium integer', async () => {
     let blueprint = new Blueprint('users');
@@ -426,7 +426,7 @@ describe('test database postgres schema grammar', () => {
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "foo" serial primary key not null');
+      'alter table "users" add column "foo" serial not null primary key');
   });
   it('adding tiny integer', async () => {
     let blueprint = new Blueprint('users');
@@ -439,7 +439,7 @@ describe('test database postgres schema grammar', () => {
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "foo" smallserial primary key not null');
+      'alter table "users" add column "foo" smallserial not null primary key');
   });
   it('adding small integer', async () => {
     let blueprint = new Blueprint('users');
@@ -452,7 +452,7 @@ describe('test database postgres schema grammar', () => {
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "foo" smallserial primary key not null');
+      'alter table "users" add column "foo" smallserial not null primary key');
   });
   it('adding float', async () => {
     const blueprint = new Blueprint('users');
@@ -717,19 +717,19 @@ describe('test database postgres schema grammar', () => {
     let statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "foo" integer generated by default as identity primary key not null');
+      'alter table "users" add column "foo" integer generated by default as identity not null primary key');
     blueprint = new Blueprint('users');
     blueprint.increments('foo').withGeneratedAs().withAlways();
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "foo" integer generated always as identity primary key not null');
+      'alter table "users" add column "foo" integer generated always as identity not null primary key');
     blueprint = new Blueprint('users');
     blueprint.increments('foo').withGeneratedAs('increment by 10 start with 100');
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "foo" integer generated by default as identity (increment by 10 start with 100) primary key not null');
+      'alter table "users" add column "foo" integer generated by default as identity (increment by 10 start with 100) not null primary key');
     blueprint = new Blueprint('users');
     blueprint.integer('foo').withGeneratedAs();
     statements = await blueprint.toSql(getConnection(), getGrammar());

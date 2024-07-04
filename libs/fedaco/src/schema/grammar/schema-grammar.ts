@@ -4,17 +4,13 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank, isBoolean } from '@gradii/nanofn';
-import { tap } from 'ramda';
+import { isBlank, isBoolean, upperFirst } from '@gradii/nanofn';
 import { BaseGrammar } from '../../base-grammar';
 import type { Connection } from '../../connection';
-import { DbalTableDiff } from '../../dbal/dbal-table-diff';
-import { upperFirst } from '@gradii/nanofn';
 import { RawExpression } from '../../query/ast/expression/raw-expression';
 import { Blueprint } from '../blueprint';
 import { ColumnDefinition } from '../column-definition';
 import type { ForeignKeyDefinition } from '../foreign-key-definition';
-import type { SchemaBuilder } from '../schema-builder';
 // import { ChangeColumn } from './change-column';
 // import { RenameColumn } from './rename-column';
 
@@ -23,24 +19,17 @@ export class SchemaGrammar extends BaseGrammar {
   protected modifiers: string[];
 
   /*If this Grammar supports schema changes wrapped in a transaction.*/
-  protected transactions    = false;
+  protected transactions             = false;
   /**
    * The commands to be executed outside of create or alter command.
    */
   protected fluentCommands: string[] = [];
 
-  /*The commands to be executed outside of create or alter command.*/
-  protected ColumnDefinitionCommands: any[] = [];
-
-  public compileIndexes(table: string): string {
+  public compileSqlCreateStatement(name: string, type?: string): string {
     throw new Error('not implemented');
   }
 
-  public compileForeignKeys(table: string): string {
-    throw new Error('not implemented');
-  }
-
-  public compileColumns(table: string): string {
+  public compileDbstatExists(): string {
     throw new Error('not implemented');
   }
 
@@ -54,95 +43,108 @@ export class SchemaGrammar extends BaseGrammar {
     throw new Error('LogicException This database driver does not support dropping databases.');
   }
 
-  public compileEnableForeignKeyConstraints(): string {
-    throw new Error(
-      'LogicException This database driver does not support enable foreign key constraints.');
+  public compileTables(withSize?: boolean | string): string {
+    throw new Error('LogicException This database driver does not support tables.');
   }
 
-  public compileDisableForeignKeyConstraints(): string {
-    throw new Error(
-      'LogicException This database driver does not support disable foreign key constraints.');
+  public compileViews(database?: string): string {
+    throw new Error('LogicException This database driver does not support views.');
   }
 
-  public compileColumnListing(table?: string): string {
-    throw new Error('not implement');
+  public compileTypes(): string {
+    throw new Error('LogicException This database driver does not support types.');
   }
 
-  public compileTableExists(): string {
-    throw new Error('not implement');
+  public compileColumns(database?: string, table?: string): string {
+    throw new Error('LogicException This database driver does not support columns.');
   }
 
-  public compileEnableWriteableSchema(): string {
-    throw new Error('not implement');
-  }
-
-  public compileDisableWriteableSchema(): string {
-    throw new Error('not implement');
-  }
-
-  public compileRebuild(): string {
-    throw new Error('not implement');
-  }
-
-  public compileDropAllForeignKeys(): string {
-    throw new Error('not implement');
-  }
-
-  public compileDropAllTables(tables?: string[]): string {
-    throw new Error('not implement');
-  }
-
-  public compileDropAllViews(views?: string[]): string {
-    throw new Error('not implement');
-  }
-
-  public compileGetAllTables(...args: any[]): string {
-    throw new Error('not implement');
-  }
-
-  public compileGetAllViews(...args: any[]): string {
-    throw new Error('not implement');
-  }
-
-  public compileDropAllTypes(...args: any[]): string {
-    throw new Error('not implement');
-  }
-
-  public compileGetAllTypes(): string {
-    throw new Error('not implement');
+  public compileIndexes(database?: string, table?: string): string {
+    throw new Error('LogicException This database driver does not support indexes.');
   }
 
   /*Compile a rename column command.*/
   public compileRenameColumn(blueprint: Blueprint, command: ColumnDefinition,
                              connection: Connection) {
-    // return RenameColumn.compile(this, blueprint, command, connection);
+    return `alter table ${
+      this.wrapTable(blueprint)}
+      rename column ${
+        this.wrap(command.from)} to ${this.wrap(command.to)}`;
   }
 
   /*Compile a change column command into a series of SQL statements.*/
   public compileChange(blueprint: Blueprint, command: ColumnDefinition, connection: Connection) {
-    // return ChangeColumn.compile(this, blueprint, command, connection);
+    throw new Error('LogicException This database driver does not support modifying columns.');
   }
 
-  /*Compile a foreign key command.*/
+  /**
+   * Compile a fulltext index key command.
+   *
+   * @throws \RuntimeException
+   */
+  public compileFulltext(blueprint: Blueprint, command: ColumnDefinition) {
+    throw new Error('RuntimeException This database driver does not support fulltext index creation.');
+  }
+
+  /**
+   * Compile a drop fulltext index command.
+   *
+   * @return string
+   *
+   * @throws \RuntimeException
+   */
+  public compileDropFullText(blueprint: Blueprint, command: ColumnDefinition) {
+    throw new Error('RuntimeException This database driver does not support fulltext index removal.');
+  }
+
+  /**
+   * Compile a foreign key command.
+   *
+   * @return string
+   */
   public compileForeign(blueprint: Blueprint, command: ForeignKeyDefinition) {
-    let sql = `alter table ` + `${this.wrapTable(blueprint)} add constraint ${this.wrap(
-      command.index)} `;
-    sql += `foreign key (${this.columnize(command.columns)}) references ${this.wrapTable(
-      command.on)} (${this.columnize(/*cast type array*/ command.references)})`;
+    // We need to prepare several of the elements of the foreign key definition
+    // before we can create the SQL, such as wrapping the tables and convert
+    // an array of columns to comma-delimited strings for the SQL queries.
+    let sql = `alter table ${
+      this.wrapTable(blueprint)
+    } add constraint ${
+        this.wrap(command.index)
+      } `;
+
+    // Once we have the initial portion of the SQL statement we will add on the
+    // key name, table name, and referenced columns. These will complete the
+    // main portion of the SQL statement and this SQL will almost be done.
+    sql += `foreign key (${
+      this.columnize(command.columns)
+    }) references ${
+      this.wrapTable(command.on)
+    } (${
+      this.columnize(command.references)
+    })`;
+
+    // Once we have the basic foreign key creation statement constructed we can
+    // build out the syntax for what should happen on an update or delete of
+    // the affected columns, which will get something like "cascade", etc.
     if (!isBlank(command.onDelete)) {
       sql += ` on delete ${command.onDelete}`;
     }
+
     if (!isBlank(command.onUpdate)) {
       sql += ` on update ${command.onUpdate}`;
     }
+
     return sql;
+  }
+
+  public compileDropForeign(blueprint: Blueprint, command: ForeignKeyDefinition) {
+    throw new Error('RuntimeException This database driver does not support dropping foreign keys.');
   }
 
   /*Compile the blueprint's column definitions.*/
   protected getColumns(blueprint: Blueprint) {
     const columns = [];
     for (const column of blueprint.getAddedColumns()) {
-      // todo check me
       const sql = this.wrap(column.name) + ' ' + this.getType(column);
       columns.push(this.addModifiers(sql, blueprint, column));
     }
@@ -156,7 +158,7 @@ export class SchemaGrammar extends BaseGrammar {
       // @ts-ignore
       return this[fn](column);
     } else {
-      throw new Error(`Must define [${fn}] in ${this.constructor.name}`);
+      throw new Error(`Must define [${fn}] in {this.constructor.name}`);
     }
   }
 
@@ -192,6 +194,16 @@ export class SchemaGrammar extends BaseGrammar {
     });
   }
 
+  protected hasCommand(blueprint: Blueprint, name: string) {
+    for (const command of blueprint.getCommands()) {
+      if (command.name === name) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   /*Add a prefix to an array of values.*/
   public prefixArray(prefix: string, values: any[]) {
     return values.map(value => {
@@ -200,28 +212,14 @@ export class SchemaGrammar extends BaseGrammar {
   }
 
   /*Wrap a table in keyword identifiers.*/
-  public wrapTable(table: any) {
+  public wrapTable(table: any): string {
     return super.wrapTable(table instanceof Blueprint ? table.getTable() : table);
   }
 
-  /*Split the given JSON selector into the field and the optional path and wrap them separately.*/
-  protected wrapJsonFieldAndPath(column: string) {
-    const parts = column.split('->');
-    const field = this.wrap(parts[0]);
-    const path  = parts.length > 1 ? ', ' + this.wrapJsonPath(parts[1], '->') : '';
-    return [field, path];
-  }
-
-  /*Wrap the given JSON path.*/
-  protected wrapJsonPath(value: string, delimiter: string = '->') {
-    value = value.replace(/([\\]+)?'/, `''`);
-    return `'$."${value.replace(delimiter, '"."')}"'`;
-  }
-
   /*Wrap a value in keyword identifiers.*/
-  public wrap(value: RawExpression | string, prefixAlias: boolean = false) {
+  public wrap(value: ColumnDefinition | RawExpression | string, prefixAlias = false): string {
     return super.wrap(value instanceof ColumnDefinition ?
-      value.name : value,
+        value.name : value,
       prefixAlias);
   }
 
@@ -231,59 +229,7 @@ export class SchemaGrammar extends BaseGrammar {
       return value.value;
     }
     return isBoolean(value) ?
-      `'${/*cast type int*/ value}'` : `'${/*cast type string*/ value}'`;
-  }
-
-  /*Create an empty Doctrine DBAL TableDiff from the Blueprint.*/
-  public async getTableDiff(blueprint: Blueprint, schema: SchemaBuilder) {
-    const table     = this.getTablePrefix() + blueprint.getTable();
-    const fromTable = await schema.listTableDetails(table);
-    return tap(tableDiff => {
-      tableDiff.fromTable = fromTable;
-    }, new DbalTableDiff(table));
-  }
-
-
-  getListDatabasesSQL(): string {
-    throw new Error('not implement');
-  }
-
-  getListNamespacesSQL(): string {
-    throw new Error('not implement');
-  }
-
-  getListSequencesSQL(database: string): string {
-    throw new Error('not implement');
-  }
-
-  getListTableColumnsSQL(table: string, database: string): string {
-    throw new Error('not implement');
-  }
-
-  getListTableIndexesSQL(table: string, database: string): string {
-    throw new Error('not implement');
-  }
-
-  getListTableForeignKeysSQL(table: string, database?: string): string {
-    throw new Error('not implement');
-  }
-
-  getListTablesSQL(): string {
-    throw new Error('not implement');
-  }
-
-  /*Quotes a literal string.
- This method is NOT meant to fix SQL injections!
- It is only meant to escape this platform's string literal
- quote character inside the given literal string.*/
-  public quoteStringLiteral(str: string) {
-    const c = this.getStringLiteralQuoteCharacter();
-    return c + str.replace(new RegExp(c, 'g'), c + c) + c;
-  }
-
-  /*Gets the character used for string literal quoting.*/
-  public getStringLiteralQuoteCharacter() {
-    return '\'';
+      `'${/*cast type int*/ value ? 1 : 0}'` : `'${/*cast type string*/ value}'`;
   }
 
   /**
@@ -293,21 +239,179 @@ export class SchemaGrammar extends BaseGrammar {
     return this.fluentCommands;
   }
 
-  /*Get the ColumnDefinition commands for the grammar.*/
-  public getColumnDefinitionCommands() {
-    return this.ColumnDefinitionCommands;
-  }
-
   /*Check if this Grammar supports schema changes wrapped in a transaction.*/
   public supportsSchemaTransactions() {
     return this.transactions;
   }
 
-  public supportsForeignKeyConstraints() {
-    return false;
+  public compileForeignKeys(schema?: string, table?: string): string {
+    throw new Error('not implemented');
   }
 
-  public getTypeMapping(type: string) {
-    return type;
+  public compileEnableForeignKeyConstraints(): string {
+    throw new Error(
+      'LogicException This database driver does not support enable foreign key constraints.');
+  }
+
+  public compileDisableForeignKeyConstraints(): string {
+    throw new Error(
+      'LogicException This database driver does not support disable foreign key constraints.');
+  }
+
+  public compileEnableWriteableSchema(): string {
+    throw new Error('not implement');
+  }
+
+  public compileDisableWriteableSchema(): string {
+    throw new Error('not implement');
+  }
+
+  public compileRebuild(): string {
+    throw new Error('not implement');
+  }
+
+  public compileDropAllForeignKeys(): string {
+    throw new Error('not implement');
+  }
+
+  public compileDropAllTables(tables?: string[]): string {
+    throw new Error('not implement');
+  }
+
+  public compileDropAllViews(views?: string[]): string {
+    throw new Error('not implement');
+  }
+
+  /**
+   *
+   */
+  public compileDropAllTypes(...args: any[]): string {
+    throw new Error('not implement');
+  }
+
+  public compileDefaultSchema(): string {
+    throw new Error('not implemented');
+  }
+
+
+  //
+  //  public compileGetAllTypes(): string {
+  //    throw new Error('not implement');
+  //  }
+  //
+  //
+  /*Split the given JSON selector into the field and the optional path and wrap them separately.*/
+  protected wrapJsonFieldAndPath(column: string) {
+    const parts = column.split('.');
+    const field = this.wrap(parts[0]);
+    const path  = parts.length > 1 ? ', ' + this.wrapJsonPath(parts[1], '.') : '';
+    return [field, path];
+  }
+
+  /*Wrap the given JSON path.*/
+  protected wrapJsonPath(value: string, delimiter = '->') {
+    value          = value.replace(/([\\]+)?'/, `''`);
+    const jsonPath = value.split(delimiter)
+      .map(segment => this.wrapJsonPathSegment(segment))
+      .join('.');
+    return `'$${jsonPath.startsWith('[') ? '' : '.'}${jsonPath}'`;
+  }
+
+  protected wrapJsonPathSegment(segment: string) {
+    const parts = /(\[[^\]]+\])+$/g.exec(segment);
+    if (parts) {
+      let key;
+      if (parts[0] === '') {
+        key = segment;
+      } else {
+        const pos = segment.indexOf(parts[0]);
+
+        if (pos !== -1) {
+          key = segment.substring(0, pos);
+        } else {
+          key = segment;
+        }
+      }
+
+      if (key) {
+        return `"${key}"${parts[0]}`;
+      }
+
+      return parts[0];
+    }
+
+    return `"${segment}"`;
+  }
+
+  //
+  //  /*Create an empty Doctrine DBAL TableDiff from the Blueprint.*/
+  //  public async getTableDiff(blueprint: Blueprint, schema: SchemaBuilder) {
+  //    const table     = this.getTablePrefix() + blueprint.getTable();
+  //    const fromTable = await schema.listTableDetails(table);
+  //    return tap(tableDiff => {
+  //      tableDiff.fromTable = fromTable;
+  //    }, new DbalTableDiff(table));
+  //  }
+  //
+  //
+  //  getListDatabasesSQL(): string {
+  //    throw new Error('not implement');
+  //  }
+  //
+  //  getListNamespacesSQL(): string {
+  //    throw new Error('not implement');
+  //  }
+  //
+  //  getListSequencesSQL(database: string): string {
+  //    throw new Error('not implement');
+  //  }
+  //
+  //  getListTableColumnsSQL(table: string, database: string): string {
+  //    throw new Error('not implement');
+  //  }
+  //
+  //  getListTableIndexesSQL(table: string, database: string): string {
+  //    throw new Error('not implement');
+  //  }
+  //
+  //  getListTableForeignKeysSQL(table: string, database?: string): string {
+  //    throw new Error('not implement');
+  //  }
+  //
+  //  getListTablesSQL(): string {
+  //    throw new Error('not implement');
+  //  }
+  //
+  //  /*Quotes a literal string.
+  // This method is NOT meant to fix SQL injections!
+  // It is only meant to escape this platform's string literal
+  // quote character inside the given literal string.*/
+  //  public quoteStringLiteral(str: string) {
+  //    const c = this.getStringLiteralQuoteCharacter();
+  //    return c + str.replace(new RegExp(c, 'g'), c + c) + c;
+  //  }
+  //
+  //  /*Gets the character used for string literal quoting.*/
+  //  public getStringLiteralQuoteCharacter() {
+  //    return '\'';
+  //  }
+  //
+  //
+  //  /*Get the ColumnDefinition commands for the grammar.*/
+  //  public getColumnDefinitionCommands() {
+  //    return this.ColumnDefinitionCommands;
+  //  }
+  //
+  //
+  //  public supportsForeignKeyConstraints() {
+  //    return false;
+  //  }
+  //
+  //  public getTypeMapping(type: string) {
+  //    return type;
+  //  }
+
+  public escapeNames(names: string[]): string[] {
+    throw new Error('not implemented');
   }
 }

@@ -5,6 +5,7 @@
  */
 
 import { isBlank, isNumber } from '@gradii/nanofn';
+import { ta } from 'date-fns/locale';
 import type { Connection } from '../../connection';
 import type { Blueprint } from '../blueprint';
 import type { ColumnDefinition } from '../column-definition';
@@ -23,11 +24,11 @@ export class MysqlSchemaGrammar extends SchemaGrammar {
 
   /*Compile a create database command.*/
   public compileCreateDatabase(name: string, connection: Connection) {
-    const charset = connection.getConfig('charset');
+    const charset   = connection.getConfig('charset');
     const collation = connection.getConfig('collation');
 
-    if (! charset || ! collation) {
-      return `create database ${this.wrapValue(name)}`
+    if (!charset || !collation) {
+      return `create database ${this.wrapValue(name)}`;
     }
 
     return `create database ${this.wrapValue(name)} default character set ${charset} default collate ${collation}`;
@@ -38,15 +39,109 @@ export class MysqlSchemaGrammar extends SchemaGrammar {
     return `drop database if exists ${this.wrapValue(name)}`;
   }
 
-  /*Compile the query to determine the list of tables.*/
-  public compileTableExists() {
-    return 'select * from information_schema.tables where table_schema = ? and table_name = ? and table_type = \'BASE TABLE\'';
+  /**
+   * Compile the query to determine the tables.
+   *
+   * @param  database
+   * @return string
+   */
+  public compileTables(database: string) {
+    return `select table_name                   as \`name\`,
+                   (data_length + index_length) as \`size\`,
+                   table_comment                as \`comment\`,
+                   engine                       as \`engine\`,
+                   table_collation              as \`collation\`
+            from information_schema.tables
+            where table_schema = ${this.quoteString(database)}
+              and table_type in ('BASE TABLE', 'SYSTEM VERSIONED')
+            order by table_name`;
   }
 
-  /*Compile the query to determine the list of columns.*/
-  public compileColumnListing() {
-    return 'select column_name as `column_name` from information_schema.columns where table_schema = ? and table_name = ?';
+  /**
+   * Compile the query to determine the views.
+   *
+   * @param  database
+   * @return string
+   */
+  public compileViews(database: string) {
+    return `select table_name as \`name\`, view_definition as \`definition\`
+            from information_schema.views
+            where table_schema = ${this.quoteString(database)}
+            order by table_name`;
   }
+
+  /**
+   * Compile the query to determine the columns.
+   *
+   * @param  database
+   * @param  table
+   * @return string
+   */
+  public compileColumns(database: string, table?: string) {
+    return `select column_name           as \`name\`,
+                   data_type             as \`type_name\`,
+                   column_type           as \`type\`,
+                   collation_name        as \`collation\`,
+                   is_nullable           as \`nullable\`,
+                   column_default        as \`default\`,
+                   column_comment        as \`comment\`,
+                   generation_expression as \`expression\`,
+                   extra                 as \`extra\`
+            from information_schema.columns
+            where table_schema = ${
+              this.quoteString(database)
+            }
+              and table_name = ${
+              this.quoteString(table)
+            }
+            order by ordinal_position asc`;
+  }
+
+  /**
+   * Compile the query to determine the indexes.
+   */
+  public compileIndexes(database: string, table: string) {
+    return `select index_name                                      as \`name\`,
+                   group_concat(column_name order by seq_in_index) as \`columns\`,
+                   index_type                                      as \`type\`,
+                   not non_unique                                  as \`unique\`
+            from information_schema.statistics
+            where table_schema = ${
+              this.quoteString(database)
+            }
+              and table_name = ${
+              this.quoteString(table)
+            }
+            group by index_name, index_type, non_unique`;
+  }
+
+  /**
+   * Compile the query to determine the foreign keys.
+   *
+   */
+  public compileForeignKeys(database: string, table: string) {
+    return `select kc.constraint_name                                                   as \`name\`,
+                   group_concat(kc.column_name order by kc.ordinal_position)            as \`columns\`,
+                   kc.referenced_table_schema                                           as \`foreign_schema\`,
+                   kc.referenced_table_name                                             as \`foreign_table\`,
+                   group_concat(kc.referenced_column_name order by kc.ordinal_position) as \`foreign_columns\`,
+                   rc.update_rule                                                       as \`on_update\`,
+                   rc.delete_rule                                                       as \`on_delete\`
+            from information_schema.key_column_usage kc
+                   join information_schema.referential_constraints rc
+                        on kc.constraint_schema = rc.constraint_schema and kc.constraint_name = rc.constraint_name
+            where kc.table_schema = ${
+              this.quoteString(database)
+            }
+              and kc.table_name = ${
+              this.quoteString(table)
+            }
+              and kc.referenced_table_name is not null
+            group by kc.constraint_name, kc.referenced_table_schema, kc.referenced_table_name, rc.update_rule,
+                     rc.delete_rule`;
+
+  }
+
 
   /*Compile a create table command.*/
   public compileCreate(blueprint: Blueprint, command: ColumnDefinition, connection: Connection) {
@@ -61,8 +156,21 @@ export class MysqlSchemaGrammar extends SchemaGrammar {
   /*Create the main create table clause.*/
   protected compileCreateTable(blueprint: Blueprint, command: ColumnDefinition,
                                connection: Connection) {
+    const tableStructure = this.getColumns(blueprint);
+
+    const primaryKey = this.getCommandByName(blueprint, 'primaryKey');
+    if (primaryKey) {
+      tableStructure.push(`primary key ${
+        primaryKey.algorithm ? 'using ' + primaryKey.algorithm : ''
+      }(${
+        this.columnize(primaryKey.columns)
+      })`);
+
+      primaryKey.shouldBeSkipped = true;
+    }
+
     return (`${blueprint._temporary ? 'create temporary' : 'create'} table ${this.wrapTable(
-      blueprint)} (${this.getColumns(blueprint).join(', ')})`).trim();
+      blueprint)} (${tableStructure.join(', ')})`).trim();
   }
 
   /*Append the character set specifications to a command.*/
@@ -115,10 +223,109 @@ export class MysqlSchemaGrammar extends SchemaGrammar {
     });
   }
 
+  /**
+   * Compile a rename column command.
+   *
+   * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+   * @param  \Illuminate\Support\Fluent  $command
+   * @param  \Illuminate\Database\Connection  $connection
+   * @return array|string
+   */
+  public compileRenameColumn(blueprint: Blueprint, command: ColumnDefinition, connection: Connection) {
+    // const version = connection.getServerVersion();
+    //
+    // if ((connection.isMaria() && version_compare(version, '10.5.2', '<')) ||
+    //   (!connection.isMaria() && version_compare(version, '8.0.3', '<'))) {
+    //   return this.compileLegacyRenameColumn(blueprint, command, connection);
+    // }
+
+    return super.compileRenameColumn(blueprint, command, connection);
+  }
+
+// /**
+//  * Compile a rename column command for legacy versions of MySQL.
+//  *
+//  * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+//  * @param  \Illuminate\Support\Fluent  $command
+//  * @param  \Illuminate\Database\Connection  $connection
+//  * @return string
+//  */
+// protected  compileLegacyRenameColumn(blueprint: Blueprint, command: ColumnDefinition, connection: Connection)
+// {
+//   $column = collect($connection.getSchemaBuilder().getColumns($blueprint.getTable()))
+// .firstWhere('name', $command.from);
+//
+//   $modifiers = $this.addModifiers($column['type'], $blueprint, new ColumnDefinition([
+//     'change' => true,
+//   'type' => match ($column['type_name']) {
+//   'bigint' => 'bigInteger',
+//     'int' => 'integer',
+//     'mediumint' => 'mediumInteger',
+//     'smallint' => 'smallInteger',
+//     'tinyint' => 'tinyInteger',
+// default => $column['type_name'],
+// },
+//   'nullable' => $column['nullable'],
+//   'default' => $column['default'] && (str_starts_with(strtolower($column['default']), 'current_timestamp') || $column['default'] === 'NULL')
+//   ? new Expression($column['default'])
+//   : $column['default'],
+//   'autoIncrement' => $column['auto_increment'],
+//   'collation' => $column['collation'],
+//   'comment' => $column['comment'],
+//   'virtualAs' => ! is_null($column['generation']) && $column['generation']['type'] === 'virtual'
+//   ? $column['generation']['expression'] : null,
+//   'storedAs' => ! is_null($column['generation']) && $column['generation']['type'] === 'stored'
+//   ? $column['generation']['expression'] : null,
+// ]));
+//
+//   return sprintf('alter table %s change %s %s %s',
+//     $this.wrapTable($blueprint),
+//     $this.wrap($command.from),
+//     $this.wrap($command.to),
+//     $modifiers
+//   );
+// }
+
+  /**
+   * Compile a change column command into a series of SQL statements.
+   *
+   * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+   * @param  \Illuminate\Support\Fluent  $command
+   * @param  \Illuminate\Database\Connection  $connection
+   * @return array|string
+   *
+   * @throws \RuntimeException
+   */
+  public compileChange(blueprint: Blueprint, command: ColumnDefinition, connection: Connection) {
+    const columns = [];
+
+    for (const column of blueprint.getChangedColumns()) {
+      columns.push(
+        this.addModifiers(`
+      ${
+          isBlank(column.renameTo) ? 'modify' : 'change'
+        } ${
+          this.wrap(column)
+        }${
+          isBlank(column.renameTo) ? '' : ` (${this.wrap(column.renameTo)})`
+        } ${
+          this.getType(column)
+        }`, blueprint, column)
+      );
+    }
+
+    return `alter table ${this.wrapTable(blueprint)} ${columns.join(', ')}`;
+  }
+
   /*Compile a primary key command.*/
   public compilePrimary(blueprint: Blueprint, command: ColumnDefinition) {
-    command.withName(null);
-    return this.compileKey(blueprint, command, 'primary key');
+    return `alter table ${
+      this.wrapTable(blueprint)
+    } add primary key ${
+        command.algorithm ? 'using ' + command.algorithm : ''
+      }(${
+        this.columnize(command.columns)
+      })`;
   }
 
   /*Compile a unique key command.*/
@@ -129,6 +336,10 @@ export class MysqlSchemaGrammar extends SchemaGrammar {
   /*Compile a plain index key command.*/
   public compileIndex(blueprint: Blueprint, command: ColumnDefinition) {
     return this.compileKey(blueprint, command, 'index');
+  }
+
+  public compileFullText(blueprint: Blueprint, command: ColumnDefinition) {
+    return this.compileKey(blueprint, command, 'fulltext');
   }
 
   /*Compile a spatial index key command.*/
@@ -177,6 +388,10 @@ export class MysqlSchemaGrammar extends SchemaGrammar {
     return `alter table ${this.wrapTable(blueprint)} drop index ${index}`;
   }
 
+  public compileDropFullText(blueprint: Blueprint, command: ColumnDefinition) {
+    return this.compileDropIndex(blueprint, command);
+  }
+
   /*Compile a drop spatial index command.*/
   public compileDropSpatialIndex(blueprint: Blueprint, command: ColumnDefinition) {
     return this.compileDropIndex(blueprint, command);
@@ -210,16 +425,6 @@ export class MysqlSchemaGrammar extends SchemaGrammar {
     return `drop view ${this.wrapArray(views).join(',')}`;
   }
 
-  /*Compile the SQL needed to retrieve all table names.*/
-  public compileGetAllTables() {
-    return 'SHOW FULL TABLES WHERE table_type = \'BASE TABLE\'';
-  }
-
-  /*Compile the SQL needed to retrieve all view names.*/
-  public compileGetAllViews() {
-    return 'SHOW FULL TABLES WHERE table_type = \'VIEW\'';
-  }
-
   /*Compile the command to enable foreign key constraints.*/
   public compileEnableForeignKeyConstraints() {
     return 'SET FOREIGN_KEY_CHECKS=1;';
@@ -228,6 +433,14 @@ export class MysqlSchemaGrammar extends SchemaGrammar {
   /*Compile the command to disable foreign key constraints.*/
   public compileDisableForeignKeyConstraints() {
     return 'SET FOREIGN_KEY_CHECKS=0;';
+  }
+
+  public compileTableComment(blueprint: Blueprint, command: ColumnDefinition) {
+    return `alter table ${
+      this.wrapTable(blueprint)
+    } comment = ${
+      `'${command.comment.replace(/'/g, '\'\'')}'`
+    }`;
   }
 
   /*Create the column definition for a char type.*/
@@ -570,39 +783,6 @@ export class MysqlSchemaGrammar extends SchemaGrammar {
   protected wrapJsonSelector(value: string) {
     const [field, path] = this.wrapJsonFieldAndPath(value);
     return 'json_unquote(json_extract(' + field + path + '))';
-  }
-
-  getListSequencesSQL(database: string): string {
-    throw new Error('not implement');
-  }
-
-  getListTableColumnsSQL(table: string, database: string): string {
-    throw new Error('not implement');
-  }
-
-  getListTableIndexesSQL(table: string, database: string): string {
-    if (database !== null) {
-      return `SELECT NON_UNIQUE  AS Non_Unique,
-                     INDEX_NAME  AS Key_name,
-                     COLUMN_NAME AS Column_Name,
-                     SUB_PART    AS Sub_Part,
-                     INDEX_TYPE  AS Index_Type
-              FROM information_schema.STATISTICS
-              WHERE TABLE_NAME = ${this.quoteStringLiteral(
-                table)}
-                AND TABLE_SCHEMA = ${this.quoteStringLiteral(database)}
-              ORDER BY SEQ_IN_INDEX ASC`;
-    }
-
-    return 'SHOW INDEX FROM ' + table;
-  }
-
-  getListTableForeignKeysSQL(table: string, database?: string): string {
-    throw new Error('not implement');
-  }
-
-  getListTablesSQL(): string {
-    throw new Error('not implement');
   }
 
 }

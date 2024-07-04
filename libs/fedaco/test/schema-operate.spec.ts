@@ -41,7 +41,7 @@ describe('schema operate', () => {
 
   it('get tables', async () => {
     await createSchema();
-    const tableList = await schema().getAllTables();
+    const tableList = await schema().getTables();
 
     expect(tableList).toBeTruthy();
   });
@@ -49,7 +49,7 @@ describe('schema operate', () => {
   it('table exist', async () => {
     await createSchema();
 
-    const tableExist = await schema('default').tablesExist('test_orders');
+    const tableExist = await schema('default').hasTable('test_orders');
 
     expect(tableExist).toBe(true);
   });

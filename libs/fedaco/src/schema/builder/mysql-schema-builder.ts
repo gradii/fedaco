@@ -16,28 +16,87 @@ export class MysqlSchemaBuilder extends SchemaBuilder {
     return this.connection.statement(this.grammar.compileDropDatabaseIfExists(name));
   }
 
-  /*Determine if the given table exists.*/
-  public async hasTable(table: string): Promise<boolean> {
-    table        = this.connection.getTablePrefix() + table;
-    const result = await this.connection.select(this.grammar.compileTableExists(),
-      [this.connection.getDatabaseName(), table]);
-    return result.length > 0;
+
+  /**
+   * Get the tables for the database.
+   *
+   * @return array
+   */
+  public async getTables(withSize = true) {
+    return this.connection.getPostProcessor().processTables(
+      await this.connection.selectFromWriteConnection(
+        this.grammar.compileTables(this.connection.getDatabaseName())
+      )
+    );
   }
 
-  /*Get the column listing for a given table.*/
-  public async getColumnListing(table: string) {
-    table         = this.connection.getTablePrefix() + table;
-    const results = await this.connection.select(this.grammar.compileColumnListing(),
-      [this.connection.getDatabaseName(), table]);
-    return this.connection.getPostProcessor().processColumnListing(results);
+  /**
+   * Get the views for the database.
+   *
+   * @return array
+   */
+  public async getViews() {
+    return this.connection.getPostProcessor().processViews(
+      await this.connection.selectFromWriteConnection(
+        this.grammar.compileViews(this.connection.getDatabaseName())
+      )
+    );
+  }
+
+  /**
+   * Get the columns for a given table.
+   *
+   * @param table
+   * @return array
+   */
+  public async getColumns(table: string) {
+    table = this.connection.getTablePrefix() + table;
+
+    const results = await this.connection.selectFromWriteConnection(
+      this.grammar.compileColumns(this.connection.getDatabaseName(), table)
+    );
+
+    return this.connection.getPostProcessor().processColumns(results);
+  }
+
+  /**
+   * Get the indexes for a given table.
+   *
+   * @param table
+   * @return array
+   */
+  public async getIndexes(table: string) {
+    table = this.connection.getTablePrefix() + table;
+
+    return this.connection.getPostProcessor().processIndexes(
+      await this.connection.selectFromWriteConnection(
+        this.grammar.compileIndexes(this.connection.getDatabaseName(), table)
+      )
+    );
+  }
+
+  /**
+   * Get the foreign keys for a given table.
+   *
+   * @param table
+   * @return array
+   */
+  public async getForeignKeys(table: string) {
+    table = this.connection.getTablePrefix() + table;
+
+    return this.connection.getPostProcessor().processForeignKeys(
+      await this.connection.selectFromWriteConnection(
+        this.grammar.compileForeignKeys(this.connection.getDatabaseName(), table)
+      )
+    );
   }
 
   /*Drop all tables from the database.*/
   public async dropAllTables() {
     const tables: string[] = [];
-    const result = await this.getAllTables();
+    const result           = await this.getTables();
     for (const row of result) {
-      tables.push(Object.values(row)[0] as string);
+      tables.push(row['name'] as string);
     }
     if (!tables.length) {
       return;
@@ -50,9 +109,9 @@ export class MysqlSchemaBuilder extends SchemaBuilder {
   /*Drop all views from the database.*/
   public async dropAllViews() {
     const views  = [];
-    const result = await this.getAllViews();
+    const result = await this.getViews();
     for (const row of result) {
-      views.push(row);
+      views.push(row['name']);
     }
     if (!views.length) {
       return;
@@ -60,13 +119,4 @@ export class MysqlSchemaBuilder extends SchemaBuilder {
     await this.connection.statement(this.grammar.compileDropAllViews(views));
   }
 
-  /*Get all of the table names for the database.*/
-  public getAllTables() {
-    return this.connection.select(this.grammar.compileGetAllTables());
-  }
-
-  /*Get all of the view names for the database.*/
-  public getAllViews() {
-    return this.connection.select(this.grammar.compileGetAllViews());
-  }
 }

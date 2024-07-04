@@ -1,23 +1,12 @@
 /* eslint-disable */
-/* eslint-disable */
 export default {
   displayName: 'fedaco',
   preset: '../../jest.preset.js',
-  setupFilesAfterEnv: ['<rootDir>/test-setup.ts'],
-  extensionsToTreatAsEsm: ['.ts'],
-  globals: {},
-  maxWorkers: 1,
-  coverageDirectory: '../../coverage/libs/fedaco',
+  testEnvironment: 'node',
   transform: {
-    '^.+\\.(ts|mjs|js|html)$': [
-      'jest-preset-angular',
-      {
-        tsconfig: '<rootDir>/tsconfig.spec.json',
-        stringifyContentPathRegex: '\\.(html|svg)$',
-        useESM: true,
-      },
-    ],
+    '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
-  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$)'],
-  snapshotSerializers: [],
+  maxWorkers: 1,
+  moduleFileExtensions: ['ts', 'js', 'html'],
+  coverageDirectory: '../../coverage/libs/fedaco',
 };

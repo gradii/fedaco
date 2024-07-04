@@ -4,11 +4,13 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray } from '@gradii/nanofn';
+import { isArray, isBlank } from '@gradii/nanofn';
+import { Connection } from './connection';
 import { RawExpression } from './query/ast/expression/raw-expression';
 import type { Blueprint } from './schema/blueprint';
 
 export abstract class BaseGrammar {
+  protected connection: Connection;
   /*The grammar table prefix.*/
   protected tablePrefix = '';
 
@@ -18,34 +20,40 @@ export abstract class BaseGrammar {
   }
 
   /*Wrap a table in keyword identifiers.*/
-  public wrapTable(table: RawExpression | Blueprint | string) {
+  public wrapTable(table: RawExpression | Blueprint | string): string {
     if (!this.isExpression(table)) {
       return this.wrap(this.tablePrefix + table, true);
     }
-    return this.getValue(table as RawExpression);
+    return this.getValue(table as RawExpression) as string;
   }
 
   /*Wrap a value in keyword identifiers.*/
-  public wrap(value: RawExpression | string, prefixAlias: boolean = false) {
+  public wrap(value: RawExpression | string, prefixAlias = false): string {
     if (this.isExpression(value)) {
-      return this.getValue(value as RawExpression);
+      return this.getValue(value as RawExpression) as string;
     }
     if ((value as string).includes(' as ')) {
       return this.wrapAliasedValue(value as string, prefixAlias);
     }
     if (this.isJsonSelector(value as string)) {
-      return this.wrapJsonSelector(value as string);
+      return this.wrapJsonSelector(value as string) as string;
     }
     return this.wrapSegments((value as string).split('.'));
   }
 
   /*Wrap a value that has an alias.*/
-  protected wrapAliasedValue(value: string, prefixAlias: boolean = false): string {
+  protected wrapAliasedValue(value: string, prefixAlias = false): string {
     const segments = value.split(/\s+as\s+/i);
     if (prefixAlias) {
       segments[1] = this.tablePrefix + segments[1];
     }
     return this.wrap(segments[0]) + ' as ' + this.wrapValue(segments[1]);
+  }
+
+  protected wrapAliasedTable(value: string) {
+    const segments = value.split(/s+ass+/i);
+
+    return this.wrapTable(segments[0]) + ' as ' + this.wrapValue(this.tablePrefix + segments[1]);
   }
 
   /*Wrap the given value segments.*/
@@ -66,7 +74,7 @@ export abstract class BaseGrammar {
   }
 
   /*Wrap the given JSON selector.*/
-  protected wrapJsonSelector(value: string) {
+  protected wrapJsonSelector(value: string): string {
     throw new Error('RuntimeException This database engine does not support JSON operations.');
   }
 
@@ -98,6 +106,15 @@ export abstract class BaseGrammar {
     return `'${value}'`;
   }
 
+  public escape(value: any, binary = false) {
+    if (isBlank(this.connection)) {
+      throw new Error(
+        'RuntimeException The database driver\'s grammar implementation does not support escaping values.');
+    }
+
+    return this.connection.escape(value, binary);
+  }
+
   /*Determine if the given value is a raw expression.*/
   public isExpression(value: any) {
     return value instanceof RawExpression;
@@ -124,4 +141,9 @@ export abstract class BaseGrammar {
     return this;
   }
 
+  public setConnection(connection: Connection) {
+    this.connection = connection;
+
+    return this;
+  }
 }

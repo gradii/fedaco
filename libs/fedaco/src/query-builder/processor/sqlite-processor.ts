@@ -8,12 +8,6 @@ import { pluck } from 'ramda';
 import { Processor } from '../processor';
 
 export class SqliteProcessor extends Processor {
-  /*Process the results of a column listing query.*/
-  public processColumnListing(results: any[]) {
-    return results.map(result => {
-      return /*cast type object*/ result.name;
-    });
-  }
 
   public processColumns(results: any[], sql = ''): any[] {
     const hasPrimaryKey = pluck('primary', results).length === 1;

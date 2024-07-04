@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray, isBlank, isBoolean, isFunction, isPromise } from '@gradii/nanofn';
+import { isArray, isBlank, isBoolean, isFunction, isInteger, isNumber, isPromise } from '@gradii/nanofn';
 import { format } from 'date-fns';
 import type { BaseGrammar } from './base-grammar';
 import type { SqliteWrappedConnection } from './connector/sqlite/sqlite-wrapped-connection';
@@ -143,6 +143,21 @@ export class Connection extends mixinManagesTransactions(class {
   public async selectOne(query: string, bindings: any[] = [], useReadPdo: boolean = true) {
     const records = await this.select(query, bindings, useReadPdo);
     return records.shift();
+  }
+
+  public async scalar(query: string, bindings:any[] = [], useReadPdo = true)
+  {
+    const record = await this.selectOne(query, bindings, useReadPdo);
+
+    if (isBlank(record)) {
+      return null;
+    }
+
+    if (record.length > 1) {
+      throw new Error('MultipleColumnsSelectedException');
+    }
+
+    return record[0];
   }
 
   /*Run a select statement against the database.*/
@@ -341,7 +356,7 @@ export class Connection extends mixinManagesTransactions(class {
 
   /*Handle a query exception that occurred during query execution.*/
   protected async tryAgainIfCausedByLostConnection(e: QueryException, query: string, bindings: any[],
-                                             callback: Function) {
+                                                   callback: Function) {
     if (this.causedByLostConnection(e.message)) {
       await this.reconnect();
       return this.runQueryCallback(query, bindings, callback);
@@ -412,6 +427,42 @@ export class Connection extends mixinManagesTransactions(class {
   /*Get a new raw query expression.*/
   public raw(value: any) {
     return raw(value);
+  }
+
+  public escape(value: any, binary = false) {
+    if (value === null) {
+      return 'null';
+    } else if (binary) {
+      return this.escapeBinary(value);
+    } else if (isInteger(value) || isNumber(value)) {
+      return '' + value;
+    } else if (isBoolean(value)) {
+      return this.escapeBool(value);
+    } else if (isArray(value)) {
+      throw new Error('RuntimeException The database connection does not support escaping arrays.');
+    } else {
+      if (value.includes('\x00')) {
+        throw new Error('RuntimeException Strings with null bytes cannot be escaped. Use the binary escape option.');
+      }
+
+      // if (preg_match('//u', $value) === false) {
+      //   throw new RuntimeException('Strings with invalid UTF-8 byte sequences cannot be escaped.');
+      // }
+
+      return this.escapeString(value);
+    }
+  }
+
+  protected escapeString(value: string) {
+    return this.getReadPdo().quote(value);
+  }
+
+  protected escapeBool(value: boolean) {
+    return value ? '1' : '0';
+  }
+
+  protected escapeBinary(value: string) {
+    throw new Error('RuntimeException The database connection does not support escaping binary values.');
   }
 
   /*Determine if the database connection has modified any database records.*/

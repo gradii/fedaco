@@ -16,15 +16,14 @@ export class PostgresSchemaGrammar extends SchemaGrammar {
   protected transactions = true;
   /*The possible column modifiers.*/
   protected modifiers: string[] = [
-    'Collate', 'Increment', 'Nullable', 'Default', 'VirtualAs', 'StoredAs'
+    'Collate', 'Nullable', 'Default', 'VirtualAs', 'StoredAs', 'GeneratedAs', 'Increment'
   ];
   /*The columns available as serials.*/
   protected serials: string[] = [
     'bigInteger', 'integer', 'mediumInteger', 'smallInteger', 'tinyInteger'
   ];
   /*The commands to be executed outside of create or alter command.*/
-  protected fluentCommands: string[] = ['Comment'];
-  protected ColumnDefinitionCommands: string[] = ['Comment'];
+  protected fluentCommands: string[] = ['AutoIncrementStartingValues', 'Comment'];
 
   /*Compile a create database command.*/
   public compileCreateDatabase(name: string, connection: Connection) {
@@ -37,23 +36,144 @@ export class PostgresSchemaGrammar extends SchemaGrammar {
     return `drop database if exists ${this.wrapValue(name)}`;
   }
 
-  /*Compile the query to determine if a table exists.*/
-  public compileTableExists() {
-    return `select *
-            from information_schema.tables
-            where table_catalog = ?
-              and table_schema = ?
-              and table_name = ?
-              and table_type = 'BASE TABLE'`;
+
+  /**
+   * Compile the query to determine the tables.
+   *
+   * @return string
+   */
+  public compileTables() {
+    return `select c.relname as name,
+                   n.nspname as schema, 
+                   pg_total_relation_size(c.oid) as size,
+                   obj_description(c.oid, 'pg_class') as comment
+            from pg_class c, pg_namespace n
+            where c.relkind in ('r'
+                , 'p')
+              and n.oid = c.relnamespace
+              and n.nspname not in ('pg_catalog'
+                , 'information_schema')
+            order by c.relname`;
   }
 
-  /*Compile the query to determine the list of columns.*/
-  public compileColumnListing() {
-    return `select column_name
-            from information_schema.columns
-            where table_catalog = ?
-              and table_schema = ?
-              and table_name = ?`;
+  /**
+   * Compile the query to determine the views.
+   *
+   * @return string
+   */
+  public compileViews() {
+    return `select viewname as name,
+                   schemaname as schema, 
+                   definition
+            from pg_views
+            where schemaname not in ('pg_catalog', 'information_schema')
+            order by viewname`;
+  }
+
+  /**
+   * Compile the query to determine the user-defined types.
+   *
+   * @return string
+   */
+  public compileTypes() {
+    return `select t.typname as name,
+                   n.nspname as schema,
+                   t.typtype as type,
+                   t.typcategory as category, 
+                   ((t.typinput = 'array_in'::regproc and t.typoutput = 'array_out'::regproc) or t.typtype = 'm') as implicit
+            from pg_type t join pg_namespace n
+            on n.oid = t.typnamespace left join pg_class c on c.oid = t.typrelid left join pg_type el on el.oid = t.typelem left join pg_class ce on ce.oid = el.typrelid
+            where ((t.typrelid = 0
+              and (ce.relkind = 'c'
+               or ce.relkind is null))
+               or c.relkind = 'c')
+              and not exists (select 1 from pg_depend d where d.objid in (t.oid
+                , t.typelem)
+              and d.deptype = 'e')
+              and n.nspname not in ('pg_catalog'
+                , 'information_schema')`;
+  }
+
+  /**
+   * Compile the query to determine the columns.
+   *
+   * @param  string  $schema
+   * @param  string  $table
+   * @return string
+   */
+  public compileColumns(schema: string, table: string) {
+    return `select a.attname                            as name,
+                   t.typname                            as type_name,
+                   format_type(a.atttypid, a.atttypmod) as type,
+                   (select tc.collcollate
+                    from pg_catalog.pg_collation tc
+                    where tc.oid = a.attcollation) as collation, not a.attnotnull as nullable, (select pg_get_expr(adbin, adrelid) from pg_attrdef where c.oid = pg_attrdef.adrelid and pg_attrdef.adnum = a.attnum) as default, ${
+        'a.attgenerated as generated, '
+      }col_description(c.oid, a.attnum) as comment
+            from pg_attribute a, pg_class c, pg_type t, pg_namespace n
+            where c.relname = ${this.quoteString(table)}
+              and n.nspname = ${this.quoteString(schema)}
+              and a.attnum
+                > 0
+              and a.attrelid = c.oid
+              and a.atttypid = t.oid
+              and n.oid = c.relnamespace
+            order by a.attnum`;
+  }
+
+  /**
+   * Compile the query to determine the indexes.
+   *
+   */
+  public compileIndexes(schema: string, table: string) {
+    return `select ic.relname                                     as name,
+                   string_agg(a.attname, ',' order by indseq.ord) as columns,
+                   am.amname                                      as "type",
+                   i.indisunique                                  as "unique",
+                   i.indisprimary                                 as "primary"
+            from pg_index i
+                   join pg_class tc on tc.oid = i.indrelid
+                   join pg_namespace tn on tn.oid = tc.relnamespace
+                   join pg_class ic on ic.oid = i.indexrelid
+                   join pg_am am on am.oid = ic.relam
+                   join lateral unnest(i.indkey) with ordinality as indseq(num, ord)
+            on true left join pg_attribute a on a.attrelid = i.indrelid and a.attnum = indseq.num
+            where tc.relname = ${
+              this.quoteString(table)
+            }
+              and tn.nspname = ${
+              this.quoteString(schema)
+            }
+            group by ic.relname, am.amname, i.indisunique, i.indisprimary`;
+  }
+
+  /**
+   * Compile the query to determine the foreign keys.
+   *
+   */
+  public compileForeignKeys(schema: string, table: string) {
+    return `select c.conname                                       as name,
+                   string_agg(la.attname, ',' order by conseq.ord) as columns,
+                   fn.nspname                                      as foreign_schema,
+                   fc.relname                                      as foreign_table,
+                   string_agg(fa.attname, ',' order by conseq.ord) as foreign_columns,
+                   c.confupdtype                                   as on_update,
+                   c.confdeltype                                   as on_delete
+            from pg_constraint c
+                   join pg_class tc on c.conrelid = tc.oid
+                   join pg_namespace tn on tn.oid = tc.relnamespace
+                   join pg_class fc on c.confrelid = fc.oid
+                   join pg_namespace fn on fn.oid = fc.relnamespace
+                   join lateral unnest(c.conkey) with ordinality as conseq(num, ord)
+            on true join pg_attribute la on la.attrelid = c.conrelid and la.attnum = conseq.num join pg_attribute fa on fa.attrelid = c.confrelid and fa.attnum = c.confkey[conseq.ord]
+            where c.contype = 'f'
+              and tc.relname = ${
+              this.quoteString(table)
+            }
+              and tn.nspname = ${
+              this.quoteString(schema)
+            }
+            group by c.conname, fn.nspname, fc.relname, c.confupdtype, c.confdeltype`;
   }
 
   /*Compile a create table command.*/
@@ -83,6 +203,44 @@ export class PostgresSchemaGrammar extends SchemaGrammar {
     });
   }
 
+  /**
+   * Compile a change column command into a series of SQL statements.
+   *
+   * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
+   * @param  \Illuminate\Support\Fluent  $command
+   * @param  \Illuminate\Database\Connection  $connection
+   * @return array|string
+   *
+   * @throws \RuntimeException
+   */
+  public compileChange(blueprint: Blueprint, command: ColumnDefinition, connection: Connection) {
+    const columns = [];
+
+    for (const column of blueprint.getChangedColumns()) {
+      const changes = ['type ' + this.getType(column) + this.modifyCollate(blueprint, column)];
+
+      for (const modifier of this.modifiers) {
+        if (modifier === 'Collate') {
+          continue;
+        }
+        const method = `modify${modifier}`;
+
+        if (method in this) {
+          // @ts-ignore
+          const constraints = this[method](blueprint, column);
+
+          for (const constraint of constraints) {
+            changes.push(constraint);
+          }
+        }
+      }
+
+      columns.push(this.prefixArray('alter column ' + this.wrap(column), changes).join(', '));
+    }
+
+    return 'alter table ' + this.wrapTable(blueprint) + ' ' + columns.join(', ');
+  }
+
   /*Compile a primary key command.*/
   public compilePrimary(blueprint: Blueprint, command: ColumnDefinition) {
     const columns = this.columnize(command.columns);
@@ -91,8 +249,18 @@ export class PostgresSchemaGrammar extends SchemaGrammar {
 
   /*Compile a unique key command.*/
   public compileUnique(blueprint: Blueprint, command: ColumnDefinition) {
-    return 'alter table ' + `${this.wrapTable(blueprint)} add constraint ${this.wrap(
+    let sql = 'alter table ' + `${this.wrapTable(blueprint)} add constraint ${this.wrap(
       command.index)} unique (${this.columnize(command.columns)})`;
+
+    if (!isBlank(command.deferrable)) {
+      sql += command.deferrable ? ' deferrable' : ' not deferrable';
+    }
+
+    if (command.deferrable && !isBlank(command.initiallyImmediate)) {
+      sql += command.initiallyImmediate ? ' initially immediate' : ' initially deferred';
+    }
+
+    return sql;
   }
 
   /*Compile a plain index key command.*/
@@ -102,6 +270,20 @@ export class PostgresSchemaGrammar extends SchemaGrammar {
       this.wrapTable(blueprint)
     }${command.algorithm ? ' using ' + command.algorithm : ''
     } (${this.columnize(command.columns)})`;
+  }
+
+  public compileFulltext(blueprint: Blueprint, command: ColumnDefinition) {
+    const language = command.language ? command.language : 'english';
+
+    const columns = command.columns.map((column: string) => {
+      return `to_tsvector(${this.quoteString(language)}, ${this.wrap(column)})`;
+    });
+
+    return `create index ${
+      this.wrap(command.index)
+    } on ${
+      this.wrapTable(blueprint)
+    } using gin ((${columns.join(' || ')}))`;
   }
 
   /*Compile a spatial index key command.*/
@@ -150,26 +332,34 @@ export class PostgresSchemaGrammar extends SchemaGrammar {
     return `drop type "${types.join('","')}" cascade`;
   }
 
-  /*Compile the SQL needed to retrieve all table names.*/
-  public compileGetAllTables(searchPath: string[]) {
-    return `select tablename
-            from pg_catalog.pg_tables
-            where schemaname in ('${searchPath.join('\',\'')}')`;
+  /**
+   * Compile the SQL needed to drop all domains.
+   *
+   */
+  public compileDropAllDomains(domains: string[]) {
+    return `drop domain ${this.escapeNames(domains).join(',')} cascade`;
   }
 
-  /*Compile the SQL needed to retrieve all view names.*/
-  public compileGetAllViews(searchPath: string[]) {
-    return `select viewname
-            from pg_catalog.pg_views
-            where schemaname in ('${searchPath.join('\',\'')}')`;
-  }
-
-  /*Compile the SQL needed to retrieve all type names.*/
-  public compileGetAllTypes() {
-    return `select distinct pg_type.typname
-            from pg_type
-                   inner join pg_enum on pg_enum.enumtypid = pg_type.oid`;
-  }
+  // /*Compile the SQL needed to retrieve all table names.*/
+  // public compileGetAllTables(searchPath: string[]) {
+  //   return `select tablename
+  //           from pg_catalog.pg_tables
+  //           where schemaname in ('${searchPath.join('\',\'')}')`;
+  // }
+  //
+  // /*Compile the SQL needed to retrieve all view names.*/
+  // public compileGetAllViews(searchPath: string[]) {
+  //   return `select viewname
+  //           from pg_catalog.pg_views
+  //           where schemaname in ('${searchPath.join('\',\'')}')`;
+  // }
+  //
+  // /*Compile the SQL needed to retrieve all type names.*/
+  // public compileGetAllTypes() {
+  //   return `select distinct pg_type.typname
+  //           from pg_type
+  //                  inner join pg_enum on pg_enum.enumtypid = pg_type.oid`;
+  // }
 
   /*Compile a drop column command.*/
   public compileDropColumn(blueprint: Blueprint, command: ColumnDefinition) {
@@ -193,6 +383,15 @@ export class PostgresSchemaGrammar extends SchemaGrammar {
   public compileDropIndex(blueprint: Blueprint, command: ColumnDefinition) {
     return 'drop index ' + `${this.wrap(command.index)}`;
   }
+
+  /**
+   * Compile a drop fulltext index command.
+   *
+   */
+  public compileDropFullText(blueprint: Blueprint, command: ColumnDefinition) {
+    return this.compileDropIndex(blueprint, command);
+  }
+
 
   /*Compile a drop spatial index command.*/
   public compileDropSpatialIndex(blueprint: Blueprint, command: ColumnDefinition) {
@@ -233,6 +432,29 @@ export class PostgresSchemaGrammar extends SchemaGrammar {
   public compileComment(blueprint: Blueprint, command: ColumnDefinition) {
     return `comment on column ${this.wrapTable(blueprint)}.${this.wrap(
       command.get('column').name)} is ${`'${command.get('column').comment.replace(/'/g, `''`)}'`}`;
+  }
+
+  /**
+   * Compile a table comment command.
+   *
+   */
+  public compileTableComment(blueprint: Blueprint, command: ColumnDefinition) {
+    return `comment on table ${
+      this.wrapTable(blueprint)
+    } is ${
+      `'${command.comment(/'/g, '\'\'',)}'`
+    }`;
+  }
+
+  /**
+   * Quote-escape the given tables, views, or types.
+   */
+  public escapeNames(names: string[]): string[] {
+    return names.map((name) => {
+      return `"${name.split('.')
+        .map((segment) => segment.replace(/['"]/, ''))
+        .join('"."')}"`;
+    },);
   }
 
   /*Create the column definition for a char type.*/

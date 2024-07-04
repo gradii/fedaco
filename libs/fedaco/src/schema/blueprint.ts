@@ -67,10 +67,10 @@ export class Blueprint {
         } else if (isString(sql) && sql.length > 0) {
           statements.push(sql);
         }
-      } else {
+      } /*else {
         throw new Error(
           `command name ${command.name} is not exist in grammar ${grammar.constructor.name}`);
-      }
+      }*/
     }
     return statements;
   }
@@ -432,7 +432,7 @@ export class Blueprint {
   }
 
   /*Create a new float column on the table.*/
-  public float(column: string, total: number = 8, places: number = 2, unsigned: boolean = false) {
+  public float(column: string, total: number = 8, places = 2, unsigned: boolean = false) {
     return this.addColumn('float', column, {total, places, unsigned});
   }
 
@@ -443,12 +443,12 @@ export class Blueprint {
   }
 
   /*Create a new decimal column on the table.*/
-  public decimal(column: string, total: number = 8, places: number = 2, unsigned: boolean = false) {
+  public decimal(column: string, total: number = 8, places = 2, unsigned: boolean = false) {
     return this.addColumn('decimal', column, {total, places, unsigned});
   }
 
   /*Create a new unsigned float column on the table.*/
-  public unsignedFloat(column: string, total: number = 8, places: number = 2) {
+  public unsignedFloat(column: string, total: number = 8, places = 2) {
     return this.float(column, total, places, true);
   }
 
@@ -458,7 +458,7 @@ export class Blueprint {
   }
 
   /*Create a new unsigned decimal column on the table.*/
-  public unsignedDecimal(column: string, total: number = 8, places: number = 2) {
+  public unsignedDecimal(column: string, total: number = 8, places = 2) {
     return this.decimal(column, total, places, true);
   }
 
@@ -493,37 +493,37 @@ export class Blueprint {
   }
 
   /*Create a new date-time column on the table.*/
-  public dateTime(column: string, precision: number = 0) {
+  public dateTime(column: string, precision = 0) {
     return this.addColumn('dateTime', column, {precision});
   }
 
   /*Create a new date-time column (with time zone) on the table.*/
-  public dateTimeTz(column: string, precision: number = 0) {
+  public dateTimeTz(column: string, precision = 0) {
     return this.addColumn('dateTimeTz', column, {precision});
   }
 
   /*Create a new time column on the table.*/
-  public time(column: string, precision: number = 0) {
+  public time(column: string, precision = 0) {
     return this.addColumn('time', column, {precision});
   }
 
   /*Create a new time column (with time zone) on the table.*/
-  public timeTz(column: string, precision: number = 0) {
+  public timeTz(column: string, precision = 0) {
     return this.addColumn('timeTz', column, {precision});
   }
 
   /*Create a new timestamp column on the table.*/
-  public timestamp(column: string, precision: number = 0) {
+  public timestamp(column: string, precision = 0) {
     return this.addColumn('timestamp', column, {precision});
   }
 
   /*Create a new timestamp (with time zone) column on the table.*/
-  public timestampTz(column: string, precision: number = 0) {
+  public timestampTz(column: string, precision = 0) {
     return this.addColumn('timestampTz', column, {precision});
   }
 
   /*Add nullable creation and update timestamps to the table.*/
-  public timestamps(precision: number = 0) {
+  public timestamps(precision = 0) {
     this.timestamp('created_at', precision).withNullable();
     this.timestamp('updated_at', precision).withNullable();
   }
@@ -531,23 +531,23 @@ export class Blueprint {
   /*Add nullable creation and update timestamps to the table.
 
   Alias for self::timestamps().*/
-  public nullableTimestamps(precision: number = 0) {
+  public nullableTimestamps(precision = 0) {
     this.timestamps(precision);
   }
 
   /*Add creation and update timestampTz columns to the table.*/
-  public timestampsTz(precision: number = 0) {
+  public timestampsTz(precision = 0) {
     this.timestampTz('created_at', precision).withNullable();
     this.timestampTz('updated_at', precision).withNullable();
   }
 
   /*Add a "deleted at" timestamp for the table.*/
-  public softDeletes(column: string = 'deleted_at', precision: number = 0) {
+  public softDeletes(column: string = 'deleted_at', precision = 0) {
     return this.timestamp(column, precision).withNullable();
   }
 
   /*Add a "deleted at" timestampTz for the table.*/
-  public softDeletesTz(column: string = 'deleted_at', precision: number = 0) {
+  public softDeletesTz(column: string = 'deleted_at', precision = 0) {
     return this.timestampTz(column, precision).withNullable();
   }
 
@@ -757,6 +757,10 @@ export class Blueprint {
   /*Get the table the blueprint describes.*/
   public getTable() {
     return this.table;
+  }
+
+  public getPrefix() {
+    return this.prefix;
   }
 
   /*Get the columns on the blueprint.*/

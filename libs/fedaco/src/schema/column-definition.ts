@@ -52,6 +52,10 @@ export type ColumnDefineAttributes = {
   to?: string, // rename to
   expression?: string,
   srid?: number,
+  renameTo?: string,
+  subtype?: string,
+  language?: string,
+  column?: any,
   [key: string]: any
 } & PostgresColumnDefineAttributes;
 
@@ -252,6 +256,22 @@ export class ColumnDefinition {
 
   public get projection() {
     return this.get('projection');
+  }
+
+  public get renameTo() {
+    return this.get('renameTo');
+  }
+
+  public get subtype() {
+    return this.get('subtype');
+  }
+
+  public get language() {
+    return this.get('language');
+  }
+
+  public get column() {
+    return this.get('column');
   }
 
   //endregion

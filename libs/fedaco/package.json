@@ -8,8 +8,8 @@
   "license": "MIT",
   "peerDependencies": {},
   "dependencies": {
-    "@gradii/annotation": "^1.0.0",
-    "@gradii/nanofn": "^1.0.5",
+    "@gradii/annotation": "^3.0.1",
+    "@gradii/nanofn": "^2.0.1",
     "date-fns": "^3.6.0",
     "ramda": "^0.30.1",
     "rxjs": "^7.8.1",
