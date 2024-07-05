@@ -13,6 +13,8 @@ export class PostgresWrappedStmt implements WrappedStmt {
   _affectRows: number;
 
   constructor(public driverConnection: Client, public sqlStmt: string) {
+    let count    = 0;
+    this.sqlStmt = this.sqlStmt.replace(/\?/g, () => `$${++count}`);
   }
 
   bindValues(bindings: any[]) {

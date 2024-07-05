@@ -14,6 +14,15 @@ jobs:
         ports:
           - 3306:3306
         options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
+      postgresql:
+        image: postgres:14
+        env:
+          POSTGRES_DB: fedaco_test
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: 123456
+        ports:
+          - 5432:5432
+        options: --health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3
     strategy:
       matrix:
         node:
@@ -41,7 +50,9 @@ jobs:
           DB_PORT: 3306
           DB_USER: root
           DB_PASSWORD: "123456"
+          DB_DATABASE: 'fedaco_test'
           DB_COLLATION: utf8mb4_unicode_ci
+          PG_PORT: 5432
         run: |
           yarn nx test --project fedaco
           

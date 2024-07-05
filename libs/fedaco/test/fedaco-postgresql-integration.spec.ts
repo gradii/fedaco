@@ -1,6 +1,7 @@
-
-
+import { faker } from '@faker-js/faker';
 import { DatabaseConfig, schema } from '@gradii/fedaco';
+import { Client } from 'pg';
+import { PostgresqlUserModel } from './fixtures/postgresql.user.model';
 
 describe('fedaco postgresql integration', () => {
   beforeAll(async () => {
@@ -8,8 +9,8 @@ describe('fedaco postgresql integration', () => {
     db.addConnection({
       'driver'  : 'pgsql',
       'host'    : process.env.DB_HOST || '127.0.0.1',
-      'port'    : process.env.DB_PORT || 5432,
-      'database': 'fedaco_test',
+      'port'    : process.env.PG_PORT || 5432,
+      'database': process.env.DB_DATABASE || 'fedaco_test',
       'username': process.env.DB_USER || '',
       'password': process.env.DB_PASSWORD || '',
       'timezone': '+08:00'
@@ -31,4 +32,13 @@ describe('fedaco postgresql integration', () => {
       });
     }
   });
+
+  test('add user', async () => {
+    const it = await PostgresqlUserModel.createQuery().create({
+      username: 'Checking Account'
+    });
+
+    expect(it.id).toBeGreaterThan(0);
+  });
 });
+
