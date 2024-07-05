@@ -492,37 +492,6 @@ export class Connection extends mixinManagesTransactions(class {
     return this;
   }
 
-  /*Is Doctrine available?*/
-  public isDoctrineAvailable() {
-    // return class_exists('Doctrine\\DBAL\\Connection');
-  }
-
-  /*Get a Doctrine Schema Column instance.*/
-  public async getDoctrineColumn(table: string, column: string) {
-    // const schema = this.getDoctrineSchemaManager();
-    // return schema.listTableDetails(table).getColumn(column);
-  }
-
-  /*Get the Doctrine DBAL schema manager for the connection.*/
-  public getDoctrineSchemaManager() {
-    // const connection = this.getDoctrineConnection();
-    // return this.getDoctrineDriver().getSchemaManager(connection, connection.getDatabasePlatform());
-  }
-
-  /*Get the Doctrine DBAL database connection instance.*/
-  public getDoctrineConnection() {
-    // if (isBlank(this.doctrineConnection)) {
-    //   const driver = this.getDoctrineDriver();
-    //
-    //   this.doctrineConnection = driver.connect();
-    // }
-    // return this.doctrineConnection;
-  }
-
-  protected getDoctrineDriver() {
-    throw new Error('not implement');
-  }
-
   /*Get the current PDO connection.*/
   public async getPdo(): Promise<WrappedConnection> {
     if (isPromise(this.pdo)) {

@@ -60,8 +60,4 @@ export class SqlServerConnection extends Connection {
   protected getDefaultPostProcessor() {
     return new SqlServerProcessor();
   }
-
-  /*Get the Doctrine DBAL driver.*/
-  protected getDoctrineDriver() {
-  }
 }

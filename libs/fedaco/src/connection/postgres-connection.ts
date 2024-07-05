@@ -55,11 +55,6 @@ export class PostgresConnection extends Connection {
     return new PostgresProcessor();
   }
 
-  /*Get the Doctrine DBAL driver.*/
-  protected getDoctrineDriver() {
-    // return new PostgresDriver();
-  }
-
   public async insertGetId(query: string, bindings: any[] = [], sequence: string) {
     const data = await this.statement(query, bindings);
     return isArray(data) && data.length === 1 ? data[0][sequence] : null;

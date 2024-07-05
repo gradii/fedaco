@@ -1,8 +1,7 @@
 # Fedaco Orm
 
-###
-No short description right now.
-can play fedaco here https://github.com/gradii/play-fedaco
+##
+can visit document via [site](https://gradii.github.io/fedaco)
 
 ### How To Use It
 

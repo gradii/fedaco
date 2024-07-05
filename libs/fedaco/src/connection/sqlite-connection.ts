@@ -61,11 +61,6 @@ export class SqliteConnection extends Connection {
     return new SqliteProcessor();
   }
 
-  /*Get the Doctrine DBAL driver.*/
-  protected getDoctrineDriver() {
-    // return new SqliteDriver();
-  }
-
   /*Get the database connection foreign key constraints configuration option.*/
   protected getForeignKeyConstraintsConfigurationValue() {
     return this.getConfig('foreign_key_constraints');

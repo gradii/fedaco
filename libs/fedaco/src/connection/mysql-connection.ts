@@ -64,11 +64,6 @@ export class MysqlConnection extends Connection {
     return new MysqlProcessor();
   }
 
-  /*Get the Doctrine DBAL driver.*/
-  protected getDoctrineDriver() {
-    // return new MysqlDriver();
-  }
-
   public async insertGetId(query: string, bindings: any[] = [], sequence: string) {
     if (!(await this.isMaria())) {
       if (query.includes('returning')) {
