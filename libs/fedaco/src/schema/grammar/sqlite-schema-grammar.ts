@@ -222,7 +222,7 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
       index => index['name'] === 'primary',
       (await schema.getIndexes(table)).map(
         (index: ColumnDefinition) => new IndexDefinition({
-          name     : index['primary'] ? 'primary' : index['unique'] ? 'unique' : 'default',
+          name     : index['primary'] ? 'primary' : index['unique'] ? 'unique' : 'index',
           'index'  : index['name'],
           'columns': index['columns']
         })

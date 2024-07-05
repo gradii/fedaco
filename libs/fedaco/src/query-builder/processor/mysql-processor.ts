@@ -28,8 +28,7 @@ export class MysqlProcessor extends Processor {
           'type'      : ({
             'STORED GENERATED' : 'stored',
             'VIRTUAL GENERATED': 'virtual',
-            default            : null,
-          } as any)[result.extra],
+          } as any)[result.extra] || null,
           'expression': result.expression,
         } : null,
       };

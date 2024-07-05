@@ -56,8 +56,7 @@ export class SqlServerProcessor extends Processor {
         'datetime2'     : 'datetime2',
         'datetimeoffset': 'datetimeoffset',
         'time'          : `${typeName}(${result.precision})`,
-        default         : typeName,
-      } as any)[typeName];
+      } as any)[typeName] || typeName;
 
       return {
         'name'          : result.name,

@@ -37,8 +37,7 @@ export class PostgresProcessor extends Processor {
           'p'    : 'pseudo',
           'r'    : 'range',
           'm'    : 'multirange',
-          default: null,
-        } as any)[result.type.toLowerCase()],
+        } as any)[result.type.toLowerCase()] || null,
         'category': ({
           'a'    : 'array',
           'b'    : 'boolean',
@@ -56,8 +55,7 @@ export class PostgresProcessor extends Processor {
           'v'    : 'bit_string',
           'x'    : 'unknown',
           'z'    : 'internal_use',
-          default: null,
-        } as any)[result.category.toLowerCase()],
+        } as any)[result.category.toLowerCase()] || null,
       };
     });
   }
@@ -83,8 +81,7 @@ export class PostgresProcessor extends Processor {
         'generation'    : result.generated ? {
           'type'      : ({
             's'    : 'stored',
-            default: null,
-          } as any)[result.generated],
+          } as any)[result.generated] || null,
           'expression': result.default,
         } : null,
       };
@@ -123,16 +120,14 @@ export class PostgresProcessor extends Processor {
           'c'    : 'cascade',
           'n'    : 'set null',
           'd'    : 'set default',
-          default: null,
-        } as any)[result.on_update.toLowerCase()],
+        } as any)[result.on_update.toLowerCase()] || null,
         'on_delete'      : ({
           'a'    : 'no action',
           'r'    : 'restrict',
           'c'    : 'cascade',
           'n'    : 'set null',
           'd'    : 'set default',
-          default: null,
-        } as any)[result.on_delete.toLowerCase()],
+        } as any)[result.on_delete.toLowerCase()] || null,
       };
     });
   }

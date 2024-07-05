@@ -609,7 +609,17 @@ export class MysqlSchemaGrammar extends SchemaGrammar {
 
   /*Create the column definition for a spatial Geometry type.*/
   public typeGeometry(column: ColumnDefinition) {
-    return 'geometry';
+    let subtype = column.subtype ? column.subtype.toLowerCase() : null;
+
+    if (! ['point', 'linestring', 'polygon', 'geometrycollection', 'multipoint', 'multilinestring', 'multipolygon'].includes(subtype)) {
+      subtype = null;
+    }
+
+    return `${
+      subtype ?? 'geometry'
+    }${
+      column.srid ? ` srid ${column.srid}` : ''
+    }`;
   }
 
   /*Create the column definition for a spatial Point type.*/

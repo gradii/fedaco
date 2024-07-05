@@ -35,8 +35,7 @@ export class SqliteProcessor extends Processor {
           type      : ({
             3      : 'stored',
             2      : 'virtual',
-            default: null,
-          } as any)[result.extra],
+          } as any)[result.extra] || null,
           expression: expression
         } : undefined,
       };
