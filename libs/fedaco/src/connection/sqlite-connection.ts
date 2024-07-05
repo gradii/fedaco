@@ -20,14 +20,17 @@ export class SqliteConnection extends Connection {
   public constructor(pdo: any,
                      database: string    = '',
                      tablePrefix: string = '',
-                     config: any       = {}) {
+                     config: any         = {}) {
     super(pdo, database, tablePrefix, config);
     const enableForeignKeyConstraints = this.getForeignKeyConstraintsConfigurationValue();
-    if (!isBlank(enableForeignKeyConstraints)) {
-      enableForeignKeyConstraints ?
-        this.getSchemaBuilder().enableForeignKeyConstraints() :
-        this.getSchemaBuilder().disableForeignKeyConstraints();
-    }
+    setTimeout(() => {
+        if (!isBlank(enableForeignKeyConstraints)) {
+          enableForeignKeyConstraints ?
+            this.getSchemaBuilder().enableForeignKeyConstraints() :
+            this.getSchemaBuilder().disableForeignKeyConstraints();
+        }
+      }, 1000
+    );
   }
 
   /*Get the default query grammar instance.*/

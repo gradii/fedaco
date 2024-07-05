@@ -227,8 +227,8 @@ export class PostgresSchemaBuilder extends SchemaBuilder {
 
   protected _baseParseSearchPath(searchPath: string | string[]): string[] {
     if (isString(searchPath)) {
-      const matches = /[^s,"']+/.exec(searchPath);
-      searchPath    = matches[0];
+      const matches = searchPath.match(/[^s,"']+/g);
+      searchPath    = matches;
     }
 
     return (searchPath as string[] || []).map(schema => {

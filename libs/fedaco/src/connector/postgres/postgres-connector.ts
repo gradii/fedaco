@@ -15,7 +15,7 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
 
   /*Establish a database connection.*/
   public async connect(config: any) {
-    const connection = this.createConnection(this.getDsn(config), config, this.getOptions(config));
+    const connection = await this.createConnection(this.getDsn(config), config, this.getOptions(config));
     await this.configureEncoding(connection, config);
     await this.configureTimezone(connection, config);
     await this.configureSearchPath(connection, config);

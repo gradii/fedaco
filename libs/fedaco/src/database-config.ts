@@ -17,7 +17,9 @@ export type ConnectionConfig = {
   driver?: string,
   url?: string,
   username?: string,
-  password?: string
+  password?: string,
+  port?: string | number,
+  [key: string]: string | any
 };
 
 export class DatabaseConfig {
@@ -33,8 +35,7 @@ export class DatabaseConfig {
     database: {
       fetch      : 0,
       default    : 'default',
-      connections: {
-      }
+      connections: {}
     }
   };
 

@@ -6,6 +6,7 @@
 
 import { Connector } from '../connector';
 import type { ConnectorInterface } from '../connector-interface';
+import { WrappedConnection } from '../wrapped-connection';
 import { BetterSqliteWrappedConnection } from './better-sqlite/better-sqlite-wrapped-connection';
 import { SqliteWrappedConnection } from './sqlite-wrapped-connection';
 
@@ -14,14 +15,17 @@ export class SqliteConnector extends Connector implements ConnectorInterface {
   /*Establish a database connection.*/
   public async connect(config: any) {
     const options = this.getOptions(config);
+    let connection: WrappedConnection;
     if (config['database'] === ':memory:') {
-      return this.createConnection(':memory:', config, options);
+       connection = await this.createConnection(':memory:', config, options);
+    } else {
+      const path = config['database'];
+      if (path === false) {
+        throw new Error(`InvalidArgumentException Database (${config['database']}) does not exist.`);
+      }
+       connection = await this.createConnection(`${path}`, config, options);
     }
-    const path = config['database'];
-    if (path === false) {
-      throw new Error(`InvalidArgumentException Database (${config['database']}) does not exist.`);
-    }
-    return this.createConnection(`${path}`, config, options);
+    return connection;
   }
 
   async createConnection(database: string, config: any, options: any) {

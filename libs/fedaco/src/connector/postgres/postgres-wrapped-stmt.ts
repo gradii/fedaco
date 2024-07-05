@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import type { Client } from 'pg';
+import type { Client, QueryResult } from 'pg';
 import type { WrappedStmt } from '../wrapped-stmt';
 
 export class PostgresWrappedStmt implements WrappedStmt {
@@ -33,7 +33,7 @@ export class PostgresWrappedStmt implements WrappedStmt {
       bindings ?? this._bindingValues,
     );
 
-    return result;
+    return result['rows'];
   }
 
   affectCount() {
