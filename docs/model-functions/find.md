@@ -3,11 +3,11 @@
 
 ```typescript
 const factory = new FedacoTestUser();
-await factory.newQuery().create({
+await factory.NewQuery().create({
   id: 1,
   email: 'linbolen@gradii.com'
 });
-await factory.newQuery().create({
+await factory.NewQuery().create({
   id: 2,
   email: 'xsilen@gradii.com'
 });
@@ -16,8 +16,8 @@ await factory.newQuery().create({
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | `      await factory.newQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
-> | `      await factory.newQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
+> | `      await factory.NewQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
+> | `      await factory.NewQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
 
 
 > | Reference | Looks Like | Value |
@@ -106,13 +106,13 @@ await FedacoTestFriendLevel.createQuery().create({
   id: 3,
   level: 'bff'
 });
-await john.newRelation('friends').attach(jane, {
+await john.NewRelation('friends').attach(jane, {
   friend_level_id: 1
 });
-await john.newRelation('friends').attach(jack, {
+await john.NewRelation('friends').attach(jack, {
   friend_level_id: 2
 });
-await john.newRelation('friends').attach(jule, {
+await john.NewRelation('friends').attach(jule, {
   friend_level_id: 3
 });
 const johnWithFriends = await FedacoTestUserWithCustomFriendPivot.createQuery()

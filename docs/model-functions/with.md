@@ -5,7 +5,7 @@
 let user: FedacoTestUser = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com'
 });
-await user.newRelation('posts').create({
+await user.NewRelation('posts').create({
   name: 'First Post'
 });
 user = await FedacoTestUser.createQuery()
@@ -30,10 +30,10 @@ see also [prerequisites](./../database-fedaco-integration/prerequisite)
 let user: FedacoTestUser = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com'
 });
-const post: FedacoTestPost = await user.newRelation('posts').create({
+const post: FedacoTestPost = await user.NewRelation('posts').create({
   name: 'First Post'
 });
-await post.newRelation('childPosts').create({
+await post.NewRelation('childPosts').create({
   name: 'Child Post',
   user_id: user.id
 });
@@ -96,13 +96,13 @@ await FedacoTestFriendLevel.createQuery().create({
   id: 3,
   level: 'bff'
 });
-await john.newRelation('friends').attach(jane, {
+await john.NewRelation('friends').attach(jane, {
   friend_level_id: 1
 });
-await john.newRelation('friends').attach(jack, {
+await john.NewRelation('friends').attach(jack, {
   friend_level_id: 2
 });
-await john.newRelation('friends').attach(jule, {
+await john.NewRelation('friends').attach(jule, {
   friend_level_id: 3
 });
 const johnWithFriends = await FedacoTestUserWithCustomFriendPivot.createQuery()

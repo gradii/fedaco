@@ -7,11 +7,11 @@ const user = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com'
 });
 await (
-  await user.newRelation('posts').create({
+  await user.NewRelation('posts').create({
     name: 'Post 2'
   })
 )
-  .newRelation('photos')
+  .NewRelation('photos')
   .create({
     name: 'photo.jpg'
   });

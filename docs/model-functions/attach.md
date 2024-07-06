@@ -42,13 +42,13 @@ await FedacoTestFriendLevel.createQuery().create({
   id: 3,
   level: 'bff'
 });
-await john.newRelation('friends').attach(jane, {
+await john.NewRelation('friends').attach(jane, {
   friend_level_id: 1
 });
-await john.newRelation('friends').attach(jack, {
+await john.NewRelation('friends').attach(jack, {
   friend_level_id: 2
 });
-await john.newRelation('friends').attach(jule, {
+await john.NewRelation('friends').attach(jule, {
   friend_level_id: 3
 });
 const johnWithFriends = await FedacoTestUserWithCustomFriendPivot.createQuery()

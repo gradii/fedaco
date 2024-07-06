@@ -33,11 +33,11 @@ see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ```typescript
 const factory = new FedacoTestUser();
-await factory.newQuery().create({
+await factory.NewQuery().create({
   id: 1,
   email: 'linbolen@gradii.com'
 });
-await factory.newQuery().create({
+await factory.NewQuery().create({
   id: 2,
   email: 'xsilen@gradii.com'
 });
@@ -46,8 +46,8 @@ await factory.newQuery().create({
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | `      await factory.newQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
-> | `      await factory.newQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
+> | `      await factory.NewQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
+> | `      await factory.NewQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
 
 
 > | Reference | Looks Like | Value |

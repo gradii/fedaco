@@ -10,11 +10,11 @@ const user2 = await FedacoTestUser.createQuery().create({
   id: 2,
   email: 'xsilen@gradii.com'
 });
-await user2.newRelation('posts').create({
+await user2.NewRelation('posts').create({
   id: 1,
   name: 'First post'
 });
-await user1.newRelation('posts').create({
+await user1.NewRelation('posts').create({
   id: 2,
   name: 'Second post'
 });

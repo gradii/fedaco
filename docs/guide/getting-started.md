@@ -10,12 +10,13 @@
 ::: code-group
 
 ```sh [npm]
-$ npm add @gradii/fedaco
+$ npm install @gradii/fedaco
 ```
 
 ```sh [yarn]
 $ yarn add @gradii/fedaco
 ```
+:::
 
 ::: tip NOTE
 

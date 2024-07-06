@@ -26,19 +26,19 @@ Relation.morphMap({
 const user = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com'
 });
-await user.newRelation('photos').create({
+await user.NewRelation('photos').create({
   name: 'Avatar 1'
 });
-await user.newRelation('photos').create({
+await user.NewRelation('photos').create({
   name: 'Avatar 2'
 });
-const post = await user.newRelation('posts').create({
+const post = await user.NewRelation('posts').create({
   name: 'First Post'
 });
-await post.newRelation('photos').create({
+await post.NewRelation('photos').create({
   name: 'Hero 1'
 });
-await post.newRelation('photos').create({
+await post.NewRelation('photos').create({
   name: 'Hero 2'
 });
 ```
@@ -74,7 +74,7 @@ Relation.morphMap({
 const user = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com'
 });
-await user.newRelation('photos').create({
+await user.NewRelation('photos').create({
   name: 'Avatar 1'
 });
 const photo = await FedacoTestPhoto.createQuery().first();

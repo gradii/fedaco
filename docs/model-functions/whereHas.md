@@ -5,10 +5,10 @@
 const user = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com'
 });
-const friend = await user.newRelation('friends').create({
+const friend = await user.NewRelation('friends').create({
   email: 'xsilen@gradii.com'
 });
-await friend.newRelation('friends').create({
+await friend.NewRelation('friends').create({
   email: 'foo@gmail.com'
 });
 const results: FedacoTestUser[] = await FedacoTestUser.createQuery()
@@ -99,7 +99,7 @@ see also [prerequisites](./../database-fedaco-integration/prerequisite)
 const user = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com'
 });
-await user.newRelation('friends').create({
+await user.NewRelation('friends').create({
   email: 'xsilen@gradii.com'
 });
 const results: FedacoTestUser[] = await FedacoTestUser.createQuery()

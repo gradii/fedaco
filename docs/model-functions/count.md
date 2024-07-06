@@ -3,11 +3,11 @@
 
 ```typescript
 const factory = new FedacoTestUser();
-await factory.newQuery().create({
+await factory.NewQuery().create({
   id: 1,
   email: 'linbolen@gradii.com'
 });
-await factory.newQuery().create({
+await factory.NewQuery().create({
   id: 2,
   email: 'xsilen@gradii.com'
 });
@@ -16,8 +16,8 @@ await factory.newQuery().create({
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | `      await factory.newQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
-> | `      await factory.newQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
+> | `      await factory.NewQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
+> | `      await factory.NewQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
 
 
 > | Reference | Looks Like | Value |
@@ -146,7 +146,7 @@ await FedacoTestUser.createQuery().create({
   id: 4,
   email: 'foo@gmail.com'
 });
-const friendsRelation = user1.newRelation('friends');
+const friendsRelation = user1.NewRelation('friends');
 await friendsRelation.create({
   id: 5,
   email: 'friend@gmail.com'

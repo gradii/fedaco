@@ -34,13 +34,13 @@ await FedacoTestFriendLevel.createQuery().create({
   id: 3,
   level: 'bff'
 });
-await john.newRelation('friends').attach(jane, {
+await john.NewRelation('friends').attach(jane, {
   friend_level_id: 1
 });
-await john.newRelation('friends').attach(jack, {
+await john.NewRelation('friends').attach(jack, {
   friend_level_id: 2
 });
-await john.newRelation('friends').attach(jule, {
+await john.NewRelation('friends').attach(jule, {
   friend_level_id: 3
 });
 const johnWithFriends = await FedacoTestUserWithCustomFriendPivot.createQuery()
@@ -64,12 +64,12 @@ see also [prerequisites](./../database-fedaco-integration/prerequisite)
 const user = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com'
 });
-const friend = await user.newRelation('friends').create({
+const friend = await user.NewRelation('friends').create({
   email: 'xsilen@gradii.com'
 });
 const user1: FedacoTestUser = await FedacoTestUser.createQuery().first();
 await user1
-  .newRelation('friends')
+  .NewRelation('friends')
   .chunk(2)
   .pipe(
     tap(({ results: friends }) => {
@@ -96,13 +96,13 @@ see also [prerequisites](./../database-fedaco-integration/prerequisite)
 const user = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com'
 });
-const friend = await user.newRelation('friends').create({
+const friend = await user.NewRelation('friends').create({
   email: 'xsilen@gradii.com'
 });
 await (
   await FedacoTestUser.createQuery().first()
 )
-  .newRelation('friends')
+  .NewRelation('friends')
   .each()
   .pipe(
     tap(({ item: result, index }) => {
@@ -128,19 +128,19 @@ Relation.morphMap({
 const user = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com'
 });
-await user.newRelation('photos').create({
+await user.NewRelation('photos').create({
   name: 'Avatar 1'
 });
-await user.newRelation('photos').create({
+await user.NewRelation('photos').create({
   name: 'Avatar 2'
 });
-const post = await user.newRelation('posts').create({
+const post = await user.NewRelation('posts').create({
   name: 'First Post'
 });
-await post.newRelation('photos').create({
+await post.NewRelation('photos').create({
   name: 'Hero 1'
 });
-await post.newRelation('photos').create({
+await post.NewRelation('photos').create({
   name: 'Hero 2'
 });
 ```
@@ -176,7 +176,7 @@ Relation.morphMap({
 const user = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com'
 });
-await user.newRelation('photos').create({
+await user.NewRelation('photos').create({
   name: 'Avatar 1'
 });
 const photo = await FedacoTestPhoto.createQuery().first();

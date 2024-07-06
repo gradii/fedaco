@@ -41,7 +41,7 @@ const storedUser1 = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com',
   birthday: now
 });
-await storedUser1.newQuery().update({
+await storedUser1.NewQuery().update({
   email: 'dev@mathieutu.ovh',
   name: 'Mathieu TUDISCO'
 });
@@ -51,7 +51,7 @@ const storedUser2 = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com',
   birthday: now
 });
-await storedUser2.newQuery().update({
+await storedUser2.NewQuery().update({
   email: 'dev@mathieutu.ovh'
 });
 const freshStoredUser2 = await storedUser2.fresh();

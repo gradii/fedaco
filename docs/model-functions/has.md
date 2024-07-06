@@ -20,11 +20,11 @@ const user = await FedacoTestUser.createQuery().create({
   id: 1,
   email: 'linbolen@gradii.com'
 });
-const friend = await user.newRelation('friends').create({
+const friend = await user.NewRelation('friends').create({
   id: 2,
   email: 'xsilen@gradii.com'
 });
-await friend.newRelation('friends').create({
+await friend.NewRelation('friends').create({
   id: 3,
   email: 'foo@gmail.com'
 });
@@ -48,10 +48,10 @@ see also [prerequisites](./../database-fedaco-integration/prerequisite)
 const user = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com'
 });
-const friend = await user.newRelation('friends').create({
+const friend = await user.NewRelation('friends').create({
   email: 'xsilen@gradii.com'
 });
-await friend.newRelation('friends').create({
+await friend.NewRelation('friends').create({
   email: 'foo@gmail.com'
 });
 const results = await FedacoTestUser.createQuery().has('friends.friends').get();
@@ -135,7 +135,7 @@ const user = await FedacoTestUser.createQuery().create({
   id: 1,
   email: 'linbolen@gradii.com'
 });
-await user.newRelation('friends').create({
+await user.NewRelation('friends').create({
   id: 2,
   email: 'xsilen@gradii.com'
 });
@@ -157,7 +157,7 @@ see also [prerequisites](./../database-fedaco-integration/prerequisite)
 const user = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com'
 });
-await user.newRelation('friends').create({
+await user.NewRelation('friends').create({
   email: 'xsilen@gradii.com'
 });
 ```
@@ -232,11 +232,11 @@ const user = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com'
 });
 await (
-  await user.newRelation('posts').create({
+  await user.NewRelation('posts').create({
     name: 'Post 2'
   })
 )
-  .newRelation('photos')
+  .NewRelation('photos')
   .create({
     name: 'photo.jpg'
   });

@@ -1,6 +1,6 @@
 ## Querying Relations
 
-Since all Fedaco relationships are defined via methods, you may call those methods to obtain an instance of the relationship without actually executing a query to load the related models. In addition, all types of Fedaco relationships also serve as [query builders](/docs/{{version}}/queries), allowing you to continue to chain constraints onto the relationship query before finally executing the SQL query against your database.
+Since all Fedaco relationships are defined via methods, you may call those methods to obtain an instance of the relationship without actually executing a query to load the related models. In addition, all types of Fedaco relationships also serve as query builders, allowing you to continue to chain constraints onto the relationship query before finally executing the SQL query against your database.
 
 For example, imagine a blog application in which a `User` model has many associated `Post` models:
 
@@ -24,7 +24,7 @@ const user = await User.createQuery().find(1);
 await user.NewRelation('posts').where('active', 1).get();
 ```
 
-You are able to use any of the Laravel [query builder's](/docs/{{version}}/queries) methods on the relationship, so be sure to explore the query builder documentation to learn about all of the methods that are available to you.
+You are able to use any of the Laravel query builder's methods on the relationship, so be sure to explore the query builder documentation to learn about all of the methods that are available to you.
 
 <a name="chaining-orwhere-clauses-after-relationships"></a>
 #### Chaining `orWhere` Clauses After Relationships
@@ -44,7 +44,7 @@ The example above will generate the following SQL. As you can see, the `or` clau
 select * from posts where user_id = ? and active = 1 or votes >= 100
 ```
 
-In most situations, you should use [logical groups](/docs/{{version}}/queries#logical-grouping) to group the conditional checks between parentheses:
+In most situations, you should use logical groups to group the conditional checks between parentheses:
 
 ```typescript
  await user.NewRelation('posts')
@@ -64,7 +64,7 @@ select * from posts where user_id = ? and (active = 1 or votes >= 100)
 <a name="relationship-methods-vs-dynamic-properties"></a>
 ### Relationship Methods vs. Dynamic Properties
 
-If you do not need to add additional constraints to an Fedaco relationship query, you may access the relationship as if it were a property. For example, continuing to use our `User` and `Post` example models, we may access all of a user's posts like so:
+If you do not need to add additional constraints to a Fedaco relationship query, you may access the relationship as if it were a property. For example, continuing to use our `User` and `Post` example models, we may access all of a user's posts like so:
 
 ```typescript
 const user = User.createQuery().find(1);
@@ -73,7 +73,7 @@ for (const post of await user.posts) {
 }
 ```
 
-Dynamic relationship properties perform "lazy loading", meaning they will only load their relationship data when you actually access them. Because of this, developers often use [eager loading](#eager-loading) to pre-load relationships they know will be accessed after loading the model. Eager loading provides a significant reduction in SQL queries that must be executed to load a model's relations.
+Dynamic relationship properties perform "lazy loading", meaning they will only load their relationship data when you actually access them. Because of this, developers often use [eager loading](./eager-loading) to pre-load relationships they know will be accessed after loading the model. Eager loading provides a significant reduction in SQL queries that must be executed to load a model's relations.
 
 ### Querying Relationship Existence
 

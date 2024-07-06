@@ -10,7 +10,7 @@ export class AppController {
 
     @Get('/init-table')
     async initTable() {
-        if (!await schema().tablesExist('users')) {
+        if (!await schema().hasTable('users')) {
             await schema().create('users', table => {
                 table.increments('id');
                 table.string('username');

@@ -7,6 +7,7 @@ export function sidebarGuide(): DefaultTheme.SidebarItem[] {
       collapsed: false,
       items: [
         {text: 'Getting Started', link: '/getting-started'},
+        {text: 'Nest Integration', link: '/nest-integration'},
       ]
     },
 

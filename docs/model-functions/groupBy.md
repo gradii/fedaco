@@ -18,7 +18,7 @@ await FedacoTestUser.createQuery().create({
   id: 4,
   email: 'foo@gmail.com'
 });
-const friendsRelation = user1.newRelation('friends');
+const friendsRelation = user1.NewRelation('friends');
 await friendsRelation.create({
   id: 5,
   email: 'friend@gmail.com'

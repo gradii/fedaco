@@ -5,12 +5,12 @@
 const user = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com'
 });
-const friend = await user.newRelation('friends').create({
+const friend = await user.NewRelation('friends').create({
   email: 'xsilen@gradii.com'
 });
 const user1: FedacoTestUser = await FedacoTestUser.createQuery().first();
 await user1
-  .newRelation('friends')
+  .NewRelation('friends')
   .chunk(2)
   .pipe(
     tap(({ results: friends }) => {

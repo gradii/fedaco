@@ -2,7 +2,7 @@
 ### basic create model
 
 ```typescript
-const model = await new FedacoTestUser().newQuery().create({
+const model = await new FedacoTestUser().NewQuery().create({
   id: 1,
   email: 'linbolen@gradii.com'
 });

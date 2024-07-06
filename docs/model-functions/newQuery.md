@@ -2,7 +2,7 @@
 ### basic create model
 
 ```typescript
-const model = await new FedacoTestUser().newQuery().create({
+const model = await new FedacoTestUser().NewQuery().create({
   id: 1,
   email: 'linbolen@gradii.com'
 });
@@ -28,7 +28,7 @@ await FedacoTestUser.createQuery().create({
   id: 2,
   email: 'xsilen@gradii.com'
 });
-const models = await new FedacoTestUser().newQuery().oldest('id').get();
+const models = await new FedacoTestUser().NewQuery().oldest('id').get();
 ```
 
 
@@ -48,11 +48,11 @@ see also [prerequisites](./../database-fedaco-integration/prerequisite)
 
 ```typescript
 const factory = new FedacoTestUser();
-await factory.newQuery().create({
+await factory.NewQuery().create({
   id: 1,
   email: 'linbolen@gradii.com'
 });
-await factory.newQuery().create({
+await factory.NewQuery().create({
   id: 2,
   email: 'xsilen@gradii.com'
 });
@@ -61,8 +61,8 @@ await factory.newQuery().create({
 
 > | Reference | Looks Like | Value |
 > | ------ | ----- | ----- |
-> | `      await factory.newQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
-> | `      await factory.newQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
+> | `      await factory.NewQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
+> | `      await factory.NewQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
 
 
 > | Reference | Looks Like | Value |
@@ -128,7 +128,7 @@ const storedUser1 = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com',
   birthday: now
 });
-await storedUser1.newQuery().update({
+await storedUser1.NewQuery().update({
   email: 'dev@mathieutu.ovh',
   name: 'Mathieu TUDISCO'
 });
@@ -138,7 +138,7 @@ const storedUser2 = await FedacoTestUser.createQuery().create({
   email: 'linbolen@gradii.com',
   birthday: now
 });
-await storedUser2.newQuery().update({
+await storedUser2.NewQuery().update({
   email: 'dev@mathieutu.ovh'
 });
 const freshStoredUser2 = await storedUser2.fresh();
@@ -192,7 +192,7 @@ see also [prerequisites](./../database-fedaco-integration/prerequisite)
 ### paginated model collection retrieval when no elements and default per page
 
 ```typescript
-const models = await new FedacoTestUser().newQuery().oldest('id').paginate();
+const models = await new FedacoTestUser().NewQuery().oldest('id').paginate();
 ```
 
 
@@ -205,14 +205,14 @@ see also [prerequisites](./../database-fedaco-integration/prerequisite)
 // Paginator.currentPageResolver(() => {
 //   return 1;
 // });
-let models = await new FedacoTestUser().newQuery().oldest('id').paginate(1, 2);
+let models = await new FedacoTestUser().NewQuery().oldest('id').paginate(1, 2);
 ```
 ```typescript
 // expect(models).toInstanceOf(LengthAwarePaginator);
 // Paginator.currentPageResolver(() => {
 //   return 2;
 // });
-models = await new FedacoTestUser().newQuery().oldest('id').paginate(2, 2);
+models = await new FedacoTestUser().NewQuery().oldest('id').paginate(2, 2);
 ```
 
 
@@ -222,22 +222,22 @@ see also [prerequisites](./../database-fedaco-integration/prerequisite)
 ### paginated model collection retrieval
 
 ```typescript
-await new FedacoTestUser().newQuery().create({
+await new FedacoTestUser().NewQuery().create({
   id: 1,
   email: 'linbolen@gradii.com'
 });
-await new FedacoTestUser().newQuery().create({
+await new FedacoTestUser().NewQuery().create({
   id: 2,
   email: 'xsilen@gradii.com'
 });
-await new FedacoTestUser().newQuery().create({
+await new FedacoTestUser().NewQuery().create({
   id: 3,
   email: 'foo@gmail.com'
 });
 // Paginator.currentPageResolver(() => {
 //   return 1;
 // });
-let models = await new FedacoTestUser().newQuery().oldest('id').paginate(1, 2);
+let models = await new FedacoTestUser().NewQuery().oldest('id').paginate(1, 2);
 ```
 
 
