@@ -452,7 +452,7 @@ export class Connection extends mixinManagesTransactions(class {
   }
 
   protected escapeString(value: string) {
-    return this.getReadPdo().quote(value);
+    return `'${value.replace(/'+/g, "''")}'`;
   }
 
   protected escapeBool(value: boolean) {
