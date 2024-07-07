@@ -4,8 +4,9 @@ import {
   forwardRef,
   Model,
   MorphOneColumn,
-  PrimaryGeneratedColumn,
-  Table, UpdatedAtColumn
+  PrimaryGeneratedColumn, RelationType,
+  Table, UpdatedAtColumn,
+  FedacoRelationType
 } from '@gradii/fedaco';
 import { Image } from './image.model';
 
@@ -16,7 +17,7 @@ export class User extends Model {
   _fillable = ['name', 'email'];
 
   @PrimaryGeneratedColumn()
-  id;
+  id: number;
 
   @Column()
   name: string;
@@ -28,7 +29,7 @@ export class User extends Model {
     related: forwardRef(() => Image),
     morphName: 'imageable'
   })
-  public image;
+  public image: FedacoRelationType<Image>;
 
   @CreatedAtColumn()
   created_at: Date;

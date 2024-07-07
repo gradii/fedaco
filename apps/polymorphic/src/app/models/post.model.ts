@@ -1,6 +1,6 @@
 import {
   Column,
-  CreatedAtColumn,
+  CreatedAtColumn, FedacoRelationType,
   forwardRef,
   MorphOneColumn,
   PrimaryGeneratedColumn,
@@ -24,7 +24,7 @@ export class Post {
     related: forwardRef(() => Image),
     morphName: 'imageable'
   })
-  public image;
+  public image: FedacoRelationType<Image>;
 
   @CreatedAtColumn()
   created_at: Date;

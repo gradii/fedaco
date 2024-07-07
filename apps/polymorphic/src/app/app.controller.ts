@@ -1,13 +1,11 @@
 import { Controller, Get, OnModuleInit } from '@nestjs/common';
+import { Image } from './models/image.model';
 import { User } from './models/user.model';
 import { db, schema } from '@gradii/fedaco';
 import { faker } from '@faker-js/faker';
 
 @Controller()
 export class AppController implements OnModuleInit {
-  constructor() {
-  }
-
   onModuleInit() {
     db().enableQueryLog();
   }
@@ -27,7 +25,7 @@ export class AppController implements OnModuleInit {
       table.timestamps();
     });
 
-    await schema().create('images', function(table) {
+    await schema().create('images', function (table) {
       table.increments('id');
       table.morphs('imageable');
       table.string('url');
@@ -42,13 +40,13 @@ export class AppController implements OnModuleInit {
     const list = await User.createQuery().get();
 
     const logs = db().getQueryLog();
-    return { list, logs };
+    return {list, logs};
   }
 
   @Get('/add-user')
-  async addUser(s) {
+  async addUser() {
     await User.createQuery().create({
-      name: faker.person.fullName(),
+      name : faker.person.fullName(),
       email: faker.internet.email()
     });
   }
@@ -56,7 +54,11 @@ export class AppController implements OnModuleInit {
 
   @Get('/all-images')
   async getImages() {
+    db().flushQueryLog();
+    const list = await Image.createQuery().get();
 
+    const logs = db().getQueryLog();
+    return {list, logs};
   }
 
   @Get('/create-user-image')
@@ -66,9 +68,9 @@ export class AppController implements OnModuleInit {
 
     await user.NewRelation('image').create({
       url: faker.internet.url()
-    })
+    });
 
     const logs = await db().getQueryLog();
-    return { user, logs };
+    return {user, logs};
   }
 }
