@@ -17,6 +17,12 @@ export class MysqlConnection extends Connection {
   _version: string;
   _isMaria: boolean;
 
+  protected escapeBinary(value: string) {
+    const hex = Buffer.from(value).toString('hex');
+
+    return `x'${hex}'`;
+  }
+
   /*Determine if the connected database is a MariaDB database.*/
   public async isMaria() {
     if (isBlank(this._isMaria)) {

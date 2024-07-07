@@ -33,6 +33,12 @@ export class SqliteConnection extends Connection {
     );
   }
 
+  protected escapeBinary(value: string) {
+    const hex = Buffer.from(value).toString('hex');
+
+    return `x'${hex}'`;
+  }
+
   /*Get the default query grammar instance.*/
   protected getDefaultQueryGrammar(): QueryGrammar {
     return this.withTablePrefix(new SqliteQueryGrammar()) as QueryGrammar;

@@ -27,6 +27,12 @@ export class PostgresConnection extends Connection {
   //   }
   // }
 
+  protected escapeBinary(value: string) {
+    const hex = Buffer.from(value).toString('hex');
+
+    return `'\\x${hex}'::bytea`;
+  }
+
   /*Get the default query grammar instance.*/
   protected getDefaultQueryGrammar(): PostgresQueryGrammar {
     return this.withTablePrefix(new PostgresQueryGrammar()) as PostgresQueryGrammar;

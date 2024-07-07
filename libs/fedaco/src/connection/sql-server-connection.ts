@@ -33,6 +33,12 @@ export class SqlServerConnection extends Connection {
     }
   }
 
+  protected escapeBinary(value: string) {
+    const hex = Buffer.from(value).toString('hex');
+
+    return `0x${hex}`;
+  }
+
   /*Get the default query grammar instance.*/
   protected getDefaultQueryGrammar() {
     return this.withTablePrefix(new SqlserverQueryGrammar());
