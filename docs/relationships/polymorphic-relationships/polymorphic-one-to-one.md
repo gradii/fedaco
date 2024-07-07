@@ -84,13 +84,14 @@ If necessary, you may specify the name of the "id" and "type" columns utilized b
 
 ```typescript
 
-class Post extends Model {
+class Image extends Model {
   /**
    * Get the model that the image belongs to.
    */
   @MorphToColumn({
     morphTypeMap: {
-      
+      'users': forwardRef(() => User),
+      'posts': forwardRef(() => Post)
     },
     id: 'imageable_type',
     ownerKey: 'imageable_id'
