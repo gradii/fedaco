@@ -15,7 +15,7 @@ await storedUser1.NewQuery().update({
   email: 'dev@mathieutu.ovh',
   name: 'Mathieu TUDISCO'
 });
-const freshStoredUser1 = await storedUser1.fresh();
+const freshStoredUser1 = await storedUser1.Fresh();
 const storedUser2 = await FedacoTestUser.createQuery().create({
   id: 2,
   email: 'linbolen@gradii.com',
@@ -24,13 +24,13 @@ const storedUser2 = await FedacoTestUser.createQuery().create({
 await storedUser2.NewQuery().update({
   email: 'dev@mathieutu.ovh'
 });
-const freshStoredUser2 = await storedUser2.fresh();
+const freshStoredUser2 = await storedUser2.Fresh();
 const notStoredUser = FedacoTestUser.initAttributes({
   id: 3,
   email: 'linbolen@gradii.com',
   birthday: now
 });
-const freshNotStoredUser = await notStoredUser.fresh();
+const freshNotStoredUser = await notStoredUser.Fresh();
 ```
 
 

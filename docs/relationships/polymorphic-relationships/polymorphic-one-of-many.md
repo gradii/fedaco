@@ -1,4 +1,4 @@
-### One of Many (Polymorphic)
+# One of Many (Polymorphic)
 
 Sometimes a model may have many related models, yet you want to easily retrieve the "latest" or "oldest" related model of the relationship. For example, a `User` model may be related to many `Image` models, but you want to define a convenient way to interact with the most recent image the user has uploaded. You may accomplish this using the `morphOne` relationship type combined with the `ofMany` methods:
 
@@ -57,4 +57,4 @@ class Post extends Model {
 ```
 
 > [!NOTE]  
-> It is possible to construct more advanced "one of many" relationships. For more information, please consult the [has one of many documentation](#advanced-has-one-of-many-relationships).
+> It is possible to construct more advanced "one of many" relationships. For more information, please consult the [has one of many documentation](../defining-relationships/relation-has-one-of-many)).
