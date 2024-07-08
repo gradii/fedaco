@@ -41,7 +41,7 @@ class Post extends Model {
    */
   @MorphToManyColumn({
     related: fowardRef(() => Tag),
-    morphName: 'taggable'
+    name: 'taggable'
   })
   public tags;
 }

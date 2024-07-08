@@ -14,6 +14,7 @@ import { wrap } from '../helper/arr';
 import { MysqlConnector } from './mysql/mysql-connector';
 import { PostgresConnector } from './postgres/postgres-connector';
 import { SqliteConnector } from './sqlite/sqlite-connector';
+import { SqlServerConnector } from './sqlserver/sql-server-connector';
 
 export class ConnectionFactory {
   /*The IoC container instance.*/
@@ -142,8 +143,8 @@ export class ConnectionFactory {
         return new PostgresConnector();
       case 'sqlite':
         return new SqliteConnector();
-      // case 'sqlsrv':
-      //   return new SqlServerConnector();
+      case 'sqlsrv':
+        return new SqlServerConnector();
     }
     throw new Error(`InvalidArgumentException Unsupported driver [${config['driver']}].`);
   }

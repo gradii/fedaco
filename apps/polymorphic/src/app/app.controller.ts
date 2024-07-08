@@ -3,6 +3,7 @@ import { Image } from './models/image.model';
 import { User } from './models/user.model';
 import { db, schema } from '@gradii/fedaco';
 import { faker } from '@faker-js/faker';
+import { Post } from './models/post.model';
 
 @Controller()
 export class AppController implements OnModuleInit {
@@ -51,11 +52,19 @@ export class AppController implements OnModuleInit {
     });
   }
 
+  @Get('/add-post')
+  async addPost() {
+    await Post.createQuery().create({
+      name : faker.person.fullName(),
+    });
+  }
+
+
 
   @Get('/all-images')
   async getImages() {
     db().flushQueryLog();
-    const list = await Image.createQuery().get();
+    const list = await Image.createQuery().with('imageable').get();
 
     const logs = db().getQueryLog();
     return {list, logs};
@@ -72,5 +81,39 @@ export class AppController implements OnModuleInit {
 
     const logs = await db().getQueryLog();
     return {user, logs};
+  }
+
+  @Get('/create-post-image')
+  async createPostImage() {
+    db().flushQueryLog();
+    const post = await Post.createQuery().first();
+
+    await post.NewRelation('image').create({
+      url: faker.internet.url()
+    });
+
+    const logs = await db().getQueryLog();
+    return {post, logs};
+  }
+
+
+  @Get('/get-user-image')
+  async getUserImage() {
+    db().flushQueryLog();
+
+    const user = await User.createQuery().first();
+    const image = await user.image;
+    const logs = await db().getQueryLog();
+    return {user, image, logs};
+  }
+
+  @Get('/get-image-user')
+  async getImageUser() {
+    db().flushQueryLog();
+
+    const image = await Image.createQuery().first();
+    const user = await image.imageable;
+    const logs = await db().getQueryLog();
+    return {image, user, logs};
   }
 }

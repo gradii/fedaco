@@ -10,7 +10,7 @@ import type { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import type { Collection } from '../../define/collection';
 import type { Constructor } from '../../helper/constructor';
-import { pluralStudy } from '@gradii/nanofn';
+import { pluralStudly } from '@gradii/nanofn';
 import { camelCase } from '@gradii/nanofn';
 import type { RawExpression } from '../../query/ast/expression/raw-expression';
 import type { FedacoBuilder } from '../fedaco-builder';
@@ -542,7 +542,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
 
   /*Attempt to guess the name of the inverse of the relation.*/
   _guessInverseRelation() {
-    return camelCase(pluralStudy(this.getParent().GetTable()));
+    return camelCase(pluralStudly(this.getParent().GetTable()));
   }
 
   /*Touch all of the related models for the relationship.

@@ -1,7 +1,7 @@
 import {
   Column,
   CreatedAtColumn, FedacoRelationType,
-  forwardRef,
+  forwardRef, Model,
   MorphOneColumn,
   PrimaryGeneratedColumn,
   Table,
@@ -10,9 +10,11 @@ import {
 import { Image } from './image.model';
 
 @Table({
-  tableName: 'posts'
+  tableName: 'posts',
+  morphTypeName: 'test_post'
 })
-export class Post {
+export class Post extends Model {
+  _fillable = ['name'];
 
   @PrimaryGeneratedColumn()
   id: number;

@@ -1,4 +1,12 @@
-import { Column, forwardRef, Model, MorphToColumn, PrimaryGeneratedColumn, Table } from '@gradii/fedaco';
+import {
+  Column, CreatedAtColumn, FedacoRelationType,
+  forwardRef,
+  Model,
+  MorphToColumn,
+  PrimaryGeneratedColumn,
+  Table,
+  UpdatedAtColumn
+} from '@gradii/fedaco';
 import { Post } from './post.model';
 import { User } from './user.model';
 
@@ -17,10 +25,15 @@ export class Image extends Model {
 
   @MorphToColumn({
     morphTypeMap: {
-      'Post': forwardRef(() => Post),
-      'User': forwardRef(() => User),
+      'test_user': forwardRef(() => User),
+      'test_post': forwardRef(() => Post)
     }
   })
-  imageable: any;
+  imageable: FedacoRelationType<User | Post>;
 
+  @UpdatedAtColumn()
+  updated_at: Date;
+
+  @CreatedAtColumn()
+  created_at: Date;
 }

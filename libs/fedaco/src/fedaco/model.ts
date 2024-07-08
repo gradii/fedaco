@@ -11,7 +11,7 @@ import type { TableAnnotation } from '../annotation/table/table';
 import { Table } from '../annotation/table/table';
 import type { Connection } from '../connection';
 import { except } from '../helper/obj';
-import { plural, pluralStudy } from '@gradii/nanofn';
+import { plural, pluralStudly } from '@gradii/nanofn';
 import { camelCase, snakeCase, upperFirst } from '@gradii/nanofn';
 import type { ConnectionResolverInterface } from '../interface/connection-resolver-interface';
 import type { QueryBuilder } from '../query-builder/query-builder';
@@ -808,7 +808,7 @@ export class Model extends mixinHasAttributes(
       // }, metas);
       // if (meta) {
       //   if (!meta.noPluralTable) {
-      //     this.SetTable(pluralStudy(meta.tableName));
+      //     this.SetTable(pluralStudly(meta.tableName));
       //   } else {
       //     this.SetTable(snakeCase(meta.tableName));
       //   }

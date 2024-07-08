@@ -5,7 +5,7 @@
  */
 
 import { makeDecorator } from '@gradii/annotation';
-import { pluralStudy } from '@gradii/nanofn';
+import { pluralStudly } from '@gradii/nanofn';
 import { snakeCase } from '@gradii/nanofn';
 import { FedacoColumn } from '../column';
 
@@ -77,7 +77,7 @@ export const Table: InjectableDecorator<TableAnnotation> = makeDecorator(
   (target: any, decorator: TableAnnotation) => {
     let tableName = decorator.tableName || target.name;
     if (!decorator.noPluralTable) {
-      tableName = pluralStudy(tableName);
+      tableName = pluralStudly(tableName);
     } else {
       tableName = snakeCase(tableName);
     }

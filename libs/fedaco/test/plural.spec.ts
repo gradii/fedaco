@@ -1,4 +1,4 @@
-import { plural, pluralStudy, singular } from '@gradii/nanofn';
+import { plural, pluralStudly, singular } from '@gradii/nanofn';
 
 describe('plural', () => {
 
@@ -26,7 +26,7 @@ describe('plural', () => {
   });
 
   test ('pluralize study', () => {
-    const value = pluralStudy('fedaco_builder_test_model_close_related_stub');
+    const value = pluralStudly('fedaco_builder_test_model_close_related_stub');
     expect(value).toBe('fedaco_builder_test_model_close_related_stubs');
   })
 });

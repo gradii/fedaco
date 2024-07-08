@@ -2715,10 +2715,10 @@
   dependencies:
     tslib "^2.3.0"
 
-"@gradii/nanofn@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.npmmirror.com/@gradii/nanofn/-/nanofn-2.0.1.tgz#39c01ee6cc408c27a875eb7153918d6797b48c50"
-  integrity sha512-4DzFoZPN4aW6I66bQvQ5xK6bbKQeNNRDO2i4bIEqHwfzmjkMoC42GO/zEPHhPliFQTll1f4niGHZKm+VXjCsPg==
+"@gradii/nanofn@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.npmmirror.com/@gradii/nanofn/-/nanofn-2.0.2.tgz#cd7131e5aec323ece298274a1697784ea56c946a"
+  integrity sha512-h3bxsYOGVRE2FSHQCIGOoYHU1jUtOtQIa/xxKZUR+L2yR0c7lzcdN5Nc1tDQnZOiQMJFKY1q1SNZuscMRu6i1Q==
 
 "@humanwhocodes/config-array@^0.11.14":
   version "0.11.14"
