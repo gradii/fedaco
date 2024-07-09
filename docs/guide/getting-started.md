@@ -18,8 +18,5 @@ $ yarn add @gradii/fedaco
 ```
 :::
 
-::: tip NOTE
-
-Fedaco is an ESM-only package. Don't use `require()` to import it, and make sure your nearest `package.json` contains `"type": "module"`.
-
-:::
+### Examples Repo
+There are fedaco examples repo can found [here](https://github.com/gradii/fedaco-examples)
