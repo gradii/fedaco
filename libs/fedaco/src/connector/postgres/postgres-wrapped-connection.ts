@@ -41,16 +41,16 @@ export class PostgresWrappedConnection implements WrappedConnection {
     throw new Error('not supported. since postgres native support insert get id');
   }
 
-  beginTransaction(): Promise<any> {
-    return Promise.resolve(undefined);
+  async beginTransaction(): Promise<void> {
+    await this.driver.query('BEGIN TRANSACTION')
   }
 
-  commit(): Promise<any> {
-    return Promise.resolve(undefined);
+  async commit(): Promise<void> {
+    await this.driver.query('COMMIT')
   }
 
-  rollBack(): Promise<any> {
-    return Promise.resolve(undefined);
+  async rollBack(): Promise<void> {
+    await this.driver.query('ROLLBACK')
   }
 
 }

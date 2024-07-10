@@ -4,11 +4,13 @@
  * Use of this source code is governed by an MIT-style license
  */
 
+import { isPresent } from '@gradii/nanofn';
 // import { Arr } from "Illuminate/Support/Arr";
 // import { PDO } from "PDO";
 import { Connector } from '../connector';
 import type { ConnectorInterface } from '../connector-interface';
 import type { WrappedConnection } from '../wrapped-connection';
+import { SqlServerWrappedConnection } from './sql-server-wrapped-connection';
 
 export class SqlServerConnector extends Connector implements ConnectorInterface {
   /*The PDO connection options.*/
@@ -16,8 +18,56 @@ export class SqlServerConnector extends Connector implements ConnectorInterface 
 
   /*Establish a database connection.*/
   public async connect(config: any[]): Promise<WrappedConnection> {
-    const options = this.getOptions(config);
-    return this.createConnection(this.getDsn(config), config, options);
+    const options    = this.getOptions(config);
+    const connection = await this.createConnection(this.getDsn(config), config, options);
+
+    await this.configureIsolationLevel(connection, config);
+
+    return connection;
+  }
+
+  public async createConnection(database: string, config: any,
+                                   options: any) {
+    const [username, password] = [config['username'] ?? null, config['password'] ?? null];
+    // try {
+    const {Connection}         = await import('tedious');
+    const connection           = new Connection({
+      ...config,
+      server          : config['host'],
+      'authentication': {
+        'type'   : 'default',
+        'options': {
+          'userName': username,
+          'password': password
+        },
+        ...(config.authentication || {})
+      },
+      options         : {
+        ...(config.options || {}),
+        port    : config['port'],
+        database: config['database'],
+      },
+    });
+    await new Promise<void>((ok, fail) => {
+      connection.connect(err => {
+        if (err) {
+          fail(err);
+        } else {
+          ok();
+        }
+      });
+    });
+    return new SqlServerWrappedConnection(connection);
+  }
+
+  protected async configureIsolationLevel(connection: WrappedConnection, config: any) {
+    if (!isPresent(config['isolation_level'])) {
+      return;
+    }
+
+    await (await connection.prepare(
+      `SET TRANSACTION ISOLATION LEVEL ${config['isolation_level']}`
+    )).execute();
   }
 
   /*Create a DSN string from a configuration.*/
@@ -32,6 +82,7 @@ export class SqlServerConnector extends Connector implements ConnectorInterface 
     //   return this.getDblibDsn(config);
     // }
   }
+
   //
   // /*Determine if the database configuration prefers ODBC.*/
   // protected prefersOdbc(config: any[]) {

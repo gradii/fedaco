@@ -58,16 +58,40 @@ export class SqliteWrappedConnection implements WrappedConnection {
     });
   }
 
-  beginTransaction(): Promise<any> {
-    return Promise.resolve(undefined);
+  beginTransaction(): Promise<void> {
+    return new Promise((ok, fail) => {
+      this.driver.run('BEGIN TRANSACTION;', (err) => {
+        if (err) {
+          fail(err);
+        } else {
+          ok();
+        }
+      });
+    });
   }
 
-  commit(): Promise<any> {
-    return Promise.resolve(undefined);
+  commit(): Promise<void> {
+    return new Promise((ok, fail) => {
+      this.driver.run('COMMIT;', (err) => {
+        if (err) {
+          fail(err);
+        } else {
+          ok();
+        }
+      });
+    });
   }
 
-  rollBack(): Promise<any> {
-    return Promise.resolve(undefined);
+  rollBack(): Promise<void> {
+    return new Promise((ok, fail) => {
+      this.driver.run('ROLLBACK;', (err) => {
+        if (err) {
+          fail(err);
+        } else {
+          ok();
+        }
+      });
+    });
   }
 
 

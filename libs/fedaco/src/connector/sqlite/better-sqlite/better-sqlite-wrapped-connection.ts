@@ -26,16 +26,16 @@ export class BetterSqliteWrappedConnection implements WrappedConnection {
     return data && data['last_insert_rowid()'];
   }
 
-  beginTransaction(): Promise<any> {
-    return Promise.resolve(undefined);
+  async beginTransaction(): Promise<void> {
+    this.driver.exec('BEGIN TRANSACTION;')
   }
 
-  commit(): Promise<any> {
-    return Promise.resolve(undefined);
+  async commit(): Promise<void> {
+    this.driver.exec('COMMIT;')
   }
 
-  rollBack(): Promise<any> {
-    return Promise.resolve(undefined);
+  async rollBack(): Promise<void> {
+    this.driver.exec('ROLLBACK;')
   }
 
 

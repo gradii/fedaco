@@ -64,16 +64,16 @@ export class MysqlWrappedConnection implements WrappedConnection {
     });
   }
 
-  beginTransaction(): Promise<any> {
-    return Promise.resolve(undefined);
+  async beginTransaction(): Promise<void> {
+    this.driver.query('START TRANSACTION');
   }
 
-  commit(): Promise<any> {
-    return Promise.resolve(undefined);
+  async commit(): Promise<any> {
+    this.driver.query('COMMIT');
   }
 
-  rollBack(): Promise<any> {
-    return Promise.resolve(undefined);
+  async rollBack(): Promise<any> {
+    this.driver.query('ROLLBACK');
   }
 
 }

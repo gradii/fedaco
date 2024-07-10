@@ -53,6 +53,7 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
     "sqlite3": "^5.1.2",
+    "tedious": "^18.2.3",
     "tslib": "^2.3.0",
     "zone.js": "0.14.6"
   },
