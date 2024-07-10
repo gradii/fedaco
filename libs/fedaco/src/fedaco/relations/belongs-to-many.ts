@@ -311,10 +311,10 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
   }
 
   /*Get the first related model record matching the attributes or instantiate it.*/
-  public async firstOrNew(attributes: any = {}, values: any[] = []) {
+  public async firstOrNew(attributes: any = {}, values: any = {}) {
     let instance = await this._related.NewQuery().where(attributes).first();
     if (isBlank(instance)) {
-      instance = this._related.NewInstance([...attributes, ...values]);
+      instance = this._related.NewInstance({...attributes, ...values});
     }
     return instance;
   }
@@ -333,12 +333,12 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
 
   /*Create or update a related record matching the attributes, and fill it with values.*/
   public async updateOrCreate(attributes: any[],
-    values: any[] = [],
+    values: any = {},
     joining: any[] = [],
     touch = true) {
     const instance = await this._related.NewQuery().where(attributes).first() as Model;
     if (isBlank(instance)) {
-      return this.create([...attributes, ...values], joining, touch);
+      return this.create({...attributes, ...values}, joining, touch);
     }
     instance.Fill(values);
     await instance.Save({
