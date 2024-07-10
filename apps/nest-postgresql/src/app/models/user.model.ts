@@ -8,14 +8,14 @@ import { Column, CreatedAtColumn, Model, PrimaryGeneratedColumn, Table, UpdatedA
 export class UserModel extends Model {
   _fillable = ['username']
   @PrimaryGeneratedColumn()
-  id: string;
+  declare id: string;
 
   @Column()
   declare username: string;
 
   @CreatedAtColumn()
-  created_at: Date;
+  declare created_at: Date;
 
   @UpdatedAtColumn()
-  updated_at: Date;
+  declare updated_at: Date;
 }

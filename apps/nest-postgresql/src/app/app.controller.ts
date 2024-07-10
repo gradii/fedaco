@@ -1,7 +1,7 @@
-import {faker} from '@faker-js/faker';
-import {schema} from '@gradii/fedaco';
-import {Controller, Get} from '@nestjs/common';
-import {UserModel} from './models/user.model';
+import { faker } from '@faker-js/faker';
+import { schema } from '@gradii/fedaco';
+import { Controller, Get } from '@nestjs/common';
+import { UserModel } from './models/user.model';
 
 @Controller()
 export class AppController {
