@@ -1,0 +1,33 @@
+{
+  "name": "midway-fedaco",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/midway-fedaco/src",
+  "projectType": "library",
+  "release": {
+    "version": {
+      "generatorOptions": {
+        "packageRoot": "dist/{projectRoot}",
+        "currentVersionResolver": "git-tag"
+      }
+    }
+  },
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/midway-fedaco",
+        "tsConfig": "libs/midway-fedaco/tsconfig.lib.json",
+        "packageJson": "libs/midway-fedaco/package.json",
+        "main": "libs/midway-fedaco/src/index.ts",
+        "assets": ["libs/midway-fedaco/*.md"]
+      }
+    },
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "dist/{projectRoot}"
+      }
+    }
+  }
+}

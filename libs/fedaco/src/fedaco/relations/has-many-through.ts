@@ -1,4 +1,3 @@
-import type { Observable } from 'rxjs';
 /**
  * @license
  *
@@ -7,15 +6,12 @@ import type { Observable } from 'rxjs';
 
 import { isArray, isBlank } from '@gradii/nanofn';
 import { uniq } from 'ramda';
-import { map } from 'rxjs/operators';
 import type { Collection } from '../../define/collection';
 import type { Constructor } from '../../helper/constructor';
 import type { FedacoBuilder } from '../fedaco-builder';
 import type { Model } from '../model';
-import type {
-  InteractsWithDictionary} from './concerns/interacts-with-dictionary';
-import { mixinInteractsWithDictionary
-} from './concerns/interacts-with-dictionary';
+import type { InteractsWithDictionary } from './concerns/interacts-with-dictionary';
+import { mixinInteractsWithDictionary } from './concerns/interacts-with-dictionary';
 import { Relation } from './relation';
 
 export interface HasManyThrough extends InteractsWithDictionary, Constructor<Relation> {
