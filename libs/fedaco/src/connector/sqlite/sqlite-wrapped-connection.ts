@@ -48,7 +48,7 @@ export class SqliteWrappedConnection implements WrappedConnection {
 
   async lastInsertId(): Promise<number> {
     return new Promise((ok, fail) => {
-      this.driver.get('select last_insert_rowid()', (err, data) => {
+      this.driver.get('select last_insert_rowid()', (err, data: any) => {
         if (err) {
           fail(err);
         } else {
