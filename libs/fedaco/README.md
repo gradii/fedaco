@@ -50,10 +50,7 @@ can visit document via [site](https://gradii.github.io/fedaco)
 #### create a user table.
 
   ```typescript
-  const schemaBuilder = Model.getConnectionResolver()
-    .connection(connectionName)
-    .getSchemaBuilder();
-  ;
+  const schemaBuilder = schema(connectionName);
   
   await schemaBuilder().create('users', table => {
     table.increments('id');
@@ -71,9 +68,3 @@ can visit document via [site](https://gradii.github.io/fedaco)
 - use relationship to link model
 - relation can set dynamic constrain
 - sqlite and mysql support
-
-### Progressing
-- [x] postgres full support
-- [ ] mssql full support
-- [ ] migration
-
