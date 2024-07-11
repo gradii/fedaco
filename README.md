@@ -71,11 +71,6 @@
 - relation can set dynamic constrain
 - sqlite and mysql support
 
-### Progressing
-- [ ] postgres full support
-- [ ] mssql full support
-- [ ] migration
-
 
 ### Notice
 ecma class with field declaration not in constructor is not support. es2016 is support but es2022 is not.
