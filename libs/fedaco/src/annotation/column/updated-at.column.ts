@@ -20,4 +20,5 @@ export const UpdatedAtColumn: FedacoDecorator<UpdatedAtColumnAnnotation> = makeP
   DatetimeColumn,
   (target: any, name: string, decorator: UpdatedAtColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, name, decorator);
+    (target.constructor).UPDATED_AT = name
   });
