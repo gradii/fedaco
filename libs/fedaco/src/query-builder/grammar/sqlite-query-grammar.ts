@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { snakeCase } from '@gradii/nanofn';
+import { isBlank, snakeCase } from '@gradii/nanofn';
 import { ColumnReferenceExpression } from '../../query/ast/column-reference-expression';
 import { DeleteSpecification } from '../../query/ast/delete-specification';
 import { ConditionExpression } from '../../query/ast/expression/condition-expression';
@@ -54,7 +54,10 @@ export class SqliteQueryGrammar extends QueryGrammar implements GrammarInterface
     return ast.accept(visitor);
   }
 
-  distinct(distinct: boolean | any[]): string {
+  distinct(query: QueryBuilder, distinct: boolean | any[]): string {
+    if (! isBlank(query._aggregate)) {
+      return '';
+    }
     if (distinct !== false) {
       return 'DISTINCT';
     } else {

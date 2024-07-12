@@ -272,24 +272,14 @@ describe('database query builder test', () => {
     expect(builder.toSql()).toBe('SELECT DISTINCT `foo`, `bar` FROM `users`');
   });
 
-  xit('xtest basic select distinct on columns', () => {
+  it('test basic select distinct on columns', () => {
     builder = getBuilder();
     builder.distinct('foo').select('foo', 'bar').from('users');
     expect(builder.toSql()).toBe('SELECT DISTINCT `foo`, `bar` FROM `users`');
 
     builder = getPostgresBuilder();
     builder.distinct('foo').select('foo', 'bar').from('users');
-    expect(builder.toSql()).toBe('SELECT DISTINCT ON (`foo`) `foo`, `bar` FROM `users`');
-  });
-
-  it('test basic select distinct on columns', () => {
-    builder = getBuilder();
-    builder.distinct('foo').select('foo', 'bar').from('users');
-    expect(builder.toSql()).toBe('SELECT DISTINCT `foo`, `bar` FROM `users`');
-
-    // builder = getPostgresBuilder();
-    // builder.distinct('foo').select('foo', 'bar').from('users');
-    // expect(builder.toSql()).toBe('SELECT DISTINCT ON (`foo`) `foo`, `bar` FROM `users`');
+    expect(builder.toSql()).toBe('SELECT DISTINCT ON ("foo") "foo", "bar" FROM "users"');
   });
 
   it('test basic alias', () => {

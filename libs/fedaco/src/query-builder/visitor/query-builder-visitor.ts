@@ -586,9 +586,9 @@ export class QueryBuilderVisitor implements SqlVisitor {
         return expression.accept(this);
       });
       return `SELECT${node.distinct ? ` ${
-        this._grammar.distinct(node.distinct)} ` : ' '}${selectExpressions.join(', ')}`;
+        this._grammar.distinct(this._queryBuilder, node.distinct)} ` : ' '}${selectExpressions.join(', ')}`;
     } else {
-      return `SELECT${node.distinct ? ` ${this._grammar.distinct(node.distinct)} ` : ' '}*`;
+      return `SELECT${node.distinct ? ` ${this._grammar.distinct(this._queryBuilder, node.distinct)} ` : ' '}*`;
     }
   }
 

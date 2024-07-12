@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { snakeCase } from '@gradii/nanofn';
+import { isArray, isBlank, snakeCase } from '@gradii/nanofn';
 import { AssignmentSetClause } from '../../query/ast/assignment-set-clause';
 import { ColumnReferenceExpression } from '../../query/ast/column-reference-expression';
 import { DeleteSpecification } from '../../query/ast/delete-specification';
@@ -71,8 +71,14 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
   }
 
 
-  distinct(distinct: boolean | any[]): string {
-    if (distinct !== false) {
+  distinct(query: QueryBuilder, distinct: boolean | any[]): string {
+    if (! isBlank(query._aggregate)) {
+      return '';
+    }
+
+    if(isArray(distinct)) {
+      return `DISTINCT ON (${this.columnize(distinct)})`
+    }else if (distinct === true) {
       return 'DISTINCT';
     } else {
       return '';

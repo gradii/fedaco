@@ -4,7 +4,10 @@
     <jest-package value="$PROJECT_DIR$/node_modules/jest" />
     <working-dir value="$PROJECT_DIR$/" />
     <jest-options value="--config libs/fedaco/jest.config.ts" />
-    <envs />
+    <envs>
+      <env name="DB_USER" value="admin" />
+      <env name="DB_PASSWORD" value="admin" />
+    </envs>
     <scope-kind value="ALL" />
     <method v="2" />
   </configuration>

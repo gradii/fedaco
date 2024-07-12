@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isAnyEmpty, isArray, isObject } from '@gradii/nanofn';
+import { isAnyEmpty, isArray, isBlank, isObject } from '@gradii/nanofn';
 import { wrap } from '../../helper/arr';
 import type { GrammarInterface } from '../grammar.interface';
 import type { QueryBuilder } from '../query-builder';
@@ -60,14 +60,6 @@ export class MysqlQueryGrammar extends QueryGrammar implements GrammarInterface<
       return 'json_length';
     }
     return super.compilePredicateFuncName(funcName);
-  }
-
-  distinct(distinct: boolean | any[]): string {
-    if (distinct !== false) {
-      return 'DISTINCT';
-    } else {
-      return '';
-    }
   }
 
   quoteColumnName(columnName: string) {

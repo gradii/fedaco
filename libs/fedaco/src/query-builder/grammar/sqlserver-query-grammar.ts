@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBoolean } from '@gradii/nanofn';
+import { isBlank, isBoolean } from '@gradii/nanofn';
 import { snakeCase } from '@gradii/nanofn';
 import { DeleteSpecification } from '../../query/ast/delete-specification';
 import { ConditionExpression } from '../../query/ast/expression/condition-expression';
@@ -46,7 +46,10 @@ export class SqlserverQueryGrammar extends QueryGrammar implements GrammarInterf
     return snakeCase(funcName);
   }
 
-  distinct(distinct: boolean | any[]): string {
+  distinct(query: QueryBuilder, distinct: boolean | any[]): string {
+    if (! isBlank(query._aggregate)) {
+      return '';
+    }
     if (distinct !== false) {
       return 'DISTINCT';
     } else {

@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isAnyEmpty, isArray, isString } from '@gradii/nanofn';
+import { isAnyEmpty, isArray, isBlank, isString } from '@gradii/nanofn';
 import { BaseGrammar } from '../../base-grammar';
 import { camelCase } from '@gradii/nanofn';
 import { AssignmentSetClause } from '../../query/ast/assignment-set-clause';
@@ -327,8 +327,18 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     return funcName;
   }
 
-  distinct(distinct: boolean | any[]): string {
-    return '';
+  distinct(query: QueryBuilder, distinct: boolean | any[]): string {
+    // If the query is actually performing an aggregating select, we will let that
+    // compiler handle the building of the select clauses, as it will need some
+    // more syntax that is best handled by that function to keep things neat.
+    if (!isBlank(query._aggregate)) {
+      return '';
+    }
+    if (distinct !== false) {
+      return 'DISTINCT';
+    } else {
+      return '';
+    }
   }
 
   getOperators(): any[] {
