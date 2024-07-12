@@ -5,10 +5,12 @@
  */
 
 import { isBlank, isNumber } from '@gradii/nanofn';
-import { ta } from 'date-fns/locale';
 import type { Connection } from '../../connection';
+import { MysqlConnection } from '../../connection/mysql-connection';
+import versionCompare from '../../helper/version-compare';
+import { raw } from '../../query-builder/ast-factory';
 import type { Blueprint } from '../blueprint';
-import type { ColumnDefinition } from '../column-definition';
+import { ColumnDefinition } from '../column-definition';
 import { SchemaGrammar } from './schema-grammar';
 
 export class MysqlSchemaGrammar extends SchemaGrammar {
@@ -231,60 +233,57 @@ export class MysqlSchemaGrammar extends SchemaGrammar {
    * @param  \Illuminate\Database\Connection  $connection
    * @return array|string
    */
-  public compileRenameColumn(blueprint: Blueprint, command: ColumnDefinition, connection: Connection) {
-    // const version = connection.getServerVersion();
-    //
-    // if ((connection.isMaria() && version_compare(version, '10.5.2', '<')) ||
-    //   (!connection.isMaria() && version_compare(version, '8.0.3', '<'))) {
-    //   return this.compileLegacyRenameColumn(blueprint, command, connection);
-    // }
+  public async compileRenameColumn(blueprint: Blueprint, command: ColumnDefinition, connection: Connection) {
+    const version = await (connection as MysqlConnection).getServerVersion();
+
+    if ((await (connection as MysqlConnection).isMaria() && versionCompare(version, '10.5.2') === -1) ||
+      (!await (connection as MysqlConnection).isMaria() && versionCompare(version, '8.0.3') === -1)) {
+      return this.compileLegacyRenameColumn(blueprint, command, connection);
+    }
 
     return super.compileRenameColumn(blueprint, command, connection);
   }
 
-// /**
-//  * Compile a rename column command for legacy versions of MySQL.
-//  *
-//  * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
-//  * @param  \Illuminate\Support\Fluent  $command
-//  * @param  \Illuminate\Database\Connection  $connection
-//  * @return string
-//  */
-// protected  compileLegacyRenameColumn(blueprint: Blueprint, command: ColumnDefinition, connection: Connection)
-// {
-//   $column = collect($connection.getSchemaBuilder().getColumns($blueprint.getTable()))
-// .firstWhere('name', $command.from);
-//
-//   $modifiers = $this.addModifiers($column['type'], $blueprint, new ColumnDefinition([
-//     'change' => true,
-//   'type' => match ($column['type_name']) {
-//   'bigint' => 'bigInteger',
-//     'int' => 'integer',
-//     'mediumint' => 'mediumInteger',
-//     'smallint' => 'smallInteger',
-//     'tinyint' => 'tinyInteger',
-// default => $column['type_name'],
-// },
-//   'nullable' => $column['nullable'],
-//   'default' => $column['default'] && (str_starts_with(strtolower($column['default']), 'current_timestamp') || $column['default'] === 'NULL')
-//   ? new Expression($column['default'])
-//   : $column['default'],
-//   'autoIncrement' => $column['auto_increment'],
-//   'collation' => $column['collation'],
-//   'comment' => $column['comment'],
-//   'virtualAs' => ! is_null($column['generation']) && $column['generation']['type'] === 'virtual'
-//   ? $column['generation']['expression'] : null,
-//   'storedAs' => ! is_null($column['generation']) && $column['generation']['type'] === 'stored'
-//   ? $column['generation']['expression'] : null,
-// ]));
-//
-//   return sprintf('alter table %s change %s %s %s',
-//     $this.wrapTable($blueprint),
-//     $this.wrap($command.from),
-//     $this.wrap($command.to),
-//     $modifiers
-//   );
-// }
+/**
+ * Compile a rename column command for legacy versions of MySQL.
+ */
+protected async compileLegacyRenameColumn(blueprint: Blueprint, command: ColumnDefinition, connection: Connection)
+{
+  const column = (await connection.getSchemaBuilder().getColumns(blueprint.getTable()))
+    .find((it) => it['name'] === command.from);
+
+  const modifiers = this.addModifiers(column['type'], blueprint, new ColumnDefinition({
+    'change'       : true,
+    'type'         : ({
+      'bigint'   : 'bigInteger',
+      'int'      : 'integer',
+      'mediumint': 'mediumInteger',
+      'smallint' : 'smallInteger',
+      'tinyint'  : 'tinyInteger',
+    } as any)[column['type_name']] || column['type_name'],
+    'nullable'     : column['nullable'],
+    'default'      : column['default'] && (column['default'].toLowerCase().startsWith('current_timestamp') || column['default'] === 'NULL')
+      ? raw(column['default'])
+      : column['default'],
+    'autoIncrement': column['auto_increment'],
+    'collation'    : column['collation'],
+    'comment'      : column['comment'],
+    'virtualAs'    : !isBlank(column['generation']) && column['generation']['type'] === 'virtual'
+      ? column['generation']['expression'] : null,
+    'storedAs'     : !isBlank(column['generation']) && column['generation']['type'] === 'stored'
+      ? column['generation']['expression'] : null,
+  }));
+
+  return `alter table ${
+      this.wrapTable(blueprint)
+    } change ${
+      this.wrap(command.from)
+    } ${
+      this.wrap(command.to)
+    } ${
+      modifiers
+    }`;
+}
 
   /**
    * Compile a change column command into a series of SQL statements.

@@ -42,6 +42,11 @@ export class MysqlConnection extends Connection {
     // return (await this.getPdo()).getAttribute('ATTR_SERVER_VERSION').includes('MariaDB');
   }
 
+  public async getServerVersion() {
+    await this.isMaria();
+    return this._version;
+  }
+
   /*Get the default query grammar instance.*/
   protected getDefaultQueryGrammar(): MysqlQueryGrammar {
     return this.withTablePrefix(new MysqlQueryGrammar()) as MysqlQueryGrammar;

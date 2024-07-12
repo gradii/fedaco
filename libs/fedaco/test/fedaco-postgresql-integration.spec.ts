@@ -1,6 +1,5 @@
-import { faker } from '@faker-js/faker';
-import { DatabaseConfig, schema } from '@gradii/fedaco';
-import { Client } from 'pg';
+import { DatabaseConfig } from '../src/database-config';
+import { schema } from '../src/db';
 import { PostgresqlUserModel } from './fixtures/postgresql.user.model';
 
 describe('fedaco postgresql integration', () => {
