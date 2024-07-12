@@ -46,10 +46,7 @@ export class SqlserverQueryGrammar extends QueryGrammar implements GrammarInterf
     return snakeCase(funcName);
   }
 
-  distinct(query: QueryBuilder, distinct: boolean | any[]): string {
-    if (! isBlank(query._aggregate)) {
-      return '';
-    }
+  distinct(distinct: boolean | any[]): string {
     if (distinct !== false) {
       return 'DISTINCT';
     } else {

@@ -13,6 +13,7 @@ import { DeleteSpecification } from '../../query/ast/delete-specification';
 import { ConditionExpression } from '../../query/ast/expression/condition-expression';
 import { FunctionCallExpression } from '../../query/ast/expression/function-call-expression';
 import { ParenthesizedExpression } from '../../query/ast/expression/parenthesized-expression';
+import { AggregateFunctionCallFragment } from '../../query/ast/fragment/aggregate-function-call-fragment';
 import type { NestedExpression } from '../../query/ast/fragment/nested-expression';
 import { FromClause } from '../../query/ast/from-clause';
 import { FromTable } from '../../query/ast/from-table';
@@ -37,7 +38,7 @@ import { WhereClause } from '../../query/ast/where-clause';
 import { SqlParser } from '../../query/parser/sql-parser';
 import type { SqlNode } from '../../query/sql-node';
 import type { SqlVisitor } from '../../query/sql-visitor';
-import { bindingVariable, createIdentifier, raw } from '../ast-factory';
+import { bindingVariable, createColumnReferenceExpression, createIdentifier, raw } from '../ast-factory';
 import type { Builder } from '../builder';
 import type { GrammarInterface } from '../grammar.interface';
 import type { JoinClauseBuilder, QueryBuilder } from '../query-builder';
@@ -327,14 +328,18 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     return funcName;
   }
 
-  distinct(query: QueryBuilder, distinct: boolean | any[]): string {
-    // If the query is actually performing an aggregating select, we will let that
-    // compiler handle the building of the select clauses, as it will need some
-    // more syntax that is best handled by that function to keep things neat.
-    if (!isBlank(query._aggregate)) {
+  distinct(distinct: boolean | any[]): string {
+    if (distinct !== false) {
+      return 'DISTINCT';
+    } else {
       return '';
     }
-    if (distinct !== false) {
+  }
+
+  distinctInAggregateFunctionCall(distinct: boolean | string[]): string {
+    if (isArray(distinct)) {
+      return `DISTINCT ${this.columnize(distinct)}`;
+    } else if (distinct !== false) {
       return 'DISTINCT';
     } else {
       return '';
@@ -417,17 +422,17 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     }
 
     if (builder._aggregate && builder._unions.length === 0) {
-      selectClause = new SelectClause(
+      builder._aggregate.distinct = isArray(builder._distinct) ?
+        builder._distinct.map(it => createColumnReferenceExpression(it)) :
+        builder._distinct;
+      selectClause                = new SelectClause(
         [
           new SelectScalarExpression(
-            new FunctionCallExpression(
-              builder._aggregate.aggregateFunctionName,
-              builder._aggregate.aggregateColumns
-            ),
+            builder._aggregate,
             createIdentifier('aggregate')
           )
         ],
-        builder._distinct
+        false
       );
     } else {
       selectClause = new SelectClause(

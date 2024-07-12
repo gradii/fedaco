@@ -99,14 +99,10 @@ export class SqlserverQueryBuilderVisitor extends QueryBuilderVisitor {
       const selectExpressions = node.selectExpressions.map(expression => {
         return expression.accept(this);
       });
-      return `SELECT${node.distinct ? ` ${this._grammar.distinct(
-        this._queryBuilder,
-        node.distinct)} ` : ' '}${topSql}${selectExpressions.join(
+      return `SELECT${node.distinct ? ` ${this._grammar.distinct(node.distinct)} ` : ' '}${topSql}${selectExpressions.join(
         ', ')}`;
     } else {
-      return `SELECT${node.distinct ? ` ${this._grammar.distinct(
-        this._queryBuilder,
-        node.distinct)} ` : ' '}${topSql}*`;
+      return `SELECT${node.distinct ? ` ${this._grammar.distinct(node.distinct)} ` : ' '}${topSql}*`;
     }
   }
 

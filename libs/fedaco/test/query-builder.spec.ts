@@ -2415,6 +2415,46 @@ describe('database query builder test', () => {
     expect(results).toBe(1);
   });
 
+  it('test aggregate functions with distinct', async () => {
+    let spySelect, spyProcessSelect, results
+    builder   = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
+      {
+        'aggregate': 1
+      }
+    ]));
+
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
+      (builder, results) => {
+        return results;
+      });
+
+    results = await builder.distinct('foo').from('users').count();
+    expect(spySelect).toBeCalledWith('SELECT count(DISTINCT `foo`) AS aggregate FROM `users`', [], true);
+    expect(results).toBe(1);
+
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
+      {
+        'aggregate': 2
+      }
+    ]));
+
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
+      (builder, results) => {
+        return results;
+      });
+
+    results = await builder.distinct().from('users').count('*');
+    expect(spySelect).toBeCalledWith('SELECT count(*) AS aggregate FROM `users`', [], true);
+    expect(results).toBe(2);
+
+    results = await builder.distinct().from('users').count('bar');
+    expect(spySelect).toBeCalledWith('SELECT count(DISTINCT `bar`) AS aggregate FROM `users`', [], true);
+
+  });
+
+
+
   /*
       it('test sql server exists', () => {
         builder = getSqlServerBuilder();

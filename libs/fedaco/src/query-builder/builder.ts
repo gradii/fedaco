@@ -7,7 +7,7 @@
 import type { ColumnReferenceExpression } from '../query/ast/column-reference-expression';
 import type { RawBindingExpression } from '../query/ast/expression/raw-binding-expression';
 import type { RawExpression } from '../query/ast/expression/raw-expression';
-import type { AggregateFragment } from '../query/ast/fragment/aggregate-fragment';
+import type { AggregateFunctionCallFragment } from '../query/ast/fragment/aggregate-function-call-fragment';
 import type { JoinFragment } from '../query/ast/fragment/join-fragment';
 import type { UnionFragment } from '../query/ast/fragment/union-fragment';
 import type { FromTable } from '../query/ast/from-table';
@@ -74,7 +74,7 @@ export abstract class Builder extends mixinJoin(
     'insert'    : []
   };
   /*An aggregate function and column to be run.*/
-  _aggregate: AggregateFragment;
+  _aggregate: AggregateFunctionCallFragment;
   /*The columns that should be returned.*/
   _columns: Array<ColumnReferenceExpression | RawBindingExpression | RawExpression> = [];
   /*Indicates if the query returns distinct results.

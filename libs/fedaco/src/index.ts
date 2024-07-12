@@ -175,7 +175,7 @@ export * from './query/ast/assignment-set-clause';
 export * from './query/ast/query-expression';
 export * from './query/ast/fragment/order/reject-order-element-expression';
 export * from './query/ast/fragment/union-fragment';
-export * from './query/ast/fragment/aggregate-fragment';
+export * from './query/ast/fragment/aggregate-function-call-fragment';
 export * from './query/ast/fragment/nested-expression';
 export * from './query/ast/fragment/raw-fragment';
 export * from './query/ast/fragment/expression/nested-predicate-expression';

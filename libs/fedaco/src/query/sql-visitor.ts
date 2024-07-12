@@ -13,7 +13,7 @@ export interface SqlVisitor {
   // visit(node: SqlNode) {
   // }
 
-  visitAggregateFragment(node: SqlNode): string;
+  visitAggregateFunctionCallFragment(node: SqlNode): string;
 
   visitAsExpression(node: SqlNode): string;
 

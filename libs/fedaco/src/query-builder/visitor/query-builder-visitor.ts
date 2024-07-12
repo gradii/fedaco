@@ -31,7 +31,7 @@ import type { ParenthesizedExpression } from '../../query/ast/expression/parenth
 import type { RawBindingExpression } from '../../query/ast/expression/raw-binding-expression';
 import { RawExpression } from '../../query/ast/expression/raw-expression';
 import type { StringLiteralExpression } from '../../query/ast/expression/string-literal-expression';
-import type { AggregateFragment } from '../../query/ast/fragment/aggregate-fragment';
+import type { AggregateFunctionCallFragment } from '../../query/ast/fragment/aggregate-function-call-fragment';
 import type {
   NestedPredicateExpression
 } from '../../query/ast/fragment/expression/nested-predicate-expression';
@@ -101,13 +101,20 @@ export class QueryBuilderVisitor implements SqlVisitor {
     return 'hello';
   }
 
-  visitAggregateFragment(node: AggregateFragment): string {
-    throw new Error('not implement yet');
-    // todo
-    // return this._grammar.compileAggregateFragment(
-    //   node.aggregateFunctionName,
-    //   node.aggregateColumns
-    // );
+  visitAggregateFunctionCallFragment(node: AggregateFunctionCallFragment): string {
+    let funcName = node.aggregateFunctionName.accept(this);
+    funcName     = this._grammar.compilePredicateFuncName(funcName);
+    let columns;
+    if (isArray(node.distinct)) {
+      const list = node.distinct.map((it: SqlNode) => it.accept(this) as unknown as string);
+      columns    = this._grammar.distinctInAggregateFunctionCall(list);
+    } else {
+      columns = node.aggregateColumns.map(it => it.accept(this)).join(', ');
+      if (node.distinct === true && columns !== '*') {
+        columns = 'DISTINCT ' + columns;
+      }
+    }
+    return `${funcName}(${columns})`;
   }
 
   visitAsExpression(node: AsExpression): string {
@@ -586,9 +593,9 @@ export class QueryBuilderVisitor implements SqlVisitor {
         return expression.accept(this);
       });
       return `SELECT${node.distinct ? ` ${
-        this._grammar.distinct(this._queryBuilder, node.distinct)} ` : ' '}${selectExpressions.join(', ')}`;
+        this._grammar.distinct(node.distinct)} ` : ' '}${selectExpressions.join(', ')}`;
     } else {
-      return `SELECT${node.distinct ? ` ${this._grammar.distinct(this._queryBuilder, node.distinct)} ` : ' '}*`;
+      return `SELECT${node.distinct ? ` ${this._grammar.distinct(node.distinct)} ` : ' '}*`;
     }
   }
 

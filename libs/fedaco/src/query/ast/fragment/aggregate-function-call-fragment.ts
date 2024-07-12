@@ -9,15 +9,16 @@ import type { SqlVisitor } from '../../sql-visitor';
 import type { Identifier } from '../identifier';
 
 
-export class AggregateFragment extends SqlNode {
+export class AggregateFunctionCallFragment extends SqlNode {
   constructor(
     public aggregateFunctionName: Identifier,
-    public aggregateColumns: SqlNode[]
+    public aggregateColumns: SqlNode[],
+    public distinct: SqlNode[] | boolean = false
   ) {
     super();
   }
 
   public accept(visitor: SqlVisitor) {
-    return visitor.visitAggregateFragment(this);
+    return visitor.visitAggregateFunctionCallFragment(this);
   }
 }

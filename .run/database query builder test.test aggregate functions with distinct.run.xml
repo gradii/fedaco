@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="database query builder test.test aggregate functions with distinct" type="JavaScriptTestRunnerJest" nameIsGenerated="true">
+    <node-interpreter value="project" />
+    <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+    <working-dir value="$PROJECT_DIR$" />
+    <jest-options value="--config libs/fedaco/jest.config.ts" />
+    <envs />
+    <scope-kind value="TEST" />
+    <test-file value="$PROJECT_DIR$/libs/fedaco/test/query-builder.spec.ts" />
+    <test-names>
+      <test-name value="database query builder test" />
+      <test-name value="test aggregate functions with distinct" />
+    </test-names>
+    <method v="2" />
+  </configuration>
+</component>

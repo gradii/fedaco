@@ -7,7 +7,7 @@
 import { isObject } from '@gradii/nanofn';
 import type { Constructor } from '../../helper/constructor';
 import { ColumnReferenceExpression } from '../../query/ast/column-reference-expression';
-import { AggregateFragment } from '../../query/ast/fragment/aggregate-fragment';
+import { AggregateFunctionCallFragment } from '../../query/ast/fragment/aggregate-function-call-fragment';
 import { PathExpression } from '../../query/ast/path-expression';
 import { SqlParser } from '../../query/parser/sql-parser';
 import { createColumnReferenceExpression, createIdentifier, rawSqlBindings } from '../ast-factory';
@@ -42,7 +42,7 @@ export function mixinAggregate<T extends Constructor<any>>(base: T): QueryBuilde
     /*Set the aggregate property without running the query.*/
     _setAggregate(this: QueryBuilder & _Self, func: string,
                   columns: Array<string | ColumnReferenceExpression>) {
-      this._aggregate = new AggregateFragment(
+      this._aggregate = new AggregateFunctionCallFragment(
         createIdentifier(func),
         columns.map(it => createColumnReferenceExpression(it))
       );

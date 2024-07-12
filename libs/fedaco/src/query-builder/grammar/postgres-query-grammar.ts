@@ -71,14 +71,10 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
   }
 
 
-  distinct(query: QueryBuilder, distinct: boolean | any[]): string {
-    if (! isBlank(query._aggregate)) {
-      return '';
-    }
-
-    if(isArray(distinct)) {
-      return `DISTINCT ON (${this.columnize(distinct)})`
-    }else if (distinct === true) {
+  distinct(distinct: boolean | any[]): string {
+    if (isArray(distinct)) {
+      return `DISTINCT ON (${this.columnize(distinct)})`;
+    } else if (distinct === true) {
       return 'DISTINCT';
     } else {
       return '';

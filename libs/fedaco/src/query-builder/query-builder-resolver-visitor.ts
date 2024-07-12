@@ -50,7 +50,7 @@ export class QueryBuilderResolverVisitor implements SqlVisitor {
     throw new Error('Method not implemented.');
   }
 
-  visitAggregateFragment(node: SqlNode): string {
+  visitAggregateFunctionCallFragment(node: SqlNode): string {
     throw new Error('Method not implemented.');
   }
 

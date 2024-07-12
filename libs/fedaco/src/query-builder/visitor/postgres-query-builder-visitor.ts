@@ -6,9 +6,7 @@
 
 import { isString } from '@gradii/nanofn';
 import type { ColumnReferenceExpression } from '../../query/ast/column-reference-expression';
-import type {
-  ComparisonPredicateExpression
-} from '../../query/ast/expression/comparison-predicate-expression';
+import type { ComparisonPredicateExpression } from '../../query/ast/expression/comparison-predicate-expression';
 import type { FunctionCallExpression } from '../../query/ast/expression/function-call-expression';
 import type { JsonPathExpression } from '../../query/ast/json-path-expression';
 import type { LockClause } from '../../query/ast/lock-clause';

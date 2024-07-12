@@ -5,8 +5,8 @@
     <working-dir value="$PROJECT_DIR$/" />
     <jest-options value="--config libs/fedaco/jest.config.ts" />
     <envs>
-      <env name="DB_USER" value="admin" />
-      <env name="DB_PASSWORD" value="admin" />
+      <env name="DB_PASSWORD" value="root" />
+      <env name="DB_USER" value="123456" />
     </envs>
     <scope-kind value="ALL" />
     <method v="2" />

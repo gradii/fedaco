@@ -54,10 +54,7 @@ export class SqliteQueryGrammar extends QueryGrammar implements GrammarInterface
     return ast.accept(visitor);
   }
 
-  distinct(query: QueryBuilder, distinct: boolean | any[]): string {
-    if (! isBlank(query._aggregate)) {
-      return '';
-    }
+  distinct(distinct: boolean | any[]): string {
     if (distinct !== false) {
       return 'DISTINCT';
     } else {

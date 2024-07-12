@@ -38,7 +38,9 @@ export interface GrammarInterface<T extends Builder = Builder> {
 
   compilePredicateFuncName(funcName: string): string;
 
-  distinct(builder: T, distinct: boolean | any[]): string;
+  distinct(distinct: boolean | any[]): string;
+
+  distinctInAggregateFunctionCall(distinct: boolean | string[]): string;
 
   getOperators(): string[];
 
