@@ -18,19 +18,17 @@ import { SqliteSchemaState } from '../schema/sqlite-schema-state';
 export class SqliteConnection extends Connection {
   /*Create a new database connection instance.*/
   public constructor(pdo: any,
-                     database: string    = '',
-                     tablePrefix: string = '',
-                     config: any         = {}) {
+                     database    = '',
+                     tablePrefix = '',
+                     config: any = {}) {
     super(pdo, database, tablePrefix, config);
     const enableForeignKeyConstraints = this.getForeignKeyConstraintsConfigurationValue();
-    setTimeout(() => {
-        if (!isBlank(enableForeignKeyConstraints)) {
-          enableForeignKeyConstraints ?
-            this.getSchemaBuilder().enableForeignKeyConstraints() :
-            this.getSchemaBuilder().disableForeignKeyConstraints();
-        }
-      }, 1000
-    );
+
+    if (!isBlank(enableForeignKeyConstraints)) {
+      enableForeignKeyConstraints ?
+        this.getSchemaBuilder().enableForeignKeyConstraints() :
+        this.getSchemaBuilder().disableForeignKeyConstraints();
+    }
   }
 
   protected escapeBinary(value: string) {
