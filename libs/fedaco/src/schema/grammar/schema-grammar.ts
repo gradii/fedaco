@@ -67,8 +67,8 @@ export class SchemaGrammar extends BaseGrammar {
   public compileRenameColumn(blueprint: Blueprint, command: ColumnDefinition,
                              connection: Connection): Promise<string> | string {
     return `alter table ${
-      this.wrapTable(blueprint)}
-      rename column ${
+      this.wrapTable(blueprint)
+    } rename column ${
         this.wrap(command.from)} to ${this.wrap(command.to)}`;
   }
 

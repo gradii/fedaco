@@ -681,6 +681,10 @@ export class Connection extends mixinManagesTransactions(class {
     return grammar;
   }
 
+  public async getServerVersion(): Promise<string> {
+    return await (await this.getPdo()).execute('select version() as version')
+  }
+
   causedByConcurrencyError(e: Error) {
     console.warn(`catch an error check whether is concurrency error.
     if it's raised in transaction you can report this error ${e.message} to make this function more better.`);

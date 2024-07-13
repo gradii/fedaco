@@ -6,6 +6,7 @@
 
 import { isBlank, isString } from '@gradii/nanofn';
 import type { Connection } from '../../connection';
+import { raw } from '../../query-builder/ast-factory';
 import type { Blueprint } from '../blueprint';
 import type { ColumnDefinition } from '../column-definition';
 import type { ForeignKeyDefinition } from '../foreign-key-definition';
@@ -442,7 +443,7 @@ export class PostgresSchemaGrammar extends SchemaGrammar {
     return `comment on table ${
       this.wrapTable(blueprint)
     } is ${
-      `'${command.comment(/'/g, '\'\'',)}'`
+      `'${command.comment.replace(/'+/g, '\'\'',)}'`
     }`;
   }
 
@@ -604,11 +605,11 @@ export class PostgresSchemaGrammar extends SchemaGrammar {
 
   /*Create the column definition for a timestamp type.*/
   protected typeTimestamp(column: ColumnDefinition) {
-    const columnType = `timestamp${
-      isBlank(column.precision) ?
-        '' : `(${column.precision})`
-    } without time zone`;
-    return column.useCurrent ? '"ColumnType default CURRENT_TIMESTAMP" ' : columnType;
+    if (column.useCurrent) {
+      column.withDefault(raw('CURRENT_TIMESTAMP'));
+    }
+
+    return 'timestamp' + (isBlank(column.precision) ? '' : `(${column.precision})`) + ' without time zone';
   }
 
   /*Create the column definition for a timestamp (with time zone) type.*/

@@ -37,7 +37,7 @@ export class Blueprint {
   public _after: string;
 
   /*Create a new schema blueprint.*/
-  public constructor(table: string, callback: Function | null = null, prefix: string = '') {
+  public constructor(table: string, callback: (blueprint: Blueprint) => void | null = null, prefix: string = '') {
     this.table  = table;
     this.prefix = prefix;
     if (!isBlank(callback)) {
@@ -691,6 +691,14 @@ export class Blueprint {
     columns = wrap(columns);
     index   = index || this.createIndexName(type, columns);
     return this.addCommand(type, {index, columns, algorithm});
+  }
+
+  /**
+   * Add a comment to the table.
+   *
+   */
+  public comment(comment: string) {
+    return this.addCommand('tableComment', {comment});
   }
 
   /*Create a new drop index command on the blueprint.*/

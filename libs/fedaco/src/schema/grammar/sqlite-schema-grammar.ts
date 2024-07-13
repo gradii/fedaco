@@ -316,7 +316,7 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
                            connection: Connection) {
     const table   = this.wrapTable(blueprint);
     const columns = this.prefixArray('drop column', this.wrapArray(command.columns));
-    return columns.map(it => `alter table ${table}${it}`);
+    return columns.map(it => `alter table ${table} ${it}`);
   }
 
   /*Compile a drop unique key command.*/

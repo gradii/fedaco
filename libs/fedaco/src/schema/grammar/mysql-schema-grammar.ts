@@ -438,7 +438,7 @@ protected async compileLegacyRenameColumn(blueprint: Blueprint, command: ColumnD
     return `alter table ${
       this.wrapTable(blueprint)
     } comment = ${
-      `'${command.comment.replace(/'/g, '\'\'')}'`
+      `'${command.comment.replace(/'+/g, '\'\'')}'`
     }`;
   }
 

@@ -26,7 +26,8 @@
           }
         ],
         "@typescript-eslint/consistent-type-imports": ["warn", {}],
-        "@typescript-eslint/no-unsafe-declaration-merging": ["off"]
+        "@typescript-eslint/no-unsafe-declaration-merging": ["off"],
+        "@typescript-eslint/no-empty-function": ["off"]
       }
     },
     {
