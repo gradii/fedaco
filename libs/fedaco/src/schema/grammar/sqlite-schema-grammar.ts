@@ -256,7 +256,7 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
     );
     sqls.push(...indexes);
     if (foreignKeyConstraintsEnabled) {
-      sqls.push(this.compileDisableForeignKeyConstraints());
+      sqls.push(this.compileEnableForeignKeyConstraints());
     }
     return sqls;
   }
