@@ -17,7 +17,8 @@ export default defineConfig({
       {text: 'Guide', link: '/guide/getting-started'},
       {text: 'Database', link: '/database/getting-started'},
       {text: 'Relationships', link: '/relationships/defining-relationships/relation-one-to-one'},
-      {text: 'Model Functions', link: '/model-functions/attach'}
+      {text: 'Model Functions', link: '/model-functions/attach'},
+      {text: 'Examples', link: 'https://github.com/gradii/fedaco-examples'}
     ],
 
     sidebar: {
