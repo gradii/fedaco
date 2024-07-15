@@ -11,6 +11,10 @@ export default defineConfig({
   ignoreDeadLinks: true,
   base: '/fedaco/',
   themeConfig: {
+    footer: {
+      message: 'Released under the MIT License.',
+      copyright: 'Copyright © 2021-2024 Gradii.'
+    },
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       {text: 'Home', link: '/'},
