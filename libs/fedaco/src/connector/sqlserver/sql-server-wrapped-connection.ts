@@ -5,7 +5,6 @@
  */
 
 import type { Connection } from 'tedious';
-import { Request } from 'tedious';
 import type { WrappedConnection } from '../wrapped-connection';
 import { SqlServerWrappedStmt } from './sql-server-wrapped-stmt';
 
@@ -16,17 +15,18 @@ export class SqlServerWrappedConnection implements WrappedConnection {
 
   async execute(sql: string, bindings?: any[]): Promise<void> {
     let count = 0;
-    sql.replace(/\?/g, ()=>`@val${++count}`)
+    sql.replace(/\?/g, () => `@val${++count}`);
+    const {Request} = await import('tedious');
     return new Promise((ok, fail) => {
       this.driver.execute(new Request(sql, err => {
         if (err) {
           fail(err);
-        }else{
-          ok()
+        } else {
+          ok();
         }
-      }), (bindings ? bindings : []).reduce((prev,curr,index)=>{
-        prev[`val${index + 1}`] = curr
-      }, {}))
+      }), (bindings ? bindings : []).reduce((prev, curr, index) => {
+        prev[`val${index + 1}`] = curr;
+      }, {}));
     });
   }
 
@@ -36,7 +36,7 @@ export class SqlServerWrappedConnection implements WrappedConnection {
 
   async lastInsertId(): Promise<number> {
     const result: any = this.execute('SELECT CAST(COALESCE(SCOPE_IDENTITY(), @@IDENTITY) AS int) AS insertid');
-    if (! result) {
+    if (!result) {
       throw new Error('Unable to retrieve lastInsertID.');
     }
     return result && result[0]['last_insert_rowid()'];

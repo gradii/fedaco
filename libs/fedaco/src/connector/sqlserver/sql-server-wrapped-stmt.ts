@@ -5,7 +5,6 @@
  */
 
 import type { Connection, } from 'tedious';
-import { Request } from 'tedious';
 import type { WrappedStmt } from '../wrapped-stmt';
 
 export class SqlServerWrappedStmt implements WrappedStmt {
@@ -25,7 +24,8 @@ export class SqlServerWrappedStmt implements WrappedStmt {
   }
 
   async execute(bindings?: any[]): Promise<any[]> {
-    bindings = bindings || this._bindingValues || [];
+    bindings        = bindings || this._bindingValues || [];
+    const {Request} = await import('tedious');
     return new Promise((ok, fail) => {
       const request     = new Request(this.sql, err => {
         if (err) {
