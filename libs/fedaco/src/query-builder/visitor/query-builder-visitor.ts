@@ -394,9 +394,14 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
     let sql;
     if (node.expression instanceof QueryBuilder) {
+      //must reset binding because
+      node.expression.resetBindings();
+
       sql = `(${this._grammar.compileSelect(node.expression)})`;
 
-      this._queryBuilder.addBinding(node.expression.getBindings(), node.type);
+      const bindings = node.expression.getBindings();
+      this._queryBuilder.addBinding(bindings, node.type);
+
     } else if (node.expression instanceof RawExpression) {
       // todo check raw binding. should put it in node type
       sql = `(${node.expression.accept(this)})`;

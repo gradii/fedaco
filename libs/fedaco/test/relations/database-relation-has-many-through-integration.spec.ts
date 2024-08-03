@@ -241,6 +241,16 @@ describe('test database fedaco has many through integration', () => {
     expect(country).toHaveLength(1);
   });
 
+  it('where has on a relation with custom intermediate with pagination', async () => {
+    await seedData();
+    const country = await HasManyThroughIntermediateTestCountry.createQuery()
+      .whereHas('posts', query => {
+        query.where('title', 'A title');
+      })
+      .paginate(1, 10);
+    expect(country.items).toHaveLength(1);
+  });
+
   it('find method', async () => {
     const country = await HasManyThroughTestCountry.createQuery().create({
       'id'       : 1,
