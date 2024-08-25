@@ -52,7 +52,7 @@ const PrimitiveCastTypes: string[] = [
   'immutable_custom_datetime', 'int', 'integer', 'json', 'object', 'real', 'string', 'timestamp'
 ];
 
-// tslint:disable-next-line:no-namespace
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export declare namespace HasAttributes {
   export const snakeAttributes: boolean;
   export const encrypter: Encrypter;
@@ -1068,7 +1068,7 @@ export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttri
               casts[key] = 'object';
               break;
             case   TextColumn.isTypeOf(columnMeta):
-              casts[key] = 'text';
+              casts[key] = 'string';
               break;
             case   TimestampColumn.isTypeOf(columnMeta):
               casts[key] = 'timestamp';
