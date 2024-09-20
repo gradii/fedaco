@@ -2871,10 +2871,10 @@
   dependencies:
     tslib "^2.3.0"
 
-"@gradii/nanofn@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.npmmirror.com/@gradii/nanofn/-/nanofn-2.0.2.tgz#cd7131e5aec323ece298274a1697784ea56c946a"
-  integrity sha512-h3bxsYOGVRE2FSHQCIGOoYHU1jUtOtQIa/xxKZUR+L2yR0c7lzcdN5Nc1tDQnZOiQMJFKY1q1SNZuscMRu6i1Q==
+"@gradii/nanofn@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.npmmirror.com/@gradii/nanofn/-/nanofn-2.0.3.tgz#eceb2e580348b785da9555e69cc538c63f22f00f"
+  integrity sha512-R9rEtAqJu7BHSQ91mHZvfRGCGVsCo4ntWbAkyYPAsm6vkRHx6FclkYYdmWOPPAS0h8M1FvdDyWy7WVOISFxhhA==
 
 "@humanwhocodes/config-array@^0.11.14":
   version "0.11.14"
