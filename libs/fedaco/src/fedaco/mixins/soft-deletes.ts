@@ -15,7 +15,7 @@ export interface SoftDeletes {
   InitializeSoftDeletes(this: Model & this): void;
 
   /*Force a hard delete on a soft deleted model.*/
-  ForceDelete(this: Model & this): boolean;
+  ForceDelete(this: Model & this): Promise<boolean>;
 
   /*Perform the actual delete query on this model instance.*/
   _performDeleteOnModel(this: Model & this): void;
