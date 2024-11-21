@@ -139,7 +139,8 @@ export class QueryBuilder extends Builder {
   /*Creates a subquery and parse it.*/
   _createSubQuery(type: 'select' | string, query: Function | QueryBuilder | string) {
     if (isFunction(query)) {
-      query(query = this._forSubQuery());
+      const callback = query
+      callback(query = this._forSubQuery());
     }
     return this._parseSub(type, query);
   }
