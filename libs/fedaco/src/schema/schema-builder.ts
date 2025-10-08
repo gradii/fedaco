@@ -249,23 +249,23 @@ export class SchemaBuilder {
   }
 
   /*Drop all tables from the database.*/
-  public dropAllTables() {
+  public dropAllTables(): Promise<void> {
     throw new Error('LogicException This database driver does not support dropping all tables.');
   }
 
   /*Drop all views from the database.*/
-  public dropAllViews() {
+  public dropAllViews(): Promise<void> {
     throw new Error('LogicException This database driver does not support dropping all views.');
   }
 
   /*Drop all types from the database.*/
-  public dropAllTypes() {
+  public dropAllTypes(): Promise<void> {
     throw new Error('LogicException This database driver does not support dropping all types.');
   }
 
   /*Rename a table on the schema.*/
-  public rename(from: string, to: string) {
-    this.build(
+  public async rename(from: string, to: string): Promise<void> {
+    await this.build(
       tap((blueprint: Blueprint) => {
         blueprint.rename(to);
       }, this.createBlueprint(from))
