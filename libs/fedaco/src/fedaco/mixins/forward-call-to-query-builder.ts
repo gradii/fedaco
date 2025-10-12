@@ -16,13 +16,15 @@ import type { QueryBuilderOrderBy } from '../../query-builder/mixins/order-by';
 import type { QueryBuilderUnion } from '../../query-builder/mixins/union';
 import type { QueryBuilderWhereCommon } from '../../query-builder/mixins/where-common';
 import type { QueryBuilderWhereDate } from '../../query-builder/mixins/where-date';
+import type { QueryBuilderWhereJson } from '../../query-builder/mixins/where-json';
 import type { QueryBuilderWherePredicate } from '../../query-builder/mixins/where-predicate';
 import type { JoinClauseBuilder, QueryBuilder } from '../../query-builder/query-builder';
 import type { FedacoBuilder } from '../fedaco-builder';
 
 export interface ForwardCallToQueryBuilder extends Omit<QueryBuilderJoin, 'joinSub'>, QueryBuilderOrderBy,
   QueryBuilderGroupBy, QueryBuilderHaving, QueryBuilderLimitOffset, QueryBuilderUnion,
-  QueryBuilderWhereDate, QueryBuilderAggregate, QueryBuilderWherePredicate, QueryBuilderWhereCommon,
+  QueryBuilderWhereDate, QueryBuilderWhereJson, QueryBuilderAggregate, QueryBuilderWherePredicate,
+  QueryBuilderWhereCommon,
   Constructor<Omit<BuildQueries, 'first'>>,
   Pick<QueryBuilder, 'beforeQuery' | 'find' | 'applyBeforeQueryCallbacks'> {
   pluck(...args: any[]): Promise<any[] | Record<string, any>>;
@@ -472,6 +474,30 @@ export function mixinForwardCallToQueryBuilder<T extends Constructor<any>>(base:
 
     whereYear(...args: any[]) {
       return this.#forwardCallToQueryBuilder('whereYear', args);
+    }
+
+    whereJsonContains(...args: any[]) {
+      return this.#forwardCallToQueryBuilder('whereJsonContains', args);
+    }
+
+    orWhereJsonContains(...args: any[]) {
+      return this.#forwardCallToQueryBuilder('orWhereJsonContains', args);
+    }
+
+    whereJsonDoesntContain(...args: any[]) {
+      return this.#forwardCallToQueryBuilder('whereJsonDoesntContain', args);
+    }
+
+    orWhereJsonDoesntContain(...args: any[]) {
+      return this.#forwardCallToQueryBuilder('orWhereJsonDoesntContain', args);
+    }
+
+    whereJsonLength(...args: any[]) {
+      return this.#forwardCallToQueryBuilder('whereJsonLength', args);
+    }
+
+    orWhereJsonLength(...args: any[]) {
+      return this.#forwardCallToQueryBuilder('orWhereJsonLength', args);
     }
 
     aggregate(...args: any[]) {
