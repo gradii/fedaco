@@ -299,6 +299,16 @@ describe('test database fedaco model', () => {
     expect(model.IsDirty('collectionAttribute')).toBeFalsy();
   });
 
+  it('test timestamp fill', () => {
+    const model = new FedacoModelCastingStub();
+    model.Fill({
+      timestampAttribute: new Date()
+    });
+
+    expect(typeof model._attributes['timestampAttribute']).toBe('string');
+
+  });
+
   it('clean attributes', () => {
     const model = FedacoModelStub.initAttributes({
       'foo': '1',
@@ -2626,7 +2636,7 @@ describe('test database fedaco model', () => {
 //
 
 @Table({
-  tableName: 'stub',
+  tableName    : 'stub',
   noPluralTable: true
 })
 export class FedacoModelStub extends Model {
@@ -2940,6 +2950,23 @@ export class FedacoModelAppendsStub extends Model {
 // }
 //
 export class FedacoModelCastingStub extends Model {
+  _dateFormat = 'yyyy-MM-dd HH:mm:ss';
+
+  _fillable = [
+    'intAttribute',
+    'floatAttribute',
+    'stringAttribute',
+    'boolAttribute',
+    'booleanAttribute',
+    'objectAttribute',
+    'arrayAttribute',
+    'jsonAttribute',
+    'collectionAttribute',
+    'dateAttribute',
+    'datetimeAttribute',
+    'timestampAttribute',
+  ];
+
   // _casts: any = {
   //   'intAttribute'       : 'int',
   //   'floatAttribute'     : 'float',
@@ -3047,7 +3074,7 @@ export class FedacoModelWithoutTimestamps extends Model {
   tableName: 'stub'
 })
 export class FedacoModelWithUpdatedAtNull extends Model {
-  _table: any       = 'stub';
+  _table: any = 'stub';
 }
 
 export class UnsavedModel extends Model {
