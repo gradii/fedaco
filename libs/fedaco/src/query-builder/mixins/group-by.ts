@@ -20,7 +20,7 @@ export interface QueryBuilderGroupBy {
 
   groupBy(...args: string[]): this;
 
-  groupByRaw(sql: string | RawExpression, bindings: any[]): this;
+  groupByRaw(sql: string | RawExpression, bindings?: any[]): this;
 }
 
 export type QueryBuilderGroupByCtor = Constructor<QueryBuilderGroupBy>;

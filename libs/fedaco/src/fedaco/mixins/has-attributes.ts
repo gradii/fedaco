@@ -836,6 +836,7 @@ export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttri
 
       return DateColumn.isTypeOf(a) ||
         DatetimeColumn.isTypeOf(a) ||
+        TimestampColumn.isTypeOf(a) ||
         this.IsDateCastable(key);
       // return in_array(key, this.getDates(), true) || this.isDateCastable(key);
     }

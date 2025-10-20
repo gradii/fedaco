@@ -4735,6 +4735,12 @@ describe('database query builder test', () => {
 
   });
 
+  it('test group by raw', ()=>{
+    builder = getBuilder();
+    const sql = builder.from('users').selectRaw('COUNT(*) as count').toSql();
+    expect(sql).toEqual('SELECT COUNT(*) as count FROM `users`')
+  })
+
   // it('test from raw', () => {
   //   builder = getBuilder();
   //   builder.fromRaw(
