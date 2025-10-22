@@ -967,7 +967,7 @@ export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttri
 
     /*Determine if the given value is a standard date format.*/
     protected IsStandardDateFormat(value: string): boolean {
-      return Boolean(/^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(value));
+      return /^(\d{4})-(\d{1,2})-(\d{1,2})$/.test(value);
     }
 
     /*Convert a DateTime to a storable string.*/
