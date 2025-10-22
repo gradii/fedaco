@@ -1,3 +1,4 @@
+import { PrimaryGeneratedColumn } from '@gradii/fedaco';
 import { isFunction } from '@gradii/nanofn';
 import { format } from 'date-fns';
 import { Table } from '../src/annotation/table/table';
@@ -14,9 +15,7 @@ import { SqliteQueryGrammar } from '../src/query-builder/grammar/sqlite-query-gr
 import { Processor } from '../src/query-builder/processor';
 import { QueryBuilder } from '../src/query-builder/query-builder';
 import { SchemaBuilder } from '../src/schema/schema-builder';
-import {
-  FedacoBuilderTestHigherOrderWhereScopeStub
-} from './model/fedaco-builder-test-higher-order-where-scope-stub';
+import { FedacoBuilderTestHigherOrderWhereScopeStub } from './model/fedaco-builder-test-higher-order-where-scope-stub';
 import { FedacoBuilderTestNestedStub } from './model/fedaco-builder-test-nested-stub';
 import { FedacoBuilderTestScopeStub } from './model/fedaco-builder-test-scope-stub';
 import { StubModel } from './model/stub-model';
@@ -1190,6 +1189,13 @@ describe('fedaco builder', () => {
     expect(spy1).toBeCalledWith(keyName, '=', int, 'and');
   });
 
+  it('test where key for primary generate key', () => {
+    const model = new FedacoBuilderWhereKey();
+
+    const primaryKey = model.GetQualifiedKeyName();
+    expect(primaryKey).toBe('test_where_key.uuid');
+  });
+
   it('where key method with array', () => {
     let spy1, result;
     builder = getBuilder();
@@ -1374,9 +1380,9 @@ describe('fedaco builder', () => {
     mockConnectionForModel(FedacoBuilderTestStub, '');
     builder.setModel(model);
 
-    spy1      = jest.spyOn(builder.getConnection(), 'update').mockReturnValue(1);
+    spy1   = jest.spyOn(builder.getConnection(), 'update').mockReturnValue(1);
     //     builder.getConnection().shouldReceive("update").once()._with("update \"table\" set \"foo\" = ?, \"table\".\"updated_at\" = ?", ["bar", now]).andReturn(1)
-    result    = await builder.update({
+    result = await builder.update({
       'foo': 'bar'
     });
 
@@ -1468,16 +1474,26 @@ describe('fedaco builder', () => {
 
 
 @Table({
-  tableName: 'test_table',
+  tableName    : 'test_table',
   noPluralTable: false
 })
 class FedacoBuilderTestStub extends Model {
 }
 
 @Table({
-  tableName: 'test_table',
+  tableName    : 'test_table',
   noPluralTable: false
 })
 class FedacoBuilderTestStubWithoutTimestamp extends Model {
   static UPDATED_AT: string = null;
+}
+
+@Table({
+  tableName: 'test_where_key'
+})
+class FedacoBuilderWhereKey extends Model {
+  @PrimaryGeneratedColumn({
+    keyType: 'string'
+  })
+  uuid: string;
 }
