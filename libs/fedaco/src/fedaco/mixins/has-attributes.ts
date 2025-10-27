@@ -5,9 +5,7 @@
  */
 
 import { reflector } from '@gradii/annotation';
-import {
-  isArray, isBlank, isFunction, isNumber, isObjectEmpty, isString
-} from '@gradii/nanofn';
+import { isArray, isBlank, isFunction, isNumber, isObjectEmpty, isString, snakeCase } from '@gradii/nanofn';
 import { format, formatISO, getUnixTime, isValid, parse, startOfDay } from 'date-fns';
 import { equals, findLast, omit, pick, tap, uniq } from 'ramda';
 import type { FedacoDecorator } from '../../annotation/annotation.interface';
@@ -35,7 +33,6 @@ import { Scope } from '../../annotation/scope';
 import { wrap } from '../../helper/arr';
 import type { Constructor } from '../../helper/constructor';
 import { get, set } from '../../helper/obj';
-import { snakeCase } from '@gradii/nanofn';
 import { BaseModel } from '../base-model';
 import type { Encrypter } from '../encrypter';
 import { Crypt } from '../encrypter';
@@ -1051,7 +1048,7 @@ export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttri
               casts[key] = 'datetime';
               break;
             case   DecimalColumn.isTypeOf(columnMeta):
-              casts[key] = 'decimal';
+              casts[key] = `decimal:${columnMeta.precision ?? 2}`;
               break;
             case   FloatColumn.isTypeOf(columnMeta):
               casts[key] = 'float';
@@ -1108,7 +1105,7 @@ export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttri
         return false;
       }
 
-      const castType = this.GetCasts()[key];
+      const castType = this.GetCastType(key);
       if (isString(castType) && PrimitiveCastTypes.includes(castType)) {
         return false;
       }

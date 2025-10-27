@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function,@typescript-eslint/ban-ts-comment,no-empty */
+import { DecimalColumn } from '@gradii/fedaco';
 import { isAnyEmpty, isBlank, isObject, isString } from '@gradii/nanofn';
 import { createHash } from 'crypto';
 import { format } from 'date-fns';
@@ -258,6 +259,20 @@ describe('test database fedaco model', () => {
     });
     expect(model.IsDirty('floatAttribute')).toBeTruthy();
   });
+
+  it('decimal column metadata', ()=>{
+    const model          = new FedacoModelCastingStub();
+    const spy = jest.spyOn(model, 'AsDecimal');
+    model.defaultDecimal = 10.22;
+    const defaultDecimal = model.defaultDecimal;
+    expect(defaultDecimal).toBe('10.22')
+    expect(spy).toBeCalledWith(10.22, 2);
+
+    model.precisionDecimal = 10.1111;
+    const precisionDecimal = model.precisionDecimal;
+    expect(precisionDecimal).toBe('10.1111')
+    expect(spy).toBeCalledWith(10.1111, 4);
+  })
 
   it('dirty on cast or date attributes', () => {
     const model = new FedacoModelCastingStub();
@@ -2997,6 +3012,9 @@ export class FedacoModelCastingStub extends Model {
   @DateColumn() dateAttribute: Date;
   @DatetimeColumn() datetimeAttribute: Date;
   @TimestampColumn() timestampAttribute: Date;
+
+  @DecimalColumn() defaultDecimal: number;
+  @DecimalColumn({precision: 4}) precisionDecimal: number;
 
   public jsonAttributeValue() {
     return this.attributes['jsonAttribute'];
