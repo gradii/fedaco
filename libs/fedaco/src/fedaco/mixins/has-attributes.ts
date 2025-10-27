@@ -7,6 +7,7 @@
 import { reflector } from '@gradii/annotation';
 import { isArray, isBlank, isFunction, isNumber, isObjectEmpty, isString, snakeCase } from '@gradii/nanofn';
 import { format, formatISO, getUnixTime, isValid, parse, startOfDay } from 'date-fns';
+import Decimal from 'decimal.js';
 import { equals, findLast, omit, pick, tap, uniq } from 'ramda';
 import type { FedacoDecorator } from '../../annotation/annotation.interface';
 import type { ColumnAnnotation } from '../../annotation/column';
@@ -930,8 +931,14 @@ export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttri
     }
 
     /*Return a decimal as string.*/
-    protected AsDecimal(value: number, decimals: number): string {
-      return value.toFixed(decimals);
+    protected AsDecimal(value: string | number, decimals: number): string {
+      try {
+        // 使用 Decimal 进行高精度计算
+        const result = new Decimal(value).toDecimalPlaces(decimals, Decimal.ROUND_HALF_UP);
+        return result.toString();
+      } catch (error) {
+        throw new Error(`Unable to cast value to a decimal. ${error}`);
+      }
     }
 
     /*Return a timestamp as DateTime object with time set to 00:00:00.*/
