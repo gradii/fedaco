@@ -284,7 +284,7 @@ export function mixinForwardCallToQueryBuilder<T extends Constructor<any>>(base:
 
     toSql(...args: any[]) {
       const _query = this.toBase();
-      const result = _query.toSql.apply(_query, args);
+      const result = _query.toSql(...args);
       return {result, bindings: _query.getBindings()};
     }
 

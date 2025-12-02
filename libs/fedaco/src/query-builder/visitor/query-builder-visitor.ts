@@ -422,7 +422,7 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
     } else if(node.expression instanceof FedacoBuilder) {
       const {result, bindings} = node.expression.toSql(this.ctx);
-      sql = result;
+      sql = `(${result})`;
       this._queryBuilder.addBinding(bindings, node.type);
 
     } else if (node.expression instanceof RawExpression) {
