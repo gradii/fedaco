@@ -19,13 +19,13 @@ export class MysqlQueryGrammar extends QueryGrammar implements GrammarInterface<
   }
 
   protected _createVisitor(queryBuilder: QueryBuilder) {
-    return new MysqlQueryBuilderVisitor(queryBuilder._grammar, queryBuilder);
+    return new MysqlQueryBuilderVisitor(queryBuilder._grammar, queryBuilder, this.ctx);
   }
 
   compileSelect(builder: QueryBuilder): string {
     const ast = this._prepareSelectAst(builder);
 
-    const visitor = new MysqlQueryBuilderVisitor(builder._grammar, builder);
+    const visitor = new MysqlQueryBuilderVisitor(builder._grammar, builder, this.ctx);
 
     return ast.accept(visitor);
   }
@@ -33,7 +33,7 @@ export class MysqlQueryGrammar extends QueryGrammar implements GrammarInterface<
   compileUpdate(builder: QueryBuilder, values: any): string {
     const ast = this._prepareUpdateAst(builder, values);
 
-    const visitor = new MysqlQueryBuilderVisitor(builder._grammar, builder);
+    const visitor = new MysqlQueryBuilderVisitor(builder._grammar, builder, this.ctx);
 
     return ast.accept(visitor);
   }
@@ -91,9 +91,9 @@ export class MysqlQueryGrammar extends QueryGrammar implements GrammarInterface<
     return this;
   }
 
-  compileInsert(builder: QueryBuilder, values: any, insertOption: string = 'into'): string {
+  compileInsert(builder: QueryBuilder, values: any, insertOption = 'into'): string {
     if (isAnyEmpty(values)) {
-      const visitor = new QueryBuilderVisitor(builder._grammar, builder);
+      const visitor = new QueryBuilderVisitor(builder._grammar, builder, this.ctx);
       return 'INSERT INTO ' + `${builder._from.accept(visitor)} () VALUES ()`;
     }
 

@@ -12,10 +12,10 @@ export class PostgresWrappedStmt implements WrappedStmt {
 
   _affectRows: number;
 
-  constructor(public driverConnection: Client, public sqlStmt: string) {
-    let count    = 0;
-    this.sqlStmt = this.sqlStmt.replace(/\?/g, () => `$${++count}`);
-  }
+  constructor(
+    public driverConnection: Client,
+    public sqlStmt: string,
+  ) {}
 
   bindValues(bindings: any[]) {
     this._bindingValues = bindings;
@@ -25,7 +25,7 @@ export class PostgresWrappedStmt implements WrappedStmt {
   async execute(bindings?: any[]) {
     await this.driverConnection.query(
       this.sqlStmt,
-      bindings ?? this._bindingValues
+      bindings ?? this._bindingValues,
     );
   }
 
@@ -44,8 +44,7 @@ export class PostgresWrappedStmt implements WrappedStmt {
     return this._affectRows;
   }
 
-  close() {
-  }
+  close() {}
 
   bindValue(): this {
     return undefined;

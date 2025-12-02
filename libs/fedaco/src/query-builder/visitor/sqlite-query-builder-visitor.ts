@@ -14,6 +14,7 @@ import { createIdentifier } from '../ast-factory';
 import type { GrammarInterface } from '../grammar.interface';
 import type { QueryBuilder } from '../query-builder';
 import { QueryBuilderVisitor } from './query-builder-visitor';
+import { NestedExpression } from '../../query/ast/fragment/nested-expression';
 
 
 export class SqliteQueryBuilderVisitor extends QueryBuilderVisitor {
@@ -23,15 +24,26 @@ export class SqliteQueryBuilderVisitor extends QueryBuilderVisitor {
      * @deprecated
      * todo remove queryBuilder. should use binding only
      */
-    _queryBuilder: QueryBuilder
+    _queryBuilder: QueryBuilder,
+    ctx: Record<string, any>
   ) {
-    super(_grammar, _queryBuilder);
+    super(_grammar, _queryBuilder, ctx);
   }
 
   visitBinaryUnionQueryExpression(node: BinaryUnionQueryExpression): string {
-    let sql = 'SELECT * FROM ' + `(${
-      node.left.accept(this)
-    }) UNION${node.all ? ' ALL' : ''} SELECT * FROM (${node.right.accept(this)})`;
+    const leftSql = node.left instanceof NestedExpression
+      ? node.left.accept(this)
+      : `(${node.left.accept(this)})`;
+
+    const rightSql = node.right instanceof NestedExpression
+      ? node.right.accept(this)
+      : `(${node.right.accept(this)})`;
+
+    let sql = 'SELECT * FROM ' + `${
+      leftSql
+    } UNION${node.all ? ' ALL' : ''} SELECT * FROM ${
+      rightSql
+    }`;
 
     sql += this.visitQueryExpression(node);
     return sql;

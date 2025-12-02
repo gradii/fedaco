@@ -20,9 +20,10 @@ export class MysqlQueryBuilderVisitor extends QueryBuilderVisitor {
      * @deprecated
      * todo remove queryBuilder. should use binding only
      */
-    _queryBuilder: QueryBuilder
+    _queryBuilder: QueryBuilder,
+    ctx: Record<string, any>
   ) {
-    super(_grammar, _queryBuilder);
+    super(_grammar, _queryBuilder, ctx);
   }
 
   visitDeleteSpecification(node: DeleteSpecification): string {

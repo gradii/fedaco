@@ -5,7 +5,6 @@
  */
 
 import type { NestedExpression } from '../fragment/nested-expression';
-import { QueryBuilder } from './../../../query-builder/query-builder';
 import type { SqlVisitor } from '../../sql-visitor';
 import { Expression } from './expression';
 
@@ -15,7 +14,7 @@ export class InPredicateExpression extends Expression {
     public expression: Expression,
     public values: Expression[],
     public subQuery?: NestedExpression,
-    public not: boolean = false,
+    public not = false,
   ) {
     super();
   }

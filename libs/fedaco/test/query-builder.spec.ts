@@ -729,7 +729,7 @@ describe('database query builder test', () => {
   it('test where time operator optional postgres', () => {
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereTime('created_at', '22:00');
-    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "created_at"::time = ?');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "created_at"::time = $1');
     expect(builder.getBindings()).toStrictEqual(['22:00']);
   });
 
@@ -748,7 +748,7 @@ describe('database query builder test', () => {
   it('test where date postgres', () => {
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereDate('created_at', '=', '2015-12-21');
-    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "created_at"::date = ?');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "created_at"::date = $1');
     expect(builder.getBindings()).toStrictEqual(['2015-12-21']);
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereDate('created_at', raw('NOW()'));
@@ -758,7 +758,7 @@ describe('database query builder test', () => {
   it('test where day postgres', () => {
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereDay('created_at', '=', 1);
-    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE extract(day from "created_at") = ?');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE extract(day from "created_at") = $1');
     expect(builder.getBindings()).toStrictEqual(['01']);
   });
 
@@ -766,44 +766,44 @@ describe('database query builder test', () => {
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereMonth('created_at', '=', 5);
     expect(builder.toSql()).toBe(
-      'SELECT * FROM "users" WHERE extract(month from "created_at") = ?');
+      'SELECT * FROM "users" WHERE extract(month from "created_at") = $1');
     expect(builder.getBindings()).toStrictEqual(['05']);
   });
 
   it('test where year postgres', () => {
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereYear('created_at', '=', 2014);
-    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE extract(year from "created_at") = ?');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE extract(year from "created_at") = $1');
     expect(builder.getBindings()).toStrictEqual([2014]);
   });
 
   it('test where time postgres', () => {
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereTime('created_at', '>=', '22:00');
-    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "created_at"::time >= ?');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "created_at"::time >= $1');
     expect(builder.getBindings()).toStrictEqual(['22:00']);
   });
 
   it('test where like postgres', () => {
     builder = getPostgresBuilder();
     builder.select('*').from('users').where('id', 'like', '1');
-    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "id"::text LIKE ?');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "id"::text LIKE $1');
     expect(builder.getBindings()).toStrictEqual(['1']);
     builder = getPostgresBuilder();
     builder.select('*').from('users').where('id', 'LIKE', '1');
-    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "id"::text LIKE ?');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "id"::text LIKE $1');
     expect(builder.getBindings()).toStrictEqual(['1']);
     builder = getPostgresBuilder();
     builder.select('*').from('users').where('id', 'ilike', '1');
-    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "id"::text ILIKE ?');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "id"::text ILIKE $1');
     expect(builder.getBindings()).toStrictEqual(['1']);
     builder = getPostgresBuilder();
     builder.select('*').from('users').where('id', 'not like', '1');
-    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "id"::text NOT LIKE ?');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "id"::text NOT LIKE $1');
     expect(builder.getBindings()).toStrictEqual(['1']);
     builder = getPostgresBuilder();
     builder.select('*').from('users').where('id', 'not ilike', '1');
-    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "id"::text NOT ILIKE ?');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE "id"::text NOT ILIKE $1');
     expect(builder.getBindings()).toStrictEqual(['1']);
   });
 
@@ -1079,7 +1079,7 @@ describe('database query builder test', () => {
     expect(builder.getBindings()).toStrictEqual([10, 1, 11, 2]);
 
     builder     = getPostgresBuilder();
-    expectedSql = '(SELECT "name" FROM "users" WHERE "id" = ?) UNION (SELECT "name" FROM "users" WHERE "id" = ?)';
+    expectedSql = '(SELECT "name" FROM "users" WHERE "id" = $1) UNION (SELECT "name" FROM "users" WHERE "id" = $2)';
     builder.select('name').from('users').where('id', '=', 1);
     builder.union(getPostgresBuilder().select('name').from('users').where('id', '=', 2));
     expect(builder.toSql()).toBe(expectedSql);
@@ -1108,7 +1108,7 @@ describe('database query builder test', () => {
       .toBe(
         '(SELECT * FROM `users` WHERE `id` = ?) UNION ALL (SELECT * FROM `users` WHERE `id` = ?)');
     expect(builder.getBindings()).toStrictEqual([1, 2]);
-    const expectedSql = '(SELECT * FROM "users" WHERE "id" = ?) UNION ALL (SELECT * FROM "users" WHERE "id" = ?)';
+    const expectedSql = '(SELECT * FROM "users" WHERE "id" = $1) UNION ALL (SELECT * FROM "users" WHERE "id" = $2)';
     builder           = getPostgresBuilder();
     builder.select('*').from('users').where('id', '=', 1);
     builder.unionAll(getPostgresBuilder().select('*').from('users').where('id', '=', 2));
@@ -2737,7 +2737,7 @@ describe('database query builder test', () => {
       'email': 'foo'
     });
     expect(spyInsert).toBeCalledWith(
-      'INSERT INTO "users" ("email") VALUES (?) ON conflict do nothing', ['foo']);
+      'INSERT INTO "users" ("email") VALUES ($1) ON conflict do nothing', ['foo']);
     expect(result).toBe(1);
   });
 
@@ -3072,7 +3072,7 @@ describe('database query builder test', () => {
       'users.email': 'foo',
       'name'       : 'bar'
     });
-    expect(spyUpdate).toBeCalledWith('UPDATE "users" SET "email" = ?, "name" = ? WHERE "id" = ?',
+    expect(spyUpdate).toBeCalledWith('UPDATE "users" SET "email" = $1, "name" = $2 WHERE "id" = $3',
       ['foo', 'bar', 1]);
     expect(result).toBe(1);
 
@@ -3083,7 +3083,7 @@ describe('database query builder test', () => {
       'users.email': 'foo',
       'name'       : 'bar'
     });
-    expect(spyUpdate).toBeCalledWith('UPDATE "users" SET "email" = ?, "name" = ? WHERE "id" = ?',
+    expect(spyUpdate).toBeCalledWith('UPDATE "users" SET "email" = $1, "name" = $2 WHERE "id" = $3',
       ['foo', 'bar', 1]);
     expect(result).toBe(1);
 
@@ -3096,7 +3096,7 @@ describe('database query builder test', () => {
       'name'             : 'bar'
     });
     expect(spyUpdate)
-      .toBeCalledWith('UPDATE "users"."users" SET "email" = ?, "name" = ? WHERE "id" = ?',
+      .toBeCalledWith('UPDATE "users"."users" SET "email" = $1, "name" = $2 WHERE "id" = $3',
         ['foo', 'bar', 1]);
     expect(result).toBe(1);
   });
@@ -3114,7 +3114,7 @@ describe('database query builder test', () => {
       });
     expect(spyUpdate)
       .toBeCalledWith(
-        'UPDATE "users" SET "email" = ?, "name" = ? WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" WHERE "users"."id" = ?)',
+        'UPDATE "users" SET "email" = $1, "name" = $2 WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" WHERE "users"."id" = $3)',
         ['foo', 'bar', 1]);
     expect(result).toBe(1);
 
@@ -3129,7 +3129,7 @@ describe('database query builder test', () => {
     });
     expect(spyUpdate)
       .toBeCalledWith(
-        'UPDATE "users" SET "email" = ?, "name" = ? WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" AND "users"."id" = ?)',
+        'UPDATE "users" SET "email" = $1, "name" = $2 WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" AND "users"."id" = $3)',
         ['foo', 'bar', 1]);
     expect(result).toBe(1);
 
@@ -3144,7 +3144,7 @@ describe('database query builder test', () => {
     });
     expect(spyUpdate)
       .toBeCalledWith(
-        'UPDATE "users" SET "email" = ?, "name" = ? WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" AND "users"."id" = ? WHERE "name" = ?)',
+        'UPDATE "users" SET "email" = $1, "name" = $2 WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" AND "users"."id" = $3 WHERE "name" = $4)',
         ['foo', 'bar', 1, 'baz']);
     expect(result).toBe(1);
   });
@@ -3408,7 +3408,7 @@ describe('database query builder test', () => {
       .delete();
     expect(spyDelete)
       .toBeCalledWith(
-        'DELETE FROM "users" WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."id" WHERE "users"."email" = ?)',
+        'DELETE FROM "users" WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."id" WHERE "users"."email" = $1)',
         ['foo']);
     expect(result).toBe(1);
 
@@ -3423,7 +3423,7 @@ describe('database query builder test', () => {
       .delete();
     expect(spyDelete)
       .toBeCalledWith(
-        'DELETE FROM "users" AS "a" WHERE "ctid" IN (SELECT "a"."ctid" FROM "users" AS "a" INNER JOIN "users" AS "b" ON "a"."id" = "b"."user_id" WHERE "email" = ? ORDER BY "id" ASC LIMIT 1)',
+        'DELETE FROM "users" AS "a" WHERE "ctid" IN (SELECT "a"."ctid" FROM "users" AS "a" INNER JOIN "users" AS "b" ON "a"."id" = "b"."user_id" WHERE "email" = $1 ORDER BY "id" ASC LIMIT 1)',
         ['foo']);
     expect(result).toBe(1);
 
@@ -3435,7 +3435,7 @@ describe('database query builder test', () => {
       'id').take(1).delete(1);
     expect(spyDelete)
       .toBeCalledWith(
-        'DELETE FROM "users" WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."id" WHERE "users"."id" = ? ORDER BY "id" ASC LIMIT 1)',
+        'DELETE FROM "users" WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."id" WHERE "users"."id" = $1 ORDER BY "id" ASC LIMIT 1)',
         [1]);
     expect(result).toBe(1);
 
@@ -3447,7 +3447,7 @@ describe('database query builder test', () => {
     }).where('name', 'baz').delete();
     expect(spyDelete)
       .toBeCalledWith(
-        'DELETE FROM "users" WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."user_id" AND "users"."id" = ? WHERE "name" = ?)',
+        'DELETE FROM "users" WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."user_id" AND "users"."id" = $1 WHERE "name" = $2)',
         [1, 'baz']);
     expect(result).toBe(1);
 
@@ -3471,7 +3471,7 @@ describe('database query builder test', () => {
     await builder.from('users').truncate();
     expect(spyStatement).toBeCalledWith('TRUNCATE TABLE `users`', []);
 
-    const sqlite = new SqliteQueryGrammar();
+    const sqlite = new SqliteQueryGrammar({});
     builder      = getSQLiteBuilder();
     builder.from('usersx');
     expect(sqlite.compileTruncate(builder)).toStrictEqual({
@@ -3489,7 +3489,7 @@ describe('database query builder test', () => {
       'email': 'foo'
     }, 'id');
     expect(spyInsertGetId).toBeCalledWith(builder,
-      'INSERT INTO "users" ("email") VALUES (?) returning "id"',
+      'INSERT INTO "users" ("email") VALUES ($1) returning "id"',
       ['foo'], 'id');
     expect(result).toBe(1);
   });
@@ -3945,15 +3945,15 @@ describe('database query builder test', () => {
   it('test postgres lock', () => {
     builder = getPostgresBuilder();
     builder.select('*').from('foo').where('bar', '=', 'baz').lock();
-    expect(builder.toSql()).toBe('SELECT * FROM "foo" WHERE "bar" = ? for update');
+    expect(builder.toSql()).toBe('SELECT * FROM "foo" WHERE "bar" = $1 for update');
     expect(builder.getBindings()).toStrictEqual(['baz']);
     builder = getPostgresBuilder();
     builder.select('*').from('foo').where('bar', '=', 'baz').lock(false);
-    expect(builder.toSql()).toBe('SELECT * FROM "foo" WHERE "bar" = ? for share');
+    expect(builder.toSql()).toBe('SELECT * FROM "foo" WHERE "bar" = $1 for share');
     expect(builder.getBindings()).toStrictEqual(['baz']);
     builder = getPostgresBuilder();
     builder.select('*').from('foo').where('bar', '=', 'baz').lock('for key share');
-    expect(builder.toSql()).toBe('SELECT * FROM "foo" WHERE "bar" = ? for key share');
+    expect(builder.toSql()).toBe('SELECT * FROM "foo" WHERE "bar" = $1 for key share');
     expect(builder.getBindings()).toStrictEqual(['baz']);
   });
 
@@ -4045,7 +4045,7 @@ describe('database query builder test', () => {
   // });
 
   it('test sub select', () => {
-    const expectedSql      = 'SELECT "foo", "bar", (SELECT "baz" FROM "two" WHERE "subkey" = ?) AS "sub" FROM "one" WHERE "_key" = ?';
+    const expectedSql      = 'SELECT "foo", "bar", (SELECT "baz" FROM "two" WHERE "subkey" = $1) AS "sub" FROM "one" WHERE "_key" = $2';
     const expectedBindings = ['subval', 'val'];
     builder                = getPostgresBuilder();
     builder.from('one').select(['foo', 'bar'])
@@ -4077,7 +4077,7 @@ describe('database query builder test', () => {
       query.from('two').select('baz').where('subkey', '=', 'subval');
     }, 'sub');
     expect(builder.toSql()).toBe(
-      'SELECT (SELECT "baz" FROM "two" WHERE "subkey" = ?) AS "sub" FROM "one"');
+      'SELECT (SELECT "baz" FROM "two" WHERE "subkey" = $1) AS "sub" FROM "one"');
     expect(builder.getBindings()).toStrictEqual(['subval']);
     builder.select('*');
     expect(builder.toSql()).toBe('SELECT * FROM "one"');
@@ -4470,12 +4470,12 @@ describe('database query builder test', () => {
   it('test where json contains postgres', () => {
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereJsonContains('options', ['en']);
-    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE ("options")::jsonb @> ?');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE ("options")::jsonb @> $1');
     expect(builder.getBindings()).toStrictEqual(['["en"]']);
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereJsonContains('users.options->languages', ['en']);
     expect(builder.toSql()).toBe(
-      'SELECT * FROM "users" WHERE ("users"."options"->"languages")::jsonb @> ?');
+      'SELECT * FROM "users" WHERE ("users"."options"->"languages")::jsonb @> $1');
     expect(builder.getBindings()).toStrictEqual(['["en"]']);
     builder = getPostgresBuilder();
     builder.select('*')
@@ -4484,7 +4484,7 @@ describe('database query builder test', () => {
       .orWhereJsonContains('options->languages', raw('\'["en\\"]\''));
     expect(builder.toSql())
       .toBe(
-        'SELECT * FROM "users" WHERE "id" = ? OR ("options"->"languages")::jsonb @> \'["en\\"]\'');
+        'SELECT * FROM "users" WHERE "id" = $1 OR ("options"->"languages")::jsonb @> \'["en\\"]\'');
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 
@@ -4537,7 +4537,7 @@ describe('database query builder test', () => {
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereJsonDoesntContain('options->languages', ['en']);
     expect(builder.toSql()).toBe(
-      'SELECT * FROM "users" WHERE not ("options"->"languages")::jsonb @> ?');
+      'SELECT * FROM "users" WHERE not ("options"->"languages")::jsonb @> $1');
     expect(builder.getBindings()).toStrictEqual(['["en"]']);
     builder = getPostgresBuilder();
     builder.select('*')
@@ -4546,7 +4546,7 @@ describe('database query builder test', () => {
       .orWhereJsonDoesntContain('options->languages', raw('\'["en\\"]\''));
     expect(builder.toSql())
       .toBe(
-        'SELECT * FROM "users" WHERE "id" = ? OR not ("options"->"languages")::jsonb @> \'["en\\"]\'');
+        'SELECT * FROM "users" WHERE "id" = $1 OR not ("options"->"languages")::jsonb @> \'["en\\"]\'');
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 
@@ -4606,27 +4606,27 @@ describe('database query builder test', () => {
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereJsonLength('options', 0);
     expect(builder.toSql()).toBe(
-      'SELECT * FROM "users" WHERE json_array_length(("options")::json) = ?');
+      'SELECT * FROM "users" WHERE json_array_length(("options")::json) = $1');
     expect(builder.getBindings()).toStrictEqual([0]);
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereJsonLength('users.options->languages', '>', 0);
     expect(builder.toSql())
       .toBe(
-        'SELECT * FROM "users" WHERE json_array_length(("users"."options"->"languages")::json) > ?');
+        'SELECT * FROM "users" WHERE json_array_length(("users"."options"->"languages")::json) > $1');
     expect(builder.getBindings()).toStrictEqual([0]);
     builder = getPostgresBuilder();
     builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages',
       raw('0'));
     expect(builder.toSql())
       .toBe(
-        'SELECT * FROM "users" WHERE "id" = ? OR json_array_length(("options"->"languages")::json) = 0');
+        'SELECT * FROM "users" WHERE "id" = $1 OR json_array_length(("options"->"languages")::json) = 0');
     expect(builder.getBindings()).toStrictEqual([1]);
     builder = getPostgresBuilder();
     builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages',
       '>', raw('0'));
     expect(builder.toSql())
       .toBe(
-        'SELECT * FROM "users" WHERE "id" = ? OR json_array_length(("options"->"languages")::json) > 0');
+        'SELECT * FROM "users" WHERE "id" = $1 OR json_array_length(("options"->"languages")::json) > 0');
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 

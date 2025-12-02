@@ -31,7 +31,7 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
   }
 
   protected _createVisitor(queryBuilder: QueryBuilder) {
-    return new QueryBuilderVisitor(queryBuilder._grammar, queryBuilder);
+    return new PostgresQueryBuilderVisitor(queryBuilder._grammar, queryBuilder, this.ctx);
   }
 
   compilePredicateFuncName(funcName: string): string {
@@ -50,7 +50,7 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
   compileSelect(builder: QueryBuilder): string {
     const ast = this._prepareSelectAst(builder);
 
-    const visitor = new PostgresQueryBuilderVisitor(builder._grammar, builder);
+    const visitor = new PostgresQueryBuilderVisitor(builder._grammar, builder, this.ctx);
 
     return ast.accept(visitor);
   }
@@ -65,7 +65,7 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
   compileUpdate(builder: QueryBuilder, values: any): string {
     const ast = this._prepareUpdateAst(builder, values);
 
-    const visitor = new PostgresQueryBuilderVisitor(builder._grammar, builder);
+    const visitor = new PostgresQueryBuilderVisitor(builder._grammar, builder, this.ctx);
 
     return ast.accept(visitor);
   }
@@ -86,7 +86,7 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
   }
 
   /*Compile an insert and get ID statement into SQL.*/
-  public compileInsertGetId(query: QueryBuilder, values: any[], sequence: string = 'id') {
+  public compileInsertGetId(query: QueryBuilder, values: any[], sequence = 'id') {
     return `${this.compileInsert(query, values)} returning ${this.wrap(sequence)}`;
   }
 

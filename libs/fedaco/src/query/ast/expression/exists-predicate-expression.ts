@@ -5,7 +5,6 @@
  */
 
 import type { NestedExpression } from '../fragment/nested-expression';
-import { QueryBuilder } from './../../../query-builder/query-builder';
 import type { SqlVisitor } from '../../sql-visitor';
 import { Expression } from './expression';
 
@@ -13,7 +12,7 @@ import { Expression } from './expression';
 export class ExistsPredicateExpression extends Expression {
   constructor(
     public expression: NestedExpression,
-    public not: boolean = false,
+    public not = false,
   ) {
     super();
   }

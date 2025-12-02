@@ -14,6 +14,9 @@ export abstract class BaseGrammar {
   /*The grammar table prefix.*/
   protected tablePrefix = '';
 
+  constructor(protected ctx: Record<string, any> = {}) {
+  }
+
   /*Wrap an array of values.*/
   public wrapArray(values: any[]) {
     return values.map(it => this.wrap(it));
