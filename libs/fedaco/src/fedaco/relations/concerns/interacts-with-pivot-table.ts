@@ -263,6 +263,7 @@ export function mixinInteractsWithPivotTable<T extends Constructor<any>>(base: T
         .filter((item) => item[this._foreignPivotKey] == this._parent.GetAttribute(this._parentKey))
         .filter((item) => item[this._relatedPivotKey] == this._parseId(id))
         .pop();
+      //todo fixme
       const updated = pivot ? pivot.fill(attributes).isDirty() : false;
       if (updated) {
         await pivot.save();

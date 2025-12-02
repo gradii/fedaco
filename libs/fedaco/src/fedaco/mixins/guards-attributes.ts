@@ -16,23 +16,23 @@ function isAnyGuarded(guarded: string[]) {
 }
 
 // tslint:disable-next-line:no-namespace eslint-disable-next-line @typescript-eslint/no-namespace
-export declare namespace GuardsAttributes {
+export declare class GuardsAttributes {
   /*Indicates if all mass assignment is enabled.*/
-  export const _unguarded = false;
+  static _unguarded: boolean;
   /*The actual columns that exist on the database and can be guarded.*/
-  export const _guardableColumns: any[];
+  static _guardableColumns: any[];
 
   /*Disable all mass assignable restrictions.*/
-  export function unguard(state: boolean): void;
+  static unguard(state: boolean): void;
 
   /*Enable the mass assignment restrictions.*/
-  export function reguard(): void;
+  static reguard(): void;
 
   /*Determine if the current state is "unguarded".*/
-  export function isUnguarded(): boolean;
+  static isUnguarded(): boolean;
 
   /*Run the given callable while being unguarded.*/
-  export function unguarded(callback: Function): any;
+  static unguarded(callback: Function): any;
 }
 
 export interface GuardsAttributes {
@@ -40,8 +40,12 @@ export interface GuardsAttributes {
   _fillable: string[];
   /*The attributes that aren't mass assignable.*/
   _guarded: string[];
+  _defaultMetaFillable: string[];
+  _unFillable: string[];
 
-  GetFillable(): this;
+  GetFillable(): string[];
+
+  GetRealFillable(): string[];
 
   Fillable(fillable: string[]): this;
 
@@ -57,6 +61,10 @@ export interface GuardsAttributes {
 
   MergeGuarded(guarded: any[]): this;
 
+  UnFillable(attributes: string[]): this;
+
+  MergeUnFillable(attributes: string[]): this;
+
   _fillableFromArray(attributes: any): this;
 }
 
@@ -70,14 +78,51 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
     _fillable: string[] = [];
     /*The attributes that aren't mass assignable.*/
     _guarded: string[] = ['*'];
+    _defaultMetaFillable: string[] = [];
+    _unFillable: string[] = [];
     /*Indicates if all mass assignment is enabled.*/
     static _unguarded = false;
     /*The actual columns that exist on the database and can be guarded.*/
     static _guardableColumns: any[];
 
+    constructor(...args: any[]) {
+      super(...args);
+      this._initFillableFromAnnotations();
+    }
+
     /*Get the fillable attributes for the model.*/
     public GetFillable() {
       return this._fillable;
+    }
+
+    public GetRealFillable() {
+      const fillable = new Set(this._defaultMetaFillable);
+      for (const item of this._unFillable) {
+        fillable.delete(item);
+      }
+      for (const item of this._fillable) {
+        fillable.add(item);
+      }
+      return Array.from(fillable);
+    }
+
+    #noDefinedFillable() {
+      return this._fillable.length === 0
+    }
+
+    #realNoFillable() {
+      return this._fillable.length === 0 &&
+        this._defaultMetaFillable.length === 0
+    }
+
+    #checkFillable(key: string) {
+      if (this._fillable.includes(key)) {
+        return true;
+      }
+      if (this._unFillable.includes(key)) {
+        return false;
+      }
+      return this._defaultMetaFillable.includes(key);
     }
 
     /*Set the fillable attributes for the model.*/
@@ -109,8 +154,18 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
       return this;
     }
 
+    public UnFillable(attributes: string[]) {
+      this._unFillable = attributes;
+      return this;
+    }
+
+    public MergeUnFillable(attributes: string[]) {
+      this._unFillable = [...this._unFillable, ...attributes];
+      return this;
+    }
+
     /*Disable all mass assignable restrictions.*/
-    public static unguard(state: boolean = true): void {
+    public static unguard(state = true): void {
       this._unguarded = state;
     }
 
@@ -149,13 +204,13 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
       if ((this.constructor as typeof _Self)._unguarded) {
         return true;
       }
-      if (this.GetFillable().includes(key)) {
+      if (this.#checkFillable(key)) {
         return true;
       }
       if (this.IsGuarded(key)) {
         return false;
       }
-      return !this.GetFillable().length &&
+      return this.#noDefinedFillable() &&
         !key.includes('.') &&
         !key.startsWith('_');
     }
@@ -193,21 +248,39 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
 
     /*Determine if the model is totally guarded.*/
     public TotallyGuarded() {
-      return this.GetFillable().length === 0 && isAnyGuarded(this.GetGuarded());
+      return this.#realNoFillable() && isAnyGuarded(this.GetGuarded());
     }
 
     /*Get the fillable attributes of a given array.*/
     _fillableFromArray(attributes: any) {
-      if (this.GetFillable().length > 0 && !(this.constructor as typeof _Self)._unguarded) {
-        const rst: any = {}, fillable = this.GetFillable();
+      if ((
+          !(this.#realNoFillable())
+        ) && !(this.constructor as typeof _Self)._unguarded) {
+        const rst: any = {};
         for (const key of Object.keys(attributes)) {
-          if (fillable.includes(key)) {
+          if (this.IsFillable(key)) {
             rst[key] = attributes[key];
           }
         }
         return rst;
       }
       return attributes;
+    }
+
+    /*Initialize the fillable attributes from annotations.*/
+    _initFillableFromAnnotations() {
+      const meta = reflector.propMetadata(this.constructor);
+      for (const key of Object.keys(meta)) {
+        if (meta[key] && isArray(meta[key])) {
+          const currentMeta = findLast(it => {
+            return FedacoColumn.isTypeOf(it);
+          }, meta[key]) as ColumnAnnotation;
+
+          if (currentMeta && currentMeta.fillable) {
+            this._defaultMetaFillable.push(key);
+          }
+        }
+      }
     }
   };
 }
