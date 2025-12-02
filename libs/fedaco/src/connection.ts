@@ -691,6 +691,7 @@ export class Connection extends mixinManagesTransactions(class {
   causedByConcurrencyError(e: Error) {
     console.warn(`catch an error check whether is concurrency error.
     if it's raised in transaction you can report this error ${e.message} to make this function more better.`);
+    console.warn(`catch an error stack`, e.stack);
     // @ts-ignore
     if (e.code === '40001') {
       return true;
