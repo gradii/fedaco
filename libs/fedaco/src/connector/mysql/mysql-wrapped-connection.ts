@@ -76,4 +76,7 @@ export class MysqlWrappedConnection implements WrappedConnection {
     this.driver.query('ROLLBACK');
   }
 
+  disconnect(): void {
+    this.driver.end();
+  }
 }

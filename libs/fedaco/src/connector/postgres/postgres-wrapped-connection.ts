@@ -53,4 +53,8 @@ export class PostgresWrappedConnection implements WrappedConnection {
     await this.driver.query('ROLLBACK')
   }
 
+  disconnect(): void {
+    this.driver.end();
+  }
+
 }

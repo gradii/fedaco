@@ -38,5 +38,8 @@ export class BetterSqliteWrappedConnection implements WrappedConnection {
     this.driver.exec('ROLLBACK;')
   }
 
+  disconnect(): void {
+    this.driver.close();
+  }
 
 }

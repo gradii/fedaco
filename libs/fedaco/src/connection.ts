@@ -390,6 +390,9 @@ export class Connection extends mixinManagesTransactions(class {
 
   /*Disconnect from the underlying PDO connection.*/
   public disconnect() {
+    if (this.pdo && !isFunction(this.pdo)) {
+      (this.pdo as WrappedConnection).disconnect();
+    }
     this.setPdo(null).setReadPdo(null);
   }
 

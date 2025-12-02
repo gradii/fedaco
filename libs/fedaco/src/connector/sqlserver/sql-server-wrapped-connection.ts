@@ -54,5 +54,8 @@ export class SqlServerWrappedConnection implements WrappedConnection {
     return this.execute('ROLLBACK');
   }
 
+  disconnect(): void {
+    this.driver.close();
+  }
 
 }

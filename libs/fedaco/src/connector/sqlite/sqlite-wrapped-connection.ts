@@ -94,5 +94,8 @@ export class SqliteWrappedConnection implements WrappedConnection {
     });
   }
 
+  disconnect(): void {
+    this.driver.close();
+  }
 
 }

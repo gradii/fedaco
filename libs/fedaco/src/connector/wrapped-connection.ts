@@ -23,4 +23,5 @@ export interface WrappedConnection {
 
   rollBack(): Promise<any>;
 
+  disconnect(): void;
 }
