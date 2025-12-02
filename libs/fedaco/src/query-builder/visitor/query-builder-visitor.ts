@@ -80,7 +80,12 @@ import { resolveIdentifier } from '../ast-helper';
 import { resolveForwardRef } from '../forward-ref';
 import type { GrammarInterface } from '../grammar.interface';
 import { QueryBuilder } from '../query-builder';
-import { FedacoBuilder } from '../../fedaco/fedaco-builder';
+import type { FedacoBuilder } from '../../fedaco/fedaco-builder';
+import {
+  FedacoBuilderSymbol,
+  RelationSymbol,
+} from '../../symbol/fedaco-symbol';
+import type { Relation } from '../../fedaco/relations/relation';
 
 export class QueryBuilderVisitor implements SqlVisitor {
   protected inJoinExpression = false;
@@ -408,7 +413,14 @@ export class QueryBuilderVisitor implements SqlVisitor {
   visitNestedExpression(node: NestedExpression): string {
 
     let sql;
-    if (node.expression instanceof QueryBuilder) {
+    if(isString(node.expression)) {
+      sql = `(${node.expression})`;
+
+      // node.bindings.forEach(it => {
+      //   it.accept(this);
+      // });
+      this._queryBuilder.addBinding(node.bindings, node.type);
+    } if (node.expression instanceof QueryBuilder) {
       //must reset binding because
       node.expression.resetBindings();
 
@@ -419,9 +431,11 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
       const bindings = node.expression.getBindings();
       this._queryBuilder.addBinding(bindings, node.type);
-
-    } else if(node.expression instanceof FedacoBuilder) {
-      const {result, bindings} = node.expression.toSql(this.ctx);
+    } else if(
+      (node.expression as FedacoBuilder)[FedacoBuilderSymbol] ||
+      (node.expression as Relation)[RelationSymbol]
+    ) {
+      const {result, bindings} = (node.expression as FedacoBuilder | Relation).toSql(this.ctx);
       sql = `(${result})`;
       this._queryBuilder.addBinding(bindings, node.type);
 
@@ -432,15 +446,7 @@ export class QueryBuilderVisitor implements SqlVisitor {
       //   it.accept(this);
       // });
       this._queryBuilder.addBinding(node.bindings, node.type);
-    } else {
-      sql = `(${node.expression})`;
-
-      // node.bindings.forEach(it => {
-      //   it.accept(this);
-      // });
-      this._queryBuilder.addBinding(node.bindings, node.type);
     }
-
 
     return sql;
   }

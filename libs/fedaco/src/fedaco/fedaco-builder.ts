@@ -24,6 +24,7 @@ import { mixinQueriesRelationships } from './mixins/queries-relationships';
 import type { Model } from './model';
 import { Relation } from './relations/relation';
 import { Scope } from './scope';
+import { FedacoBuilderSymbol } from '../symbol/fedaco-symbol';
 
 export interface FedacoBuilder<T extends Model = Model> extends GuardsAttributes, QueriesRelationships,
   Omit<BuildQueries, 'first' | 'latest' | 'oldest' | 'orWhere' | 'where'>,
@@ -1247,4 +1248,6 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     builder._eagerLoad = {...this._eagerLoad};
     return builder;
   }
+
+  [FedacoBuilderSymbol] = true
 }

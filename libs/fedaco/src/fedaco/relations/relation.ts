@@ -11,6 +11,7 @@ import { raw } from '../../query-builder/ast-factory';
 import type { FedacoBuilder } from '../fedaco-builder';
 import { mixinForwardCallToQueryBuilder } from '../mixins/forward-call-to-query-builder';
 import type { Model } from '../model';
+import { RelationSymbol } from '../../symbol/fedaco-symbol';
 
 // export interface Relation extends ForwardCallToQueryBuilder {
 // }
@@ -260,4 +261,6 @@ export class Relation extends mixinForwardCallToQueryBuilder(class {
   // public __clone() {
   //   this.query = ();
   // }
+
+  [RelationSymbol]= true
 }

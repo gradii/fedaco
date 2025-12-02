@@ -5,34 +5,45 @@
  */
 
 import {
-  isAnyEmpty, isArray, isBlank, isBoolean, isFunction, isNumber, isString
+  isAnyEmpty,
+  isArray,
+  isBlank,
+  isBoolean,
+  isFunction,
+  isNumber,
+  isString,
 } from '@gradii/nanofn';
-import { FedacoBuilder } from '../fedaco/fedaco-builder';
-import { Relation } from '../fedaco/relations/relation';
+
 import { ColumnReferenceExpression } from '../query/ast/column-reference-expression';
-import {
-  ComparisonPredicateExpression
-} from '../query/ast/expression/comparison-predicate-expression';
+import { ComparisonPredicateExpression } from '../query/ast/expression/comparison-predicate-expression';
 import { RawExpression } from '../query/ast/expression/raw-expression';
-import {
-  NestedPredicateExpression
-} from '../query/ast/fragment/expression/nested-predicate-expression';
+import { NestedPredicateExpression } from '../query/ast/fragment/expression/nested-predicate-expression';
 import { NestedExpression } from '../query/ast/fragment/nested-expression';
 import { FromTable } from '../query/ast/from-table';
 import { PathExpression } from '../query/ast/path-expression';
 import { TableReferenceExpression } from '../query/ast/table-reference-expression';
 import { SqlParser } from '../query/parser/sql-parser';
-import { bindingVariable, createIdentifier, raw, rawSqlBindings } from './ast-factory';
+import {
+  bindingVariable,
+  createIdentifier,
+  raw,
+  rawSqlBindings,
+} from './ast-factory';
 import { wrapToArray } from './ast-helper';
 import { Builder } from './builder';
+import type { FedacoBuilder } from '../fedaco/fedaco-builder';
+import type { Relation } from '../fedaco/relations/relation';
 import type { ConnectionInterface } from './connection-interface';
 import type { GrammarInterface } from './grammar.interface';
 import type { ProcessorInterface } from './processor-interface';
-
+import {
+  FedacoBuilderSymbol,
+  RelationSymbol,
+} from '../symbol/fedaco-symbol';
 
 export const enum BindingType {
   where = 'where',
-  join  = 'join'
+  join = 'join',
 }
 
 export class QueryBuilder extends Builder {
@@ -156,16 +167,14 @@ export class QueryBuilder extends Builder {
 
   /*Parse the subquery into SQL and bindings.*/
   _parseSub(type: 'select' | string, query: any) {
-    if (
-      query instanceof QueryBuilder // ||
-      // query instanceof EloquentBuilder || todo
-      // query instanceof Relation todo
-    ) {
-      return new NestedExpression(type, query);
-    } else if (query instanceof FedacoBuilder) {
-      return new NestedExpression(type, query);
-    } else if (isString(query)) {
+    if (isString(query)) {
       return new NestedExpression(type, query, []);
+    } else if (query instanceof QueryBuilder) {
+      return new NestedExpression(type, query);
+    } else if (query[FedacoBuilderSymbol]) {
+      return new NestedExpression(type, query);
+    } else if (query[RelationSymbol]) {
+      return new NestedExpression(type, query);
     } else {
       throw new Error(
         'InvalidArgumentException A subquery must be a query builder instance, a Closure, or a string.');
@@ -437,8 +446,8 @@ export class QueryBuilder extends Builder {
 
   isQueryable(value: QueryBuilder | FedacoBuilder | Relation | Function | any): value is (QueryBuilder | Function) {
     return value instanceof QueryBuilder ||
-      value instanceof FedacoBuilder ||
-      value instanceof Relation ||
+      value?.[FedacoBuilderSymbol] ||
+      value?.[RelationSymbol] ||
       isFunction(value);
   }
 
