@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function,@typescript-eslint/ban-ts-comment,no-empty */
-import { DecimalColumn } from '@gradii/fedaco';
+import { DecimalColumn } from '../src/annotation/column/decimal.column';
 import { isAnyEmpty, isBlank, isObject, isString } from '@gradii/nanofn';
 import { createHash } from 'crypto';
 import { format } from 'date-fns';
@@ -18,19 +18,19 @@ import { TimestampColumn } from '../src/annotation/column/timestamp.column';
 import { HasManyColumn } from '../src/annotation/relation-column/has-many.relation-column';
 import { HasOneColumn } from '../src/annotation/relation-column/has-one.relation-column';
 import { Table } from '../src/annotation/table/table';
-import { Connection } from '../src/connection';
-import { DatabaseTransactionsManager } from '../src/database-transactions-manager';
+import type { Connection } from '../src/connection';
+import type { DatabaseTransactionsManager } from '../src/database-transactions-manager';
 import { FedacoBuilder } from '../src/fedaco/fedaco-builder';
-import { FedacoRelationListType, FedacoRelationType } from '../src/fedaco/fedaco-types';
-import { Dispatcher } from '../src/fedaco/mixins/has-events';
+import type { FedacoRelationListType, FedacoRelationType } from '../src/fedaco/fedaco-types';
+import type { Dispatcher } from '../src/fedaco/mixins/has-events';
 import { Model } from '../src/fedaco/model';
 import { Relation } from '../src/fedaco/relations/relation';
-import { ConnectionResolverInterface } from '../src/interface/connection-resolver-interface';
-import { ConnectionInterface } from '../src/query-builder/connection-interface';
+import type { ConnectionResolverInterface } from '../src/interface/connection-resolver-interface';
+import type { ConnectionInterface } from '../src/query-builder/connection-interface';
 import { MysqlQueryGrammar } from '../src/query-builder/grammar/mysql-query-grammar';
 import { Processor } from '../src/query-builder/processor';
 import { QueryBuilder } from '../src/query-builder/query-builder';
-import { SchemaBuilder } from '../src/schema/schema-builder';
+import type { SchemaBuilder } from '../src/schema/schema-builder';
 import { FedacoModelNamespacedModel } from './model/fedaco-model-namespaced.model';
 
 const global: any = {};
@@ -171,7 +171,7 @@ function resolveModel(model: Model) {
   (model.constructor as typeof Model).resolver = resolver;
 }
 
-function setDispatch(modelClazz: typeof Model, util: boolean = true) {
+function setDispatch(modelClazz: typeof Model, util = true) {
 // const events = new Dispatcher();
   const events: Dispatcher = {
     forget(event: string): void {
@@ -1744,7 +1744,7 @@ describe('test database fedaco model', () => {
   });
 
   it('global guarded', () => {
-    const model = new FedacoModelStub();
+    const model = new FedacoModelGlobalGuardedStub();
     model.Guard(['*']);
     expect(() => {
       model.Fill({
@@ -2654,6 +2654,36 @@ describe('test database fedaco model', () => {
   tableName    : 'stub',
   noPluralTable: true
 })
+export class FedacoModelGlobalGuardedStub extends Model {
+  _guarded: any           = [];
+
+  @Column({
+    fillable: false
+  })
+  id: number | string;
+
+  @Column({
+    fillable: false
+  })
+  name: string;
+
+  @Column({
+    fillable: false
+  })
+
+  age: number;  @Column({
+    fillable: false
+  })
+  votes: number;
+
+
+}
+
+
+@Table({
+  tableName    : 'stub',
+  noPluralTable: true
+})
 export class FedacoModelStub extends Model {
   _connection: any;
   _scopesCalled: any      = [];
@@ -2668,10 +2698,14 @@ export class FedacoModelStub extends Model {
   @Column()
   id: number | string;
 
-  @Column()
+  @Column({
+    fillable: false
+  })
   name: string;
 
-  @Column()
+  @Column({
+    fillable: false
+  })
   age: number;
 
   @Column()
@@ -2695,10 +2729,14 @@ export class FedacoModelStub extends Model {
     this._attributes['list_items'] = JSON.stringify(value);
   }
 
-  @Column()
+  @Column({
+    fillable: false
+  })
   foo: any;
 
-  @Column()
+  @Column({
+    fillable: false
+  })
   bar: any;
 
   @Column()
@@ -2722,7 +2760,7 @@ export class FedacoModelStub extends Model {
     this._attributes['password_hash'] = createHash('sha1').update(value, 'utf8').digest('hex');
   }
 
-  public publicIncrement(column: string, amount: number = 1, extra: any[] = []) {
+  public publicIncrement(column: string, amount = 1, extra: any[] = []) {
     return this.Increment(column, amount, extra);
   }
 

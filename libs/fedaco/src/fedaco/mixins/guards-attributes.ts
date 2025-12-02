@@ -7,7 +7,7 @@
 import { reflector } from '@gradii/annotation';
 import { isArray, isPromise } from '@gradii/nanofn';
 import { findLast } from 'ramda';
-import type { ColumnAnnotation} from '../../annotation/column';
+import type { ColumnAnnotation } from '../../annotation/column';
 import { FedacoColumn } from '../../annotation/column';
 import type { Constructor } from '../../helper/constructor';
 
@@ -20,7 +20,9 @@ export declare class GuardsAttributes {
   /*Indicates if all mass assignment is enabled.*/
   static _unguarded: boolean;
   /*The actual columns that exist on the database and can be guarded.*/
-  static _guardableColumns: any[];
+  static readonly _guardableColumns: string[];
+
+  static readonly _metaFillable: string[];
 
   /*Disable all mass assignable restrictions.*/
   static unguard(state: boolean): void;
@@ -40,7 +42,7 @@ export interface GuardsAttributes {
   _fillable: string[];
   /*The attributes that aren't mass assignable.*/
   _guarded: string[];
-  _defaultMetaFillable: string[];
+
   _unFillable: string[];
 
   GetFillable(): string[];
@@ -68,9 +70,7 @@ export interface GuardsAttributes {
   _fillableFromArray(attributes: any): this;
 }
 
-
 export type GuardsAttributesCtor<M> = Constructor<GuardsAttributes>;
-
 
 export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): GuardsAttributesCtor<M> & T {
   return class _Self extends base {
@@ -78,16 +78,19 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
     _fillable: string[] = [];
     /*The attributes that aren't mass assignable.*/
     _guarded: string[] = ['*'];
-    _defaultMetaFillable: string[] = [];
+
     _unFillable: string[] = [];
     /*Indicates if all mass assignment is enabled.*/
     static _unguarded = false;
     /*The actual columns that exist on the database and can be guarded.*/
-    static _guardableColumns: any[];
+    static _guardableColumns: string[];
+
+    static _metaFillable: string[];
 
     constructor(...args: any[]) {
       super(...args);
       this._initFillableFromAnnotations();
+      this._initGuardedFromAnnotations();
     }
 
     /*Get the fillable attributes for the model.*/
@@ -96,7 +99,7 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
     }
 
     public GetRealFillable() {
-      const fillable = new Set(this._defaultMetaFillable);
+      const fillable = new Set((this.constructor as typeof _Self)._metaFillable);
       for (const item of this._unFillable) {
         fillable.delete(item);
       }
@@ -107,12 +110,11 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
     }
 
     #noDefinedFillable() {
-      return this._fillable.length === 0
+      return this._fillable.length === 0;
     }
 
     #realNoFillable() {
-      return this._fillable.length === 0 &&
-        this._defaultMetaFillable.length === 0
+      return this._fillable.length === 0 && (this.constructor as typeof _Self)._metaFillable.length === 0;
     }
 
     #checkFillable(key: string) {
@@ -122,8 +124,16 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
       if (this._unFillable.includes(key)) {
         return false;
       }
-      return this._defaultMetaFillable.includes(key);
+      return (this.constructor as typeof _Self)._metaFillable.includes(key);
     }
+
+    // // if define guarded is not ['*']
+    // #checkDefineGuarded(key: string) {
+    //   if(!this.GetGuarded().length || isAnyGuarded(this.GetGuarded())) {
+    //     return false;
+    //   }
+    //   return this.GetGuarded().includes(key)
+    // }
 
     /*Set the fillable attributes for the model.*/
     public Fillable(fillable: string[]) {
@@ -210,9 +220,7 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
       if (this.IsGuarded(key)) {
         return false;
       }
-      return this.#noDefinedFillable() &&
-        !key.includes('.') &&
-        !key.startsWith('_');
+      return this.#noDefinedFillable() && !key.includes('.') && !key.startsWith('_');
     }
 
     /*Determine if the given key is guarded.*/
@@ -220,30 +228,12 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
       if (!this.GetGuarded().length) {
         return false;
       }
-      return isAnyGuarded(this.GetGuarded()) ||
-        this.GetGuarded().includes(key) ||
-        !this._isGuardableColumn(key);
+      return isAnyGuarded(this.GetGuarded()) || this.GetGuarded().includes(key) || !this._isGuardableColumn(key);
     }
 
     /*Determine if the given column is a valid, guardable column.*/
     _isGuardableColumn(key: string) {
-      if (this._guardableColumns == undefined) {
-        // this._guardableColumns = this.getConnection().getSchemaBuilder().getColumnListing(this.getTable());
-        this._guardableColumns = [];
-        const meta             = reflector.propMetadata(this.constructor);
-        for (const x of Object.keys(meta)) {
-          if (meta[x] && isArray(meta[x])) {
-            const currentMeta = findLast(it => {
-              return FedacoColumn.isTypeOf(it);
-            }, meta[x]) as ColumnAnnotation;
-
-            if (currentMeta) {
-              this._guardableColumns.push(x);
-            }
-          }
-        }
-      }
-      return this._guardableColumns.includes(key);
+      return (this.constructor as typeof _Self)._guardableColumns.includes(key);
     }
 
     /*Determine if the model is totally guarded.*/
@@ -253,9 +243,7 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
 
     /*Get the fillable attributes of a given array.*/
     _fillableFromArray(attributes: any) {
-      if ((
-          !(this.#realNoFillable())
-        ) && !(this.constructor as typeof _Self)._unguarded) {
+      if (!this.#realNoFillable() && !(this.constructor as typeof _Self)._unguarded) {
         const rst: any = {};
         for (const key of Object.keys(attributes)) {
           if (this.IsFillable(key)) {
@@ -269,17 +257,42 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
 
     /*Initialize the fillable attributes from annotations.*/
     _initFillableFromAnnotations() {
-      const meta = reflector.propMetadata(this.constructor);
-      for (const key of Object.keys(meta)) {
-        if (meta[key] && isArray(meta[key])) {
-          const currentMeta = findLast(it => {
-            return FedacoColumn.isTypeOf(it);
-          }, meta[key]) as ColumnAnnotation;
+      if ((this.constructor as typeof _Self)._guardableColumns == undefined) {
+        const _metaFillable: string[] = [];
+        const meta = reflector.propMetadata(this.constructor);
+        for (const key of Object.keys(meta)) {
+          if (meta[key] && isArray(meta[key])) {
+            const currentMeta = findLast((it) => {
+              return FedacoColumn.isTypeOf(it);
+            }, meta[key]) as ColumnAnnotation;
 
-          if (currentMeta && currentMeta.fillable) {
-            this._defaultMetaFillable.push(key);
+            if (currentMeta && currentMeta.fillable) {
+              _metaFillable.push(key);
+            }
           }
         }
+
+        (this.constructor as typeof _Self)._metaFillable = _metaFillable;
+      }
+    }
+
+    _initGuardedFromAnnotations() {
+      if ((this.constructor as typeof _Self)._guardableColumns == undefined) {
+        const _guardableColumns: string[] = [];
+        const meta = reflector.propMetadata(this.constructor);
+        for (const x of Object.keys(meta)) {
+          if (meta[x] && isArray(meta[x])) {
+            const currentMeta = findLast((it) => {
+              return FedacoColumn.isTypeOf(it);
+            }, meta[x]) as ColumnAnnotation;
+
+            if (currentMeta) {
+              _guardableColumns.push(x);
+            }
+          }
+        }
+
+        (this.constructor as typeof _Self)._guardableColumns = _guardableColumns;
       }
     }
   };
