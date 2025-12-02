@@ -5,6 +5,7 @@
  */
 
 import { isArray, isBlank, isNumber, isString } from '@gradii/nanofn';
+import { format, fromUnixTime } from 'date-fns';
 import { difference, intersection, pluck } from 'ramda';
 import type { Collection } from '../../../define/collection';
 import { mapWithKeys, wrap } from '../../../helper/arr';
@@ -236,7 +237,7 @@ export function mixinInteractsWithPivotTable<T extends Constructor<any>>(base: T
 
     /*Update an existing pivot record on the table.*/
     public async updateExistingPivot(this: BelongsToMany & _Self, id: any, attributes: any,
-                                     touch = true): Promise<any> {
+                                     touch = true): Promise<boolean> {
       if (this._using &&
         !this._pivotWheres.length &&
         !this._pivotWhereIns.length &&
@@ -258,15 +259,14 @@ export function mixinInteractsWithPivotTable<T extends Constructor<any>>(base: T
     /*Update an existing pivot record on the table via a custom class.*/
     async _updateExistingPivotUsingCustomClass(this: BelongsToMany & _Self, id: any,
                                                attributes: any,
-                                               touch: boolean): Promise<any> {
-      const pivot   = (await this._getCurrentlyAttachedPivots())
-        .filter((item) => item[this._foreignPivotKey] == this._parent.GetAttribute(this._parentKey))
-        .filter((item) => item[this._relatedPivotKey] == this._parseId(id))
+                                               touch: boolean): Promise<boolean> {
+      const pivot: Pivot   = (await this._getCurrentlyAttachedPivots())
+        .filter((item) => item.GetAttribute(this._foreignPivotKey) == this._parent.GetAttribute(this._parentKey))
+        .filter((item) => item.GetAttribute(this._relatedPivotKey) == this._parseId(id))
         .pop();
-      //todo fixme
-      const updated = pivot ? pivot.fill(attributes).isDirty() : false;
+      const updated = pivot ? pivot.Fill(attributes).IsDirty() : false;
       if (updated) {
-        await pivot.save();
+        await pivot.Save();
       }
       if (touch) {
         await this.touchIfTouching();
@@ -343,11 +343,11 @@ export function mixinInteractsWithPivotTable<T extends Constructor<any>>(base: T
     /*Set the creation and update timestamps on an attach record.*/
     _addTimestampsToAttachment(this: BelongsToMany & _Self, record: Record<any, any>,
                                exists = false): Record<string, any> {
-      let fresh = this.parent.freshTimestamp();
+      let fresh: any = this.getParent().FreshTimestamp();
       if (this._using) {
         // @ts-ignore
         const pivotModel = new this._using();
-        fresh            = fresh.format(pivotModel.getDateFormat());
+        fresh            = format(fromUnixTime(fresh), pivotModel.GetDateFormat());
       }
       if (!exists && this.hasPivotColumn(this.createdAt())) {
         record[this.createdAt()] = fresh;
@@ -405,9 +405,9 @@ export function mixinInteractsWithPivotTable<T extends Constructor<any>>(base: T
     async _getCurrentlyAttachedPivots(this: BelongsToMany & _Self): Promise<any[]> {
       return (await this.newPivotQuery().get()).map((record: any) => {
         const clazz = this._using; // todo recovery me || Pivot;
-        const pivot = clazz.fromRawAttributes(this.parent, /*cast type array*/ record,
+        const pivot = clazz.fromRawAttributes(this.getParent(), /*cast type array*/ record,
           this.getTable(), true);
-        return pivot.setPivotKeys(this.foreignPivotKey, this.relatedPivotKey);
+        return pivot.SetPivotKeys(this._foreignPivotKey, this._relatedPivotKey);
       });
     }
 

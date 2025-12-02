@@ -24,7 +24,7 @@ import { mixinQueriesRelationships } from './mixins/queries-relationships';
 import type { Model } from './model';
 import { Relation } from './relations/relation';
 import { Scope } from './scope';
-import { FedacoBuilderSymbol } from '../symbol/fedaco-symbol';
+import { BelongsToManySymbol, FedacoBuilderSymbol } from '../symbol/fedaco-symbol';
 
 export interface FedacoBuilder<T extends Model = Model> extends GuardsAttributes, QueriesRelationships,
   Omit<BuildQueries, 'first' | 'latest' | 'oldest' | 'orWhere' | 'where'>,
@@ -1072,7 +1072,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
             return column;
           }
           // @ts-ignore
-          return Relation.BelongsToMany && query instanceof Relation.BelongsToMany ?
+          return query[BelongsToManySymbol] ?
             query.getRelated().getTable() + '.' + column :
             column;
         }));

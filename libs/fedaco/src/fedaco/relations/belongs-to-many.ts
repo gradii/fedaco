@@ -25,6 +25,7 @@ import type {
 import { mixinInteractsWithPivotTable
 } from './concerns/interacts-with-pivot-table';
 import { Relation } from './relation';
+import { BelongsToManySymbol } from '../../symbol/fedaco-symbol';
 
 export interface BelongsToMany extends InteractsWithDictionary, InteractsWithPivotTable, Constructor<Relation> {
 
@@ -711,7 +712,6 @@ export class BelongsToMany extends mixinInteractsWithDictionary(
   public qualifyPivotColumn(column: string) {
     return column.includes('.') ? column : `${this._table}.${column}`;
   }
-}
 
-// @ts-ignore
-Relation.BelongsToMany = BelongsToMany;
+  [BelongsToManySymbol] = true;
+}
