@@ -45,8 +45,8 @@ import type { JoinClauseBuilder, QueryBuilder } from '../query-builder';
 import { QueryBuilderVisitor } from '../visitor/query-builder-visitor';
 
 export abstract class QueryGrammar extends BaseGrammar implements GrammarInterface<QueryBuilder> {
-  constructor(ctx: Record<string, any> = {}) {
-    super(ctx);
+  constructor() {
+    super();
   }
 
   protected _selectComponents: string[] = [
@@ -104,14 +104,14 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     return ast;
   }
 
-  compileAggregateFragment(aggregateFunctionName: any,
-                           aggregateColumns: any,
-                           visitor: SqlVisitor) {
+  stepAggregateFragment(aggregateFunctionName: any,
+                        aggregateColumns: any,
+                        visitor: SqlVisitor) {
     return ``;
   }
 
   /*Compile a delete statement into SQL.*/
-  public compileDelete(query: QueryBuilder) {
+  public compileDelete(query: QueryBuilder, ctx: any = {}) {
     let ast;
     if (query._joins.length > 0) {
       ast = this._prepareDeleteAstWithJoins(query);
@@ -119,17 +119,17 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
       ast = this._prepareDeleteAstWithoutJoins(query);
     }
 
-    const visitor = this._createVisitor(query);
+    const visitor = this._createVisitor(query, ctx);
 
     return ast.accept(visitor);
   }
 
-  compileExists(builder: QueryBuilder): string {
-    return `SELECT exists(${this.compileSelect(builder)}) AS \`exists\``;
+  compileExists(builder: QueryBuilder, ctx: any = {}): string {
+    return `SELECT exists(${this.compileSelect(builder, ctx)}) AS \`exists\``;
   }
 
-  compileInsert(builder: QueryBuilder, values: any | any[], insertOption = 'into'): string {
-    const visitor = this._createVisitor(builder);
+  compileInsert(builder: QueryBuilder, values: any | any[], insertOption = 'into', ctx: any = {}): string {
+    const visitor = this._createVisitor(builder, ctx);
 
     if (isAnyEmpty(values)) {
       return 'INSERT INTO ' + builder._from.accept(visitor) + ' DEFAULT VALUES';
@@ -162,16 +162,16 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     return ast.accept(visitor);
   }
 
-  compileInsertGetId(builder: QueryBuilder, values: any, sequence: string): string {
-    return this.compileInsert(builder, values);
+  compileInsertGetId(builder: QueryBuilder, values: any, sequence: string, ctx: any = {}): string {
+    return this.compileInsert(builder, values, undefined, ctx);
   }
 
-  compileInsertOrIgnore(builder: QueryBuilder, values: any | any[]): string {
-    return this.compileInsert(builder, values, 'ignore into');
+  compileInsertOrIgnore(builder: QueryBuilder, values: any | any[], ctx: any = {}): string {
+    return this.compileInsert(builder, values, 'ignore into', ctx);
   }
 
   compileInsertUsing(builder: QueryBuilder, columns: string[],
-                     nestedExpression: NestedExpression): string {
+                     nestedExpression: NestedExpression, ctx: any = {}): string {
     const ast     = new InsertSpecification(
       'into',
 
@@ -185,12 +185,12 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
       }),
       builder._from
     );
-    const visitor = this._createVisitor(builder);
+    const visitor = this._createVisitor(builder, ctx);
 
     return ast.accept(visitor);
   }
 
-  compileJoinFragment(builder: JoinClauseBuilder, visitor: SqlVisitor): string {
+  stepJoinFragment(builder: JoinClauseBuilder, visitor: SqlVisitor): string {
     let whereClause: ConditionExpression;
     if (builder._wheres.length > 0) {
       // todo check
@@ -220,7 +220,7 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     return ast.accept(visitor);
   }
 
-  compileNestedPredicate(builder: Builder, visitor: SqlVisitor): string {
+  stepNestedPredicate(builder: Builder, visitor: SqlVisitor): string {
     const ast = new ParenthesizedExpression(
       new ConditionExpression(
         builder._wheres
@@ -229,9 +229,7 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     return ast.accept(visitor);
   }
 
-  compileSelect(builder: Builder, ctx?: {
-    offset?: number
-  }) {
+  compileSelect(builder: Builder, ctx: any = {}) {
     return '';
   }
 
@@ -303,27 +301,27 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     return '';
   }
 
-  compileTruncate(builder: QueryBuilder): { [sql: string]: any[] } {
+  compileTruncate(builder: QueryBuilder, ctx: any = {}): { [sql: string]: any[] } {
     return {
       [`TRUNCATE TABLE ${builder._from.accept(
-        this._createVisitor(builder))}`]: builder.getBindings()
+        this._createVisitor(builder, ctx))}`]: builder.getBindings()
     };
   }
 
-  compileUpdate(builder: QueryBuilder, values: any): string {
+  compileUpdate(builder: QueryBuilder, values: any, ctx: any = {}): string {
     const ast = this._prepareUpdateAst(builder, values);
 
-    const visitor = this._createVisitor(builder);
+    const visitor = this._createVisitor(builder, ctx);
 
     return ast.accept(visitor);
   }
 
   compileUpsert(builder: Builder, values: any, uniqueBy: any[] | string,
-                update: any[] | null): string {
+                update: any[] | null, ctx: any = {}): string {
     throw new Error('RuntimeException This database engine does not support upserts.');
   }
 
-  compilePredicateFuncName(funcName: string) {
+  predicateFuncName(funcName: string) {
     if (funcName === 'JsonContains') {
       return 'json_contains';
     }
@@ -510,8 +508,8 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     return ast;
   }
 
-  protected _createVisitor(queryBuilder: QueryBuilder): QueryBuilderVisitor {
-    return new QueryBuilderVisitor(queryBuilder._grammar, queryBuilder, this.ctx);
+  protected _createVisitor(queryBuilder: QueryBuilder, ctx: any = {}): QueryBuilderVisitor {
+    return new QueryBuilderVisitor(queryBuilder._grammar, queryBuilder, ctx);
   }
 
   /*Compile a delete statement without joins into SQL.*/

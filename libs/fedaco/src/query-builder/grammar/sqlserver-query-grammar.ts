@@ -21,28 +21,28 @@ export class SqlserverQueryGrammar extends QueryGrammar implements GrammarInterf
   private _tablePrefix = '';
 
 
-  compileSelect(builder: QueryBuilder): string {
+  compileSelect(builder: QueryBuilder, ctx: any = {}): string {
 
     const ast = this._prepareSelectAst(builder);
 
-    const visitor = new SqlserverQueryBuilderVisitor(builder._grammar, builder, this.ctx);
+    const visitor = new SqlserverQueryBuilderVisitor(builder._grammar, builder, ctx);
 
     return ast.accept(visitor);
   }
 
-  compileUpdate(builder: QueryBuilder, values: any): string {
+  compileUpdate(builder: QueryBuilder, values: any, ctx: any = {}): string {
     const ast = this._prepareUpdateAst(builder, values);
 
-    const visitor = new SqlserverQueryBuilderVisitor(builder._grammar, builder, this.ctx);
+    const visitor = new SqlserverQueryBuilderVisitor(builder._grammar, builder, ctx);
 
     return ast.accept(visitor);
   }
 
-  compileInsertOrIgnore(builder: QueryBuilder, values: any): string {
+  compileInsertOrIgnore(builder: QueryBuilder, values: any, ctx: any = {}): string {
     throw new Error('RuntimeException');
   }
 
-  compilePredicateFuncName(funcName: string): string {
+  predicateFuncName(funcName: string): string {
     return snakeCase(funcName);
   }
 
@@ -80,13 +80,13 @@ export class SqlserverQueryGrammar extends QueryGrammar implements GrammarInterf
     return this;
   }
 
-  compileInsertGetId(builder: QueryBuilder, values: any, sequence: string): string {
+  compileInsertGetId(builder: QueryBuilder, values: any, sequence: string, ctx: any = {}): string {
     return `set nocount on;${super.compileInsertGetId(builder, values,
-      sequence)};select scope_identity() as ${this.wrap(sequence)}`;
+      sequence, ctx)};select scope_identity() as ${this.wrap(sequence)}`;
   }
 
-  protected _createVisitor(queryBuilder: QueryBuilder) {
-    return new SqlserverQueryBuilderVisitor(queryBuilder._grammar, queryBuilder, this.ctx);
+  protected _createVisitor(queryBuilder: QueryBuilder, ctx: any = {}) {
+    return new SqlserverQueryBuilderVisitor(queryBuilder._grammar, queryBuilder, ctx);
   }
 
   protected _prepareDeleteAstWithJoins(builder: QueryBuilder) {

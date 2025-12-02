@@ -163,8 +163,7 @@ export class QueryBuilder extends Builder {
     ) {
       return new NestedExpression(type, query);
     } else if (query instanceof FedacoBuilder) {
-      const {result: sql, bindings} = query.toSql();
-      return new NestedExpression(type, sql, bindings);
+      return new NestedExpression(type, query);
     } else if (isString(query)) {
       return new NestedExpression(type, query, []);
     } else {
@@ -672,11 +671,11 @@ export class QueryBuilder extends Builder {
     this._beforeQueryCallbacks = [];
   }
 
-  toSql() {
+  toSql(ctx: any = {}) {
     this.applyBeforeQueryCallbacks();
 
     this.resetBindings();
-    return this._grammar.compileSelect(this);
+    return this._grammar.compileSelect(this, ctx);
   }
 
   resetBindings() {

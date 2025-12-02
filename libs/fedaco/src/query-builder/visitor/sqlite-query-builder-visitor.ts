@@ -51,7 +51,7 @@ export class SqliteQueryBuilderVisitor extends QueryBuilderVisitor {
 
   visitFunctionCallExpression(node: FunctionCallExpression): string {
     let funcName = node.name.accept(this);
-    funcName     = this._grammar.compilePredicateFuncName(funcName);
+    funcName     = this._grammar.predicateFuncName(funcName);
     switch (funcName) {
       case 'date':
         return `strftime('%Y-%m-%d', ${

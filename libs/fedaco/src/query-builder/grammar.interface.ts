@@ -9,34 +9,34 @@ import type { SqlVisitor } from '../query/sql-visitor';
 import type { Builder } from './builder';
 
 export interface GrammarInterface<T extends Builder = Builder> {
-  compileAggregateFragment(functionName: any, columns: any, visitor: SqlVisitor): string;
+  stepJoinFragment(builder: T, visitor: SqlVisitor): string;
 
-  compileDelete(builder: T): string;
+  stepNestedPredicate(builder: T, visitor: SqlVisitor): string;
 
-  compileExists(builder: T): string;
+  stepAggregateFragment(functionName: any, columns: any, visitor: SqlVisitor): string;
 
-  compileInsert(builder: T, values: any): string;
+  compileDelete(builder: T, ctx?: any): string;
 
-  compileInsertGetId(builder: T, values: any, sequence: string): string;
+  compileExists(builder: T, ctx?: any): string;
 
-  compileInsertOrIgnore(builder: T, values: any): string;
+  compileInsert(builder: T, values: any, insertOption?: string, ctx?: any): string;
 
-  compileInsertUsing(builder: T, columns: any, nestedExpression: NestedExpression): string;
+  compileInsertGetId(builder: T, values: any, sequence: string, ctx?: any): string;
 
-  compileJoinFragment(builder: T, visitor: SqlVisitor): string;
+  compileInsertOrIgnore(builder: T, values: any, ctx?: any): string;
 
-  compileNestedPredicate(builder: T, visitor: SqlVisitor): string;
+  compileInsertUsing(builder: T, columns: any, nestedExpression: NestedExpression, ctx?: any): string;
 
-  compileSelect(builder: T): string;
+  compileSelect(builder: T, ctx?: any): string;
 
-  compileTruncate(builder: T): { [sql: string]: any[] };
+  compileTruncate(builder: T, ctx?: any): { [sql: string]: any[] };
 
-  compileUpdate(builder: T, values: any): string;
+  compileUpdate(builder: T, values: any, ctx?: any): string;
 
   compileUpsert(builder: T, values: any, uniqueBy: any[] | string,
-                update: any[] | null): string;
+                update: any[] | null, ctx?: any): string;
 
-  compilePredicateFuncName(funcName: string): string;
+  predicateFuncName(funcName: string): string;
 
   distinct(distinct: boolean | any[]): string;
 

@@ -18,29 +18,29 @@ export class MysqlQueryGrammar extends QueryGrammar implements GrammarInterface<
   compileJoins() {
   }
 
-  protected _createVisitor(queryBuilder: QueryBuilder) {
-    return new MysqlQueryBuilderVisitor(queryBuilder._grammar, queryBuilder, this.ctx);
+  protected _createVisitor(queryBuilder: QueryBuilder, ctx: any = {}) {
+    return new MysqlQueryBuilderVisitor(queryBuilder._grammar, queryBuilder, ctx);
   }
 
-  compileSelect(builder: QueryBuilder): string {
+  compileSelect(builder: QueryBuilder, ctx: any = {}): string {
     const ast = this._prepareSelectAst(builder);
 
-    const visitor = new MysqlQueryBuilderVisitor(builder._grammar, builder, this.ctx);
+    const visitor = new MysqlQueryBuilderVisitor(builder._grammar, builder, ctx);
 
     return ast.accept(visitor);
   }
 
-  compileUpdate(builder: QueryBuilder, values: any): string {
+  compileUpdate(builder: QueryBuilder, values: any, ctx: any = {}): string {
     const ast = this._prepareUpdateAst(builder, values);
 
-    const visitor = new MysqlQueryBuilderVisitor(builder._grammar, builder, this.ctx);
+    const visitor = new MysqlQueryBuilderVisitor(builder._grammar, builder, ctx);
 
     return ast.accept(visitor);
   }
 
   compileUpsert(builder: QueryBuilder, values: any, uniqueBy: any[] | string,
-                update: any[] | null): string {
-    const sql = this.compileInsert(builder, values) + ' on duplicate key update ';
+                update: any[] | null, ctx: any = {}): string {
+    const sql = this.compileInsert(builder, values, undefined, ctx) + ' on duplicate key update ';
 
     const columns: string[] = [];
     if (isObject(update)) {
@@ -55,11 +55,11 @@ export class MysqlQueryGrammar extends QueryGrammar implements GrammarInterface<
     return sql + columns.join(', ');
   }
 
-  compilePredicateFuncName(funcName: string) {
+  predicateFuncName(funcName: string) {
     if (funcName === 'JsonLength') {
       return 'json_length';
     }
-    return super.compilePredicateFuncName(funcName);
+    return super.predicateFuncName(funcName);
   }
 
   quoteColumnName(columnName: string) {
@@ -91,16 +91,16 @@ export class MysqlQueryGrammar extends QueryGrammar implements GrammarInterface<
     return this;
   }
 
-  compileInsert(builder: QueryBuilder, values: any, insertOption = 'into'): string {
+  compileInsert(builder: QueryBuilder, values: any, insertOption = 'into', ctx: any = {}): string {
     if (isAnyEmpty(values)) {
-      const visitor = new QueryBuilderVisitor(builder._grammar, builder, this.ctx);
+      const visitor = new QueryBuilderVisitor(builder._grammar, builder, ctx);
       return 'INSERT INTO ' + `${builder._from.accept(visitor)} () VALUES ()`;
     }
 
-    return super.compileInsert(builder, values, insertOption);
+    return super.compileInsert(builder, values, insertOption, ctx);
   }
 
-  compileInsertGetId(builder: QueryBuilder, values: any, sequence: string): string {
-    return `${this.compileInsert(builder, values, 'into')} returning ${this.wrap(sequence)}`;
+  compileInsertGetId(builder: QueryBuilder, values: any, sequence: string, ctx: any = {}): string {
+    return `${this.compileInsert(builder, values, 'into', ctx)} returning ${this.wrap(sequence)}`;
   }
 }

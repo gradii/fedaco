@@ -90,7 +90,7 @@ export class MysqlQueryBuilderVisitor extends QueryBuilderVisitor {
 
   visitFunctionCallExpression(node: FunctionCallExpression): string {
     let funcName = node.name.accept(this);
-    funcName     = this._grammar.compilePredicateFuncName(funcName);
+    funcName     = this._grammar.predicateFuncName(funcName);
 
     if ('json_length' === funcName) {
       return `${funcName}(${

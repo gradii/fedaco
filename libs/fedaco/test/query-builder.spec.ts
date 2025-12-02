@@ -3471,7 +3471,7 @@ describe('database query builder test', () => {
     await builder.from('users').truncate();
     expect(spyStatement).toBeCalledWith('TRUNCATE TABLE `users`', []);
 
-    const sqlite = new SqliteQueryGrammar({});
+    const sqlite = new SqliteQueryGrammar();
     builder      = getSQLiteBuilder();
     builder.from('usersx');
     expect(sqlite.compileTruncate(builder)).toStrictEqual({

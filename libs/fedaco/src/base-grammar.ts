@@ -14,7 +14,7 @@ export abstract class BaseGrammar {
   /*The grammar table prefix.*/
   protected tablePrefix = '';
 
-  constructor(protected ctx: Record<string, any> = {}) {
+  constructor() {
   }
 
   /*Wrap an array of values.*/

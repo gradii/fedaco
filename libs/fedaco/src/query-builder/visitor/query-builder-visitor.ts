@@ -80,6 +80,7 @@ import { resolveIdentifier } from '../ast-helper';
 import { resolveForwardRef } from '../forward-ref';
 import type { GrammarInterface } from '../grammar.interface';
 import { QueryBuilder } from '../query-builder';
+import { FedacoBuilder } from '../../fedaco/fedaco-builder';
 
 export class QueryBuilderVisitor implements SqlVisitor {
   protected inJoinExpression = false;
@@ -104,7 +105,7 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
   visitAggregateFunctionCallFragment(node: AggregateFunctionCallFragment): string {
     let funcName = node.aggregateFunctionName.accept(this);
-    funcName     = this._grammar.compilePredicateFuncName(funcName);
+    funcName     = this._grammar.predicateFuncName(funcName);
     let columns;
     if (isArray(node.distinct)) {
       const list = node.distinct.map((it: SqlNode) => it.accept(this) as unknown as string);
@@ -282,7 +283,7 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
   visitFunctionCallExpression(node: FunctionCallExpression): string {
     let funcName = node.name.accept(this);
-    funcName     = this._grammar.compilePredicateFuncName(funcName);
+    funcName     = this._grammar.predicateFuncName(funcName);
 
     return `${funcName}(${
       node.parameters.map(it => it.accept(this)).join(', ')
@@ -367,7 +368,7 @@ export class QueryBuilderVisitor implements SqlVisitor {
   }
 
   visitJoinFragment(node: JoinFragment): string {
-    return this._grammar.compileJoinFragment(node.joinQueryBuilder, this);
+    return this._grammar.stepJoinFragment(node.joinQueryBuilder, this);
   }
 
   visitJoinOnExpression(node: JoinOnExpression): string {
@@ -411,12 +412,17 @@ export class QueryBuilderVisitor implements SqlVisitor {
       //must reset binding because
       node.expression.resetBindings();
 
-      // must reset to current grammar make sure the same context
-      node.expression._grammar = this._grammar;
+      // // must reset to current grammar make sure the same context
+      // node.expression._grammar = this._grammar;
 
-      sql = `(${this._grammar.compileSelect(node.expression)})`;
+      sql = `(${this._grammar.compileSelect(node.expression, this.ctx)})`;
 
       const bindings = node.expression.getBindings();
+      this._queryBuilder.addBinding(bindings, node.type);
+
+    } else if(node.expression instanceof FedacoBuilder) {
+      const {result, bindings} = node.expression.toSql(this.ctx);
+      sql = result;
       this._queryBuilder.addBinding(bindings, node.type);
 
     } else if (node.expression instanceof RawExpression) {
@@ -442,10 +448,10 @@ export class QueryBuilderVisitor implements SqlVisitor {
   visitNestedPredicateExpression(node: NestedPredicateExpression): string {
     if (node.query instanceof QueryBuilder) {
 
-      // must reset to current grammar make sure the same context
-      node.query._grammar = this._grammar;
+      // // must reset to current grammar make sure the same context
+      // node.query._grammar = this._grammar;
 
-      return this._grammar.compileNestedPredicate(node.query, this);
+      return this._grammar.stepNestedPredicate(node.query, this);
     } else {
       return `(${node.query})`;
     }

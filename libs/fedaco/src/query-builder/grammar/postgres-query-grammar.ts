@@ -30,27 +30,27 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
 
   }
 
-  protected _createVisitor(queryBuilder: QueryBuilder) {
-    return new PostgresQueryBuilderVisitor(queryBuilder._grammar, queryBuilder, this.ctx);
+  protected _createVisitor(queryBuilder: QueryBuilder, ctx: any = {}) {
+    return new PostgresQueryBuilderVisitor(queryBuilder._grammar, queryBuilder, ctx);
   }
 
-  compilePredicateFuncName(funcName: string): string {
+  predicateFuncName(funcName: string): string {
     if (funcName === 'JsonLength') {
       return 'json_array_length';
     }
     return snakeCase(funcName);
   }
 
-  compileTruncate(query: QueryBuilder): { [sql: string]: any[] } {
+  compileTruncate(query: QueryBuilder, ctx: any = {}): { [sql: string]: any[] } {
     return {
-      [`TRUNCATE ${query._from.accept(this._createVisitor(query))} restart identity cascade`]: []
+      [`TRUNCATE ${query._from.accept(this._createVisitor(query, ctx))} restart identity cascade`]: []
     };
   }
 
-  compileSelect(builder: QueryBuilder): string {
+  compileSelect(builder: QueryBuilder, ctx: any = {}): string {
     const ast = this._prepareSelectAst(builder);
 
-    const visitor = new PostgresQueryBuilderVisitor(builder._grammar, builder, this.ctx);
+    const visitor = new PostgresQueryBuilderVisitor(builder._grammar, builder, ctx);
 
     return ast.accept(visitor);
   }
@@ -62,10 +62,10 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
     return `"${quoteSchemaName.replace(/`'"/g, '')}"`;
   }
 
-  compileUpdate(builder: QueryBuilder, values: any): string {
+  compileUpdate(builder: QueryBuilder, values: any, ctx: any = {}): string {
     const ast = this._prepareUpdateAst(builder, values);
 
-    const visitor = new PostgresQueryBuilderVisitor(builder._grammar, builder, this.ctx);
+    const visitor = new PostgresQueryBuilderVisitor(builder._grammar, builder, ctx);
 
     return ast.accept(visitor);
   }
@@ -81,13 +81,13 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
     }
   }
 
-  compileInsertOrIgnore(builder: QueryBuilder, values: any): string {
-    return this.compileInsert(builder, values, 'into') + ' ON conflict do nothing';
+  compileInsertOrIgnore(builder: QueryBuilder, values: any, ctx: any = {}): string {
+    return this.compileInsert(builder, values, 'into', ctx) + ' ON conflict do nothing';
   }
 
   /*Compile an insert and get ID statement into SQL.*/
-  public compileInsertGetId(query: QueryBuilder, values: any[], sequence = 'id') {
-    return `${this.compileInsert(query, values)} returning ${this.wrap(sequence)}`;
+  public compileInsertGetId(query: QueryBuilder, values: any[], sequence = 'id', ctx: any = {}) {
+    return `${this.compileInsert(query, values, undefined, ctx)} returning ${this.wrap(sequence)}`;
   }
 
   quoteColumnName(columnName: string) {

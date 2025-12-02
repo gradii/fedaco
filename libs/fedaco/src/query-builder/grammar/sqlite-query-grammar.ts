@@ -26,17 +26,17 @@ export class SqliteQueryGrammar extends QueryGrammar implements GrammarInterface
 
   }
 
-  protected _createVisitor(queryBuilder: QueryBuilder) {
-    return new SqliteQueryBuilderVisitor(queryBuilder._grammar, queryBuilder, this.ctx);
+  protected _createVisitor(queryBuilder: QueryBuilder, ctx: any = {}) {
+    return new SqliteQueryBuilderVisitor(queryBuilder._grammar, queryBuilder, ctx);
   }
 
-  compileInsertOrIgnore(builder: QueryBuilder, values: any | any[]): string {
-    return this.compileInsert(builder, values, 'or ignore into');
+  compileInsertOrIgnore(builder: QueryBuilder, values: any | any[], ctx: any = {}): string {
+    return this.compileInsert(builder, values, 'or ignore into', ctx);
   }
 
   /*Compile a truncate table statement into SQL.*/
-  compileTruncate(query: QueryBuilder): { [sql: string]: any[] } {
-    const table = query._from.accept(this._createVisitor(query));
+  compileTruncate(query: QueryBuilder, ctx: any = {}): { [sql: string]: any[] } {
+    const table = query._from.accept(this._createVisitor(query, ctx));
     return {
       'DELETE FROM sqlite_sequence WHERE name = ?': [
         this.unQuoteTableName(table)
@@ -45,11 +45,11 @@ export class SqliteQueryGrammar extends QueryGrammar implements GrammarInterface
     };
   }
 
-  compileSelect(builder: QueryBuilder): string {
+  compileSelect(builder: QueryBuilder, ctx: any = {}): string {
 
     const ast = this._prepareSelectAst(builder);
 
-    const visitor = new SqliteQueryBuilderVisitor(builder._grammar, builder, this.ctx);
+    const visitor = new SqliteQueryBuilderVisitor(builder._grammar, builder, ctx);
 
     return ast.accept(visitor);
   }
@@ -62,7 +62,7 @@ export class SqliteQueryGrammar extends QueryGrammar implements GrammarInterface
     }
   }
 
-  compilePredicateFuncName(funcName: string): string {
+  predicateFuncName(funcName: string): string {
     if (funcName === 'JsonLength') {
       return 'json_array_length';
     }
