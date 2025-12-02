@@ -38,6 +38,7 @@ import type { GrammarInterface } from './grammar.interface';
 import type { ProcessorInterface } from './processor-interface';
 import {
   FedacoBuilderSymbol,
+  QueryBuilderSymbol,
   RelationSymbol,
 } from '../symbol/fedaco-symbol';
 
@@ -786,4 +787,5 @@ export class JoinClauseBuilder extends QueryBuilder {
     return super.newQuery();
   }
 
+  [QueryBuilderSymbol] = true
 }

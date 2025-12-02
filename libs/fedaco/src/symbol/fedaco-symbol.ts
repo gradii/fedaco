@@ -1,5 +1,5 @@
+export const QueryBuilderSymbol = Symbol('Fedaco QueryBuilder');
 
+export const FedacoBuilderSymbol = Symbol('Fedaco FedacoBuilder');
 
-export const FedacoBuilderSymbol = Symbol("FedacoBuilder");
-
-export const RelationSymbol = Symbol("FedacoRelation");
+export const RelationSymbol = Symbol('Fedaco Relation');
