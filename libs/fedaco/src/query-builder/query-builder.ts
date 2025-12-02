@@ -161,7 +161,7 @@ export class QueryBuilder extends Builder {
       // query instanceof EloquentBuilder || todo
       // query instanceof Relation todo
     ) {
-      return new NestedExpression(type, query.toSql(), query.getBindings());
+      return new NestedExpression(type, query);
     } else if (query instanceof FedacoBuilder) {
       const {result: sql, bindings} = query.toSql();
       return new NestedExpression(type, sql, bindings);

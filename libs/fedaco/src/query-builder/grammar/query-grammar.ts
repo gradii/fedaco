@@ -14,7 +14,7 @@ import { ConditionExpression } from '../../query/ast/expression/condition-expres
 import { FunctionCallExpression } from '../../query/ast/expression/function-call-expression';
 import { ParenthesizedExpression } from '../../query/ast/expression/parenthesized-expression';
 import { AggregateFunctionCallFragment } from '../../query/ast/fragment/aggregate-function-call-fragment';
-import type { NestedExpression } from '../../query/ast/fragment/nested-expression';
+import { NestedExpression } from '../../query/ast/fragment/nested-expression';
 import { FromClause } from '../../query/ast/from-clause';
 import { FromTable } from '../../query/ast/from-table';
 import { GroupByClause } from '../../query/ast/group-by-clause';
@@ -45,8 +45,8 @@ import type { JoinClauseBuilder, QueryBuilder } from '../query-builder';
 import { QueryBuilderVisitor } from '../visitor/query-builder-visitor';
 
 export abstract class QueryGrammar extends BaseGrammar implements GrammarInterface<QueryBuilder> {
-  constructor() {
-    super();
+  constructor(ctx: Record<string, any> = {}) {
+    super(ctx);
   }
 
   protected _selectComponents: string[] = [
@@ -229,7 +229,9 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     return ast.accept(visitor);
   }
 
-  compileSelect(builder: Builder) {
+  compileSelect(builder: Builder, ctx?: {
+    offset?: number
+  }) {
     return '';
   }
 
@@ -481,10 +483,10 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
 
     if (builder._unions.length > 0) {
       for (const it of builder._unions) {
-        const rightSql = it.expression.toSql();
-        const bindings = it.expression.getBindings();
-        builder.addBinding(bindings, 'union');
-        ast = new BinaryUnionQueryExpression(ast, raw(rightSql), it.all);
+        // must reset grammar to current grammar to align ctx
+        it.expression._grammar = this;
+
+        ast = new BinaryUnionQueryExpression(ast, new NestedExpression('union', it.expression), it.all);
       }
 
       if (builder._unionLimit >= 0) {
@@ -509,7 +511,7 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
   }
 
   protected _createVisitor(queryBuilder: QueryBuilder): QueryBuilderVisitor {
-    return new QueryBuilderVisitor(queryBuilder._grammar, queryBuilder);
+    return new QueryBuilderVisitor(queryBuilder._grammar, queryBuilder, this.ctx);
   }
 
   /*Compile a delete statement without joins into SQL.*/

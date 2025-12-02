@@ -27,7 +27,7 @@ export class SqliteQueryGrammar extends QueryGrammar implements GrammarInterface
   }
 
   protected _createVisitor(queryBuilder: QueryBuilder) {
-    return new SqliteQueryBuilderVisitor(queryBuilder._grammar, queryBuilder);
+    return new SqliteQueryBuilderVisitor(queryBuilder._grammar, queryBuilder, this.ctx);
   }
 
   compileInsertOrIgnore(builder: QueryBuilder, values: any | any[]): string {
@@ -49,7 +49,7 @@ export class SqliteQueryGrammar extends QueryGrammar implements GrammarInterface
 
     const ast = this._prepareSelectAst(builder);
 
-    const visitor = new SqliteQueryBuilderVisitor(builder._grammar, builder);
+    const visitor = new SqliteQueryBuilderVisitor(builder._grammar, builder, this.ctx);
 
     return ast.accept(visitor);
   }

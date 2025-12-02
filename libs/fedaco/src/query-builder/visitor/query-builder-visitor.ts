@@ -37,7 +37,7 @@ import type {
 } from '../../query/ast/fragment/expression/nested-predicate-expression';
 import type { JoinFragment } from '../../query/ast/fragment/join-fragment';
 import type { JsonPathColumn } from '../../query/ast/fragment/json-path-column';
-import type { NestedExpression } from '../../query/ast/fragment/nested-expression';
+import { NestedExpression } from '../../query/ast/fragment/nested-expression';
 import type {
   RejectOrderElementExpression
 } from '../../query/ast/fragment/order/reject-order-element-expression';
@@ -93,7 +93,8 @@ export class QueryBuilderVisitor implements SqlVisitor {
      * @deprecated
      * todo remove queryBuilder. should use binding only
      */
-    protected _queryBuilder: QueryBuilder
+    protected _queryBuilder: QueryBuilder,
+    protected ctx: Record<string, any>
   ) {
   }
 
@@ -162,12 +163,25 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
   visitBinaryUnionQueryExpression(node: BinaryUnionQueryExpression): string {
     let sql;
-    if (node.left instanceof BinaryUnionQueryExpression) { // todo check
-      sql = `${node.left.accept(this)} UNION${node.all ? ' ALL' : ''} (${node.right.accept(this)})`;
+    if (node.left instanceof BinaryUnionQueryExpression) {
+      const leftSql = node.left.accept(this)
+      const rightSql = node.right instanceof NestedExpression
+        ? node.right.accept(this)
+        : `(${node.right.accept(this)})`;
+
+      sql = `${leftSql} UNION${node.all ? ' ALL' : ''} ${rightSql}`;
     } else {
-      sql = `(${node.left.accept(this)}) UNION${node.all ? ' ALL' : ''} (${
-        node.right.accept(this)
-      })`;
+      const leftSql = node.left instanceof NestedExpression
+        ? node.left.accept(this)
+        : `(${node.left.accept(this)})`;
+
+      const rightSql = node.right instanceof NestedExpression
+        ? node.right.accept(this)
+        : `(${node.right.accept(this)})`;
+
+      sql = `${leftSql} UNION${node.all ? ' ALL' : ''} ${
+        rightSql
+      }`;
     }
 
     sql += this.visitQueryExpression(node);
@@ -397,6 +411,9 @@ export class QueryBuilderVisitor implements SqlVisitor {
       //must reset binding because
       node.expression.resetBindings();
 
+      // must reset to current grammar make sure the same context
+      node.expression._grammar = this._grammar;
+
       sql = `(${this._grammar.compileSelect(node.expression)})`;
 
       const bindings = node.expression.getBindings();
@@ -424,6 +441,10 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
   visitNestedPredicateExpression(node: NestedPredicateExpression): string {
     if (node.query instanceof QueryBuilder) {
+
+      // must reset to current grammar make sure the same context
+      node.query._grammar = this._grammar;
+
       return this._grammar.compileNestedPredicate(node.query, this);
     } else {
       return `(${node.query})`;

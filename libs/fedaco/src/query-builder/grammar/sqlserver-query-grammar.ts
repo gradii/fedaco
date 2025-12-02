@@ -25,7 +25,7 @@ export class SqlserverQueryGrammar extends QueryGrammar implements GrammarInterf
 
     const ast = this._prepareSelectAst(builder);
 
-    const visitor = new SqlserverQueryBuilderVisitor(builder._grammar, builder);
+    const visitor = new SqlserverQueryBuilderVisitor(builder._grammar, builder, this.ctx);
 
     return ast.accept(visitor);
   }
@@ -33,7 +33,7 @@ export class SqlserverQueryGrammar extends QueryGrammar implements GrammarInterf
   compileUpdate(builder: QueryBuilder, values: any): string {
     const ast = this._prepareUpdateAst(builder, values);
 
-    const visitor = new SqlserverQueryBuilderVisitor(builder._grammar, builder);
+    const visitor = new SqlserverQueryBuilderVisitor(builder._grammar, builder, this.ctx);
 
     return ast.accept(visitor);
   }
@@ -86,7 +86,7 @@ export class SqlserverQueryGrammar extends QueryGrammar implements GrammarInterf
   }
 
   protected _createVisitor(queryBuilder: QueryBuilder) {
-    return new SqlserverQueryBuilderVisitor(queryBuilder._grammar, queryBuilder);
+    return new SqlserverQueryBuilderVisitor(queryBuilder._grammar, queryBuilder, this.ctx);
   }
 
   protected _prepareDeleteAstWithJoins(builder: QueryBuilder) {
