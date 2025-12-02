@@ -1,7 +1,6 @@
-
 import { reflector } from '@gradii/annotation';
 import { FedacoColumn } from '../../annotation/column';
-import { mixinGuardsAttributes } from './guards-attributes';
+import { GuardsAttributes, mixinGuardsAttributes } from './guards-attributes';
 
 jest.mock('@gradii/annotation', () => ({
   reflector: {
@@ -25,7 +24,7 @@ describe('GuardsAttributes Mixin', () => {
     MixedClass = mixinGuardsAttributes(Base);
   });
 
-  it('should initialize _defaultMetaFillable from annotations', () => {
+  it('should initialize _metaFillable from annotations', () => {
     (reflector.propMetadata as jest.Mock).mockReturnValue({
       name: [{ fillable: true }],
       email: [{ fillable: true }],
@@ -36,7 +35,7 @@ describe('GuardsAttributes Mixin', () => {
 
     const instance = new MixedClass();
 
-    expect(instance._defaultMetaFillable).toEqual(['name', 'email']);
+    expect(instance.constructor._metaFillable).toEqual(['name', 'email']);
     expect(instance.GetRealFillable()).toEqual(['name', 'email']);
     expect(instance.IsFillable('name')).toBe(true);
     expect(instance.IsFillable('email')).toBe(true);
@@ -58,10 +57,10 @@ describe('GuardsAttributes Mixin', () => {
 
     const instance = new Child();
 
-    expect(instance._defaultMetaFillable).toEqual(['name']);
+    expect((instance.constructor as typeof GuardsAttributes)._metaFillable).toEqual(['name']);
     expect(instance.GetFillable()).toEqual(['manual_field']);
     expect(instance.GetRealFillable()).toEqual(['name', 'manual_field']);
-    
+
     expect(instance.IsFillable('name')).toBe(true);
     expect(instance.IsFillable('manual_field')).toBe(true);
   });
@@ -82,10 +81,10 @@ describe('GuardsAttributes Mixin', () => {
 
     const instance = new Child();
 
-    expect(instance._defaultMetaFillable).toEqual(['name', 'email']);
+    expect((instance.constructor as typeof GuardsAttributes)._metaFillable).toEqual(['name', 'email']);
     expect(instance._unFillable).toEqual(['email']);
     expect(instance.GetRealFillable()).toEqual(['name']);
-    
+
     expect(instance.IsFillable('name')).toBe(true);
     expect(instance.IsFillable('email')).toBe(false);
   });
@@ -127,11 +126,11 @@ describe('GuardsAttributes Mixin', () => {
     const instance = new Child();
 
     // _defaultMetaFillable should still be populated from parent constructor
-    expect(instance._defaultMetaFillable).toEqual(['annotation_field']);
+    expect((instance.constructor as typeof GuardsAttributes)._metaFillable).toEqual(['annotation_field']);
     // _fillable should be what the child defined
     expect(instance.GetFillable()).toEqual(['child_field']);
     expect(instance.GetRealFillable()).toEqual(['annotation_field', 'child_field']);
-    
+
     expect(instance.IsFillable('annotation_field')).toBe(true);
     expect(instance.IsFillable('child_field')).toBe(true);
   });
