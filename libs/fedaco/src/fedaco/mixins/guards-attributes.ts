@@ -49,7 +49,7 @@ export interface GuardsAttributes {
 
   Fillable(fillable: string[]): this;
 
-  MergeFillable(): this;
+  MergeFillable(fillable: string[]): this;
 
   TotallyGuarded(): boolean;
 
