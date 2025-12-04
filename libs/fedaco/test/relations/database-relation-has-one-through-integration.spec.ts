@@ -1,4 +1,4 @@
-import { head } from 'ramda';
+import { head } from '@gradii/nanofn';
 import { tap } from 'rxjs/operators';
 import { Column } from '../../src/annotation/column/column';
 import { DeletedAtColumn } from '../../src/annotation/column/deleted-at.column';
@@ -262,7 +262,7 @@ describe('test database fedaco has one through integration', () => {
             'updated_at',
             'fedaco_through_key',
           ]);
-        })
+        }),
       )
       .toPromise();
   });
@@ -300,7 +300,7 @@ describe('test database fedaco has one through integration', () => {
             'updated_at',
             'fedaco_through_key',
           ]);
-        })
+        }),
       );
   });
 

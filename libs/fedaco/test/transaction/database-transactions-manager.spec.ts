@@ -48,21 +48,19 @@ describe('test database transactions manager', () => {
   });
   it('callbacks are added to the current transaction', () => {
     const callbacks = [];
-    const manager   = new DatabaseTransactionsManager();
+    const manager = new DatabaseTransactionsManager();
     manager.begin('default', 1);
-    manager.addCallback(() => {
-    });
+    manager.addCallback(() => {});
     manager.begin('default', 2);
     manager.begin('admin', 1);
-    manager.addCallback(() => {
-    });
+    manager.addCallback(() => {});
     expect(manager.getTransactions()[0].getCallbacks()).toHaveLength(1);
     expect(manager.getTransactions()[1].getCallbacks()).toHaveLength(0);
     expect(manager.getTransactions()[2].getCallbacks()).toHaveLength(1);
   });
   it('committing transactions executes callbacks', async () => {
     const callbacks: any[] = [];
-    const manager          = new DatabaseTransactionsManager();
+    const manager = new DatabaseTransactionsManager();
     manager.begin('default', 1);
     manager.addCallback(() => {
       callbacks.push(['default', 1]);
@@ -80,7 +78,7 @@ describe('test database transactions manager', () => {
 
   it('committing executes only callbacks of the connection', () => {
     const callbacks: any[] = [];
-    const manager          = new DatabaseTransactionsManager();
+    const manager = new DatabaseTransactionsManager();
     manager.begin('default', 1);
     manager.addCallback(() => {
       callbacks.push(['default', 1]);
@@ -96,7 +94,7 @@ describe('test database transactions manager', () => {
   });
   it('callback is executed if no transactions', () => {
     const callbacks: any[] = [];
-    const manager          = new DatabaseTransactionsManager();
+    const manager = new DatabaseTransactionsManager();
     manager.addCallback(() => {
       callbacks.push(['default', 1]);
     });

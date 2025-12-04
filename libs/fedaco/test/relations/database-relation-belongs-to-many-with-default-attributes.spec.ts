@@ -30,7 +30,7 @@ describe('test database fedaco belongs to many with default attributes', () => {
       args[4],
       args[5],
       args[6],
-      args[7]
+      args[7],
     );
     relation.withPivotValue({
       is_admin: 1,
@@ -48,7 +48,7 @@ describe('test database fedaco belongs to many with default attributes', () => {
       args[4],
       args[5],
       args[6],
-      args[7]
+      args[7],
     );
     relation.withPivotValue({
       is_admin: 1,

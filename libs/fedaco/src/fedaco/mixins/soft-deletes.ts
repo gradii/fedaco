@@ -4,8 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank } from '@gradii/nanofn';
-import { tap } from 'ramda';
+import { isBlank, tap } from '@gradii/nanofn';
 import type { Constructor } from '../../helper/constructor';
 import type { Model } from '../model';
 import { SoftDeletingScope } from '../scopes/soft-deleting-scope';

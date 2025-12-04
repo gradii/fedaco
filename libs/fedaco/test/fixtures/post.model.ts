@@ -6,7 +6,6 @@
 
 import { Model } from '../../src/fedaco/model';
 
-
 export class Post extends Model {
   _guarded: string[] = [];
 }

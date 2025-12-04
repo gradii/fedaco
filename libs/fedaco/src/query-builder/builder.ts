@@ -28,7 +28,6 @@ import { mixinWhereDate } from './mixins/where-date';
 import { mixinWhereJson } from './mixins/where-json';
 import { mixinWherePredicate } from './mixins/where-predicate';
 
-
 export abstract class Builder extends mixinJoin(
   mixinOrderBy(
     mixinGroupBy(
@@ -36,22 +35,13 @@ export abstract class Builder extends mixinJoin(
         mixinLimitOffset(
           mixinUnion(
             mixinWhereJson(
-              mixinWhereDate(
-                mixinAggregate(
-                  mixinWherePredicate(
-                    mixinWhereCommon(
-                      mixinBuildQueries(class {
-                      })
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
-      )
-    )
-  )
+              mixinWhereDate(mixinAggregate(mixinWherePredicate(mixinWhereCommon(mixinBuildQueries(class {}))))),
+            ),
+          ),
+        ),
+      ),
+    ),
+  ),
 ) {
   /* The database query grammar instance. */
   _grammar: GrammarInterface;
@@ -60,18 +50,18 @@ export abstract class Builder extends mixinJoin(
 
   /* The current query value bindings. */
   _bindings: { [key: string]: any[] } = {
-    'select'    : [],
-    'updateJoin': [],
-    'update'    : [],
-    'from'      : [],
-    'join'      : [],
-    'where'     : [],
-    'groupBy'   : [],
-    'having'    : [],
-    'order'     : [],
-    'union'     : [],
-    'unionOrder': [],
-    'insert'    : []
+    select    : [],
+    updateJoin: [],
+    update    : [],
+    from      : [],
+    join      : [],
+    where     : [],
+    groupBy   : [],
+    having    : [],
+    order     : [],
+    union     : [],
+    unionOrder: [],
+    insert    : [],
   };
 
   /* An aggregate function and column to be run. */

@@ -7,8 +7,7 @@
 import { type FedacoBuilder } from '../../src/fedaco/fedaco-builder';
 import { Model } from '../../src/fedaco/model';
 
-export interface FedacoBuilderTestHigherOrderWhereScopeStub extends Model {
-}
+export interface FedacoBuilderTestHigherOrderWhereScopeStub extends Model {}
 
 export class FedacoBuilderTestHigherOrderWhereScopeStub extends Model {
   _table = 'nest_table';

@@ -4,8 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { camelCase, isBlank } from '@gradii/nanofn';
-import { partition } from 'ramda';
+import { camelCase, isBlank, partition } from '@gradii/nanofn';
 import type { Connection } from '../../connection';
 import type { Blueprint } from '../blueprint';
 import { ColumnDefinition } from '../column-definition';

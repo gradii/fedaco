@@ -31,7 +31,7 @@
   "private": true,
   "dependencies": {
     "@gradii/annotation": "^3.0.1",
-    "@gradii/nanofn": "2.0.3",
+    "@gradii/nanofn": "^2.1.1",
     "@nestjs/common": "10.3.8",
     "@nestjs/core": "10.3.8",
     "@nestjs/platform-express": "10.3.8",
@@ -41,7 +41,6 @@
     "decimal.js": "^10.6.0",
     "mysql2": "^3.9.4",
     "pg": "^8.12.0",
-    "ramda": "^0.30.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
     "sqlite3": "^5.1.5",

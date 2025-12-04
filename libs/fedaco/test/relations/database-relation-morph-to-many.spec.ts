@@ -34,7 +34,7 @@ function getRelation() {
     'taggable_id',
     'tag_id',
     'id',
-    'id'
+    'id',
   );
 }
 
@@ -69,7 +69,7 @@ describe('test database fedaco morph to many', () => {
       args[5] as string,
       args[6] as string,
       args[7] as string,
-      args[8] as string
+      args[8] as string,
     );
     const query: QueryBuilder = {
       // @ts-ignore
@@ -117,7 +117,7 @@ describe('test database fedaco morph to many', () => {
       args[5] as string,
       args[6] as string,
       args[7] as string,
-      args[8] as string
+      args[8] as string,
     );
 
     const query: QueryBuilder = {

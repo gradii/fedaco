@@ -11,8 +11,7 @@ import type { QueryBuilder } from '../query-builder';
 
 export class SqlServerProcessor extends Processor {
   /* Process an "insert get ID" query. */
-  public async processInsertGetId(query: QueryBuilder, sql: string, values: any[],
-                                  sequence: string | null = null) {
+  public async processInsertGetId(query: QueryBuilder, sql: string, values: any[], sequence: string | null = null) {
     const connection = query.getConnection() as Connection;
     await connection.insert(sql, values);
     let id;
@@ -27,7 +26,8 @@ export class SqlServerProcessor extends Processor {
   /* Process an "insert get ID" query for ODBC. */
   protected async processInsertGetIdForOdbc(connection: Connection) {
     const result = await connection.selectFromWriteConnection(
-      'SELECT CAST(COALESCE(SCOPE_IDENTITY(), @@IDENTITY) AS int) AS insertid');
+      'SELECT CAST(COALESCE(SCOPE_IDENTITY(), @@IDENTITY) AS int) AS insertid',
+    );
     if (!result) {
       throw new Error('Unable to retrieve lastInsertID for ODBC.');
     }
@@ -41,36 +41,39 @@ export class SqlServerProcessor extends Processor {
   public processColumns($results: any[]) {
     return $results.map(function (result) {
       const typeName = result.type_name;
-      const type     = ({
-        'binary'   : 'binary',
-        'varbinary': 'varbinary',
-        'char'     : 'char',
-        'varchar'  : 'varchar',
-        'nchar'    : 'nchar',
-        'nvarchar' : result.length == -1 ?
-          typeName + '(max)' :
-          `${typeName}(${result.length})`,
-        'decimal'       : 'decimal',
-        'numeric'       : `${typeName}(${result.precision},${result.places})`,
-        'float'         : 'float',
-        'datetime2'     : 'datetime2',
-        'datetimeoffset': 'datetimeoffset',
-        'time'          : `${typeName}(${result.precision})`,
-      } as any)[typeName] || typeName;
+      const type =
+        (
+          {
+            binary        : 'binary',
+            varbinary     : 'varbinary',
+            char          : 'char',
+            varchar       : 'varchar',
+            nchar         : 'nchar',
+            nvarchar      : result.length == -1 ? typeName + '(max)' : `${typeName}(${result.length})`,
+            decimal       : 'decimal',
+            numeric       : `${typeName}(${result.precision},${result.places})`,
+            float         : 'float',
+            datetime2     : 'datetime2',
+            datetimeoffset: 'datetimeoffset',
+            time          : `${typeName}(${result.precision})`,
+          } as any
+        )[typeName] || typeName;
 
       return {
-        'name'          : result.name,
-        'type_name'     : result.type_name,
-        'type'          : type,
-        'collation'     : result.collation,
-        'nullable'      : Boolean(result.nullable),
-        'default'       : result.default,
-        'auto_increment': Boolean(result.autoincrement),
-        'comment'       : result.comment,
-        'generation'    : result.expression ? {
-          'type'      : result.persisted ? 'stored' : 'virtual',
-          'expression': result.expression,
-        } : null,
+        name          : result.name,
+        type_name     : result.type_name,
+        type          : type,
+        collation     : result.collation,
+        nullable      : Boolean(result.nullable),
+        default       : result.default,
+        auto_increment: Boolean(result.autoincrement),
+        comment       : result.comment,
+        generation    : result.expression
+          ? {
+              type      : result.persisted ? 'stored' : 'virtual',
+              expression: result.expression,
+            }
+          : null,
       };
     });
   }
@@ -82,11 +85,11 @@ export class SqlServerProcessor extends Processor {
   public processIndexes(results: any[]) {
     return results.map((result) => {
       return {
-        'name'   : result.name.toLowerCase(),
-        'columns': result.columns.split(','),
-        'type'   : result.type.toLowerCase(),
-        'unique' : Boolean(result.unique),
-        'primary': Boolean(result.primary),
+        name   : result.name.toLowerCase(),
+        columns: result.columns.split(','),
+        type   : result.type.toLowerCase(),
+        unique : Boolean(result.unique),
+        primary: Boolean(result.primary),
       };
     });
   }
@@ -97,13 +100,13 @@ export class SqlServerProcessor extends Processor {
   public processForeignKeys(results: any[]) {
     return results.map((result) => {
       return {
-        'name'           : result.name,
-        'columns'        : result.columns.split(','),
-        'foreign_schema' : result.foreign_schema,
-        'foreign_table'  : result.foreign_table,
-        'foreign_columns': result.foreign_columns.split(','),
-        'on_update'      : result.on_update.replace(/_/g, ' ').toLowerCase(),
-        'on_delete'      : result.on_delete.replace(/_/g, ' ').toLowerCase()
+        name           : result.name,
+        columns        : result.columns.split(','),
+        foreign_schema : result.foreign_schema,
+        foreign_table  : result.foreign_table,
+        foreign_columns: result.foreign_columns.split(','),
+        on_update      : result.on_update.replace(/_/g, ' ').toLowerCase(),
+        on_delete      : result.on_delete.replace(/_/g, ' ').toLowerCase(),
       };
     });
   }

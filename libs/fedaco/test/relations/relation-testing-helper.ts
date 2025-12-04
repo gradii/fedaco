@@ -11,30 +11,21 @@ import { Processor } from '../../src/query-builder/processor';
 import { type SchemaBuilder } from '../../src/schema/schema-builder';
 import { FedacoBuilder } from '../../src/fedaco/fedaco-builder';
 import { MysqlQueryGrammar } from '../../src/query-builder/grammar/mysql-query-grammar';
-import {type DatabaseTransactionsManager} from '../../src/database-transactions-manager';
+import { type DatabaseTransactionsManager } from '../../src/database-transactions-manager';
 
 let builder, related;
 
-
 class Conn implements ConnectionInterface {
-  getQueryGrammar(): any {
-
-  }
+  getQueryGrammar(): any {}
 
   getDatabaseName(): string {
     return 'default-database';
   }
 
-  getPostProcessor(): any {
-
-  }
+  getPostProcessor(): any {}
 
   query(): QueryBuilder {
-    return new QueryBuilder(
-      this,
-      new SqliteQueryGrammar(),
-      new Processor()
-    );
+    return new QueryBuilder(this, new SqliteQueryGrammar(), new Processor());
   }
 
   async select() {
@@ -45,37 +36,29 @@ class Conn implements ConnectionInterface {
     return false;
   }
 
-  async update() {
-  }
+  async update() {}
 
-  async delete() {
-  }
+  async delete() {}
 
-  async statement() {
-  }
+  async statement() {}
 
-  async affectingStatement() {
-  }
+  async affectingStatement() {}
 
   getName() {
     return '';
   }
 
-  getConfig(name: string): any {
-  }
+  getConfig(name: string): any {}
 
-  getPdo(): any {
-  }
+  getPdo(): any {}
 
   getSchemaBuilder(): SchemaBuilder {
     throw new Error('not implemented');
   }
 
-  recordsHaveBeenModified(): any {
-  }
+  recordsHaveBeenModified(): any {}
 
-  selectFromWriteConnection(sql: string, values: any): any {
-  }
+  selectFromWriteConnection(sql: string, values: any): any {}
 
   table(table: Function | QueryBuilder | string, as?: string): QueryBuilder {
     return undefined;
@@ -116,17 +99,11 @@ class Conn implements ConnectionInterface {
     return 0;
   }
 
-  unsetTransactionManager(): void {
-  }
+  unsetTransactionManager(): void {}
 
-  setTablePrefix(prefix: string): any {
-  }
+  setTablePrefix(prefix: string): any {}
 }
 
 export function getBuilder() {
-  return new FedacoBuilder(new QueryBuilder(
-    new Conn(),
-    new MysqlQueryGrammar(),
-    new Processor()
-  ));
+  return new FedacoBuilder(new QueryBuilder(new Conn(), new MysqlQueryGrammar(), new Processor()));
 }

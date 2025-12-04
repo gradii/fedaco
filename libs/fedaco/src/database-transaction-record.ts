@@ -15,7 +15,7 @@ export class DatabaseTransactionRecord {
   /* Create a new database transaction record instance. */
   public constructor(connection: string, level: number) {
     this.connection = connection;
-    this.level      = level;
+    this.level = level;
   }
 
   /* Register a callback to be executed after committing. */

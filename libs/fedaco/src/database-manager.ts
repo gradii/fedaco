@@ -22,11 +22,7 @@ class Conn implements ConnectionInterface {
   _query;
 
   constructor() {
-    this._query = new QueryBuilder(
-      this,
-      new MysqlQueryGrammar(),
-      new Processor()
-    );
+    this._query = new QueryBuilder(this, new MysqlQueryGrammar(), new Processor());
   }
 
   query() {
@@ -41,17 +37,13 @@ class Conn implements ConnectionInterface {
     return false;
   }
 
-  async update() {
-  }
+  async update() {}
 
-  async delete() {
-  }
+  async delete() {}
 
-  statement() {
-  }
+  statement() {}
 
-  async affectingStatement() {
-  }
+  async affectingStatement() {}
 
   getName() {
     return '';
@@ -61,17 +53,13 @@ class Conn implements ConnectionInterface {
     throw new Error('not implement');
   }
 
-  getConfig(name: string): any {
-  }
+  getConfig(name: string): any {}
 
-  getPdo(): any {
-  }
+  getPdo(): any {}
 
-  recordsHaveBeenModified(): any {
-  }
+  recordsHaveBeenModified(): any {}
 
-  selectFromWriteConnection(sql: string, values: any): any {
-  }
+  selectFromWriteConnection(sql: string, values: any): any {}
 
   table(table: Function | QueryBuilder | string, as?: string): QueryBuilder {
     return undefined;
@@ -112,11 +100,9 @@ class Conn implements ConnectionInterface {
     return 0;
   }
 
-  unsetTransactionManager(): void {
-  }
+  unsetTransactionManager(): void {}
 
-  setTablePrefix(prefix: string): any {
-  }
+  setTablePrefix(prefix: string): any {}
 }
 
 export class DatabaseManager implements ConnectionResolverInterface {
@@ -133,7 +119,7 @@ export class DatabaseManager implements ConnectionResolverInterface {
 
   // /*Create a new database manager instance.*/
   public constructor(factory: ConnectionFactory) {
-    this.factory     = factory;
+    this.factory = factory;
     this.reconnector = (connection: Connection) => {
       this.reconnect(connection.getNameWithReadWriteType());
     };
@@ -142,7 +128,7 @@ export class DatabaseManager implements ConnectionResolverInterface {
   /* Get a database connection instance. */
   public connection(name = 'default'): Connection {
     const [database, type] = this.parseConnectionName(name);
-    name                   = name || database;
+    name = name || database;
     if (!(this.connections[name] !== undefined)) {
       this.connections[name] = this.configure(this.makeConnection(database), type);
     }
@@ -169,7 +155,7 @@ export class DatabaseManager implements ConnectionResolverInterface {
 
   /* Get the configuration for a connection. */
   protected configuration(name: string): ConnectionConfig {
-    name         = name || this.getDefaultConnection();
+    name = name || this.getDefaultConnection();
     // @ts-ignore
     const config = DatabaseConfig.instance.config;
 

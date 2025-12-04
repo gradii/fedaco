@@ -11,30 +11,24 @@ import { ForeignIdColumnDefinition } from '../../src/schema/foreign-id-column-de
 import { PostgresSchemaGrammar } from '../../src/schema/grammar/postgres-schema-grammar';
 import { type SchemaBuilder } from '../../src/schema/schema-builder';
 
-
 jest.setTimeout(100000);
 
 class Conn extends Connection implements ConnectionInterface {
-
   constructor() {
     super(undefined, undefined, undefined, undefined);
   }
 
   // @ts-ignore
-  getDefaultQueryGrammar(): QueryGrammar {
-  }
+  getDefaultQueryGrammar(): QueryGrammar {}
 
   // @ts-ignore
-  getDefaultPostProcessor(): Processor {
-  }
+  getDefaultPostProcessor(): Processor {}
 
   getSchemaBuilder(): SchemaBuilder {
     throw new Error('Method not implemented.');
   }
 
-  getConfig(): any {
-
-  }
+  getConfig(): any {}
 
   table(table: string | Function | QueryBuilder, as?: string): QueryBuilder {
     throw new Error('Method not implemented.');
@@ -44,24 +38,16 @@ class Conn extends Connection implements ConnectionInterface {
     throw new Error('Method not implemented.');
   }
 
-  getQueryGrammar(): any {
-
-  }
+  getQueryGrammar(): any {}
 
   getDatabaseName(): string {
     return 'default-database';
   }
 
-  getPostProcessor(): any {
-
-  }
+  getPostProcessor(): any {}
 
   query(): QueryBuilder {
-    return new QueryBuilder(
-      this,
-      new PostgresQueryGrammar(),
-      new Processor()
-    );
+    return new QueryBuilder(this, new PostgresQueryGrammar(), new Processor());
   }
 
   async select() {
@@ -72,27 +58,21 @@ class Conn extends Connection implements ConnectionInterface {
     throw new Error('not implement');
   }
 
-  async update() {
-  }
+  async update() {}
 
-  async delete() {
-  }
+  async delete() {}
 
-  async statement() {
-  }
+  async statement() {}
 
-  async affectingStatement() {
-  }
+  async affectingStatement() {}
 
   getName() {
     return '';
   }
 
-  recordsHaveBeenModified(): any {
-  }
+  recordsHaveBeenModified(): any {}
 
-  selectFromWriteConnection(sql: string, values: any): any {
-  }
+  selectFromWriteConnection(sql: string, values: any): any {}
 }
 
 function getConnection() {
@@ -104,7 +84,6 @@ function getGrammar() {
 }
 
 describe('test database postgres schema grammar', () => {
-
   it('basic create table', async () => {
     let blueprint = new Blueprint('users');
     blueprint.create();
@@ -114,14 +93,16 @@ describe('test database postgres schema grammar', () => {
     let statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'create table "users" ("id" serial not null primary key, "email" varchar(255) not null, "name" varchar(255) collate "nb_NO.utf8" not null)');
+      'create table "users" ("id" serial not null primary key, "email" varchar(255) not null, "name" varchar(255) collate "nb_NO.utf8" not null)',
+    );
     blueprint = new Blueprint('users');
     blueprint.increments('id');
     blueprint.string('email');
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "id" serial not null primary key, add column "email" varchar(255) not null');
+      'alter table "users" add column "id" serial not null primary key, add column "email" varchar(255) not null',
+    );
   });
   it('create table and comment column', async () => {
     const blueprint = new Blueprint('users');
@@ -131,7 +112,8 @@ describe('test database postgres schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(2);
     expect(statements[0]).toBe(
-      'create table "users" ("id" serial not null primary key, "email" varchar(255) not null)');
+      'create table "users" ("id" serial not null primary key, "email" varchar(255) not null)',
+    );
     expect(statements[1]).toBe('comment on column "users"."email" is \'my first comment\'');
   });
   it('create temporary table', async () => {
@@ -143,7 +125,8 @@ describe('test database postgres schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'create temporary table "users" ("id" serial not null primary key, "email" varchar(255) not null)');
+      'create temporary table "users" ("id" serial not null primary key, "email" varchar(255) not null)',
+    );
   });
   it('drop table', async () => {
     const blueprint = new Blueprint('users');
@@ -216,16 +199,14 @@ describe('test database postgres schema grammar', () => {
     blueprint.dropTimestamps();
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" drop column "created_at", drop column "updated_at"');
+    expect(statements[0]).toBe('alter table "users" drop column "created_at", drop column "updated_at"');
   });
   it('drop timestamps tz', async () => {
     const blueprint = new Blueprint('users');
     blueprint.dropTimestampsTz();
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" drop column "created_at", drop column "updated_at"');
+    expect(statements[0]).toBe('alter table "users" drop column "created_at", drop column "updated_at"');
   });
   it('drop morphs', async () => {
     const blueprint = new Blueprint('photos');
@@ -233,8 +214,7 @@ describe('test database postgres schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(2);
     expect(statements[0]).toBe('drop index "photos_imageable_type_imageable_id_index"');
-    expect(statements[1]).toBe(
-      'alter table "photos" drop column "imageable_type", drop column "imageable_id"');
+    expect(statements[1]).toBe('alter table "photos" drop column "imageable_type", drop column "imageable_id"');
   });
   it('rename table', async () => {
     const blueprint = new Blueprint('users');
@@ -283,16 +263,14 @@ describe('test database postgres schema grammar', () => {
     blueprint.spatialIndex('coordinates');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'create index "geo_coordinates_spatialindex" on "geo" using gist ("coordinates")');
+    expect(statements[0]).toBe('create index "geo_coordinates_spatialindex" on "geo" using gist ("coordinates")');
   });
   it('adding fluent spatial index', async () => {
     const blueprint = new Blueprint('geo');
     blueprint.point('coordinates').withSpatialIndex();
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(2);
-    expect(statements[1]).toBe(
-      'create index "geo_coordinates_spatialindex" on "geo" using gist ("coordinates")');
+    expect(statements[1]).toBe('create index "geo_coordinates_spatialindex" on "geo" using gist ("coordinates")');
   });
   it('adding raw index', async () => {
     const blueprint = new Blueprint('users');
@@ -306,38 +284,33 @@ describe('test database postgres schema grammar', () => {
     blueprint.increments('id');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "id" serial not null primary key');
+    expect(statements[0]).toBe('alter table "users" add column "id" serial not null primary key');
   });
   it('adding small incrementing id', async () => {
     const blueprint = new Blueprint('users');
     blueprint.smallIncrements('id');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "id" smallserial not null primary key');
+    expect(statements[0]).toBe('alter table "users" add column "id" smallserial not null primary key');
   });
   it('adding medium incrementing id', async () => {
     const blueprint = new Blueprint('users');
     blueprint.mediumIncrements('id');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "id" serial not null primary key');
+    expect(statements[0]).toBe('alter table "users" add column "id" serial not null primary key');
   });
   it('adding id', async () => {
     let blueprint = new Blueprint('users');
     blueprint.id();
     let statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "id" bigserial not null primary key');
+    expect(statements[0]).toBe('alter table "users" add column "id" bigserial not null primary key');
     blueprint = new Blueprint('users');
     blueprint.id('foo');
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" bigserial not null primary key');
+    expect(statements[0]).toBe('alter table "users" add column "foo" bigserial not null primary key');
   });
   it('adding foreign id', async () => {
     const blueprint = new Blueprint('users');
@@ -353,7 +326,7 @@ describe('test database postgres schema grammar', () => {
       'alter table "users" add constraint "users_company_id_foreign" foreign key ("company_id") references "companies" ("id")',
       'alter table "users" add constraint "users_laravel_idea_id_foreign" foreign key ("laravel_idea_id") references "laravel_ideas" ("id")',
       'alter table "users" add constraint "users_team_id_foreign" foreign key ("team_id") references "teams" ("id")',
-      'alter table "users" add constraint "users_team_column_id_foreign" foreign key ("team_column_id") references "teams" ("id")'
+      'alter table "users" add constraint "users_team_column_id_foreign" foreign key ("team_column_id") references "teams" ("id")',
     ]);
   });
   it('adding big incrementing id', async () => {
@@ -361,8 +334,7 @@ describe('test database postgres schema grammar', () => {
     blueprint.bigIncrements('id');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "id" bigserial not null primary key');
+    expect(statements[0]).toBe('alter table "users" add column "id" bigserial not null primary key');
   });
   it('adding string', async () => {
     let blueprint = new Blueprint('users');
@@ -379,8 +351,7 @@ describe('test database postgres schema grammar', () => {
     blueprint.string('foo', 100).withNullable().withDefault('bar');
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" varchar(100) null default \'bar\'');
+    expect(statements[0]).toBe('alter table "users" add column "foo" varchar(100) null default \'bar\'');
   });
   it('adding text', async () => {
     const blueprint = new Blueprint('users');
@@ -399,8 +370,7 @@ describe('test database postgres schema grammar', () => {
     blueprint.bigInteger('foo', true);
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" bigserial not null primary key');
+    expect(statements[0]).toBe('alter table "users" add column "foo" bigserial not null primary key');
   });
   it('adding integer', async () => {
     let blueprint = new Blueprint('users');
@@ -412,8 +382,7 @@ describe('test database postgres schema grammar', () => {
     blueprint.integer('foo', true);
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" serial not null primary key');
+    expect(statements[0]).toBe('alter table "users" add column "foo" serial not null primary key');
   });
   it('adding medium integer', async () => {
     let blueprint = new Blueprint('users');
@@ -425,8 +394,7 @@ describe('test database postgres schema grammar', () => {
     blueprint.mediumInteger('foo', true);
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" serial not null primary key');
+    expect(statements[0]).toBe('alter table "users" add column "foo" serial not null primary key');
   });
   it('adding tiny integer', async () => {
     let blueprint = new Blueprint('users');
@@ -438,8 +406,7 @@ describe('test database postgres schema grammar', () => {
     blueprint.tinyInteger('foo', true);
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" smallserial not null primary key');
+    expect(statements[0]).toBe('alter table "users" add column "foo" smallserial not null primary key');
   });
   it('adding small integer', async () => {
     let blueprint = new Blueprint('users');
@@ -451,24 +418,21 @@ describe('test database postgres schema grammar', () => {
     blueprint.smallInteger('foo', true);
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" smallserial not null primary key');
+    expect(statements[0]).toBe('alter table "users" add column "foo" smallserial not null primary key');
   });
   it('adding float', async () => {
     const blueprint = new Blueprint('users');
     blueprint.float('foo', 5, 2);
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" double precision not null');
+    expect(statements[0]).toBe('alter table "users" add column "foo" double precision not null');
   });
   it('adding double', async () => {
     const blueprint = new Blueprint('users');
     blueprint.double('foo', 15, 8);
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" double precision not null');
+    expect(statements[0]).toBe('alter table "users" add column "foo" double precision not null');
   });
   it('adding decimal', async () => {
     const blueprint = new Blueprint('users');
@@ -490,7 +454,8 @@ describe('test database postgres schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "role" varchar(255) check ("role" in (\'member\', \'admin\')) not null');
+      'alter table "users" add column "role" varchar(255) check ("role" in (\'member\', \'admin\')) not null',
+    );
   });
   it('adding date', async () => {
     const blueprint = new Blueprint('users');
@@ -525,144 +490,126 @@ describe('test database postgres schema grammar', () => {
     blueprint.dateTime('created_at');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" timestamp(0) without time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" timestamp(0) without time zone not null');
   });
   it('adding date time with precision', async () => {
     const blueprint = new Blueprint('users');
     blueprint.dateTime('created_at', 1);
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" timestamp(1) without time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" timestamp(1) without time zone not null');
   });
   it('adding date time with null precision', async () => {
     const blueprint = new Blueprint('users');
     blueprint.dateTime('created_at', null);
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" timestamp without time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" timestamp without time zone not null');
   });
   it('adding date time tz', async () => {
     const blueprint = new Blueprint('users');
     blueprint.dateTimeTz('created_at');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" timestamp(0) with time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" timestamp(0) with time zone not null');
   });
   it('adding date time tz with precision', async () => {
     const blueprint = new Blueprint('users');
     blueprint.dateTimeTz('created_at', 1);
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" timestamp(1) with time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" timestamp(1) with time zone not null');
   });
   it('adding date time tz with null precision', async () => {
     const blueprint = new Blueprint('users');
     blueprint.dateTimeTz('created_at', null);
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" timestamp with time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" timestamp with time zone not null');
   });
   it('adding time', async () => {
     const blueprint = new Blueprint('users');
     blueprint.time('created_at');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" time(0) without time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" time(0) without time zone not null');
   });
   it('adding time with precision', async () => {
     const blueprint = new Blueprint('users');
     blueprint.time('created_at', 1);
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" time(1) without time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" time(1) without time zone not null');
   });
   it('adding time with null precision', async () => {
     const blueprint = new Blueprint('users');
     blueprint.time('created_at', null);
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" time without time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" time without time zone not null');
   });
   it('adding time tz', async () => {
     const blueprint = new Blueprint('users');
     blueprint.timeTz('created_at');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" time(0) with time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" time(0) with time zone not null');
   });
   it('adding time tz with precision', async () => {
     const blueprint = new Blueprint('users');
     blueprint.timeTz('created_at', 1);
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" time(1) with time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" time(1) with time zone not null');
   });
   it('adding time tz with null precision', async () => {
     const blueprint = new Blueprint('users');
     blueprint.timeTz('created_at', null);
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" time with time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" time with time zone not null');
   });
   it('adding timestamp', async () => {
     const blueprint = new Blueprint('users');
     blueprint.timestamp('created_at');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" timestamp(0) without time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" timestamp(0) without time zone not null');
   });
   it('adding timestamp with precision', async () => {
     const blueprint = new Blueprint('users');
     blueprint.timestamp('created_at', 1);
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" timestamp(1) without time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" timestamp(1) without time zone not null');
   });
   it('adding timestamp with null precision', async () => {
     const blueprint = new Blueprint('users');
     blueprint.timestamp('created_at', null);
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" timestamp without time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" timestamp without time zone not null');
   });
   it('adding timestamp tz', async () => {
     const blueprint = new Blueprint('users');
     blueprint.timestampTz('created_at');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" timestamp(0) with time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" timestamp(0) with time zone not null');
   });
   it('adding timestamp tz with precision', async () => {
     const blueprint = new Blueprint('users');
     blueprint.timestampTz('created_at', 1);
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" timestamp(1) with time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" timestamp(1) with time zone not null');
   });
   it('adding timestamp tz with null precision', async () => {
     const blueprint = new Blueprint('users');
     blueprint.timestampTz('created_at', null);
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" timestamp with time zone not null');
+    expect(statements[0]).toBe('alter table "users" add column "created_at" timestamp with time zone not null');
   });
   it('adding timestamps', async () => {
     const blueprint = new Blueprint('users');
@@ -670,7 +617,8 @@ describe('test database postgres schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" timestamp(0) without time zone null, add column "updated_at" timestamp(0) without time zone null');
+      'alter table "users" add column "created_at" timestamp(0) without time zone null, add column "updated_at" timestamp(0) without time zone null',
+    );
   });
   it('adding timestamps tz', async () => {
     const blueprint = new Blueprint('users');
@@ -678,7 +626,8 @@ describe('test database postgres schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "created_at" timestamp(0) with time zone null, add column "updated_at" timestamp(0) with time zone null');
+      'alter table "users" add column "created_at" timestamp(0) with time zone null, add column "updated_at" timestamp(0) with time zone null',
+    );
   });
   it('adding binary', async () => {
     const blueprint = new Blueprint('users');
@@ -695,7 +644,7 @@ describe('test database postgres schema grammar', () => {
     expect(statements[0]).toBe('alter table "users" add column "foo" uuid not null');
   });
   it('adding foreign uuid', async () => {
-    const blueprint   = new Blueprint('users');
+    const blueprint = new Blueprint('users');
     const foreignUuid = blueprint.foreignUuid('foo');
     blueprint.foreignUuid('company_id').withConstrained();
     blueprint.foreignUuid('laravel_idea_id').withConstrained();
@@ -708,7 +657,7 @@ describe('test database postgres schema grammar', () => {
       'alter table "users" add constraint "users_company_id_foreign" foreign key ("company_id") references "companies" ("id")',
       'alter table "users" add constraint "users_laravel_idea_id_foreign" foreign key ("laravel_idea_id") references "laravel_ideas" ("id")',
       'alter table "users" add constraint "users_team_id_foreign" foreign key ("team_id") references "teams" ("id")',
-      'alter table "users" add constraint "users_team_column_id_foreign" foreign key ("team_column_id") references "teams" ("id")'
+      'alter table "users" add constraint "users_team_column_id_foreign" foreign key ("team_column_id") references "teams" ("id")',
     ]);
   });
   it('adding generated as', async () => {
@@ -717,25 +666,29 @@ describe('test database postgres schema grammar', () => {
     let statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "foo" integer generated by default as identity not null primary key');
+      'alter table "users" add column "foo" integer generated by default as identity not null primary key',
+    );
     blueprint = new Blueprint('users');
     blueprint.increments('foo').withGeneratedAs().withAlways();
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "foo" integer generated always as identity not null primary key');
+      'alter table "users" add column "foo" integer generated always as identity not null primary key',
+    );
     blueprint = new Blueprint('users');
     blueprint.increments('foo').withGeneratedAs('increment by 10 start with 100');
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "foo" integer generated by default as identity (increment by 10 start with 100) not null primary key');
+      'alter table "users" add column "foo" integer generated by default as identity (increment by 10 start with 100) not null primary key',
+    );
     blueprint = new Blueprint('users');
     blueprint.integer('foo').withGeneratedAs();
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "foo" integer generated by default as identity not null');
+      'alter table "users" add column "foo" integer generated by default as identity not null',
+    );
   });
   it('adding virtual as', async () => {
     const blueprint = new Blueprint('users');
@@ -744,7 +697,8 @@ describe('test database postgres schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "foo" integer null, add column "bar" boolean not null generated always as (foo is not null)');
+      'alter table "users" add column "foo" integer null, add column "bar" boolean not null generated always as (foo is not null)',
+    );
   });
   it('adding stored as', async () => {
     const blueprint = new Blueprint('users');
@@ -753,7 +707,8 @@ describe('test database postgres schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "foo" integer null, add column "bar" boolean not null generated always as (foo is not null) stored');
+      'alter table "users" add column "foo" integer null, add column "bar" boolean not null generated always as (foo is not null) stored',
+    );
   });
   it('adding ip address', async () => {
     const blueprint = new Blueprint('users');
@@ -771,16 +726,15 @@ describe('test database postgres schema grammar', () => {
   });
   it('compile foreign', async () => {
     let blueprint = new Blueprint('users');
-    blueprint.foreign('parent_id').withReferences('id')
-      .withOn('parents')
-      .withOnDelete('cascade')
-      .withDeferrable();
+    blueprint.foreign('parent_id').withReferences('id').withOn('parents').withOnDelete('cascade').withDeferrable();
     let statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add constraint "users_parent_id_foreign" foreign key ("parent_id") references "parents" ("id") on delete cascade deferrable');
+      'alter table "users" add constraint "users_parent_id_foreign" foreign key ("parent_id") references "parents" ("id") on delete cascade deferrable',
+    );
     blueprint = new Blueprint('users');
-    blueprint.foreign('parent_id')
+    blueprint
+      .foreign('parent_id')
       .withReferences('id')
       .withOn('parents')
       .withOnDelete('cascade')
@@ -789,9 +743,11 @@ describe('test database postgres schema grammar', () => {
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add constraint "users_parent_id_foreign" foreign key ("parent_id") references "parents" ("id") on delete cascade not deferrable');
+      'alter table "users" add constraint "users_parent_id_foreign" foreign key ("parent_id") references "parents" ("id") on delete cascade not deferrable',
+    );
     blueprint = new Blueprint('users');
-    blueprint.foreign('parent_id')
+    blueprint
+      .foreign('parent_id')
       .withReferences('id')
       .withOn('parents')
       .withOnDelete('cascade')
@@ -800,9 +756,11 @@ describe('test database postgres schema grammar', () => {
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add constraint "users_parent_id_foreign" foreign key ("parent_id") references "parents" ("id") on delete cascade deferrable initially deferred');
+      'alter table "users" add constraint "users_parent_id_foreign" foreign key ("parent_id") references "parents" ("id") on delete cascade deferrable initially deferred',
+    );
     blueprint = new Blueprint('users');
-    blueprint.foreign('parent_id')
+    blueprint
+      .foreign('parent_id')
       .withReferences('id')
       .withOn('parents')
       .withOnDelete('cascade')
@@ -811,39 +769,36 @@ describe('test database postgres schema grammar', () => {
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add constraint "users_parent_id_foreign" foreign key ("parent_id") references "parents" ("id") on delete cascade deferrable not valid');
+      'alter table "users" add constraint "users_parent_id_foreign" foreign key ("parent_id") references "parents" ("id") on delete cascade deferrable not valid',
+    );
   });
   it('adding geometry', async () => {
     const blueprint = new Blueprint('geo');
     blueprint.geometry('coordinates');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "geo" add column "coordinates" geography(geometry, 4326) not null');
+    expect(statements[0]).toBe('alter table "geo" add column "coordinates" geography(geometry, 4326) not null');
   });
   it('adding point', async () => {
     const blueprint = new Blueprint('geo');
     blueprint.point('coordinates');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "geo" add column "coordinates" geography(point, 4326) not null');
+    expect(statements[0]).toBe('alter table "geo" add column "coordinates" geography(point, 4326) not null');
   });
   it('adding line string', async () => {
     const blueprint = new Blueprint('geo');
     blueprint.lineString('coordinates');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "geo" add column "coordinates" geography(linestring, 4326) not null');
+    expect(statements[0]).toBe('alter table "geo" add column "coordinates" geography(linestring, 4326) not null');
   });
   it('adding polygon', async () => {
     const blueprint = new Blueprint('geo');
     blueprint.polygon('coordinates');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "geo" add column "coordinates" geography(polygon, 4326) not null');
+    expect(statements[0]).toBe('alter table "geo" add column "coordinates" geography(polygon, 4326) not null');
   });
   it('adding geometry collection', async () => {
     const blueprint = new Blueprint('geo');
@@ -851,31 +806,29 @@ describe('test database postgres schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "geo" add column "coordinates" geography(geometrycollection, 4326) not null');
+      'alter table "geo" add column "coordinates" geography(geometrycollection, 4326) not null',
+    );
   });
   it('adding multi point', async () => {
     const blueprint = new Blueprint('geo');
     blueprint.multiPoint('coordinates');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "geo" add column "coordinates" geography(multipoint, 4326) not null');
+    expect(statements[0]).toBe('alter table "geo" add column "coordinates" geography(multipoint, 4326) not null');
   });
   it('adding multi line string', async () => {
     const blueprint = new Blueprint('geo');
     blueprint.multiLineString('coordinates');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "geo" add column "coordinates" geography(multilinestring, 4326) not null');
+    expect(statements[0]).toBe('alter table "geo" add column "coordinates" geography(multilinestring, 4326) not null');
   });
   it('adding multi polygon', async () => {
     const blueprint = new Blueprint('geo');
     blueprint.multiPolygon('coordinates');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "geo" add column "coordinates" geography(multipolygon, 4326) not null');
+    expect(statements[0]).toBe('alter table "geo" add column "coordinates" geography(multipolygon, 4326) not null');
   });
   it('drop all tables escapes table names', () => {
     const statement = getGrammar().compileDropAllTables(['alpha', 'beta', 'gamma']);

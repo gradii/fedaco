@@ -3,8 +3,7 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-import { isString } from '@gradii/nanofn';
-import { intersection } from 'ramda';
+import { intersection, isString } from '@gradii/nanofn';
 import { SchemaBuilder } from '../schema-builder';
 
 export class PostgresSchemaBuilder extends SchemaBuilder {

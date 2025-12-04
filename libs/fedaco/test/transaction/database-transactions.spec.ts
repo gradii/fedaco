@@ -33,7 +33,7 @@ describe('test database transactions', () => {
         driver  : 'sqlite',
         database: ':memory:',
       },
-      'second_connection'
+      'second_connection',
     );
     db.bootFedaco();
     db.setAsGlobal();

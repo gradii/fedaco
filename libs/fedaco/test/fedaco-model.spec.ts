@@ -1,9 +1,7 @@
- 
 import { DecimalColumn } from '../src/annotation/column/decimal.column';
-import { isAnyEmpty, isBlank, isObject, isString } from '@gradii/nanofn';
+import { isAnyEmpty, isBlank, isObject, isString, pluck } from '@gradii/nanofn';
 import { createHash } from 'crypto';
 import { format } from 'date-fns';
-import { pluck } from 'ramda';
 import { ArrayColumn } from '../src/annotation/column/array.column';
 import { BooleanColumn } from '../src/annotation/column/boolean.column';
 import { Column } from '../src/annotation/column/column';
@@ -1268,7 +1266,7 @@ describe('test database fedaco model', () => {
     expect(model.id).toEqual(1);
     expect(model._exists).toBeTruthy();
     expect((model.relationMany as any[]).length).toBe(2);
-    expect(pluck('id')(model.relationMany as any[])).toEqual([2, 3]);
+    expect(pluck('id', model.relationMany as any[])).toEqual([2, 3]);
   });
 
   it('get and set table operations', () => {
@@ -1333,7 +1331,7 @@ describe('test database fedaco model', () => {
       'partner',
       FedacoModelStub.initAttributes({
         name: 'abby',
-      })
+      }),
     );
     model.SetRelation('group', null);
     model.SetRelation('multi', []);
@@ -1558,7 +1556,7 @@ describe('test database fedaco model', () => {
         (m: FedacoModelStub) => {
           return !isBlank(m.id);
         },
-        ['name', 'age']
+        ['name', 'age'],
       )
       .ToArray();
     expect(array).toHaveProperty('address');
@@ -1817,10 +1815,10 @@ describe('test database fedaco model', () => {
     resolveModel(model);
     let relation = model.belongsToMany(FedacoModelSaveStub);
     expect(relation.getQualifiedForeignPivotKeyName()).toBe(
-      'fedaco_model_save_stub_fedaco_model_stub.fedaco_model_stub_id'
+      'fedaco_model_save_stub_fedaco_model_stub.fedaco_model_stub_id',
     );
     expect(relation.getQualifiedRelatedPivotKeyName()).toBe(
-      'fedaco_model_save_stub_fedaco_model_stub.fedaco_model_save_stub_id'
+      'fedaco_model_save_stub_fedaco_model_stub.fedaco_model_save_stub_id',
     );
     expect(relation.getParent()).toEqual(model);
     expect(relation.getQuery().getModel()).toBeInstanceOf(FedacoModelSaveStub);

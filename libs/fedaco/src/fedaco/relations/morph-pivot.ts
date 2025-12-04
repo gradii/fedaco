@@ -4,8 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray } from '@gradii/nanofn';
-import { tap } from 'ramda';
+import { isArray, tap } from '@gradii/nanofn';
 import type { FedacoBuilder } from '../fedaco-builder';
 import { Pivot } from './pivot';
 import type { Relation } from './relation';

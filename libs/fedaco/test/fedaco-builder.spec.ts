@@ -1028,7 +1028,7 @@ describe('fedaco builder', () => {
 
     const data = query.toSql();
     expect(data.result).toBe(
-      'SELECT * FROM "nest_table" WHERE "foo" = ? AND ("baz" > ?) AND "nest_table"."deleted_at" IS NULL'
+      'SELECT * FROM "nest_table" WHERE "foo" = ? AND ("baz" > ?) AND "nest_table"."deleted_at" IS NULL',
     );
     expect(data.bindings).toEqual(['bar', 9000]);
   });
@@ -1045,7 +1045,7 @@ describe('fedaco builder', () => {
       .pipe(withTrashed());
     const data = query.toSql();
     expect(data.result).toBe(
-      'SELECT * FROM "nest_table" WHERE "foo" = ? AND ("baz" > ? AND "nest_table"."deleted_at" IS NOT NULL)'
+      'SELECT * FROM "nest_table" WHERE "foo" = ? AND ("baz" > ? AND "nest_table"."deleted_at" IS NOT NULL)',
     );
     expect(data.bindings).toEqual(['bar', 9000]);
   });
@@ -1063,7 +1063,7 @@ describe('fedaco builder', () => {
       });
     const data = query.toSql();
     expect(data.result).toBe(
-      'SELECT * FROM "nest_table" WHERE "foo" = ? AND ("baz" > ?) AND "nest_table"."deleted_at" IS NULL'
+      'SELECT * FROM "nest_table" WHERE "foo" = ? AND ("baz" > ?) AND "nest_table"."deleted_at" IS NULL',
     );
     expect(data.bindings).toEqual(['bar', 9000]);
   });
@@ -1235,7 +1235,7 @@ describe('fedaco builder', () => {
     const result = query.toSql();
 
     expect(result.result).toBe(
-      'SELECT * FROM "nest_table" WHERE "foo" IN (SELECT "id" FROM "nest_table" WHERE "nest_table"."deleted_at" IS NULL)'
+      'SELECT * FROM "nest_table" WHERE "foo" IN (SELECT "id" FROM "nest_table" WHERE "nest_table"."deleted_at" IS NULL)',
     );
   });
 
@@ -1403,7 +1403,7 @@ describe('fedaco builder', () => {
 
     expect(spy1).toHaveBeenCalledWith(
       'UPDATE `test_table` AS `alias` SET `alias`.`foo` = ?, `alias`.`updated_at` = ?',
-      ['bar', expect.anything()]
+      ['bar', expect.anything()],
     );
   });
 

@@ -4,8 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank, isFunction, isString } from '@gradii/nanofn';
-import { last } from 'ramda';
+import { isBlank, isFunction, isString, last } from '@gradii/nanofn';
 import { wrap } from '../../../helper/arr';
 import type { Constructor } from '../../../helper/constructor';
 import type { JoinClauseBuilder } from '../../../query-builder/query-builder';

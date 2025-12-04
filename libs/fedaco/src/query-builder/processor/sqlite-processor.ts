@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { pluck } from 'ramda';
+import { pluck } from '@gradii/nanofn';
 import { Processor } from '../processor';
 
 export class SqliteProcessor extends Processor {

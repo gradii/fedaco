@@ -10,11 +10,10 @@ import { HasManyColumn } from '../../src/annotation/relation-column/has-many.rel
 import { HasOneColumn } from '../../src/annotation/relation-column/has-one.relation-column';
 import { Model } from '../../src/fedaco/model';
 
-export class FedacoBuilderTestModelFarRelatedStub extends Model {
-}
+export class FedacoBuilderTestModelFarRelatedStub extends Model {}
 
 @Table({
-  tableName: 'self_related_stubs'
+  tableName: 'self_related_stubs',
 })
 export class FedacoBuilderTestModelSelfRelatedStub extends Model {
   // _table: any = 'self_related_stubs';
@@ -23,7 +22,7 @@ export class FedacoBuilderTestModelSelfRelatedStub extends Model {
     related   : FedacoBuilderTestModelSelfRelatedStub,
     foreignKey: 'parent_id',
     ownerKey  : 'id',
-    relation  : 'parent'
+    relation  : 'parent',
   })
   public parentFoo: any;
 
@@ -46,7 +45,7 @@ export class FedacoBuilderTestModelSelfRelatedStub extends Model {
     table          : 'self_pivot',
     foreignPivotKey: 'child_id',
     relatedPivotKey: 'parent_id',
-    parentKey      : 'parent_bars'
+    parentKey      : 'parent_bars',
     // relatedKey
     // relation
   })
@@ -57,7 +56,7 @@ export class FedacoBuilderTestModelSelfRelatedStub extends Model {
     table          : 'self_pivot',
     foreignPivotKey: 'parent_id',
     relatedPivotKey: 'child_id',
-    parentKey      : 'child_bars'
+    parentKey      : 'child_bars',
     // relatedKey
     // relation
   })

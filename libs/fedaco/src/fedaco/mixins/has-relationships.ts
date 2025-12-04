@@ -5,8 +5,7 @@
  */
 
 import { reflector } from '@gradii/annotation';
-import { isArray, isString, snakeCase } from '@gradii/nanofn';
-import { findLast, tap } from 'ramda';
+import { findLast, isArray, isString, snakeCase, tap } from '@gradii/nanofn';
 import type { RelationColumnAnnotation } from '../../annotation/relation-column';
 import type { TableAnnotation } from '../../annotation/table/table';
 import { Table } from '../../annotation/table/table';

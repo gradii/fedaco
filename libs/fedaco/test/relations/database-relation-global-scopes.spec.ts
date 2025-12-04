@@ -12,8 +12,8 @@ describe('test database fedaco global scopes', () => {
   beforeEach(() => {
     const db = new DatabaseConfig();
     db.addConnection({
-      'driver'  : 'sqlite',
-      'database': ':memory:'
+      driver  : 'sqlite',
+      database: ':memory:',
     });
     db.bootFedaco();
     db.setAsGlobal();
@@ -24,84 +24,87 @@ describe('test database fedaco global scopes', () => {
   it('global scope is applied', () => {
     const model = new EloquentGlobalScopesTestModel();
     const query = model.NewQuery();
-    expect(query.toSql()).toEqual(
-      {result: 'SELECT * FROM "_table" WHERE "active" = ?', bindings: [1]});
+    expect(query.toSql()).toEqual({ result: 'SELECT * FROM "_table" WHERE "active" = ?', bindings: [1] });
   });
   it('global scope can be removed', () => {
     const model = new EloquentGlobalScopesTestModel();
     const query = model.NewQuery().withoutGlobalScope('active');
-    expect(query.toSql()).toEqual({result: 'SELECT * FROM "_table"', bindings: []});
+    expect(query.toSql()).toEqual({ result: 'SELECT * FROM "_table"', bindings: [] });
   });
   it('closure global scope is applied', () => {
     const model = new EloquentClosureGlobalScopesTestModel();
     const query = model.NewQuery();
-    expect(query.toSql()).toEqual(
-      {result: 'SELECT * FROM "_table" WHERE "active" = ? ORDER BY "name" ASC', bindings: [1]});
+    expect(query.toSql()).toEqual({
+      result  : 'SELECT * FROM "_table" WHERE "active" = ? ORDER BY "name" ASC',
+      bindings: [1],
+    });
   });
   it('closure global scope can be removed', () => {
     const model = new EloquentClosureGlobalScopesTestModel();
     const query = model.NewQuery().withoutGlobalScope('active_scope');
-    expect(query.toSql()).toEqual(
-      {result: 'SELECT * FROM "_table" ORDER BY "name" ASC', bindings: []});
+    expect(query.toSql()).toEqual({ result: 'SELECT * FROM "_table" ORDER BY "name" ASC', bindings: [] });
   });
   it('global scope can be removed after the query is executed', () => {
     const model = new EloquentClosureGlobalScopesTestModel();
     const query = model.NewQuery();
-    expect(query.toSql()).toEqual(
-      {result: 'SELECT * FROM "_table" WHERE "active" = ? ORDER BY "name" ASC', bindings: [1]});
+    expect(query.toSql()).toEqual({
+      result  : 'SELECT * FROM "_table" WHERE "active" = ? ORDER BY "name" ASC',
+      bindings: [1],
+    });
     query.withoutGlobalScope('active_scope');
-    expect(query.toSql()).toEqual(
-      {result: 'SELECT * FROM "_table" ORDER BY "name" ASC', bindings: []});
+    expect(query.toSql()).toEqual({ result: 'SELECT * FROM "_table" ORDER BY "name" ASC', bindings: [] });
   });
   it('all global scopes can be removed', () => {
     const model = new EloquentClosureGlobalScopesTestModel();
-    let query   = model.NewQuery().withoutGlobalScopes();
-    expect(query.toSql()).toEqual({result: 'SELECT * FROM "_table"', bindings: []});
+    let query = model.NewQuery().withoutGlobalScopes();
+    expect(query.toSql()).toEqual({ result: 'SELECT * FROM "_table"', bindings: [] });
     query = EloquentClosureGlobalScopesTestModel.createQuery().withoutGlobalScopes();
-    expect(query.toSql()).toEqual({result: 'SELECT * FROM "_table"', bindings: []});
+    expect(query.toSql()).toEqual({ result: 'SELECT * FROM "_table"', bindings: [] });
   });
   it('global scopes with or where conditions are nested', () => {
     const model = new EloquentClosureGlobalScopesWithOrTestModel();
-    let query   = model.NewQuery();
-    expect(query.toSql()).toEqual(
-      {
-        result  : 'SELECT "email", "password" FROM "_table" WHERE "email" = ? OR "email" = ? AND "active" = ? ORDER BY "name" ASC',
-        bindings: ['thirstyzebra@gradii.com', 'someone@else.com', 1]
-      });
+    let query = model.NewQuery();
+    expect(query.toSql()).toEqual({
+      result:
+        'SELECT "email", "password" FROM "_table" WHERE "email" = ? OR "email" = ? AND "active" = ? ORDER BY "name" ASC',
+      bindings: ['thirstyzebra@gradii.com', 'someone@else.com', 1],
+    });
     query = model.NewQuery().where('col1', 'val1').orWhere('col2', 'val2');
-    expect(query.toSql()).toEqual(
-      {
-        result  : 'SELECT "email", "password" FROM "_table" WHERE "col1" = ? OR "col2" = ? AND "email" = ? OR "email" = ? AND "active" = ? ORDER BY "name" ASC',
-        bindings: ['val1', 'val2', 'thirstyzebra@gradii.com', 'someone@else.com', 1]
-      });
+    expect(query.toSql()).toEqual({
+      result:
+        'SELECT "email", "password" FROM "_table" WHERE "col1" = ? OR "col2" = ? AND "email" = ? OR "email" = ? AND "active" = ? ORDER BY "name" ASC',
+      bindings: ['val1', 'val2', 'thirstyzebra@gradii.com', 'someone@else.com', 1],
+    });
   });
   it('regular scopes with or where conditions are nested', () => {
-    const query = EloquentClosureGlobalScopesTestModel.createQuery().withoutGlobalScopes().where(
-      'foo', 'foo').orWhere('bar',
-      'bar').callNamedScope('approved');
-    expect(query.toSql()).toEqual(
-      {
-        result  : 'SELECT * FROM "_table" WHERE "foo" = ? OR "bar" = ? AND "approved" = ? OR "should_approve" = ?',
-        bindings: ['foo', 'bar', 1, 0]
-      });
+    const query = EloquentClosureGlobalScopesTestModel.createQuery()
+      .withoutGlobalScopes()
+      .where('foo', 'foo')
+      .orWhere('bar', 'bar')
+      .callNamedScope('approved');
+    expect(query.toSql()).toEqual({
+      result  : 'SELECT * FROM "_table" WHERE "foo" = ? OR "bar" = ? AND "approved" = ? OR "should_approve" = ?',
+      bindings: ['foo', 'bar', 1, 0],
+    });
   });
   it('scopes starting with or boolean are preserved', () => {
-    const query = EloquentClosureGlobalScopesTestModel.createQuery().withoutGlobalScopes().where(
-      'foo', 'foo')
+    const query = EloquentClosureGlobalScopesTestModel.createQuery()
+      .withoutGlobalScopes()
+      .where('foo', 'foo')
       .orWhere('bar', 'bar')
       .callNamedScope('orApproved');
-    expect(query.toSql()).toEqual(
-      {
-        result  : 'SELECT * FROM "_table" WHERE "foo" = ? OR "bar" = ? OR "approved" = ? OR "should_approve" = ?',
-        bindings: ['foo', 'bar', 1, 0]
-      });
+    expect(query.toSql()).toEqual({
+      result  : 'SELECT * FROM "_table" WHERE "foo" = ? OR "bar" = ? OR "approved" = ? OR "should_approve" = ?',
+      bindings: ['foo', 'bar', 1, 0],
+    });
   });
   it('has query where both models have global scopes', () => {
-    const query     = EloquentGlobalScopesWithRelationModel.createQuery().has('related').where(
-      'bar', 'baz');
-    const subQuery  = 'SELECT * FROM "_table" WHERE "table2"."id" = "_table"."related_id" AND "foo" = ? AND "active" = ?';
-    const mainQuery = 'SELECT * FROM "table2" WHERE EXISTS (' + subQuery + ') AND "bar" = ? AND "active" = ? ORDER BY "name" ASC';
-    expect(query.toSql()).toEqual({result: mainQuery, bindings: ['bar', 1, 'baz', 1]});
+    const query = EloquentGlobalScopesWithRelationModel.createQuery().has('related').where('bar', 'baz');
+    const subQuery =
+      'SELECT * FROM "_table" WHERE "table2"."id" = "_table"."related_id" AND "foo" = ? AND "active" = ?';
+    const mainQuery =
+      'SELECT * FROM "table2" WHERE EXISTS (' + subQuery + ') AND "bar" = ? AND "active" = ? ORDER BY "name" ASC';
+    expect(query.toSql()).toEqual({ result: mainQuery, bindings: ['bar', 1, 'baz', 1] });
   });
 });
 
@@ -109,14 +112,12 @@ export class EloquentClosureGlobalScopesTestModel extends Model {
   _table: any = '_table';
 
   public Boot() {
-    (this.constructor as typeof EloquentClosureGlobalScopesTestModel).addGlobalScope('order_name',
-      query => {
-        query.orderBy('name');
-      });
-    (this.constructor as typeof EloquentClosureGlobalScopesTestModel).addGlobalScope('active_scope',
-      query => {
-        query.where('active', 1);
-      });
+    (this.constructor as typeof EloquentClosureGlobalScopesTestModel).addGlobalScope('order_name', (query) => {
+      query.orderBy('name');
+    });
+    (this.constructor as typeof EloquentClosureGlobalScopesTestModel).addGlobalScope('active_scope', (query) => {
+      query.where('active', 1);
+    });
     super.Boot();
   }
 
@@ -130,7 +131,7 @@ export class EloquentClosureGlobalScopesTestModel extends Model {
 }
 
 @Table({
-  tableName: 'table2'
+  tableName: 'table2',
 })
 export class EloquentGlobalScopesWithRelationModel extends EloquentClosureGlobalScopesTestModel {
   _table: any = 'table2';
@@ -138,19 +139,19 @@ export class EloquentGlobalScopesWithRelationModel extends EloquentClosureGlobal
   @HasManyColumn({
     related   : forwardRef(() => EloquentGlobalScopesTestModel),
     foreignKey: 'related_id',
-    onQuery   : (q => {
+    onQuery   : (q) => {
       q.where('foo', 'bar');
-    })
+    },
   })
   public related: FedacoRelationListType<EloquentGlobalScopesTestModel>;
 }
 
 export class EloquentClosureGlobalScopesWithOrTestModel extends EloquentClosureGlobalScopesTestModel {
   public Boot() {
-    EloquentClosureGlobalScopesWithOrTestModel.addGlobalScope('or_scope', query => {
+    EloquentClosureGlobalScopesWithOrTestModel.addGlobalScope('or_scope', (query) => {
       query.where('email', 'thirstyzebra@gradii.com').orWhere('email', 'someone@else.com');
     });
-    EloquentClosureGlobalScopesWithOrTestModel.addGlobalScope('email_password', query => {
+    EloquentClosureGlobalScopesWithOrTestModel.addGlobalScope('email_password', (query) => {
       query.select('email', 'password');
     });
     super.Boot();
@@ -158,7 +159,7 @@ export class EloquentClosureGlobalScopesWithOrTestModel extends EloquentClosureG
 }
 
 @Table({
-  tableName: '_table'
+  tableName: '_table',
 })
 export class EloquentGlobalScopesTestModel extends Model {
   _table: any = '_table';

@@ -7,9 +7,8 @@ import { Column } from '../../src/annotation/column/column';
 import { Model } from '../../src/fedaco/model';
 
 export class BasicModel extends Model {
-
   @Column({
-    field: 'name'
+    field: 'name',
   })
   name = '132';
 
@@ -23,6 +22,4 @@ export class BasicModel extends Model {
   constructor() {
     super();
   }
-
 }
-

@@ -4,8 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank } from '@gradii/nanofn';
-import { last, tap } from 'ramda';
+import { isBlank, last, tap } from '@gradii/nanofn';
 import type { Collection } from '../../define/collection';
 import type { Constructor } from '../../helper/constructor';
 import type { FedacoBuilder } from '../fedaco-builder';

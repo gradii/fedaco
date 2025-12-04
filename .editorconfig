@@ -7,9 +7,6 @@ insert_final_newline = false
 indent_style = space
 indent_size = 2
 
-ij_javascript_align_var_statements = 2
-ij_javascript_align_object_properties = 2
-
 [{.babelrc, .stylelintrc, .eslintrc, jest.config, *.bowerrc, *.jsb3, *.jsb2, *.json}]
 indent_style = space
 indent_size = 2
@@ -42,9 +39,6 @@ insert_final_newline = true
 indent_style = space
 indent_size = 2
 
-
-
-
 [.editorconfig]
 ij_editorconfig_align_group_field_declarations = false
 
@@ -63,6 +57,7 @@ ij_typescript_import_sort_members = true
 ij_typescript_array_initializer_wrap = normal
 ij_typescript_array_initializer_new_line_after_left_brace = true
 ij_typescript_array_initializer_right_brace_on_new_line = true
+ij_typescript_align_object_properties = 2
 
 [*.md]
 max_line_length = off

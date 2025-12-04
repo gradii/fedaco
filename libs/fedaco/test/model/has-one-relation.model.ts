@@ -8,8 +8,6 @@ import { HasOneColumn } from '../../src/annotation/relation-column/has-one.relat
 import { Model } from '../../src/fedaco/model';
 
 export class HasOneRelationModel extends Model {
-
   @HasOneColumn({})
   columnFoo: any;
-
 }

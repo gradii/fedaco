@@ -3,8 +3,7 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-import { isArray, isBlank, isObject, isString, isStringEmpty } from '@gradii/nanofn';
-import { filter } from 'ramda';
+import { filterObj, isArray, isBlank, isObject, isString, isStringEmpty } from '@gradii/nanofn';
 import type { ConnectionConfig } from '../database-config';
 
 export class ConfigurationUrlParser {
@@ -57,7 +56,7 @@ export class ConfigurationUrlParser {
 
   /* Get the primary database connection options. */
   protected getPrimaryOptions(url: any) {
-    return filter(
+    return filterObj(
       (value) => {
         return !isBlank(value);
       },

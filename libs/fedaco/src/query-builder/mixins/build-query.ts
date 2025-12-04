@@ -4,8 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank } from '@gradii/nanofn';
-import { last } from 'ramda';
+import { isBlank, last } from '@gradii/nanofn';
 import { BehaviorSubject, defer, EMPTY, from, Observable, Subject, type Subscriber, takeUntil } from 'rxjs';
 import { catchError, finalize, mergeMap, tap } from 'rxjs/operators';
 import type { FedacoBuilder } from '../../fedaco/fedaco-builder';

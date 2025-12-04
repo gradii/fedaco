@@ -1,6 +1,5 @@
 import { reflector } from '@gradii/annotation';
-import { isFunction } from '@gradii/nanofn';
-import { findLast } from 'ramda';
+import { findLast, isFunction } from '@gradii/nanofn';
 import { type ColumnAnnotation, FedacoColumn } from '../src/annotation/column';
 import { FedacoRelationColumn, type RelationColumnAnnotation } from '../src/annotation/relation-column';
 import { DatabaseConfig } from '../src/database-config';
@@ -161,7 +160,7 @@ describe('model annotation', () => {
 
     // tmp test
     expect(results[0]._attributes['sql']).toBe(
-      'SELECT * FROM `article_models` WHERE `article_models`.`member_model_id` = ? AND `article_models`.`member_model_id` IS NOT NULL'
+      'SELECT * FROM `article_models` WHERE `article_models`.`member_model_id` = ? AND `article_models`.`member_model_id` IS NOT NULL',
     );
     expect(results[0]._attributes['bindings']).toEqual([101]);
   });
@@ -177,7 +176,7 @@ describe('model annotation', () => {
 
     // todo fixme tmp test hack code in hasRelationship
     expect(results[0]._attributes['sql']).toBe(
-      'SELECT * FROM `article_models` WHERE `article_models`.`member_model_id` = ? AND `article_models`.`member_model_id` IS NOT NULL'
+      'SELECT * FROM `article_models` WHERE `article_models`.`member_model_id` = ? AND `article_models`.`member_model_id` IS NOT NULL',
     );
     expect(results[0]._attributes['bindings']).toEqual([101]);
   });

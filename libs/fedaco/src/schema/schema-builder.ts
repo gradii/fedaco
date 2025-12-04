@@ -3,8 +3,7 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-import { isBlank } from '@gradii/nanofn';
-import { pluck, tap } from 'ramda';
+import { isBlank, pluck, tap } from '@gradii/nanofn';
 import type { Connection } from '../connection';
 import { Blueprint } from './blueprint';
 import type { SchemaGrammar } from './grammar/schema-grammar';

@@ -101,7 +101,7 @@ describe('test database fedaco morph', () => {
     expect(
       relation.make({
         name: 'taylor',
-      })
+      }),
     ).toEqual(instance);
   });
 
@@ -116,7 +116,7 @@ describe('test database fedaco morph', () => {
     expect(
       await relation.create({
         name: 'taylor',
-      })
+      }),
     ).toEqual(created);
 
     expect(spy1).toHaveBeenNthCalledWith(1, 'morph_id', 1);
@@ -217,8 +217,8 @@ describe('test database fedaco morph', () => {
         },
         {
           baz: 'qux',
-        }
-      )
+        },
+      ),
     ).toBeInstanceOf(Model);
 
     expect(spy1).toHaveBeenCalledWith({ foo: 'bar' });
@@ -275,8 +275,8 @@ describe('test database fedaco morph', () => {
         },
         {
           baz: 'qux',
-        }
-      )
+        },
+      ),
     ).toBeInstanceOf(Model);
 
     expect(spy1).toHaveBeenCalledWith({ foo: 'bar' });
@@ -326,8 +326,8 @@ describe('test database fedaco morph', () => {
         },
         {
           baz: 'qux',
-        }
-      )
+        },
+      ),
     ).toBeInstanceOf(Model);
 
     expect(spy1).toHaveBeenCalledWith({
@@ -377,8 +377,8 @@ describe('test database fedaco morph', () => {
         },
         {
           baz: 'qux',
-        }
-      )
+        },
+      ),
     ).toBeInstanceOf(Model);
 
     expect(spy1).toHaveBeenCalledWith({ foo: 'bar' });
@@ -448,7 +448,7 @@ describe('test database fedaco morph', () => {
     expect(
       await relation.create({
         name: 'taylor',
-      })
+      }),
     ).toEqual(created);
 
     expect(spy1).toHaveBeenCalledWith('morph_id', 1);

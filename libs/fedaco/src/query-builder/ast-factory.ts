@@ -28,24 +28,22 @@ export function bindingVariable(value: string | number | boolean | RawExpression
 }
 
 export function rawSqlBindings(value: string | number | boolean, bindings: any[], type = 'where') {
-  return new RawBindingExpression(raw(value),
-    bindings.map(it => new BindingVariable(raw(it), type)));
+  return new RawBindingExpression(
+    raw(value),
+    bindings.map((it) => new BindingVariable(raw(it), type)),
+  );
 }
-
 
 export function createIdentifier(identifier: string | ForwardRefFn<string>) {
   return new Identifier(identifier);
 }
-
 
 export function createStringLiteral(identifier: string | ForwardRefFn<string>) {
   return new StringLiteralExpression(identifier);
 }
 
 export function createTableColumn(table: FromTable | Identifier, column: string) {
-  return new ColumnReferenceExpression(
-    new PathExpression([table, new Identifier(column)])
-  );
+  return new ColumnReferenceExpression(new PathExpression([table, new Identifier(column)]));
 }
 
 export function createColumnReferenceExpression(column: string | ColumnReferenceExpression) {
@@ -54,17 +52,11 @@ export function createColumnReferenceExpression(column: string | ColumnReference
   }
 
   if (column === '*') {
-    return new ColumnReferenceExpression(
-      new PathExpression(
-        [createIdentifier('*')]
-      )
-    );
+    return new ColumnReferenceExpression(new PathExpression([createIdentifier('*')]));
   }
   return SqlParser.createSqlParser(column).parseColumnAlias();
 }
 
-
 export function createKeyword(keyword: string) {
   return new Token(-1, -1, SyntaxKind.Keyword, 0, keyword);
 }
-

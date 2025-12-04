@@ -1,4 +1,3 @@
-
 import { Column } from '../../src/annotation/column/column';
 import { PrimaryColumn } from '../../src/annotation/column/primary.column';
 import { BelongsToManyColumn } from '../../src/annotation/relation-column/belongs-to-many.relation-column';
@@ -21,15 +20,15 @@ function schema(connectionName = 'default'): SchemaBuilder {
 jest.setTimeout(100000);
 
 async function createSchema() {
-  await schema().create('users', table => {
+  await schema().create('users', (table) => {
     table.increments('id');
     table.string('email').withUnique();
   });
-  await schema().create('roles', table => {
+  await schema().create('roles', (table) => {
     table.increments('id');
     table.string('name');
   });
-  await schema().create('role_user', table => {
+  await schema().create('role_user', (table) => {
     table.integer('user_id').withUnsigned();
     table.integer('role_id').withUnsigned();
     table.string('extra_field').withNullable();
@@ -41,8 +40,8 @@ describe('interacts with pivot table with custom pivot', () => {
   beforeAll(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      'driver'  : 'sqlite',
-      'database': ':memory:',
+      driver  : 'sqlite',
+      database: ':memory:',
     });
     db.bootFedaco();
     db.setAsGlobal();
@@ -74,7 +73,7 @@ describe('interacts with pivot table with custom pivot', () => {
     // We need to fetch again to verify DB state
     const userFresh = await User.createQuery().with('roles').find(user.id);
     attachedRole = (userFresh.roles as Role[])[0];
-    
+
     expect((attachedRole.GetRelation('pivot') as any).extra_field).toBe('updated');
   });
 });
@@ -95,7 +94,7 @@ class User extends Model {
     onQuery        : (q: any) => {
       q.using(RoleUserPivot);
       q.withPivot('extra_field');
-    }
+    },
   })
   roles: FedacoRelationListType<Role>;
 }

@@ -13,8 +13,12 @@ export class Processor implements ProcessorInterface {
     return results;
   }
 
-  async processInsertGetId(query: QueryBuilder, sql: string, values: any[],
-                           sequence: string | null = null): Promise<any> {
+  async processInsertGetId(
+    query: QueryBuilder,
+    sql: string,
+    values: any[],
+    sequence: string | null = null,
+  ): Promise<any> {
     await query.getConnection().insert(sql, values);
     const id = await (await query.getConnection().getPdo()).lastInsertId();
     // return isNumber(id) ? /*cast type int*/ id : id;
@@ -27,12 +31,12 @@ export class Processor implements ProcessorInterface {
   public processTables(results: any[]) {
     return results.map((result: any) => {
       return {
-        'name'     : result.name,
-        'schema'   : result.schema ?? null, // PostgreSQL and SQL Server
-        'size'     : isPresent(result.size) ? +result.size : null,
-        'comment'  : result.comment ?? null, // MySQL and PostgreSQL
-        'collation': result.collation ?? null, // MySQL only
-        'engine'   : result.engine ?? null, // MySQL only
+        name     : result.name,
+        schema   : result.schema ?? null, // PostgreSQL and SQL Server
+        size     : isPresent(result.size) ? +result.size : null,
+        comment  : result.comment ?? null, // MySQL and PostgreSQL
+        collation: result.collation ?? null, // MySQL only
+        engine   : result.engine ?? null, // MySQL only
       };
     });
   }
@@ -44,9 +48,9 @@ export class Processor implements ProcessorInterface {
   public processViews(results: any[]) {
     return results.map((result) => {
       return {
-        'name'      : result.name,
-        'schema'    : result.schema ?? null, // PostgreSQL and SQL Server
-        'definition': result.definition,
+        name      : result.name,
+        schema    : result.schema ?? null, // PostgreSQL and SQL Server
+        definition: result.definition,
       };
     });
   }

@@ -1,4 +1,3 @@
- 
 import { FedacoBuilder } from './../../src/fedaco/fedaco-builder';
 import { Model } from '../../src/fedaco/model';
 import { BelongsTo } from '../../src/fedaco/relations/belongs-to';
@@ -114,7 +113,7 @@ describe('test database fedaco belongs to', () => {
       [model1, model2],
       // @ts-ignore
       [result1, result2],
-      'foo'
+      'foo',
     );
     expect(models[0].GetRelationValue('foo').GetAttribute('id')).toEqual(1);
     expect(models[1].GetRelationValue('foo').GetAttribute('id')).toEqual(2);

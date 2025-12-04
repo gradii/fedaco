@@ -4,8 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank, isObject } from '@gradii/nanofn';
-import { last, uniq } from 'ramda';
+import { isBlank, isObject, last, uniq } from '@gradii/nanofn';
 import type { Collection } from '../../define/collection';
 import { raw } from '../../query-builder/ast-factory';
 import type { FedacoBuilder } from '../fedaco-builder';

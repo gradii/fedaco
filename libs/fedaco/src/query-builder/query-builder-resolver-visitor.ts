@@ -14,9 +14,7 @@ import type { GrammarInterface } from './grammar.interface';
 export class QueryBuilderResolverVisitor implements SqlVisitor {
   _isVisitUpdateSpecification: boolean;
 
-  constructor(private _grammar: GrammarInterface) {
-
-  }
+  constructor(private _grammar: GrammarInterface) {}
 
   visitDeleteSpecification(node: SqlNode): string {
     throw new Error('Method not implemented.');

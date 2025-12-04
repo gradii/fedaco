@@ -5,8 +5,7 @@
  */
 
 import { reflector } from '@gradii/annotation';
-import { isArray, isBlank, singular } from '@gradii/nanofn';
-import { findLast, tap } from 'ramda';
+import { findLast, isArray, isBlank, singular, tap } from '@gradii/nanofn';
 import type { TableAnnotation } from '../../../annotation/table/table';
 import { Table } from '../../../annotation/table/table';
 import type { Constructor } from '../../../helper/constructor';

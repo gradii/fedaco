@@ -14,12 +14,11 @@ export abstract class BaseGrammar {
   /* The grammar table prefix. */
   protected tablePrefix = '';
 
-  constructor() {
-  }
+  constructor() {}
 
   /* Wrap an array of values. */
   public wrapArray(values: any[]) {
-    return values.map(it => this.wrap(it));
+    return values.map((it) => this.wrap(it));
   }
 
   /* Wrap a table in keyword identifiers. */
@@ -61,11 +60,11 @@ export abstract class BaseGrammar {
 
   /* Wrap the given value segments. */
   protected wrapSegments(segments: any[]): string {
-    return segments.map((segment, key) => {
-      return key == 0 && segments.length > 1 ?
-        this.wrapTable(segment) :
-        this.wrapValue(segment);
-    }).join('.');
+    return segments
+      .map((segment, key) => {
+        return key == 0 && segments.length > 1 ? this.wrapTable(segment) : this.wrapValue(segment);
+      })
+      .join('.');
   }
 
   /* Wrap a single string in keyword identifiers. */
@@ -88,12 +87,12 @@ export abstract class BaseGrammar {
 
   /* Convert an array of column names into a delimited string. */
   public columnize(columns: any[]) {
-    return columns.map(it => this.wrap(it)).join(', ');
+    return columns.map((it) => this.wrap(it)).join(', ');
   }
 
   /* Create query parameter place-holders for an array. */
   public parameterize(values: any[]) {
-    return values.map(it => this.parameter(it)).join(', ');
+    return values.map((it) => this.parameter(it)).join(', ');
   }
 
   /* Get the appropriate query parameter place-holder for a value. */
@@ -104,7 +103,7 @@ export abstract class BaseGrammar {
   /* Quote the given string literal. */
   public quoteString(value: any[] | string): string {
     if (isArray(value)) {
-      return value.map(it => this.quoteString(it)).join(', ');
+      return value.map((it) => this.quoteString(it)).join(', ');
     }
     return `'${value}'`;
   }
@@ -112,7 +111,8 @@ export abstract class BaseGrammar {
   public escape(value: any, binary = false) {
     if (isBlank(this.connection)) {
       throw new Error(
-        'RuntimeException The database driver\'s grammar implementation does not support escaping values.');
+        "RuntimeException The database driver's grammar implementation does not support escaping values.",
+      );
     }
 
     return this.connection.escape(value, binary);

@@ -8,8 +8,7 @@ import { type FedacoBuilder } from '../../src/fedaco/fedaco-builder';
 import { mixinSoftDeletes } from '../../src/fedaco/mixins/soft-deletes';
 import { Model } from '../../src/fedaco/model';
 
-export interface FedacoBuilderTestNestedStub extends Model {
-}
+export interface FedacoBuilderTestNestedStub extends Model {}
 
 export class FedacoBuilderTestNestedStub extends mixinSoftDeletes<any>(Model) {
   _table = 'nest_table';

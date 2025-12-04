@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { Table } from '../../src/annotation/table/table';
-import { head } from 'ramda';
+import { head } from '@gradii/nanofn';
 import { DatetimeColumn } from '../../src/annotation/column/datetime.column';
 import { PrimaryGeneratedColumn } from '../../src/annotation/column/primary-generated.column';
 import { HasManyColumn } from '../../src/annotation/relation-column/has-many.relation-column';
@@ -117,7 +117,7 @@ describe('test database fedaco has one of many', () => {
     expect(() => {
       user.NewRelation('latest_login_with_invalid_aggregate');
     }).toThrow(
-      `InvalidArgumentException Invalid aggregate [count] used within ofMany relation. Available aggregates: MIN, MAX`
+      `InvalidArgumentException Invalid aggregate [count] used within ofMany relation. Available aggregates: MIN, MAX`,
     );
   });
 

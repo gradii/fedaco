@@ -6,7 +6,6 @@
 
 import { Model } from '../../src/fedaco/model';
 
-
 export class User extends Model {
   _guarded: string[] = [];
 }

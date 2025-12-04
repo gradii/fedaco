@@ -1,5 +1,5 @@
 import { FedacoRelationListType, FedacoRelationType } from './../../src/fedaco/fedaco-types';
-import { head } from 'ramda';
+import { head } from '@gradii/nanofn';
 import { Column } from '../../src/annotation/column/column';
 import { PrimaryGeneratedColumn } from '../../src/annotation/column/primary-generated.column';
 import { BelongsToColumn } from '../../src/annotation/relation-column/belongs-to.relation-column';
@@ -229,7 +229,7 @@ describe('test database fedaco soft deletes integration', () => {
     expect(userModel.GetOriginal('deleted_at')).toEqual(new Date(format(now, 'yyyy-MM-dd HH:mm:ss')));
     expect(await SoftDeletesTestUser.createQuery().find(2)).toBeUndefined();
     expect((await SoftDeletesTestUser.createQuery().pipe(withTrashed()).find(2)).ToArray()).toEqual(
-      userModel.ToArray()
+      userModel.ToArray(),
     );
   });
 
@@ -252,10 +252,10 @@ describe('test database fedaco soft deletes integration', () => {
     await userModel.Delete();
     expect(await SoftDeletesTestUser.createQuery().find(1)).toBeUndefined();
     expect((await SoftDeletesTestUser.createQuery().pipe(withTrashed()).find(1)).deleted_at).toEqual(
-      userModel.deleted_at
+      userModel.deleted_at,
     );
     expect((await SoftDeletesTestUser.createQuery().pipe(withTrashed()).find(1)).deleted_at).toEqual(
-      userModel.GetOriginal('deleted_at')
+      userModel.GetOriginal('deleted_at'),
     );
   });
 
@@ -277,7 +277,7 @@ describe('test database fedaco soft deletes integration', () => {
       },
       {
         email: 'bar@baz.com',
-      }
+      },
     );
     expect(result.email).toBe('bar@baz.com');
     expect(await SoftDeletesTestUser.createQuery().get()).toHaveLength(2);
@@ -287,7 +287,7 @@ describe('test database fedaco soft deletes integration', () => {
       },
       {
         email: 'foo@bar.com',
-      }
+      },
     );
     expect(result.email).toBe('foo@bar.com');
     expect(await SoftDeletesTestUser.createQuery().get()).toHaveLength(2);
@@ -304,7 +304,7 @@ describe('test database fedaco soft deletes integration', () => {
     abigail = await abigail.Fresh();
     expect(await abigail.address).toBeNull();
     expect((await abigail.NewRelation('address').getQuery().pipe(withTrashed()).first()).address).toBe(
-      'Laravel avenue 43'
+      'Laravel avenue 43',
     );
     await abigail.NewRelation('address').getQuery().pipe(withTrashed(), restore());
     abigail = await abigail.Fresh();
@@ -313,7 +313,7 @@ describe('test database fedaco soft deletes integration', () => {
     abigail = await abigail.Fresh();
     expect(await abigail.address).toBeNull();
     expect((await abigail.NewRelation('address').getQuery().pipe(withTrashed()).first()).address).toBe(
-      'Laravel avenue 43'
+      'Laravel avenue 43',
     );
     await abigail.NewRelation('address').getQuery().pipe(withTrashed()).forceDelete();
     abigail = await abigail.Fresh();
@@ -380,7 +380,7 @@ describe('test database fedaco soft deletes integration', () => {
     abigail = await abigail.Fresh();
     expect(await (await abigail.NewRelation('posts').first()).comments).toHaveLength(0);
     expect(
-      await (await abigail.NewRelation('posts').first()).NewRelation('comments').pipe(withTrashed()).get()
+      await (await abigail.NewRelation('posts').first()).NewRelation('comments').pipe(withTrashed()).get(),
     ).toHaveLength(1);
   });
 

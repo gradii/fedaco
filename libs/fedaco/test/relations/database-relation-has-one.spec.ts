@@ -99,7 +99,7 @@ describe('test database fedaco has one', () => {
     expect(
       relation.make({
         name: 'taylor',
-      })
+      }),
     ).toEqual(instance);
 
     expect(spy1).toHaveBeenCalledWith({ name: 'taylor' });
@@ -129,7 +129,7 @@ describe('test database fedaco has one', () => {
     expect(
       await relation.create({
         name: 'taylor',
-      })
+      }),
     ).toEqual(created);
   });
 

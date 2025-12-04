@@ -10,23 +10,19 @@ import { Table } from '../../src/annotation/table/table';
 import { Model } from '../../src/fedaco/model';
 
 @Table({
-  tableName: 'article_model'
+  tableName: 'article_model',
 })
-export class ArticleModel extends Model {
-
-}
-
+export class ArticleModel extends Model {}
 
 @Table({
   tableName: 'member_model',
 })
 export class MemberModel extends Model {
-
   @Column()
   id: number;
 
   @HasManyColumn({
-    related: ArticleModel
+    related: ArticleModel,
   })
   articles: Promise<any>;
 }
@@ -35,10 +31,8 @@ export class MemberModel extends Model {
   tableName: 'has_many_relation_model',
 })
 export class HasManyRelationModel extends Model {
-
   @HasManyColumn({
-    related: ArticleModel
+    related: ArticleModel,
   })
   columnFoo: any;
 }
-

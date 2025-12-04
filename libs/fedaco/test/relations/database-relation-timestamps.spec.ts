@@ -14,17 +14,17 @@ function schema(connectionName = 'default'): SchemaBuilder {
 }
 
 async function createSchema() {
-  await schema().create('users', table => {
+  await schema().create('users', (table) => {
     table.increments('id');
     table.string('email').withUnique();
     table.timestamps();
   });
-  await schema().create('users_created_at', table => {
+  await schema().create('users_created_at', (table) => {
     table.increments('id');
     table.string('email').withUnique();
     table.string('created_at');
   });
-  await schema().create('users_updated_at', table => {
+  await schema().create('users_updated_at', (table) => {
     table.increments('id');
     table.string('email').withUnique();
     table.string('updated_at');
@@ -35,8 +35,8 @@ describe('test database fedaco timestamps', () => {
   beforeEach(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      'driver'  : 'sqlite',
-      'database': ':memory:'
+      driver  : 'sqlite',
+      database: ':memory:',
     });
     db.bootFedaco();
     db.setAsGlobal();
@@ -50,26 +50,26 @@ describe('test database fedaco timestamps', () => {
   });
 
   it('user with created at and updated at', async () => {
-    const now  = new Date(format(new Date(), 'yyyy-MM-dd HH:mm:ss'));
+    const now = new Date(format(new Date(), 'yyyy-MM-dd HH:mm:ss'));
     const user = await UserWithCreatedAndUpdated.createQuery().create({
-      'email': 'test@test.com'
+      email: 'test@test.com',
     });
     expect(user.created_at).toEqual(now);
     expect(user.updated_at).toEqual(now);
   });
 
   it('user with created at', async () => {
-    const now  = new Date(format(new Date(), 'yyyy-MM-dd HH:mm:ss'));
+    const now = new Date(format(new Date(), 'yyyy-MM-dd HH:mm:ss'));
     const user = await UserWithCreated.createQuery().create({
-      'email': 'test@test.com'
+      email: 'test@test.com',
     });
     expect(user.created_at).toEqual(now);
   });
 
   it('user with updated at', async () => {
-    const now  = new Date(format(new Date(), 'yyyy-MM-dd HH:mm:ss'));
+    const now = new Date(format(new Date(), 'yyyy-MM-dd HH:mm:ss'));
     const user = await UserWithUpdated.createQuery().create({
-      'email': 'test@test.com'
+      email: 'test@test.com',
     });
     expect(user.updated_at).toEqual(now);
   });
@@ -77,7 +77,7 @@ describe('test database fedaco timestamps', () => {
 
 /* Eloquent Models... */
 export class UserWithCreatedAndUpdated extends Model {
-  _table: any   = 'users';
+  _table: any = 'users';
   _guarded: any = [];
 
   @CreatedAtColumn()
@@ -88,8 +88,8 @@ export class UserWithCreatedAndUpdated extends Model {
 }
 
 export class UserWithCreated extends Model {
-  _table: any               = 'users_created_at';
-  _guarded: any             = [];
+  _table: any = 'users_created_at';
+  _guarded: any = [];
   protected dateFormat: any = 't';
 
   @CreatedAtColumn()
@@ -100,8 +100,8 @@ export class UserWithCreated extends Model {
 }
 
 export class UserWithUpdated extends Model {
-  _table: any               = 'users_updated_at';
-  _guarded: any             = [];
+  _table: any = 'users_updated_at';
+  _guarded: any = [];
   protected dateFormat: any = 't';
 
   // @CreatedAtColumn()

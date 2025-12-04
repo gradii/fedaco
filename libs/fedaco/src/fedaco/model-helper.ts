@@ -4,9 +4,8 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { pick } from 'ramda';
+import { pick } from '@gradii/nanofn';
 import { wrap } from '../helper/arr';
-import { except } from '../helper/obj';
 import type { Model } from './model';
 
 export async function loadAggregate(
@@ -22,14 +21,14 @@ export async function loadAggregate(
 
   const first = models[0];
 
-  const _models = await first
+  const _models: Model[] = await first
     .NewModelQuery()
     .whereKey(models.map((it) => it.GetKey()))
     .select(first.GetKeyName())
     .withAggregate(relations, column, func)
     .get();
 
-  const _attributes = except(Object.keys(_models[0].GetAttributes()), _models[0].GetKeyName());
+  const _attributes = Object.keys(_models[0].GetAttributes()).filter((it) => it !== _models[0].GetKeyName());
   for (const model of models) {
     const extraAttributes = pick(
       _attributes,

@@ -33,8 +33,7 @@ export interface GrammarInterface<T extends Builder = Builder> {
 
   compileUpdate(builder: T, values: any, ctx?: any): string;
 
-  compileUpsert(builder: T, values: any, uniqueBy: any[] | string,
-                update: any[] | null, ctx?: any): string;
+  compileUpsert(builder: T, values: any, uniqueBy: any[] | string, update: any[] | null, ctx?: any): string;
 
   predicateFuncName(funcName: string): string;
 

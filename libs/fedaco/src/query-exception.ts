@@ -5,7 +5,6 @@
  */
 import { replaceArray } from './helper/str';
 
-
 export class QueryException {
   /* The SQL for the query. */
   protected sql: string;
@@ -16,9 +15,9 @@ export class QueryException {
 
   /* Create a new query exception instance. */
   public constructor(sql: string, bindings: any[], message: string) {
-    this.sql      = sql;
+    this.sql = sql;
     this.bindings = bindings;
-    this.message  = this.formatMessage(sql, bindings, message);
+    this.message = this.formatMessage(sql, bindings, message);
   }
 
   /* Format the SQL error message. */

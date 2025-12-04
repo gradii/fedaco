@@ -4,8 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isAnyEmpty, isArray, isBlank, isObject } from '@gradii/nanofn';
-import { difference, uniq } from 'ramda';
+import { difference, isAnyEmpty, isArray, isBlank, isObject, uniq } from '@gradii/nanofn';
 import type { Constructor } from '../../helper/constructor';
 import type { Model } from '../model';
 
@@ -107,7 +106,7 @@ export function mixinHasEvents<T extends Constructor<any>>(base: T) {
 
     /* Remove all of the event listeners for the model. */
     public static flushEventListeners(this: Model & _Self) {
-      if (!(/* static */ this.dispatcher !== undefined)) {
+      if (!(/* static */ (this.dispatcher !== undefined))) {
         return;
       }
       // @ts-ignore
@@ -212,7 +211,7 @@ export function mixinHasEvents<T extends Constructor<any>>(base: T) {
 
     /* protected */
     _fireModelEvent(this: Model & _Self, event: string, halt = true) {
-      if (!(/* static */ (<any>this.constructor).dispatcher !== undefined)) {
+      if (!(/* static */ ((<any>this.constructor).dispatcher !== undefined))) {
         return true;
       }
       const method = halt ? 'until' : 'dispatch';

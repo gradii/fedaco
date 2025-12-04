@@ -1,5 +1,5 @@
 import { PrimaryColumn } from './../../src/annotation/column/primary.column';
-import { head } from 'ramda';
+import { head } from '@gradii/nanofn';
 import { tap } from 'rxjs/operators';
 import { Column } from '../../src/annotation/column/column';
 import { DeletedAtColumn } from '../../src/annotation/column/deleted-at.column';
@@ -424,7 +424,7 @@ describe('test database fedaco has many through integration', () => {
             'updated_at',
             'fedaco_through_key',
           ]);
-        })
+        }),
       )
       .toPromise();
   });
@@ -444,7 +444,7 @@ describe('test database fedaco has many through integration', () => {
         tap(({ results: collection }) => {
           i++;
           count += collection.length;
-        })
+        }),
       )
       .toPromise();
     expect(i).toEqual(3);
@@ -485,7 +485,7 @@ describe('test database fedaco has many through integration', () => {
             'updated_at',
             'fedaco_through_key',
           ]);
-        })
+        }),
       )
       .toPromise();
   });

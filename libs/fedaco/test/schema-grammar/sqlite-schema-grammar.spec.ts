@@ -93,7 +93,7 @@ describe('test database sqlite schema grammar', () => {
     let statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'create table "users" ("id" integer primary key autoincrement not null, "email" varchar not null)'
+      'create table "users" ("id" integer primary key autoincrement not null, "email" varchar not null)',
     );
     blueprint = new Blueprint('users');
     blueprint.increments('id');
@@ -115,7 +115,7 @@ describe('test database sqlite schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'create temporary table "users" ("id" integer primary key autoincrement not null, "email" varchar not null)'
+      'create temporary table "users" ("id" integer primary key autoincrement not null, "email" varchar not null)',
     );
   });
   it('drop table', async () => {
@@ -209,8 +209,8 @@ describe('test database sqlite schema grammar', () => {
     const _indexes = await schema.getIndexes('users');
     expect(
       _indexes.find(
-        (index) => index['name'] === 'index2' && index['columns'][0] === 'name' && index['columns'][1] === 'email'
-      )
+        (index) => index['name'] === 'index2' && index['columns'][0] === 'name' && index['columns'][1] === 'email',
+      ),
     );
   });
   it('adding primary key', async () => {
@@ -230,7 +230,7 @@ describe('test database sqlite schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'create table "users" ("foo" varchar not null, "order_id" varchar not null, foreign key("order_id") references "orders"("id"), primary key ("foo"))'
+      'create table "users" ("foo" varchar not null, "order_id" varchar not null, foreign key("order_id") references "orders"("id"), primary key ("foo"))',
     );
   });
   it('adding unique key', async () => {
@@ -443,7 +443,7 @@ describe('test database sqlite schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "role" varchar check ("role" in (\'member\', \'admin\')) not null'
+      'alter table "users" add column "role" varchar check ("role" in (\'member\', \'admin\')) not null',
     );
   });
   it('adding json', async () => {

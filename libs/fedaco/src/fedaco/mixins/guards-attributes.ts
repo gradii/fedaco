@@ -5,8 +5,7 @@
  */
 
 import { reflector } from '@gradii/annotation';
-import { isArray, isPromise } from '@gradii/nanofn';
-import { findLast } from 'ramda';
+import { findLast, isArray, isPromise } from '@gradii/nanofn';
 import type { ColumnAnnotation } from '../../annotation/column';
 import { FedacoColumn } from '../../annotation/column';
 import type { Constructor } from '../../helper/constructor';

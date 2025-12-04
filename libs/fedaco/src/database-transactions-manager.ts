@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { partition } from 'ramda';
+import { partition } from '@gradii/nanofn';
 import { DatabaseTransactionRecord } from './database-transaction-record';
 
 export class DatabaseTransactionsManager {
@@ -12,8 +12,7 @@ export class DatabaseTransactionsManager {
   protected transactions: DatabaseTransactionRecord[] = [];
 
   /* Create a new database transactions manager instance. */
-  public constructor() {
-  }
+  public constructor() {}
 
   /* Start a new database transaction. */
   public begin(connection: string, level: number) {
@@ -22,16 +21,16 @@ export class DatabaseTransactionsManager {
 
   /* Rollback the active database transaction. */
   public rollback(connection: string, level: number): void {
-    this.transactions = this.transactions.filter(transaction => {
+    this.transactions = this.transactions.filter((transaction) => {
       return !(transaction.connection == connection && transaction.level > level);
     });
   }
 
   /* Commit the active database transaction. */
   public async commit(connection: string) {
-    const [forThisConnection, forOtherConnections] = partition((transaction => {
+    const [forThisConnection, forOtherConnections] = partition((transaction) => {
       return transaction.connection == connection;
-    }), this.transactions);
+    }, this.transactions);
 
     this.transactions = forOtherConnections;
 

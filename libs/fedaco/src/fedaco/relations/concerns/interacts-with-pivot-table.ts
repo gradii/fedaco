@@ -4,9 +4,8 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray, isBlank, isNumber, isString } from '@gradii/nanofn';
+import { difference, intersection, isArray, isBlank, isNumber, isString, pluck } from '@gradii/nanofn';
 import { format, fromUnixTime } from 'date-fns';
-import { difference, intersection, pluck } from 'ramda';
 import type { Collection } from '../../../define/collection';
 import { mapWithKeys, wrap } from '../../../helper/arr';
 import type { Constructor } from '../../../helper/constructor';

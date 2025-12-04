@@ -4,8 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { camelCase, isArray, isBlank, isObject, pluralStudly } from '@gradii/nanofn';
-import { uniq } from 'ramda';
+import { isArray, isBlank, isObject, uniq, pluralStudly, camelCase } from '@gradii/nanofn';
 import type { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import type { Collection } from '../../define/collection';

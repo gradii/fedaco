@@ -1,7 +1,5 @@
- 
-import { isArray, isNumber } from '@gradii/nanofn';
+import { isArray, isNumber, head } from '@gradii/nanofn';
 import { format, formatISO, isSameDay, parse, startOfSecond, subDays } from 'date-fns';
-import { head } from 'ramda';
 import { finalize, tap } from 'rxjs/operators';
 import { ArrayColumn } from '../src/annotation/column/array.column';
 import { Column } from '../src/annotation/column/column';
@@ -171,7 +169,7 @@ describe('test database fedaco integration', () => {
         database: files.second,
         // 'database': ':memory:'
       },
-      'second_connection'
+      'second_connection',
     );
     db.bootFedaco();
     db.setAsGlobal();
@@ -415,7 +413,7 @@ describe('test database fedaco integration', () => {
       },
       {
         name: 'Taylor Otwell',
-      }
+      },
     );
     expect(user2.id).toEqual(user1.id);
     expect(user2.email).toBe('linbolen@gradii.com');
@@ -426,7 +424,7 @@ describe('test database fedaco integration', () => {
       },
       {
         name: 'Abigail Otwell',
-      }
+      },
     );
     expect(user1.id).not.toEqual(user3.id);
     expect(user3.email).toBe('xsilen@gradii.com');
@@ -443,7 +441,7 @@ describe('test database fedaco integration', () => {
       },
       {
         name: 'Taylor Otwell',
-      }
+      },
     );
     expect(user2.id).toEqual(user1.id);
     expect(user2.email).toBe('linbolen@gradii.com');
@@ -454,7 +452,7 @@ describe('test database fedaco integration', () => {
       },
       {
         name: 'Mohamed Said',
-      }
+      },
     );
     expect(user3.name).toBe('Mohamed Said');
     expect(await FedacoTestUser.createQuery().count()).toBe(2);
@@ -470,7 +468,7 @@ describe('test database fedaco integration', () => {
       },
       {
         name: 'Taylor Otwell',
-      }
+      },
     );
     await FedacoTestUser.useConnection('second_connection').updateOrCreate(
       {
@@ -478,7 +476,7 @@ describe('test database fedaco integration', () => {
       },
       {
         name: 'Mohamed Said',
-      }
+      },
     );
     expect(await FedacoTestUser.createQuery().count()).toBe(1);
     expect(await FedacoTestUser.useConnection('second_connection').count()).toBe(2);
@@ -493,7 +491,7 @@ describe('test database fedaco integration', () => {
       FedacoTestUser.useConnection('second_connection').insert({
         id   : 2,
         email: 'tony.stark@gradii.com',
-      })
+      }),
     );
     let user1 = await FedacoTestUser.useConnection('second_connection').findOrNew(1);
     let user2 = await FedacoTestUser.useConnection('second_connection').findOrNew(2);
@@ -555,7 +553,7 @@ describe('test database fedaco integration', () => {
         finalize(() => {
           expect(i).toEqual(2);
         }),
-        tap(spy)
+        tap(spy),
       )
       .toPromise();
 
@@ -590,7 +588,7 @@ describe('test database fedaco integration', () => {
         finalize(() => {
           expect(i).toEqual(2);
         }),
-        tap(spy)
+        tap(spy),
       )
       .toPromise();
 
@@ -613,7 +611,7 @@ describe('test database fedaco integration', () => {
       .pipe(
         tap(({ item: user, index: i }) => {
           users.push([user.name, i]);
-        })
+        }),
       )
       .toPromise();
     expect(users).toEqual([
@@ -800,7 +798,7 @@ describe('test database fedaco integration', () => {
     await user.Save();
     const models = await FedacoTestUser.useConnection('second_connection').fromQuery(
       'SELECT * FROM users WHERE email = ?',
-      ['xsilen@gradii.com']
+      ['xsilen@gradii.com'],
     );
     expect(isArray(models)).toBeTruthy();
     expect(models[0]).toBeInstanceOf(FedacoTestUser);
@@ -1109,7 +1107,7 @@ describe('test database fedaco integration', () => {
     await expect(async () => {
       await FedacoTestUser.createQuery().has('imageable').get();
     }).rejects.toThrow(
-      `the relation [imageable] can't acquired. try to define a relation like\n@HasManyColumn()\npublic readonly imageable;\n`
+      `the relation [imageable] can't acquired. try to define a relation like\n@HasManyColumn()\npublic readonly imageable;\n`,
     );
   });
 
@@ -1130,7 +1128,7 @@ describe('test database fedaco integration', () => {
           expect(head(friends).email).toBe('xsilen@gradii.com');
           expect(head(friends).GetRelation('pivot').GetAttribute('user_id')).toBe(user.id);
           expect(head(friends).GetRelation('pivot').GetAttribute('friend_id')).toBe(friend.id);
-        })
+        }),
       )
       .toPromise();
   });
@@ -1152,7 +1150,7 @@ describe('test database fedaco integration', () => {
           expect(result.email).toBe('xsilen@gradii.com');
           expect(result.GetRelation('pivot').GetAttribute('user_id')).toBe(user.id);
           expect(result.GetRelation('pivot').GetAttribute('friend_id')).toBe(friend.id);
-        })
+        }),
       )
       .toPromise();
   });
@@ -1697,10 +1695,10 @@ describe('test database fedaco integration', () => {
     expect(
       await (
         await (johnWithFriends.friends as FedacoTestUser[]).find((it) => it.id === 3).GetAttribute('pivot').level
-      ).level
+      ).level,
     ).toBe('friend');
     expect(
-      (await (johnWithFriends.friends as FedacoTestUser[]).find((it) => it.id === 4).GetAttribute('pivot').friend).name
+      (await (johnWithFriends.friends as FedacoTestUser[]).find((it) => it.id === 4).GetAttribute('pivot').friend).name,
     ).toBe('Jule Doe');
   });
 

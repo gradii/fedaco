@@ -7,6 +7,8 @@
 import { reflector } from '@gradii/annotation';
 import {
   camelCase,
+  difference,
+  findLast,
   isAnyEmpty,
   isArray,
   isBlank,
@@ -14,9 +16,10 @@ import {
   isString,
   plural,
   snakeCase,
+  tap,
+  uniq,
   upperFirst,
 } from '@gradii/nanofn';
-import { difference, findLast, tap, uniq } from 'ramda';
 import type { TableAnnotation } from '../annotation/table/table';
 import { Table } from '../annotation/table/table';
 import type { Connection } from '../connection';
@@ -389,12 +392,15 @@ export class Model extends mixinHasAttributes(
     if (this._fireModelEvent('updating') === false) {
       return false;
     }
-    // @ts-ignore
-    return tap(this._setKeysForSaveQuery(query)[method](column, amount, extra), () => {
-      this.SyncChanges();
-      this._fireModelEvent('updated', false);
-      this.SyncOriginalAttribute(column);
-    });
+    return tap(
+      () => {
+        this.SyncChanges();
+        this._fireModelEvent('updated', false);
+        this.SyncOriginalAttribute(column);
+      },
+      // @ts-ignore
+      this._setKeysForSaveQuery(query)[method](column, amount, extra),
+    );
   }
 
   /* Update the model in the database. */

@@ -30,7 +30,7 @@ function expectNewModel(relation: Relation, attributes: Record<string, any>) {
     (key: string, value: any) => {
       expect(key).toEqual('foreign_key');
       expect(value).toEqual(1);
-    }
+    },
   );
   jest.spyOn(relation.getRelated(), 'NewInstance').mockImplementation((...args: any[]) => {
     // expect(args[0]).toEqual(attributes);
@@ -122,8 +122,8 @@ describe('test database fedaco has many', () => {
         },
         {
           baz: 'qux',
-        }
-      )
+        },
+      ),
     ).toBeInstanceOf(dummy);
 
     expect(spy1).toHaveBeenCalledWith({
@@ -159,8 +159,8 @@ describe('test database fedaco has many', () => {
         },
         {
           baz: 'qux',
-        }
-      )
+        },
+      ),
     ).toEqual(model);
 
     expect(spy1).toHaveBeenCalledWith({
@@ -211,8 +211,8 @@ describe('test database fedaco has many', () => {
         },
         {
           baz: 'qux',
-        }
-      )
+        },
+      ),
     ).toBeInstanceOf(Model);
     expect(spy1).toHaveBeenCalledWith({
       foo: 'bar',
@@ -253,8 +253,8 @@ describe('test database fedaco has many', () => {
         },
         {
           baz: 'qux',
-        }
-      )
+        },
+      ),
     ).toEqual(model);
   });
 

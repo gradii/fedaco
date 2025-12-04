@@ -4,8 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray, isBlank, isBoolean, isNumber, isString } from '@gradii/nanofn';
-import { uniq } from 'ramda';
+import { isArray, isBlank, isBoolean, isNumber, isString, uniq } from '@gradii/nanofn';
 import type { AssignmentSetClause } from '../../query/ast/assignment-set-clause';
 import { BinaryUnionQueryExpression } from '../../query/ast/binary-union-query-expression';
 import { BindingVariable } from '../../query/ast/binding-variable';

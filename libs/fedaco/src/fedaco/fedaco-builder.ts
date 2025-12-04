@@ -4,8 +4,18 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isAnyEmpty, isArray, isBlank, isFunction, isNumber, isObject, isString, pascalCase } from '@gradii/nanofn';
-import { nth, omit, pluck } from 'ramda';
+import {
+  isAnyEmpty,
+  isArray,
+  isBlank,
+  isFunction,
+  isNumber,
+  isObject,
+  isString,
+  omit,
+  pascalCase,
+  pluck,
+} from '@gradii/nanofn';
 import { wrap } from '../helper/arr';
 import type { Constructor } from '../helper/constructor';
 import type { BuildQueries, BuildQueriesCtor } from '../query-builder/mixins/build-query';
@@ -999,7 +1009,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   _groupWhereSliceForScope(query: QueryBuilder, whereSlice: any[]): void {
     const whereBooleans = pluck('boolean', whereSlice);
     if (whereBooleans.includes('or')) {
-      query._wheres.push(this._createNestedWhere(whereSlice, nth(0, whereBooleans)));
+      query._wheres.push(this._createNestedWhere(whereSlice, whereBooleans.at(0)));
     } else {
       query._wheres = [...query._wheres, ...whereSlice];
     }

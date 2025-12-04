@@ -15,8 +15,7 @@ export interface ManagesTransactions {
   _transactionsManager: DatabaseTransactionsManager;
 
   /* Execute a Closure within a transaction. */
-  transaction(callback: (...args: any[]) => Promise<any | void>,
-              attempts?: number): Promise<any>;
+  transaction(callback: (...args: any[]) => Promise<any | void>, attempts?: number): Promise<any>;
 
   /* Start a new database transaction. */
   beginTransaction(): Promise<void>;
@@ -50,9 +49,11 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
     protected _transactionsManager: DatabaseTransactionsManager;
 
     /* Execute a Closure within a transaction. */
-    public async transaction(this: Connection & this,
-                             callback: (...args: any[]) => Promise<any | void>,
-                             attempts = 1): Promise<any> {
+    public async transaction(
+      this: Connection & this,
+      callback: (...args: any[]) => Promise<any | void>,
+      attempts = 1,
+    ): Promise<any> {
       let callbackResult;
       for (let currentAttempt = 1; currentAttempt <= attempts; currentAttempt++) {
         await this.beginTransaction();
@@ -82,9 +83,12 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
     }
 
     /* Handle an exception encountered when running a transacted statement. */
-    protected async _handleTransactionException(this: Connection & this,
-                                                e: Error, currentAttempt: number,
-                                                maxAttempts: number): Promise<void> {
+    protected async _handleTransactionException(
+      this: Connection & this,
+      e: Error,
+      currentAttempt: number,
+      maxAttempts: number,
+    ): Promise<void> {
       if (this.causedByConcurrencyError(e) && this._transactions > 1) {
         this._transactions--;
         if (this._transactionsManager) {
@@ -125,8 +129,7 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
 
     /* Create a save point within the database. */
     protected async _createSavepoint(this: Connection & this) {
-      await (await this.getPdo()).execute(
-        this._queryGrammar.compileSavepoint('trans' + (this._transactions + 1)));
+      await (await this.getPdo()).execute(this._queryGrammar.compileSavepoint('trans' + (this._transactions + 1)));
     }
 
     /* Handle an exception from a transaction beginning. */
@@ -155,8 +158,12 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
     }
 
     /* Handle an exception encountered when committing a transaction. */
-    protected handleCommitTransactionException(this: Connection & _Self, e: Error, currentAttempt: number,
-                                               maxAttempts: number) {
+    protected handleCommitTransactionException(
+      this: Connection & _Self,
+      e: Error,
+      currentAttempt: number,
+      maxAttempts: number,
+    ) {
       this._transactions = Math.max(0, this._transactions - 1);
       if (this.causedByConcurrencyError(e) && currentAttempt < maxAttempts) {
         return;
@@ -191,8 +198,7 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
       if (toLevel == 0) {
         await (await this.getPdo()).rollBack();
       } else if (this._queryGrammar.supportsSavepoints()) {
-        await (await this.getPdo()).execute(
-          this._queryGrammar.compileSavepointRollBack('trans' + (toLevel + 1)));
+        await (await this.getPdo()).execute(this._queryGrammar.compileSavepointRollBack('trans' + (toLevel + 1)));
       }
     }
 

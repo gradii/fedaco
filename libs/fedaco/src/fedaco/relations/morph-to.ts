@@ -5,8 +5,7 @@
  */
 
 import { reflector } from '@gradii/annotation';
-import { camelCase, isBlank } from '@gradii/nanofn';
-import { findLast, tap } from 'ramda';
+import { camelCase, findLast, isBlank, tap } from '@gradii/nanofn';
 import { MorphToColumn } from '../../annotation/relation-column/morph-to.relation-column';
 import type { Collection } from '../../define/collection';
 import { resolveForwardRef } from '../../query-builder/forward-ref';

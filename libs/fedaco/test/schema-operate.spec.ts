@@ -16,24 +16,21 @@ async function createSchema() {
   // await schema('default')
   //   .dropAllTables();
 
-  await schema('default')
-    .create('test_orders', table => {
-      table.increments('id');
-      table.string('item_type');
-      table.integer('item_id');
-      table.timestamps();
-    });
+  await schema('default').create('test_orders', (table) => {
+    table.increments('id');
+    table.string('item_type');
+    table.integer('item_id');
+    table.timestamps();
+  });
 }
 
 let db: DatabaseConfig;
 describe('schema operate', () => {
-
   beforeEach(async () => {
-
     db = new DatabaseConfig();
     db.addConnection({
-      'driver'  : 'sqlite',
-      'database': ':memory:'
+      driver  : 'sqlite',
+      database: ':memory:',
     });
     db.bootFedaco();
     db.setAsGlobal();
@@ -53,5 +50,4 @@ describe('schema operate', () => {
 
     expect(tableExist).toBe(true);
   });
-
 });
