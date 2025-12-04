@@ -30,7 +30,10 @@ export interface Dispatcher {
 
 export interface HasEvents {}
 
-type HasEventsCtor = Constructor<HasEvents>;
+export interface HasEventsCtor {
+
+  new(...args: any[]): HasEvents;
+}
 
 export function mixinHasEvents<T extends Constructor<any>>(base: T) {
   // @ts-ignore

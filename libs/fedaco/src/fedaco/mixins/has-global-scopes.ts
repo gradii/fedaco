@@ -13,11 +13,13 @@ export interface HasGlobalScopes {
   GetGlobalScopes(): { [key: string]: Scope | Function };
 }
 
-export declare class HasGlobalScopes {
-  static addGlobalScope(scope: string, implementation: Scope | Function): void;
-}
 
-type HasGlobalScopesCtor = Constructor<HasGlobalScopes>;
+export interface HasGlobalScopesCtor {
+  addGlobalScope(scope: string, implementation: Scope | Function): void;
+  addGlobalScope(scope: string, implementation: Scope | ((q: QueryBuilder) => void)): void;
+
+  new(...args: any[]): HasGlobalScopes
+}
 
 const globalScopes = new WeakMap();
 

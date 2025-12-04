@@ -14,28 +14,6 @@ function isAnyGuarded(guarded: string[]) {
   return guarded.length === 1 && guarded[0] === '*';
 }
 
-// tslint:disable-next-line:no-namespace eslint-disable-next-line @typescript-eslint/no-namespace
-export declare class GuardsAttributes {
-  /* Indicates if all mass assignment is enabled. */
-  static _unguarded: boolean;
-  /* The actual columns that exist on the database and can be guarded. */
-  static readonly _guardableColumns: string[];
-
-  static readonly _metaFillable: string[];
-
-  /* Disable all mass assignable restrictions. */
-  static unguard(state: boolean): void;
-
-  /* Enable the mass assignment restrictions. */
-  static reguard(): void;
-
-  /* Determine if the current state is "unguarded". */
-  static isUnguarded(): boolean;
-
-  /* Run the given callable while being unguarded. */
-  static unguarded(callback: Function): any;
-}
-
 export interface GuardsAttributes {
   /* The attributes that are mass assignable. */
   _fillable: string[];
@@ -69,7 +47,28 @@ export interface GuardsAttributes {
   _fillableFromArray(attributes: any): this;
 }
 
-export type GuardsAttributesCtor<M> = Constructor<GuardsAttributes>;
+export interface GuardsAttributesCtor<M> {
+  /* Indicates if all mass assignment is enabled. */
+  _unguarded: boolean;
+  /* The actual columns that exist on the database and can be guarded. */
+  readonly _guardableColumns: string[];
+
+  readonly _metaFillable: string[];
+
+  /* Disable all mass assignable restrictions. */
+  unguard(state: boolean): void;
+
+  /* Enable the mass assignment restrictions. */
+  reguard(): void;
+
+  /* Determine if the current state is "unguarded". */
+  isUnguarded(): boolean;
+
+  /* Run the given callable while being unguarded. */
+  unguarded(callback: Function): any;
+
+  new(...args: any[]): GuardsAttributes
+};
 
 export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): GuardsAttributesCtor<M> & T {
   return class _Self extends base {

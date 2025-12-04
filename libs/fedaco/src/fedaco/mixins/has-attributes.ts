@@ -84,10 +84,6 @@ const PrimitiveCastTypes: string[] = [
   'timestamp',
 ];
 
-export declare namespace HasAttributes {
-  export const snakeAttributes: boolean;
-  export const encrypter: Encrypter;
-}
 
 export interface HasAttributes {
   /* The model's attributes. */
@@ -377,7 +373,12 @@ export interface HasAttributes {
   HasAppended(attribute: string): boolean;
 }
 
-type HasAttributesCtor = Constructor<HasAttributes>;
+export interface HasAttributesCtor {
+  snakeAttributes: boolean;
+  encrypter: Encrypter;
+
+  new(...args: any[]): HasAttributes;
+};
 
 /** Mixin to augment a directive with a `disableRipple` property. */
 export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttributesCtor & T {
