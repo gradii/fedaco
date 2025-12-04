@@ -12,8 +12,8 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       '@gradii/nanofn':
-        specifier: ^2.1.1
-        version: 2.1.1
+        specifier: ^3.0.0
+        version: 3.0.0
       '@nestjs/common':
         specifier: 10.3.8
         version: 10.3.8(reflect-metadata@0.1.14)(rxjs@7.8.2)
@@ -1221,8 +1221,8 @@ packages:
   '@gradii/annotation@3.0.1':
     resolution: {integrity: sha512-RTl0yEeJyXfJgYzZOtzv82UjBQ3GKT4fv316Tfis4IHsWFCEa/eE5ZuJddK67QKw3k6oCF/J4cI5keczoHKofg==}
 
-  '@gradii/nanofn@2.1.1':
-    resolution: {integrity: sha512-eS10c2oibyfAUpvEqSvBKPEnbZhu5zcS9OurAWEi3FchzK+t7amscAZSzHIrxj9n4t8fw381xDbx9cJZvm/DCQ==}
+  '@gradii/nanofn@3.0.0':
+    resolution: {integrity: sha512-2TqePINnbo04pW0xswB8DeKpKCPGaZtrgcXvf7xmfoGK1lz1tNHhLEmfC/F/rjQsh7Z2JqxVAd/ZFYpcXyN5hw==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -8526,7 +8526,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@gradii/nanofn@2.1.1': {}
+  '@gradii/nanofn@3.0.0': {}
 
   '@humanfs/core@0.19.1': {}
 

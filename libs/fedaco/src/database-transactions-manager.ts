@@ -28,9 +28,9 @@ export class DatabaseTransactionsManager {
 
   /* Commit the active database transaction. */
   public async commit(connection: string) {
-    const [forThisConnection, forOtherConnections] = partition((transaction) => {
+    const [forThisConnection, forOtherConnections] = partition(this.transactions, (transaction) => {
       return transaction.connection == connection;
-    }, this.transactions);
+    });
 
     this.transactions = forOtherConnections;
 

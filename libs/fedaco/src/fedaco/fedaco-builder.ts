@@ -1007,7 +1007,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
 
   /* Slice where conditions at the given offset and add them to the query as a nested condition. */
   _groupWhereSliceForScope(query: QueryBuilder, whereSlice: any[]): void {
-    const whereBooleans = pluck('boolean', whereSlice);
+    const whereBooleans = pluck(whereSlice, 'boolean');
     if (whereBooleans.includes('or')) {
       query._wheres.push(this._createNestedWhere(whereSlice, whereBooleans.at(0)));
     } else {
@@ -1070,7 +1070,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
 
   /* Prevent the specified relations from being eager loaded. */
   public without(relations: any): this {
-    this._eagerLoad = omit(isString(relations) ? arguments : relations, this._eagerLoad);
+    this._eagerLoad = omit(this._eagerLoad, isString(relations) ? arguments : relations);
     return this;
   }
 

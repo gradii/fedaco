@@ -179,7 +179,7 @@ export function mixinInteractsWithPivotTable<T extends Constructor<any>>(base: T
         detached: [],
         updated : [],
       };
-      const current = pluck(this.relatedPivotKey, await this._getCurrentlyAttachedPivots());
+      const current = pluck(await this._getCurrentlyAttachedPivots(), this.relatedPivotKey);
       const records = this._formatRecordsList(this._parseIds(ids));
       const detach = difference(current, Object.keys(records));
       if (detaching && detach.length > 0) {

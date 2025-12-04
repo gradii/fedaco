@@ -392,15 +392,12 @@ export class Model extends mixinHasAttributes(
     if (this._fireModelEvent('updating') === false) {
       return false;
     }
-    return tap(
-      () => {
-        this.SyncChanges();
-        this._fireModelEvent('updated', false);
-        this.SyncOriginalAttribute(column);
-      },
-      // @ts-ignore
-      this._setKeysForSaveQuery(query)[method](column, amount, extra),
-    );
+    // @ts-expect-error method call
+    return tap(this._setKeysForSaveQuery(query)[method](column, amount, extra), () => {
+      this.SyncChanges();
+      this._fireModelEvent('updated', false);
+      this.SyncOriginalAttribute(column);
+    });
   }
 
   /* Update the model in the database. */
@@ -728,14 +725,11 @@ export class Model extends mixinHasAttributes(
   public Replicate(excepts: any[] | null = null) {
     const defaults = [this.GetKeyName(), this.GetCreatedAtColumn(), this.GetUpdatedAtColumn()];
     const attributes = except(this.GetAttributes(), excepts ? uniq([...excepts, ...defaults]) : defaults);
-    return tap(
-      (instance: Model) => {
-        instance.SetRawAttributes(attributes);
-        instance.SetRelations(this._relations);
-        instance.FireModelEvent('replicating', false);
-      },
-      new (this.constructor as typeof Model)(),
-    );
+    return tap(new (this.constructor as typeof Model)(), (instance: Model) => {
+      instance.SetRawAttributes(attributes);
+      instance.SetRelations(this._relations);
+      instance.FireModelEvent('replicating', false);
+    });
   }
 
   /* Determine if two models have the same ID and belong to the same table. */

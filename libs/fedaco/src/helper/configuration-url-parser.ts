@@ -57,9 +57,6 @@ export class ConfigurationUrlParser {
   /* Get the primary database connection options. */
   protected getPrimaryOptions(url: any) {
     return filterObj(
-      (value) => {
-        return !isBlank(value);
-      },
       {
         driver  : this.getDriver(url),
         database: this.getDatabase(url),
@@ -67,6 +64,9 @@ export class ConfigurationUrlParser {
         port    : !isStringEmpty(url['port']) ? +url['port'] : null,
         username: url['username'] ?? null,
         password: url['password'] ?? null,
+      },
+      (value) => {
+        return !isBlank(value);
       },
     );
   }

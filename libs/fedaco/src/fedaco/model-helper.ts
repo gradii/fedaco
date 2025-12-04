@@ -31,8 +31,8 @@ export async function loadAggregate(
   const _attributes = Object.keys(_models[0].GetAttributes()).filter((it) => it !== _models[0].GetKeyName());
   for (const model of models) {
     const extraAttributes = pick(
-      _attributes,
       _models.find((it: Model) => it.GetAttribute(first.GetKeyName()) === model.GetKey()).GetAttributes(),
+      _attributes,
     );
 
     model.ForceFill(extraAttributes).SyncOriginalAttributes(_attributes);

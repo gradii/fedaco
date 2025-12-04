@@ -63,9 +63,9 @@ export class HasOneOrMany extends mixinInteractsWithDictionary(Relation) {
 
   /* Create and return an un-saved instance of the related model. */
   public make(attributes: any = {}) {
-    return tap((instance) => {
+    return tap(this._related.NewInstance(attributes), (instance) => {
       this._setForeignAttributesForCreate(instance);
-    }, this._related.NewInstance(attributes));
+    });
   }
 
   /* Create and return an un-saved instance of the related models. */

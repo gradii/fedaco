@@ -9,7 +9,7 @@ import { Processor } from '../processor';
 
 export class SqliteProcessor extends Processor {
   public processColumns(results: any[], sql = ''): any[] {
-    const hasPrimaryKey = pluck('primary', results).length === 1;
+    const hasPrimaryKey = pluck(results, 'primary').length === 1;
 
     return results.map((result) => {
       const type = result.type.toLowerCase();

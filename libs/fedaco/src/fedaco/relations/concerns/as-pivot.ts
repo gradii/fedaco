@@ -142,13 +142,10 @@ export function mixinAsPivot<T extends Constructor<any>>(base: T): AsPivotCtor &
         return 0;
       }
       await this.TouchOwners();
-      return tap(
-        () => {
-          this._exists = false;
-          this._fireModelEvent('deleted', false);
-        },
-        await this._getDeleteQuery().delete(),
-      );
+      return tap(await this._getDeleteQuery().delete(), () => {
+        this._exists = false;
+        this._fireModelEvent('deleted', false);
+      });
     }
 
     /* Get the table associated with the model. */

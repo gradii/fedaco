@@ -41,12 +41,9 @@ export class MorphPivot extends Pivot {
     }
     const query = this._getDeleteQuery();
     query.where(this._morphType, this._morphClass);
-    return tap(
-      () => {
-        this._fireModelEvent('deleted', false);
-      },
-      await query.delete(),
-    );
+    return tap(await query.delete(), () => {
+      this._fireModelEvent('deleted', false);
+    });
   }
 
   /* Get the morph type for the pivot. */

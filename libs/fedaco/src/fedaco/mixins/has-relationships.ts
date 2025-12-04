@@ -182,11 +182,11 @@ export function mixinHasRelationships<T extends Constructor<{}>>(base: T): HasRe
 
     /* Create a new model instance for a related model. */
     _newRelatedInstance(this: _Self & Model & this, clazz: typeof Model): Model {
-      return tap((instance) => {
+      return tap(new clazz(), (instance) => {
         if (!instance.GetConnectionName()) {
           instance.SetConnection(this._connection);
         }
-      }, new clazz());
+      });
     }
 
     NewRelation(this: Model & _Self, relation: string): Relation {

@@ -555,11 +555,11 @@ export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttri
       let haveNew = false;
       if (this.GetVisible().length > 0) {
         haveNew = true;
-        values = pick(this.GetVisible(), values);
+        values = pick(values, this.GetVisible());
       }
       if (this.GetHidden().length > 0) {
         haveNew = true;
-        values = omit(this.GetHidden(), values);
+        values = omit(values, this.GetHidden());
       }
       return haveNew ? values : { ...values };
     }
@@ -650,12 +650,9 @@ export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttri
         }
         throw new Error(`LogicException(getRelationshipFromMethod must return a relationship instance.`);
       }
-      return tap(
-        (results) => {
-          this.SetRelation(method, results);
-        },
-        await relation.getResults(),
-      );
+      return tap(await relation.getResults(), (results) => {
+        this.SetRelation(method, results);
+      });
     }
 
     // /*Determine if a get mutator exists for an attribute.*/
@@ -889,9 +886,9 @@ export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttri
 
     /* Get an array attribute with the given key and value set. */
     protected GetArrayAttributeWithValue(path: string, key: string, value: any): any {
-      return tap((target) => {
+      return tap(this.GetArrayAttributeByKey(key), (target) => {
         set(target, path.replace('->', '.'), value);
-      }, this.GetArrayAttributeByKey(key));
+      });
     }
 
     /* Get an array attribute or return an empty array if it is not set. */

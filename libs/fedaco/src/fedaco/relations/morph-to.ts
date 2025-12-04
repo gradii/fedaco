@@ -182,11 +182,11 @@ export class MorphTo extends BelongsTo {
     const clazz: typeof Model = this._getActualClassNameForMorph(type);
     // reflector.propMetadata(this._models)
 
-    return tap((instance) => {
+    return tap(new clazz(), (instance) => {
       if (!instance.GetConnectionName()) {
         instance.SetConnection(this.getConnection().getName());
       }
-    }, new clazz());
+    });
   }
 
   /* Match the eagerly loaded results to their parents. */

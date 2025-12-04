@@ -84,15 +84,12 @@ export function mixinSoftDeletes<T extends Constructor<{}>>(base: T): SoftDelete
     /* Force a hard delete on a soft deleted model. */
     public async ForceDelete(this: Model & this): Promise<boolean> {
       this._forceDeleting = true;
-      return tap(
-        (deleted) => {
-          this._forceDeleting = false;
-          if (deleted) {
-            this._fireModelEvent('forceDeleted', false);
-          }
-        },
-        (await this.Delete()) as boolean,
-      );
+      return tap((await this.Delete()) as boolean, (deleted) => {
+        this._forceDeleting = false;
+        if (deleted) {
+          this._fireModelEvent('forceDeleted', false);
+        }
+      });
     }
 
     /* Perform the actual delete query on this model instance. */

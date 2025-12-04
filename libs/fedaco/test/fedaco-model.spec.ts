@@ -1266,7 +1266,7 @@ describe('test database fedaco model', () => {
     expect(model.id).toEqual(1);
     expect(model._exists).toBeTruthy();
     expect((model.relationMany as any[]).length).toBe(2);
-    expect(pluck('id', model.relationMany as any[])).toEqual([2, 3]);
+    expect(pluck(model.relationMany as any[], 'id')).toEqual([2, 3]);
   });
 
   it('get and set table operations', () => {

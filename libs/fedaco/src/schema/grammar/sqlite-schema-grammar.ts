@@ -220,7 +220,6 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
     let primary = [],
       indexes = [];
     [primary, indexes] = partition(
-      (index) => index['name'] === 'primary',
       (await schema.getIndexes(table)).map(
         (index: ColumnDefinition) =>
           new IndexDefinition({
@@ -229,6 +228,7 @@ export class SqliteSchemaGrammar extends SchemaGrammar {
             columns: index['columns'],
           }),
       ),
+      (index) => index['name'] === 'primary',
     );
 
     indexes = indexes

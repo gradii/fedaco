@@ -168,7 +168,7 @@ export class SchemaBuilder {
    * Get the column listing for a given table.
    */
   public async getColumnListing(table: string): Promise<string[]> {
-    return pluck('name', await this.getColumns(table));
+    return pluck(await this.getColumns(table), 'name');
   }
 
   public async getColumns(table: string): Promise<any[]> {
@@ -187,7 +187,7 @@ export class SchemaBuilder {
   }
 
   public async getIndexListing(table: string): Promise<any[]> {
-    return pluck('name', await this.getIndexes(table));
+    return pluck(await this.getIndexes(table), 'name');
   }
 
   public async hasIndex(table: string, index: string | string[], type?: string): Promise<boolean> {
@@ -222,28 +222,28 @@ export class SchemaBuilder {
   /* Create a new table on the schema. */
   public async create(table: string, callback: (table: Blueprint) => void) {
     await this.build(
-      tap((blueprint) => {
+      tap(this.createBlueprint(table), (blueprint) => {
         blueprint.create();
         callback(blueprint);
-      }, this.createBlueprint(table)),
+      }),
     );
   }
 
   /* Drop a table from the schema. */
   public async drop(table: string) {
     await this.build(
-      tap((blueprint) => {
+      tap(this.createBlueprint(table), (blueprint) => {
         blueprint.drop();
-      }, this.createBlueprint(table)),
+      }),
     );
   }
 
   /* Drop a table from the schema if it exists. */
   public async dropIfExists(table: string) {
     await this.build(
-      tap((blueprint) => {
+      tap(this.createBlueprint(table), (blueprint) => {
         blueprint.dropIfExists();
-      }, this.createBlueprint(table)),
+      }),
     );
   }
 
@@ -272,9 +272,9 @@ export class SchemaBuilder {
   /* Rename a table on the schema. */
   public async rename(from: string, to: string): Promise<void> {
     await this.build(
-      tap((blueprint: Blueprint) => {
+      tap(this.createBlueprint(from), (blueprint: Blueprint) => {
         blueprint.rename(to);
-      }, this.createBlueprint(from)),
+      }),
     );
   }
 
