@@ -8,11 +8,10 @@ import type { QueryBuilder } from '../../../query-builder/query-builder';
 import { SqlNode } from '../../sql-node';
 import type { SqlVisitor } from '../../sql-visitor';
 
-
 export class UnionFragment extends SqlNode {
   constructor(
     public expression: QueryBuilder,
-    public all: boolean
+    public all: boolean,
   ) {
     super();
   }

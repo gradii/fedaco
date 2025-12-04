@@ -7,12 +7,8 @@
 import { SqlNode } from '../../sql-node';
 import type { SqlVisitor } from '../../sql-visitor';
 
-
 export class NumberLiteralExpression extends SqlNode {
-
-  constructor(
-    public value: number
-  ) {
+  constructor(public value: number) {
     super();
   }
 

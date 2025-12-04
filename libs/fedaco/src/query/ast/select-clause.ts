@@ -15,15 +15,16 @@ import type { RawExpression } from './expression/raw-expression';
 import type { SelectScalarExpression } from './select-scalar-expression';
 
 export class SelectClause extends SqlNode {
-
-  public constructor(public selectExpressions: Array<ColumnReferenceExpression |
-                       SelectScalarExpression | RawExpression | RawBindingExpression> = [],
-                     public distinct: boolean | any[]                                 = false) {
+  public constructor(
+    public selectExpressions: Array<
+      ColumnReferenceExpression | SelectScalarExpression | RawExpression | RawBindingExpression
+    > = [],
+    public distinct: boolean | any[] = false,
+  ) {
     super();
   }
 
   public accept(sqlVisitor: SqlVisitor) {
     return sqlVisitor.visitSelectClause(this);
   }
-
 }

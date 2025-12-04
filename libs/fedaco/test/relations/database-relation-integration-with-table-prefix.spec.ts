@@ -1,7 +1,7 @@
 import { isArray } from '@gradii/nanofn';
 import { DatabaseConfig } from '../../src/database-config';
 import { Model } from '../../src/fedaco/model';
-import { SchemaBuilder } from '../../src/schema/schema-builder';
+import { type SchemaBuilder } from '../../src/schema/schema-builder';
 import { EloquentTestUser } from '../fedaco-mysql-integration.spec';
 
 function connection(connectionName = 'default') {

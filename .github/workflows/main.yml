@@ -29,21 +29,22 @@ jobs:
           - '20'
     name: Node ${{ matrix.node }} sample
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 5 # Not needed if lastUpdated is not enabled
+      - uses: pnpm/action-setup@v4
+        name: Setup pnpm
+        with:
+          run_install: false
       - name: Setup node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: "${{ matrix.node }}"
-      - uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: |
-            node_modules
-            **/node_modules
-          key: "${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}"
-          restore-keys: "${{ runner.os }}-yarn-\n"
-      - name: Installing project dependencies
-        run: yarn install --frozen-lockfile --non-interactive
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
       - name: test fedaco
         env:
           DB_HOST: 127.0.0.1
@@ -54,5 +55,5 @@ jobs:
           DB_COLLATION: utf8mb4_unicode_ci
           PG_PORT: 5432
         run: |
-          yarn nx test --project fedaco
+          pnpm nx test --project fedaco
           

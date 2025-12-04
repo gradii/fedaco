@@ -4,7 +4,6 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-
 import { SqlNode } from '../sql-node';
 import type { SqlVisitor } from '../sql-visitor';
 import type { FromClause } from './from-clause';
@@ -14,7 +13,6 @@ import type { OffsetClause } from './offset-clause';
 import type { OrderByClause } from './order-by-clause';
 import type { SetClause } from './set-clause';
 import type { WhereClause } from './where-clause';
-
 
 export class UpdateSpecification extends SqlNode {
   constructor(
@@ -29,7 +27,6 @@ export class UpdateSpecification extends SqlNode {
     // public  _topRowFilter: TopRowFilter,
     // public  _outputIntoClause: OutputIntoClause,
     // public  _outputClause: OutputClause,
-
   ) {
     super();
   }

@@ -15,7 +15,7 @@ export type InteractsWithDictionaryCtor = Constructor<InteractsWithDictionary>;
 
 export function mixinInteractsWithDictionary<T extends Constructor<any>>(base: T): InteractsWithDictionaryCtor & T {
   return class _Self extends base {
-    /*Get a dictionary key attribute - casting it to a string if necessary.*/
+    /* Get a dictionary key attribute - casting it to a string if necessary. */
     _getDictionaryKey(attribute: any) {
       if (isObject(attribute)) {
         if ('__toString' in attribute) {

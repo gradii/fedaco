@@ -15,7 +15,6 @@ import { RelationType } from '../enum-relation';
 import type { RelationColumnAnnotation } from '../relation-column';
 import { FedacoRelationColumn } from '../relation-column';
 
-
 export interface HasOneThroughRelationAnnotation extends RelationColumnAnnotation {
   related: typeof Model | ForwardRefFn;
   through: typeof Model | ForwardRefFn;
@@ -32,16 +31,20 @@ export const HasOneThroughColumn: FedacoDecorator<HasOneThroughRelationAnnotatio
     type        : RelationType.HasOneThrough,
     _getRelation: function (m: Model, relation: string) {
       // @ts-ignore
-      const throughClazz   = resolveForwardRef(p.through);
+      const throughClazz = resolveForwardRef(p.through);
       const through: Model = new throughClazz();
-      const firstKey       = p.firstKey || m.GetForeignKey();
-      const secondKey      = p.secondKey || through.GetForeignKey();
-      const clazz          = resolveForwardRef(p.related);
+      const firstKey = p.firstKey || m.GetForeignKey();
+      const secondKey = p.secondKey || through.GetForeignKey();
+      const clazz = resolveForwardRef(p.related);
 
       const r = new HasOneThrough(
         m._newRelatedInstance(clazz).NewQuery(),
-        m, through, firstKey, secondKey,
-        p.localKey || m.GetKeyName(), p.secondLocalKey || through.GetKeyName()
+        m,
+        through,
+        firstKey,
+        secondKey,
+        p.localKey || m.GetKeyName(),
+        p.secondLocalKey || through.GetKeyName(),
       );
 
       if (p.onQuery) {
@@ -49,11 +52,10 @@ export const HasOneThroughColumn: FedacoDecorator<HasOneThroughRelationAnnotatio
       }
       return r;
     },
-    ...p
+    ...p,
   }),
   FedacoRelationColumn,
   (target: any, name: string, decorator) => {
     _additionalProcessingGetter(target, name, decorator);
-  }
+  },
 );
-

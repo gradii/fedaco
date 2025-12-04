@@ -12,7 +12,6 @@ import type { RawExpression } from '../expression/raw-expression';
 import type { FedacoBuilder } from '../../../fedaco/fedaco-builder';
 import type { Relation } from '../../../fedaco/relations/relation';
 
-
 export class NestedExpression extends SqlNode {
   constructor(
     public type: string,

@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isNumber, isPresent } from '@gradii/nanofn';
+import { isPresent } from '@gradii/nanofn';
 import type { ProcessorInterface } from './processor-interface';
 import type { QueryBuilder } from './query-builder';
 

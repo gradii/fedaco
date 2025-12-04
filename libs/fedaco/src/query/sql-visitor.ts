@@ -6,7 +6,6 @@
 
 import type { SqlNode } from './sql-node';
 
-
 export interface SqlVisitor {
   _isVisitUpdateSpecification: boolean;
 

@@ -7,11 +7,8 @@
 import { SqlNode } from '../sql-node';
 import type { SqlVisitor } from '../sql-visitor';
 
-
 export class LockClause extends SqlNode {
-  constructor(
-    public value: boolean | string,
-  ) {
+  constructor(public value: boolean | string) {
     super();
   }
 

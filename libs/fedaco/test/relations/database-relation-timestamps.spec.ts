@@ -75,7 +75,7 @@ describe('test database fedaco timestamps', () => {
   });
 });
 
-/*Eloquent Models...*/
+/* Eloquent Models... */
 export class UserWithCreatedAndUpdated extends Model {
   _table: any   = 'users';
   _guarded: any = [];

@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isAnyEmpty, isArray, isBlank, isObject } from '@gradii/nanofn';
+import { isAnyEmpty, isArray, isObject } from '@gradii/nanofn';
 import { wrap } from '../../helper/arr';
 import type { GrammarInterface } from '../grammar.interface';
 import type { QueryBuilder } from '../query-builder';
@@ -15,8 +15,7 @@ import { QueryGrammar } from './query-grammar';
 export class MysqlQueryGrammar extends QueryGrammar implements GrammarInterface<QueryBuilder> {
   private _tablePrefix = '';
 
-  compileJoins() {
-  }
+  compileJoins() {}
 
   protected _createVisitor(queryBuilder: QueryBuilder, ctx: any = {}) {
     return new MysqlQueryBuilderVisitor(queryBuilder._grammar, queryBuilder, ctx);
@@ -38,8 +37,13 @@ export class MysqlQueryGrammar extends QueryGrammar implements GrammarInterface<
     return ast.accept(visitor);
   }
 
-  compileUpsert(builder: QueryBuilder, values: any, uniqueBy: any[] | string,
-                update: any[] | null, ctx: any = {}): string {
+  compileUpsert(
+    builder: QueryBuilder,
+    values: any,
+    uniqueBy: any[] | string,
+    update: any[] | null,
+    ctx: any = {},
+  ): string {
     const sql = this.compileInsert(builder, values, undefined, ctx) + ' on duplicate key update ';
 
     const columns: string[] = [];
@@ -48,7 +52,7 @@ export class MysqlQueryGrammar extends QueryGrammar implements GrammarInterface<
         columns.push(wrap(key) + ' = ' + this.parameter(val));
       }
     } else if (isArray(update)) {
-      (update as any[]).forEach(val => {
+      (update as any[]).forEach((val) => {
         columns.push(`${wrap(val)} = values(${wrap(val)})`);
       });
     }

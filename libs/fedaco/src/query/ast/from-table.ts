@@ -10,12 +10,13 @@ import type { RawExpression } from './expression/raw-expression';
 import type { IndexBy } from './index-by';
 import type { TableReferenceExpression } from './table-reference-expression';
 
-
 export class FromTable extends SqlNode {
   protected _cached: string;
 
-  constructor(public table: TableReferenceExpression | RawExpression,
-              public indexBy?: IndexBy) {
+  constructor(
+    public table: TableReferenceExpression | RawExpression,
+    public indexBy?: IndexBy,
+  ) {
     super();
   }
 

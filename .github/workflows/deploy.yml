@@ -31,28 +31,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Not needed if lastUpdated is not enabled
-      # - uses: pnpm/action-setup@v3 # Uncomment this if you're using pnpm
+          fetch-depth: 5 # Not needed if lastUpdated is not enabled
+      - uses: pnpm/action-setup@v4
+        name: Setup pnpm
+        with:
+          run_install: false
       # - uses: oven-sh/setup-bun@v1 # Uncomment this if you're using Bun
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm # or pnpm / yarn
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      - uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: |
-            node_modules
-            **/node_modules
-          key: "${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}"
-          restore-keys: "${{ runner.os }}-yarn-\n"
+          cache: 'pnpm'
       - name: Install dependencies
-        run: yarn install # or pnpm install / yarn install / bun install
+        run: pnpm install
+
       - name: Build with VitePress
-        run: npm run docs:build # or pnpm docs:build / yarn docs:build / bun run docs:build
+        run: pnpm run docs:build # or pnpm docs:build / yarn docs:build / bun run docs:build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

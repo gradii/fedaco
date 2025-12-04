@@ -10,13 +10,12 @@ import type { FromTable } from './from-table';
 import type { QuerySpecification } from './query-specification';
 import type { ValuesInsertSource } from './values-insert-source';
 
-
 export class InsertSpecification extends SqlNode {
   constructor(
     public insertOption: string,
     public insertSource: ValuesInsertSource,
     public columns: SqlNode[],
-    public target: QuerySpecification | FromTable
+    public target: QuerySpecification | FromTable,
   ) {
     super();
   }

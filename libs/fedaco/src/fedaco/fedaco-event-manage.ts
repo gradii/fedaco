@@ -12,6 +12,4 @@ export class FedacoEventManage {
     //   (/*static*/<any>this).dispatcher.listen(`fedaco.${event}: ${name}`, callback);
     // }
   }
-
-
 }

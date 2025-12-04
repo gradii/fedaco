@@ -8,20 +8,18 @@ import { pluck } from 'ramda';
 import { Processor } from '../processor';
 
 export class SqliteProcessor extends Processor {
-
   public processColumns(results: any[], sql = ''): any[] {
     const hasPrimaryKey = pluck('primary', results).length === 1;
 
-    return results.map(result => {
-      const type      = result.type.toLowerCase();
-      let matches     = /\b[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:default|check|as)\s*(?:\(.*?\))?[^,]*)*collate\s+["'`]?(\w+)/i.exec(
-        sql);
+    return results.map((result) => {
+      const type = result.type.toLowerCase();
+      let matches =
+        /\b[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:default|check|as)\s*(?:\(.*?\))?[^,]*)*collate\s+["'`]?(\w+)/i.exec(sql);
       const collation = matches != null ? matches[1] : undefined;
 
       const isGenerated = [2, 3].includes(result.extra);
-      matches           = /\b'.preg_quote(Result->name).'\b[^,]+\s+as\s+\(((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*)\)/i.exec(
-        sql);
-      const expression  = isGenerated && matches != null ? matches[1] : undefined;
+      matches = /\b'.preg_quote(Result->name).'\b[^,]+\s+as\s+\(((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*)\)/i.exec(sql);
+      const expression = isGenerated && matches != null ? matches[1] : undefined;
       return {
         name          : result.name,
         type_name     : type,
@@ -30,14 +28,19 @@ export class SqliteProcessor extends Processor {
         nullable      : result.nullable,
         default       : result.default,
         auto_increment: hasPrimaryKey && result.primary && type === 'integer',
-        comment       : null,
-        generation    : isGenerated ? {
-          type      : ({
-            3      : 'stored',
-            2      : 'virtual',
-          } as any)[result.extra] || null,
-          expression: expression
-        } : undefined,
+        comment       : null as string | null,
+        generation    : isGenerated
+          ? {
+              type:
+                (
+                  {
+                    3: 'stored',
+                    2: 'virtual',
+                  } as any
+                )[result.extra] || null,
+              expression: expression,
+            }
+          : undefined,
       };
     });
   }
@@ -52,11 +55,11 @@ export class SqliteProcessor extends Processor {
       }
 
       return {
-        'name'   : result.name.toLowerCase(),
-        'columns': result.columns.split(','),
-        'type'   : null,
-        'unique' : result.unique,
-        'primary': isPrimary,
+        name   : result.name.toLowerCase(),
+        columns: result.columns.split(','),
+        type   : null as string | null,
+        unique : result.unique,
+        primary: isPrimary,
       };
     });
 
@@ -70,13 +73,13 @@ export class SqliteProcessor extends Processor {
   public processForeignKeys(results: any[]) {
     return results.map((result) => {
       return {
-        'name'           : null,
-        'columns'        : result.columns.split(','),
-        'foreign_schema' : null,
-        'foreign_table'  : result.foreign_table,
-        'foreign_columns': result.foreign_columns.split(','),
-        'on_update'      : result.on_update.toLowerCase(),
-        'on_delete'      : result.on_delete.toLowerCase(),
+        name           : null as string | null,
+        columns        : result.columns.split(','),
+        foreign_schema : null as string | null,
+        foreign_table  : result.foreign_table,
+        foreign_columns: result.foreign_columns.split(','),
+        on_update      : result.on_update.toLowerCase(),
+        on_delete      : result.on_delete.toLowerCase(),
       };
     });
   }

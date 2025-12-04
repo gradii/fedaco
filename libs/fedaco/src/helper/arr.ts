@@ -10,8 +10,7 @@ export function wrap(value: any[] | any) {
   return isArray(value) ? value : [value];
 }
 
-export function mapWithKeys(items: Record<string, any>,
-                            callback: (value: any, key: string) => Record<string, any>) {
+export function mapWithKeys(items: Record<string, any>, callback: (value: any, key: string) => Record<string, any>) {
   const result: Record<string, any> = {};
 
   for (const [key, value] of Object.entries(items)) {
@@ -23,10 +22,6 @@ export function mapWithKeys(items: Record<string, any>,
   return result;
 }
 
-function valueRetriever() {
+function valueRetriever() {}
 
-}
-
-function operatorForWhere() {
-
-}
+function operatorForWhere() {}

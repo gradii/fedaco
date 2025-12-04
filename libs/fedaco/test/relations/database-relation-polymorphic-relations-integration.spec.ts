@@ -102,7 +102,7 @@ describe('test database fedaco polymorphic relations integration', () => {
   });
 });
 
-/*Eloquent Models...*/
+/* Eloquent Models... */
 export class EloquentManyToManyPolymorphicTestPost extends Model {
   _table: any   = 'posts';
   _guarded: any = [];
@@ -111,8 +111,8 @@ export class EloquentManyToManyPolymorphicTestPost extends Model {
   id: number;
 
   @MorphToManyColumn({
-    related: forwardRef(() => EloquentManyToManyPolymorphicTestTag),
-    name   : 'taggable',
+    related        : forwardRef(() => EloquentManyToManyPolymorphicTestTag),
+    name           : 'taggable',
     relatedPivotKey: 'fedaco_many_to_many_polymorphic_test_tag_id'
   })
   public tags: FedacoRelationListType<EloquentManyToManyPolymorphicTestTag>;
@@ -126,8 +126,8 @@ export class EloquentManyToManyPolymorphicTestImage extends Model {
   id: number;
 
   @MorphToManyColumn({
-    related: forwardRef(() => EloquentManyToManyPolymorphicTestTag),
-    name   : 'taggable',
+    related        : forwardRef(() => EloquentManyToManyPolymorphicTestTag),
+    name           : 'taggable',
     relatedPivotKey: 'fedaco_many_to_many_polymorphic_test_tag_id'
   })
   public tags: FedacoRelationListType<EloquentManyToManyPolymorphicTestTag>;
@@ -141,15 +141,15 @@ export class EloquentManyToManyPolymorphicTestTag extends Model {
   id: number;
 
   @MorphedByManyColumn({
-    related: EloquentManyToManyPolymorphicTestPost,
-    name   : 'taggable',
+    related        : EloquentManyToManyPolymorphicTestPost,
+    name           : 'taggable',
     foreignPivotKey: 'fedaco_many_to_many_polymorphic_test_tag_id'
   })
   public posts: FedacoRelationListType<EloquentManyToManyPolymorphicTestPost>;
 
   @MorphedByManyColumn({
-    related: EloquentManyToManyPolymorphicTestImage,
-    name   : 'taggable',
+    related        : EloquentManyToManyPolymorphicTestImage,
+    name           : 'taggable',
     foreignPivotKey: 'fedaco_many_to_many_polymorphic_test_tag_id'
   })
   public images: FedacoRelationListType<EloquentManyToManyPolymorphicTestImage>;

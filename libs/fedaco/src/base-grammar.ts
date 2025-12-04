@@ -5,24 +5,24 @@
  */
 
 import { isArray, isBlank } from '@gradii/nanofn';
-import { Connection } from './connection';
+import { type Connection } from './connection';
 import { RawExpression } from './query/ast/expression/raw-expression';
 import type { Blueprint } from './schema/blueprint';
 
 export abstract class BaseGrammar {
   protected connection: Connection;
-  /*The grammar table prefix.*/
+  /* The grammar table prefix. */
   protected tablePrefix = '';
 
   constructor() {
   }
 
-  /*Wrap an array of values.*/
+  /* Wrap an array of values. */
   public wrapArray(values: any[]) {
     return values.map(it => this.wrap(it));
   }
 
-  /*Wrap a table in keyword identifiers.*/
+  /* Wrap a table in keyword identifiers. */
   public wrapTable(table: RawExpression | Blueprint | string): string {
     if (!this.isExpression(table)) {
       return this.wrap(this.tablePrefix + table, true);
@@ -30,7 +30,7 @@ export abstract class BaseGrammar {
     return this.getValue(table as RawExpression) as string;
   }
 
-  /*Wrap a value in keyword identifiers.*/
+  /* Wrap a value in keyword identifiers. */
   public wrap(value: RawExpression | string, prefixAlias = false): string {
     if (this.isExpression(value)) {
       return this.getValue(value as RawExpression) as string;
@@ -44,7 +44,7 @@ export abstract class BaseGrammar {
     return this.wrapSegments((value as string).split('.'));
   }
 
-  /*Wrap a value that has an alias.*/
+  /* Wrap a value that has an alias. */
   protected wrapAliasedValue(value: string, prefixAlias = false): string {
     const segments = value.split(/\s+as\s+/i);
     if (prefixAlias) {
@@ -59,7 +59,7 @@ export abstract class BaseGrammar {
     return this.wrapTable(segments[0]) + ' as ' + this.wrapValue(this.tablePrefix + segments[1]);
   }
 
-  /*Wrap the given value segments.*/
+  /* Wrap the given value segments. */
   protected wrapSegments(segments: any[]): string {
     return segments.map((segment, key) => {
       return key == 0 && segments.length > 1 ?
@@ -68,7 +68,7 @@ export abstract class BaseGrammar {
     }).join('.');
   }
 
-  /*Wrap a single string in keyword identifiers.*/
+  /* Wrap a single string in keyword identifiers. */
   protected wrapValue(value: string) {
     if (value !== '*') {
       return '"' + value.replace('"', '""') + '"';
@@ -76,32 +76,32 @@ export abstract class BaseGrammar {
     return value;
   }
 
-  /*Wrap the given JSON selector.*/
+  /* Wrap the given JSON selector. */
   protected wrapJsonSelector(value: string): string {
     throw new Error('RuntimeException This database engine does not support JSON operations.');
   }
 
-  /*Determine if the given string is a JSON selector.*/
+  /* Determine if the given string is a JSON selector. */
   protected isJsonSelector(value: string) {
     return value.includes('->');
   }
 
-  /*Convert an array of column names into a delimited string.*/
+  /* Convert an array of column names into a delimited string. */
   public columnize(columns: any[]) {
     return columns.map(it => this.wrap(it)).join(', ');
   }
 
-  /*Create query parameter place-holders for an array.*/
+  /* Create query parameter place-holders for an array. */
   public parameterize(values: any[]) {
     return values.map(it => this.parameter(it)).join(', ');
   }
 
-  /*Get the appropriate query parameter place-holder for a value.*/
+  /* Get the appropriate query parameter place-holder for a value. */
   public parameter(value: any) {
     return this.isExpression(value) ? this.getValue(value) : '?';
   }
 
-  /*Quote the given string literal.*/
+  /* Quote the given string literal. */
   public quoteString(value: any[] | string): string {
     if (isArray(value)) {
       return value.map(it => this.quoteString(it)).join(', ');
@@ -118,27 +118,27 @@ export abstract class BaseGrammar {
     return this.connection.escape(value, binary);
   }
 
-  /*Determine if the given value is a raw expression.*/
+  /* Determine if the given value is a raw expression. */
   public isExpression(value: any) {
     return value instanceof RawExpression;
   }
 
-  /*Get the value of a raw expression.*/
+  /* Get the value of a raw expression. */
   public getValue(expression: RawExpression) {
     return expression.value;
   }
 
-  /*Get the format for database stored dates.*/
+  /* Get the format for database stored dates. */
   public getDateFormat() {
     return 'yyyy-MM-dd HH:mm:ss';
   }
 
-  /*Get the grammar's table prefix.*/
+  /* Get the grammar's table prefix. */
   public getTablePrefix() {
     return this.tablePrefix;
   }
 
-  /*Set the grammar's table prefix.*/
+  /* Set the grammar's table prefix. */
   public setTablePrefix(prefix: string) {
     this.tablePrefix = prefix;
     return this;

@@ -10,10 +10,9 @@ import type { Identifier } from '../identifier';
 import type { Expression } from './expression';
 
 export class AsExpression extends SqlNode {
-
   constructor(
     public name: Expression,
-    public as: Identifier
+    public as: Identifier,
   ) {
     super();
   }

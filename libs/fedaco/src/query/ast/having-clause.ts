@@ -7,11 +7,10 @@
 import { SqlNode } from '../sql-node';
 import type { SqlVisitor } from '../sql-visitor';
 
-
 export class HavingClause extends SqlNode {
   constructor(
     public expressions: SqlNode[],
-    public conjunction: string = 'and'
+    public conjunction = 'and',
   ) {
     super();
   }

@@ -10,13 +10,13 @@ import type { FedacoDecorator } from '../annotation.interface';
 import type { ColumnAnnotation } from '../column';
 import { FedacoColumn } from '../column';
 
-
-export type TimestampColumnAnnotation = ColumnAnnotation
+export type TimestampColumnAnnotation = ColumnAnnotation;
 
 export const TimestampColumn: FedacoDecorator<TimestampColumnAnnotation> = makePropDecorator(
   'Fedaco:TimestampColumn',
-  (p: TimestampColumnAnnotation): TimestampColumnAnnotation => ({fillable: true,...p}),
+  (p: TimestampColumnAnnotation): TimestampColumnAnnotation => ({ fillable: true, ...p }),
   FedacoColumn,
   (target: any, key: string, decorator: TimestampColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, key, decorator);
-  });
+  },
+);

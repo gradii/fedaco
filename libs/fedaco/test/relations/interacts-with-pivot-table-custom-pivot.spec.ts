@@ -41,7 +41,7 @@ describe('interacts with pivot table with custom pivot', () => {
   beforeAll(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      'driver': 'sqlite',
+      'driver'  : 'sqlite',
       'database': ':memory:',
     });
     db.bootFedaco();
@@ -88,11 +88,11 @@ class User extends Model {
   email: string;
 
   @BelongsToManyColumn({
-    related: forwardRef(() => Role),
-    table: 'role_user',
+    related        : forwardRef(() => Role),
+    table          : 'role_user',
     foreignPivotKey: 'user_id',
     relatedPivotKey: 'role_id',
-    onQuery: (q: any) => {
+    onQuery        : (q: any) => {
       q.using(RoleUserPivot);
       q.withPivot('extra_field');
     }

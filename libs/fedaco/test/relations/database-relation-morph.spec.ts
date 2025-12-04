@@ -47,7 +47,6 @@ function getNamespacedRelation(alias: string) {
 }
 
 describe('test database fedaco morph', () => {
-
   it('morph one eager constraints are properly added', () => {
     const relation = getOneRelation();
 
@@ -61,9 +60,9 @@ describe('test database fedaco morph', () => {
     // relation.getQuery().shouldReceive('where').once()._with('table.morph_type',
     //   get_class(relation.getParent()));
     const model1 = new EloquentMorphResetModelStub();
-    model1.id    = 1;
+    model1.id = 1;
     const model2 = new EloquentMorphResetModelStub();
-    model2.id    = 2;
+    model2.id = 2;
     relation.addEagerConstraints([model1, model2]);
   });
 
@@ -80,9 +79,9 @@ describe('test database fedaco morph', () => {
     // relation.getQuery().shouldReceive('where').once()._with('table.morph_type',
     //   get_class(relation.getParent()));
     const model1 = new EloquentMorphResetModelStub();
-    model1.id    = 1;
+    model1.id = 1;
     const model2 = new EloquentMorphResetModelStub();
-    model2.id    = 2;
+    model2.id = 2;
     relation.addEagerConstraints([model1, model2]);
   });
 
@@ -99,49 +98,54 @@ describe('test database fedaco morph', () => {
     // relation.getRelated().shouldReceive('newInstance').once()._with({
     //   'name': 'taylor'
     // }).andReturn(instance);
-    expect(relation.make({
-      'name': 'taylor'
-    })).toEqual(instance);
+    expect(
+      relation.make({
+        name: 'taylor',
+      })
+    ).toEqual(instance);
   });
 
   it('create function on morph', async () => {
     const relation = getOneRelation();
-    const created  = new Model();
+    const created = new Model();
 
     const spy1 = jest.spyOn(created, 'SetAttribute');
     const spy2 = jest.spyOn(relation.getRelated(), 'NewInstance').mockReturnValue(created);
     const spy3 = jest.spyOn(created, 'Save').mockReturnValue(Promise.resolve(true));
 
-    expect(await relation.create({
-      'name': 'taylor'
-    })).toEqual(created);
+    expect(
+      await relation.create({
+        name: 'taylor',
+      })
+    ).toEqual(created);
 
     expect(spy1).toHaveBeenNthCalledWith(1, 'morph_id', 1);
     expect(spy1).toHaveBeenNthCalledWith(2, 'morph_type', 'parent-model');
-    expect(spy2).toBeCalledWith({
-      'name': 'taylor'
+    expect(spy2).toHaveBeenCalledWith({
+      name: 'taylor',
     });
   });
 
   it('find or new method finds model', async () => {
     const relation = getOneRelation();
-    const model    = new Model();
-    const spy1     = jest.spyOn(relation.getQuery(), 'find')
+    const model = new Model();
+    const spy1 = jest
+      .spyOn(relation.getQuery(), 'find')
       // @ts-ignore
       .mockReturnValue(Promise.resolve(model));
-    const spy2     = jest.spyOn(relation.getRelated(), 'NewInstance');
-    const spy3     = jest.spyOn(model, 'SetAttribute');
-    const spy4     = jest.spyOn(model, 'Save');
+    const spy2 = jest.spyOn(relation.getRelated(), 'NewInstance');
+    const spy3 = jest.spyOn(model, 'SetAttribute');
+    const spy4 = jest.spyOn(model, 'Save');
     expect(await relation.findOrNew('foo')).toBeInstanceOf(Model);
 
-    expect(spy1).toBeCalledWith('foo', ['*']);
-    expect(spy3).not.toBeCalled();
-    expect(spy4).not.toBeCalled();
+    expect(spy1).toHaveBeenCalledWith('foo', ['*']);
+    expect(spy3).not.toHaveBeenCalled();
+    expect(spy4).not.toHaveBeenCalled();
   });
 
   it('find or new method returns new model with morph keys set', async () => {
     const relation = getOneRelation();
-    const model    = new Model();
+    const model = new Model();
     jest.spyOn(relation.getQuery(), 'find').mockReturnValue(null);
     // relation.getQuery().shouldReceive('find').once()._with('foo', ['*']).andReturn(
     //   model = m.mock(Model));
@@ -162,7 +166,7 @@ describe('test database fedaco morph', () => {
 
   it('first or new method finds first model', async () => {
     const relation = getOneRelation();
-    const model    = new Model();
+    const model = new Model();
 
     const spy1 = jest.spyOn(relation.getQuery(), 'where').mockReturnValue(relation.getQuery());
     const spy2 = jest.spyOn(relation.getQuery(), 'first').mockReturnValue(Promise.resolve(model));
@@ -179,16 +183,16 @@ describe('test database fedaco morph', () => {
 
     expect(await relation.firstOrNew(['foo'])).toBeInstanceOf(Model);
 
-    expect(spy1).toBeCalledWith(['foo']);
-    expect(spy2).toBeCalledWith();
-    expect(spy3).not.toBeCalled();
-    expect(spy4).not.toBeCalled();
-    expect(spy5).not.toBeCalled();
+    expect(spy1).toHaveBeenCalledWith(['foo']);
+    expect(spy2).toHaveBeenCalledWith();
+    expect(spy3).not.toHaveBeenCalled();
+    expect(spy4).not.toHaveBeenCalled();
+    expect(spy5).not.toHaveBeenCalled();
   });
 
   it('first or new method with value finds first model', async () => {
     const relation = getOneRelation();
-    const model    = new Model();
+    const model = new Model();
 
     const spy1 = jest.spyOn(relation.getQuery(), 'where').mockReturnValue(relation.getQuery());
     const spy2 = jest.spyOn(relation.getQuery(), 'first').mockReturnValue(Promise.resolve(model));
@@ -206,22 +210,27 @@ describe('test database fedaco morph', () => {
     // model.shouldReceive('setAttribute').never();
     // model.shouldReceive('save').never();
 
-    expect(await relation.firstOrNew({
-      'foo': 'bar'
-    }, {
-      'baz': 'qux'
-    })).toBeInstanceOf(Model);
+    expect(
+      await relation.firstOrNew(
+        {
+          foo: 'bar',
+        },
+        {
+          baz: 'qux',
+        }
+      )
+    ).toBeInstanceOf(Model);
 
-    expect(spy1).toBeCalledWith({'foo': 'bar'});
-    expect(spy2).toBeCalledWith();
-    expect(spy3).not.toBeCalled();
-    expect(spy4).not.toBeCalled();
-    expect(spy5).not.toBeCalled();
+    expect(spy1).toHaveBeenCalledWith({ foo: 'bar' });
+    expect(spy2).toHaveBeenCalledWith();
+    expect(spy3).not.toHaveBeenCalled();
+    expect(spy4).not.toHaveBeenCalled();
+    expect(spy5).not.toHaveBeenCalled();
   });
 
   it('first or new method returns new model with morph keys set', async () => {
     const relation = getOneRelation();
-    const model    = new Model();
+    const model = new Model();
 
     const spy1 = jest.spyOn(relation.getQuery(), 'where').mockReturnValue(relation.getQuery());
     const spy2 = jest.spyOn(relation.getQuery(), 'first').mockReturnValue(Promise.resolve(null));
@@ -239,19 +248,18 @@ describe('test database fedaco morph', () => {
     // model.shouldReceive('setAttribute').once()._with('morph_type', get_class(relation.getParent()));
     // model.shouldReceive('save').never();
 
-    expect(await relation.firstOrNew({foo: 'foo'})).toBeInstanceOf(Model);
+    expect(await relation.firstOrNew({ foo: 'foo' })).toBeInstanceOf(Model);
 
-    expect(spy1).toBeCalledWith({foo: 'foo'});
-    expect(spy2).toBeCalledWith();
-    expect(spy3).toBeCalledWith({foo: 'foo'});
-    expect(spy4).toBeCalledWith('morph_id', 1);
-    expect(spy5).not.toBeCalled()
-
+    expect(spy1).toHaveBeenCalledWith({ foo: 'foo' });
+    expect(spy2).toHaveBeenCalledWith();
+    expect(spy3).toHaveBeenCalledWith({ foo: 'foo' });
+    expect(spy4).toHaveBeenCalledWith('morph_id', 1);
+    expect(spy5).not.toHaveBeenCalled();
   });
 
   it('first or new method with values returns new model with morph keys set', async () => {
     const relation = getOneRelation();
-    const model    = new Model();
+    const model = new Model();
 
     const spy1 = jest.spyOn(relation.getQuery(), 'where').mockReturnValue(relation.getQuery());
     const spy2 = jest.spyOn(relation.getQuery(), 'first').mockReturnValue(Promise.resolve(null));
@@ -260,26 +268,30 @@ describe('test database fedaco morph', () => {
     const spy4 = jest.spyOn(model, 'SetAttribute');
     const spy5 = jest.spyOn(model, 'Save');
 
-    expect(await relation.firstOrNew({
-      'foo': 'bar'
-    }, {
-      'baz': 'qux'
-    })).toBeInstanceOf(Model);
+    expect(
+      await relation.firstOrNew(
+        {
+          foo: 'bar',
+        },
+        {
+          baz: 'qux',
+        }
+      )
+    ).toBeInstanceOf(Model);
 
-    expect(spy1).toBeCalledWith({'foo': 'bar'});
-    expect(spy2).toBeCalledWith();
-    expect(spy3).toBeCalledWith({
-      'foo': 'bar',
-      'baz': 'qux'
+    expect(spy1).toHaveBeenCalledWith({ foo: 'bar' });
+    expect(spy2).toHaveBeenCalledWith();
+    expect(spy3).toHaveBeenCalledWith({
+      foo: 'bar',
+      baz: 'qux',
     });
-    expect(spy4).toBeCalledWith('morph_id', 1);
-    expect(spy4).toBeCalledWith('morph_type', 'parent-model');
-    expect(spy5).not.toBeCalled();
-
+    expect(spy4).toHaveBeenCalledWith('morph_id', 1);
+    expect(spy4).toHaveBeenCalledWith('morph_type', 'parent-model');
+    expect(spy5).not.toHaveBeenCalled();
   });
   it('first or create method finds first model', async () => {
     const relation = getOneRelation();
-    const model    = new Model();
+    const model = new Model();
 
     const spy1 = jest.spyOn(relation.getQuery(), 'where').mockReturnValue(relation.getQuery());
     const spy2 = jest.spyOn(relation.getQuery(), 'first').mockReturnValue(Promise.resolve(model));
@@ -290,16 +302,15 @@ describe('test database fedaco morph', () => {
 
     expect(await relation.firstOrCreate(['foo'])).toBeInstanceOf(Model);
 
-    expect(spy1).toBeCalledWith(['foo']);
-    expect(spy2).toBeCalledWith();
-    expect(spy3).not.toBeCalled();
-    expect(spy4).not.toBeCalled();
-    expect(spy5).not.toBeCalled();
-
+    expect(spy1).toHaveBeenCalledWith(['foo']);
+    expect(spy2).toHaveBeenCalledWith();
+    expect(spy3).not.toHaveBeenCalled();
+    expect(spy4).not.toHaveBeenCalled();
+    expect(spy5).not.toHaveBeenCalled();
   });
   it('first or create method with values finds first model', async () => {
     const relation = getOneRelation();
-    const model    = new Model();
+    const model = new Model();
 
     const spy1 = jest.spyOn(relation.getQuery(), 'where').mockReturnValue(relation.getQuery());
     const spy2 = jest.spyOn(relation.getQuery(), 'first').mockReturnValue(Promise.resolve(model));
@@ -308,24 +319,29 @@ describe('test database fedaco morph', () => {
     const spy4 = jest.spyOn(model, 'SetAttribute');
     const spy5 = jest.spyOn(model, 'Save');
 
-    expect(await relation.firstOrCreate({
-      'foo': 'bar'
-    }, {
-      'baz': 'qux'
-    })).toBeInstanceOf(Model);
+    expect(
+      await relation.firstOrCreate(
+        {
+          foo: 'bar',
+        },
+        {
+          baz: 'qux',
+        }
+      )
+    ).toBeInstanceOf(Model);
 
-    expect(spy1).toBeCalledWith({
-      'foo': 'bar'
+    expect(spy1).toHaveBeenCalledWith({
+      foo: 'bar',
     });
-    expect(spy2).toBeCalledWith();
-    expect(spy3).not.toBeCalled();
-    expect(spy4).not.toBeCalled();
-    expect(spy5).not.toBeCalled();
+    expect(spy2).toHaveBeenCalledWith();
+    expect(spy3).not.toHaveBeenCalled();
+    expect(spy4).not.toHaveBeenCalled();
+    expect(spy5).not.toHaveBeenCalled();
   });
 
   it('first or create method creates new morph model', async () => {
     const relation = getOneRelation();
-    const model    = new Model();
+    const model = new Model();
 
     const spy1 = jest.spyOn(relation.getQuery(), 'where').mockReturnValue(relation.getQuery());
     const spy2 = jest.spyOn(relation.getQuery(), 'first').mockReturnValue(Promise.resolve(null));
@@ -334,112 +350,116 @@ describe('test database fedaco morph', () => {
     const spy4 = jest.spyOn(model, 'SetAttribute');
     const spy5 = jest.spyOn(model, 'Save').mockReturnValue(Promise.resolve(true));
 
-    expect(await relation.firstOrCreate({foo: 'foo'})).toBeInstanceOf(Model);
+    expect(await relation.firstOrCreate({ foo: 'foo' })).toBeInstanceOf(Model);
 
-    expect(spy1).toBeCalledWith({foo: 'foo'});
-    expect(spy2).toBeCalledWith();
-    expect(spy3).toBeCalledWith({foo: 'foo'});
+    expect(spy1).toHaveBeenCalledWith({ foo: 'foo' });
+    expect(spy2).toHaveBeenCalledWith();
+    expect(spy3).toHaveBeenCalledWith({ foo: 'foo' });
     expect(spy4).toHaveBeenNthCalledWith(1, 'morph_id', 1);
     expect(spy4).toHaveBeenNthCalledWith(2, 'morph_type', 'parent-model');
-    expect(spy5).toBeCalled();
+    expect(spy5).toHaveBeenCalled();
   });
 
   it('first or create method with values creates new morph model', async () => {
     const relation = getOneRelation();
-    const model    = new Model();
-    const spy1     = jest.spyOn(relation.getQuery(), 'where').mockReturnValue(relation.getQuery());
-    const spy2     = jest.spyOn(relation.getQuery(), 'first').mockReturnValue(null);
-    const spy3     = jest.spyOn(relation.getRelated(), 'NewInstance').mockReturnValue(model);
+    const model = new Model();
+    const spy1 = jest.spyOn(relation.getQuery(), 'where').mockReturnValue(relation.getQuery());
+    const spy2 = jest.spyOn(relation.getQuery(), 'first').mockReturnValue(null);
+    const spy3 = jest.spyOn(relation.getRelated(), 'NewInstance').mockReturnValue(model);
 
     const spy4 = jest.spyOn(model, 'SetAttribute');
     const spy5 = jest.spyOn(model, 'Save').mockReturnValue(Promise.resolve(true));
 
-    expect(await relation.firstOrCreate({
-      'foo': 'bar'
-    }, {
-      'baz': 'qux'
-    })).toBeInstanceOf(Model);
+    expect(
+      await relation.firstOrCreate(
+        {
+          foo: 'bar',
+        },
+        {
+          baz: 'qux',
+        }
+      )
+    ).toBeInstanceOf(Model);
 
-    expect(spy1).toBeCalledWith({'foo': 'bar'});
-    expect(spy2).toBeCalledWith();
-    expect(spy3).toBeCalledWith({
-      'foo': 'bar',
-      'baz': 'qux'
+    expect(spy1).toHaveBeenCalledWith({ foo: 'bar' });
+    expect(spy2).toHaveBeenCalledWith();
+    expect(spy3).toHaveBeenCalledWith({
+      foo: 'bar',
+      baz: 'qux',
     });
-    expect(spy4).toBeCalledWith('morph_id', 1);
-    expect(spy4).toBeCalledWith('morph_type', 'parent-model');
-    expect(spy5).toBeCalled();
+    expect(spy4).toHaveBeenCalledWith('morph_id', 1);
+    expect(spy4).toHaveBeenCalledWith('morph_type', 'parent-model');
+    expect(spy5).toHaveBeenCalled();
   });
 
-  it('update or create method finds first model and updates', async() => {
+  it('update or create method finds first model and updates', async () => {
     const relation = getOneRelation();
 
     const model = new Model();
-    const spy1  = jest.spyOn(relation.getQuery(), 'where').mockReturnValue(relation.getQuery());
-    const spy2  = jest.spyOn(relation.getQuery(), 'first').mockReturnValue(Promise.resolve(model));
-    const spy3  = jest.spyOn(relation.getRelated(), 'NewInstance');
+    const spy1 = jest.spyOn(relation.getQuery(), 'where').mockReturnValue(relation.getQuery());
+    const spy2 = jest.spyOn(relation.getQuery(), 'first').mockReturnValue(Promise.resolve(model));
+    const spy3 = jest.spyOn(relation.getRelated(), 'NewInstance');
 
     const spy4 = jest.spyOn(model, 'SetAttribute');
     const spy5 = jest.spyOn(model, 'Fill').mockReturnValue(null);
     const spy6 = jest.spyOn(model, 'Save').mockReturnValue(null);
 
-    expect(await relation.updateOrCreate({foo: 'foo'}, {bar: 'bar'})).toBeInstanceOf(Model);
+    expect(await relation.updateOrCreate({ foo: 'foo' }, { bar: 'bar' })).toBeInstanceOf(Model);
 
-    expect(spy1).toBeCalledWith({foo: 'foo'});
-    expect(spy2).toBeCalledWith();
-    expect(spy3).not.toBeCalled();
-    expect(spy4).not.toBeCalled();
-    expect(spy5).toBeCalledWith({bar: 'bar'});
-    expect(spy6).toBeCalled();
+    expect(spy1).toHaveBeenCalledWith({ foo: 'foo' });
+    expect(spy2).toHaveBeenCalledWith();
+    expect(spy3).not.toHaveBeenCalled();
+    expect(spy4).not.toHaveBeenCalled();
+    expect(spy5).toHaveBeenCalledWith({ bar: 'bar' });
+    expect(spy6).toHaveBeenCalled();
   });
 
-  it('update or create method creates new morph model', async() => {
+  it('update or create method creates new morph model', async () => {
     const relation = getOneRelation();
 
     const model = new Model();
-    const spy1  = jest.spyOn(relation.getQuery(), 'where').mockReturnValue(relation.getQuery());
-    const spy2  = jest.spyOn(relation.getQuery(), 'first').mockReturnValue(null);
-    const spy3  = jest.spyOn(relation.getRelated(), 'NewInstance').mockReturnValue(model);
+    const spy1 = jest.spyOn(relation.getQuery(), 'where').mockReturnValue(relation.getQuery());
+    const spy2 = jest.spyOn(relation.getQuery(), 'first').mockReturnValue(null);
+    const spy3 = jest.spyOn(relation.getRelated(), 'NewInstance').mockReturnValue(model);
 
     const spy4 = jest.spyOn(model, 'SetAttribute');
     const spy5 = jest.spyOn(model, 'Save').mockReturnValue(Promise.resolve(true));
     const spy6 = jest.spyOn(model, 'Fill').mockReturnValue(null);
 
-    expect(await relation.updateOrCreate({foo: 'foo'}, {bar: 'bar'})).toBeInstanceOf(Model);
+    expect(await relation.updateOrCreate({ foo: 'foo' }, { bar: 'bar' })).toBeInstanceOf(Model);
 
-    expect(spy1).toBeCalledWith({foo: 'foo'});
-    expect(spy2).toBeCalledWith();
-    expect(spy3).toBeCalledWith({foo: 'foo'});
-    expect(spy4).toBeCalledWith('morph_id', 1);
-    expect(spy4).toBeCalledWith('morph_type', 'parent-model');
-    expect(spy5).toBeCalled();
-    expect(spy6).toBeCalledWith({bar: 'bar'});
+    expect(spy1).toHaveBeenCalledWith({ foo: 'foo' });
+    expect(spy2).toHaveBeenCalledWith();
+    expect(spy3).toHaveBeenCalledWith({ foo: 'foo' });
+    expect(spy4).toHaveBeenCalledWith('morph_id', 1);
+    expect(spy4).toHaveBeenCalledWith('morph_type', 'parent-model');
+    expect(spy5).toHaveBeenCalled();
+    expect(spy6).toHaveBeenCalledWith({ bar: 'bar' });
   });
 
   it('create function on namespaced morph', async () => {
     const relation = getNamespacedRelation('namespace');
-    const created  = new Model();
+    const created = new Model();
 
     const spy1 = jest.spyOn(created, 'SetAttribute');
     const spy2 = jest.spyOn(relation.getRelated(), 'NewInstance').mockReturnValue(created);
     const spy3 = jest.spyOn(created, 'Save').mockReturnValue(Promise.resolve(true));
 
-    expect(await relation.create({
-      'name': 'taylor'
-    })).toEqual(created);
+    expect(
+      await relation.create({
+        name: 'taylor',
+      })
+    ).toEqual(created);
 
-    expect(spy1).toBeCalledWith('morph_id', 1);
-    expect(spy1).toBeCalledWith('morph_type', 'namespace');
-    expect(spy2).toBeCalledWith({
-      'name': 'taylor'
+    expect(spy1).toHaveBeenCalledWith('morph_id', 1);
+    expect(spy1).toHaveBeenCalledWith('morph_type', 'namespace');
+    expect(spy2).toHaveBeenCalledWith({
+      name: 'taylor',
     });
-    expect(spy3).toBeCalled();
+    expect(spy3).toHaveBeenCalled();
   });
-
 });
 
-export class EloquentMorphResetModelStub extends Model {
-}
+export class EloquentMorphResetModelStub extends Model {}
 
-class EloquentModelNamespacedStub extends Model {
-}
+class EloquentModelNamespacedStub extends Model {}

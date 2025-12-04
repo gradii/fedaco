@@ -9,7 +9,6 @@ import type { LimitClause } from './limit-clause';
 import type { OffsetClause } from './offset-clause';
 import type { OrderByClause } from './order-by-clause';
 
-
 export abstract class QueryExpression extends SqlNode {
   public orderByClause?: OrderByClause;
   public offsetClause?: OffsetClause;

@@ -6,9 +6,8 @@
 
 import { makePropDecorator } from '@gradii/annotation';
 import { _additionalProcessingGetterSetter } from '../additional-processing';
-import type { ColumnAnnotation, } from '../column';
+import type { ColumnAnnotation } from '../column';
 import { FedacoColumn } from '../column';
-
 
 export interface PrimaryGeneratedColumnAnnotation extends ColumnAnnotation {
   field?: string;
@@ -17,7 +16,7 @@ export interface PrimaryGeneratedColumnAnnotation extends ColumnAnnotation {
 
 export const PrimaryGeneratedColumn = makePropDecorator(
   'Fedaco:PrimaryGeneratedColumn',
-  (p: PrimaryGeneratedColumnAnnotation): PrimaryGeneratedColumnAnnotation => ({fillable: true,...p}),
+  (p: PrimaryGeneratedColumnAnnotation): PrimaryGeneratedColumnAnnotation => ({ fillable: true, ...p }),
   FedacoColumn,
   (target: any, key: string, decorator: any) => {
     _additionalProcessingGetterSetter(target, key, decorator);
@@ -26,7 +25,7 @@ export const PrimaryGeneratedColumn = makePropDecorator(
       enumerable  : false,
       configurable: true,
       writable    : false,
-      value       : decorator.field || key
+      value       : decorator.field || key,
     });
 
     if (Object.prototype.hasOwnProperty.call(decorator, 'keyType')) {
@@ -34,7 +33,8 @@ export const PrimaryGeneratedColumn = makePropDecorator(
         enumerable  : false,
         configurable: true,
         writable    : false,
-        value       : decorator.keyType
+        value       : decorator.keyType,
       });
     }
-  });
+  },
+);

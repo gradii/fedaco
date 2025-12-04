@@ -8,11 +8,10 @@ import { SqlNode } from '../../sql-node';
 import type { SqlVisitor } from '../../sql-visitor';
 import type { ColumnReferenceExpression } from '../column-reference-expression';
 
-
 export class NullPredicateExpression extends SqlNode {
   constructor(
     public expression: ColumnReferenceExpression,
-    public not: boolean = false
+    public not = false,
   ) {
     super();
   }

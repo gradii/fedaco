@@ -1,4 +1,3 @@
 import { MysqlSchemaBuilder } from './mysql-schema-builder';
 
-export class MariadbSchemaBuilder extends MysqlSchemaBuilder {
-}
+export class MariadbSchemaBuilder extends MysqlSchemaBuilder {}

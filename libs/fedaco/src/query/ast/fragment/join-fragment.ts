@@ -8,11 +8,8 @@ import type { JoinClauseBuilder } from '../../../query-builder/query-builder';
 import { SqlNode } from '../../sql-node';
 import type { SqlVisitor } from '../../sql-visitor';
 
-
 export class JoinFragment extends SqlNode {
-  constructor(
-    public joinQueryBuilder: JoinClauseBuilder
-  ) {
+  constructor(public joinQueryBuilder: JoinClauseBuilder) {
     super();
   }
 

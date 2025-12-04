@@ -8,7 +8,7 @@ import type { FedacoBuilder } from './fedaco-builder';
 import type { Model } from './model';
 
 export interface Scope {
-  /*Apply the scope to a given Eloquent query builder.*/
+  /* Apply the scope to a given Eloquent query builder. */
   apply(builder: FedacoBuilder, model: Model): any;
 }
 

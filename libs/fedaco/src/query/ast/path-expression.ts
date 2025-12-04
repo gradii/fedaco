@@ -40,7 +40,6 @@ export class PathExpression extends SqlNode {
     return index < 0 ? undefined : this.identifiers[index];
   }
 
-
   public accept(visitor: SqlVisitor) {
     return visitor.visitPathExpression(this);
   }

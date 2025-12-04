@@ -21,12 +21,21 @@ import type { QueryBuilderWherePredicate } from '../../query-builder/mixins/wher
 import type { JoinClauseBuilder, QueryBuilder } from '../../query-builder/query-builder';
 import type { FedacoBuilder } from '../fedaco-builder';
 
-export interface ForwardCallToQueryBuilder extends Omit<QueryBuilderJoin, 'joinSub'>, QueryBuilderOrderBy,
-  QueryBuilderGroupBy, QueryBuilderHaving, QueryBuilderLimitOffset, QueryBuilderUnion,
-  QueryBuilderWhereDate, QueryBuilderWhereJson, QueryBuilderAggregate, QueryBuilderWherePredicate,
-  QueryBuilderWhereCommon,
-  Constructor<Omit<BuildQueries, 'first'>>,
-  Pick<QueryBuilder, 'beforeQuery' | 'find' | 'applyBeforeQueryCallbacks'> {
+export interface ForwardCallToQueryBuilder
+  extends
+    Omit<QueryBuilderJoin, 'joinSub'>,
+    QueryBuilderOrderBy,
+    QueryBuilderGroupBy,
+    QueryBuilderHaving,
+    QueryBuilderLimitOffset,
+    QueryBuilderUnion,
+    QueryBuilderWhereDate,
+    QueryBuilderWhereJson,
+    QueryBuilderAggregate,
+    QueryBuilderWherePredicate,
+    QueryBuilderWhereCommon,
+    Constructor<Omit<BuildQueries, 'first'>>,
+    Pick<QueryBuilder, 'beforeQuery' | 'find' | 'applyBeforeQueryCallbacks'> {
   pluck(...args: any[]): Promise<any[] | Record<string, any>>;
 
   stripTableForPluck(...args: any[]): this;
@@ -89,7 +98,7 @@ export interface ForwardCallToQueryBuilder extends Omit<QueryBuilderJoin, 'joinS
 
   lock(...args: any[]): this;
 
-  toSql(...args: any[]): { result: string, bindings: any[] };
+  toSql(...args: any[]): { result: string; bindings: any[] };
 
   find(...args: any[]): Promise<any | any[]>;
 
@@ -105,10 +114,15 @@ export interface ForwardCallToQueryBuilder extends Omit<QueryBuilderJoin, 'joinS
 
   join(...args: any[]): this;
 
-  joinSub(query: Function | QueryBuilder | FedacoBuilder | string, as: string,
-          first: ((join: JoinClauseBuilder) => any) | string,
-          operator?: string,
-          second?: string | number, type?: string, where?: boolean): this;
+  joinSub(
+    query: Function | QueryBuilder | FedacoBuilder | string,
+    as: string,
+    first: ((join: JoinClauseBuilder) => any) | string,
+    operator?: string,
+    second?: string | number,
+    type?: string,
+    where?: boolean,
+  ): this;
 
   pipe(...args: any[]): this;
 }
@@ -116,9 +130,7 @@ export interface ForwardCallToQueryBuilder extends Omit<QueryBuilderJoin, 'joinS
 export type ForwardCallToQueryBuilderCtor = Constructor<ForwardCallToQueryBuilder>;
 
 export function mixinForwardCallToQueryBuilder<T extends Constructor<any>>(base: T): ForwardCallToQueryBuilderCtor & T {
-
   return class _Self extends base {
-
     // @ts-ignore
     #passThroughToQueryBuilder(method: string, parameters: any[]) {
       const _query = this.toBase();
@@ -285,7 +297,7 @@ export function mixinForwardCallToQueryBuilder<T extends Constructor<any>>(base:
     toSql(...args: any[]) {
       const _query = this.toBase();
       const result = _query.toSql(...args);
-      return {result, bindings: _query.getBindings()};
+      return { result, bindings: _query.getBindings() };
     }
 
     find(...args: any[]) {
@@ -706,6 +718,6 @@ export function mixinForwardCallToQueryBuilder<T extends Constructor<any>>(base:
       return this.#directToQueryBuilder('applyBeforeQueryCallbacks', args);
     }
 
-    //endregion
+    // endregion
   };
 }

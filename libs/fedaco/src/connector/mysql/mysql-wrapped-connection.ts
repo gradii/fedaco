@@ -53,14 +53,13 @@ export class MysqlWrappedConnection implements WrappedConnection {
 
   async lastInsertId(): Promise<number> {
     return new Promise((ok, fail) => {
-      this.driver.execute('select LAST_INSERT_ID()',
-        (err, data: RowDataPacket[]) => {
-          if (err) {
-            fail(err);
-          } else {
-            ok(data && data.length === 1 && data[0]['LAST_INSERT_ID()']);
-          }
-        });
+      this.driver.execute('select LAST_INSERT_ID()', (err, data: RowDataPacket[]) => {
+        if (err) {
+          fail(err);
+        } else {
+          ok(data && data.length === 1 && data[0]['LAST_INSERT_ID()']);
+        }
+      });
     });
   }
 
@@ -76,7 +75,14 @@ export class MysqlWrappedConnection implements WrappedConnection {
     this.driver.query('ROLLBACK');
   }
 
-  disconnect(): void {
-    this.driver.end();
+  async disconnect(): Promise<void> {
+    return new Promise((ok, fail) => {
+      this.driver.end((err) => {
+        if (err) {
+          return fail(err);
+        }
+        ok();
+      });
+    });
   }
 }

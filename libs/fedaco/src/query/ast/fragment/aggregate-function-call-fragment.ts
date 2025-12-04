@@ -8,12 +8,11 @@ import { SqlNode } from '../../sql-node';
 import type { SqlVisitor } from '../../sql-visitor';
 import type { Identifier } from '../identifier';
 
-
 export class AggregateFunctionCallFragment extends SqlNode {
   constructor(
     public aggregateFunctionName: Identifier,
     public aggregateColumns: SqlNode[],
-    public distinct: SqlNode[] | boolean = false
+    public distinct: SqlNode[] | boolean = false,
   ) {
     super();
   }

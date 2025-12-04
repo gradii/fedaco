@@ -11,7 +11,6 @@ import type { PathExpression } from './path-expression';
 
 // MultiPartIdentifier
 export class JsonPathExpression extends SqlNode {
-
   constructor(
     public pathExpression: PathExpression,
     public pathLeg: Identifier,

@@ -8,17 +8,17 @@ import { intersection } from 'ramda';
 import { SchemaBuilder } from '../schema-builder';
 
 export class PostgresSchemaBuilder extends SchemaBuilder {
-  /*Create a database in the schema.*/
+  /* Create a database in the schema. */
   public createDatabase(name: string) {
     return this.connection.statement(this.grammar.compileCreateDatabase(name, this.connection));
   }
 
-  /*Drop a database from the schema if the database exists.*/
+  /* Drop a database from the schema if the database exists. */
   public dropDatabaseIfExists(name: string) {
     return this.connection.statement(this.grammar.compileDropDatabaseIfExists(name));
   }
 
-  /*Determine if the given table exists.*/
+  /* Determine if the given table exists. */
   public async hasTable(table: string) {
     let schema;
     [schema, table] = await this.parseSchemaAndTable(table);
@@ -26,8 +26,7 @@ export class PostgresSchemaBuilder extends SchemaBuilder {
     table = this.connection.getTablePrefix() + table;
 
     for (const value of await this.getTables()) {
-      if (table.toLowerCase() === value['name']
-        && schema.toLowerCase() === value['schema']) {
+      if (table.toLowerCase() === value['name'] && schema.toLowerCase() === value['schema']) {
         return true;
       }
     }
@@ -48,8 +47,7 @@ export class PostgresSchemaBuilder extends SchemaBuilder {
     view = this.connection.getTablePrefix() + view;
 
     for (const value of await this.getViews()) {
-      if (view.toLowerCase() === value['name']
-        && schema.toLowerCase() === value['schema']) {
+      if (view.toLowerCase() === value['name'] && schema.toLowerCase() === value['schema']) {
         return true;
       }
     }
@@ -63,16 +61,16 @@ export class PostgresSchemaBuilder extends SchemaBuilder {
    * @return array
    */
   public async getTypes() {
-    return this.connection.getPostProcessor().processTypes(
-      await this.connection.selectFromWriteConnection(this.grammar.compileTypes())
-    );
+    return this.connection
+      .getPostProcessor()
+      .processTypes(await this.connection.selectFromWriteConnection(this.grammar.compileTypes()));
   }
 
-  /*Drop all tables from the database.*/
+  /* Drop all tables from the database. */
   public async dropAllTables() {
-    const tables         = [];
+    const tables = [];
     const excludedTables = this.connection.getConfig('dont_drop') ?? ['spatial_ref_sys'];
-    const schemas        = this.grammar.escapeNames(await this.getSchemas());
+    const schemas = this.grammar.escapeNames(await this.getSchemas());
 
     const result = await this.getTables();
     for (const table of result) {
@@ -91,9 +89,9 @@ export class PostgresSchemaBuilder extends SchemaBuilder {
     await this.connection.statement(this.grammar.compileDropAllTables(tables));
   }
 
-  /*Drop all views from the database.*/
+  /* Drop all views from the database. */
   public async dropAllViews() {
-    const views   = [];
+    const views = [];
     const schemas = this.grammar.escapeNames(await this.getSchemas());
     for (const view of await this.getViews()) {
       if (schemas.includes(this.grammar.escapeNames([view['schema']])[0])) {
@@ -106,12 +104,12 @@ export class PostgresSchemaBuilder extends SchemaBuilder {
     await this.connection.statement(this.grammar.compileDropAllViews(views));
   }
 
-  /*Drop all types from the database.*/
+  /* Drop all types from the database. */
   public async dropAllTypes() {
-    const types   = [];
+    const types = [];
     const domains = [];
     const schemas = this.grammar.escapeNames(await this.getSchemas());
-    const result  = await this.getTypes();
+    const result = await this.getTypes();
     for (const type of result) {
       if (!type['implicit'] && schemas.includes(this.grammar.escapeNames([type['schema']])[0])) {
         if (type['type'] === 'domain') {
@@ -141,9 +139,7 @@ export class PostgresSchemaBuilder extends SchemaBuilder {
 
     table = this.connection.getTablePrefix() + table;
 
-    const results = await this.connection.selectFromWriteConnection(
-      this.grammar.compileColumns(schema, table)
-    );
+    const results = await this.connection.selectFromWriteConnection(this.grammar.compileColumns(schema, table));
 
     return this.connection.getPostProcessor().processColumns(results);
   }
@@ -160,9 +156,9 @@ export class PostgresSchemaBuilder extends SchemaBuilder {
 
     table = this.connection.getTablePrefix() + table;
 
-    return this.connection.getPostProcessor().processIndexes(
-      await this.connection.selectFromWriteConnection(this.grammar.compileIndexes(schema, table))
-    );
+    return this.connection
+      .getPostProcessor()
+      .processIndexes(await this.connection.selectFromWriteConnection(this.grammar.compileIndexes(schema, table)));
   }
 
   /**
@@ -177,9 +173,11 @@ export class PostgresSchemaBuilder extends SchemaBuilder {
 
     table = this.connection.getTablePrefix() + table;
 
-    return this.connection.getPostProcessor().processForeignKeys(
-      await this.connection.selectFromWriteConnection(this.grammar.compileForeignKeys(schema, table))
-    );
+    return this.connection
+      .getPostProcessor()
+      .processForeignKeys(
+        await this.connection.selectFromWriteConnection(this.grammar.compileForeignKeys(schema, table)),
+      );
   }
 
   /**
@@ -189,14 +187,11 @@ export class PostgresSchemaBuilder extends SchemaBuilder {
    */
   protected async getSchemas(): Promise<string[]> {
     const search_path = this.connection.getConfig('search_path');
-    const schema      = this.connection.getConfig('schema');
-    return this.parseSearchPath(
-      search_path ? search_path :
-        schema ? schema : 'public'
-    );
+    const schema = this.connection.getConfig('schema');
+    return this.parseSearchPath(search_path ? search_path : schema ? schema : 'public');
   }
 
-  /*Parse the database object reference and extract the database, schema, and table.*/
+  /* Parse the database object reference and extract the database, schema, and table. */
   protected async parseSchemaAndTable(reference: string) {
     const parts = reference.split('.');
     let database;
@@ -204,7 +199,8 @@ export class PostgresSchemaBuilder extends SchemaBuilder {
       database = parts[0];
 
       throw new Error(
-        'InvalidArgumentException Using three-part reference is not supported, you may use `Schema::connection(\'$database\')` instead.');
+        "InvalidArgumentException Using three-part reference is not supported, you may use `Schema::connection('$database')` instead.",
+      );
     }
     let schema = (await this.getSchemas())[0];
 
@@ -216,22 +212,20 @@ export class PostgresSchemaBuilder extends SchemaBuilder {
     return [schema, parts[0]];
   }
 
-  /*Parse the "search_path" value into an array.*/
+  /* Parse the "search_path" value into an array. */
   protected parseSearchPath(searchPath: string | any[]) {
-    return this._baseParseSearchPath(searchPath).map(schema => {
-      return schema === '$user' ?
-        this.connection.getConfig('username') :
-        schema;
+    return this._baseParseSearchPath(searchPath).map((schema) => {
+      return schema === '$user' ? this.connection.getConfig('username') : schema;
     });
   }
 
   protected _baseParseSearchPath(searchPath: string | string[]): string[] {
     if (isString(searchPath)) {
       const matches = searchPath.match(/[^s,"']+/g);
-      searchPath    = matches;
+      searchPath = matches;
     }
 
-    return (searchPath as string[] || []).map(schema => {
+    return ((searchPath as string[]) || []).map((schema) => {
       return schema.replace(/['|"]/g, '');
     });
   }

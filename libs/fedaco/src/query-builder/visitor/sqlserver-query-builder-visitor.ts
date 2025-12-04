@@ -23,7 +23,6 @@ import type { QueryBuilder } from '../query-builder';
 import { QueryBuilderVisitor } from './query-builder-visitor';
 import { NestedExpression } from '../../query/ast/fragment/nested-expression';
 
-
 export class SqlserverQueryBuilderVisitor extends QueryBuilderVisitor {
   private _limitToTop: number;
 
@@ -34,7 +33,7 @@ export class SqlserverQueryBuilderVisitor extends QueryBuilderVisitor {
      * todo remove queryBuilder. should use binding only
      */
     _queryBuilder: QueryBuilder,
-    ctx: Record<string, any>
+    ctx: Record<string, any>,
   ) {
     super(_grammar, _queryBuilder, ctx);
   }
@@ -68,7 +67,6 @@ export class SqlserverQueryBuilderVisitor extends QueryBuilderVisitor {
 
     sql += this.visitQueryExpression(node);
 
-
     this._limitToTop = undefined;
     return sql;
   }
@@ -98,11 +96,12 @@ export class SqlserverQueryBuilderVisitor extends QueryBuilderVisitor {
     }
 
     if (node.selectExpressions.length > 0) {
-      const selectExpressions = node.selectExpressions.map(expression => {
+      const selectExpressions = node.selectExpressions.map((expression) => {
         return expression.accept(this);
       });
       return `SELECT${node.distinct ? ` ${this._grammar.distinct(node.distinct)} ` : ' '}${topSql}${selectExpressions.join(
-        ', ')}`;
+        ', ',
+      )}`;
     } else {
       return `SELECT${node.distinct ? ` ${this._grammar.distinct(node.distinct)} ` : ' '}${topSql}*`;
     }
@@ -116,7 +115,10 @@ export class SqlserverQueryBuilderVisitor extends QueryBuilderVisitor {
     let sql;
 
     if (this._queryBuilder._joins.length > 0) {
-      sql = `DELETE ${node.target.accept(this).split(/\s+as\s+/i).pop()}`;
+      sql = `DELETE ${node.target
+        .accept(this)
+        .split(/\s+as\s+/i)
+        .pop()}`;
     } else {
       if (node.topRow > 0) {
         // language=SQL format=false
@@ -151,18 +153,11 @@ export class SqlserverQueryBuilderVisitor extends QueryBuilderVisitor {
   }
 
   visitBinaryUnionQueryExpression(node: BinaryUnionQueryExpression): string {
-    const leftSql =
-      node.left instanceof NestedExpression
-        ? node.left.accept(this)
-        : `(${node.left.accept(this)})`;
-    const rightSql = node.right instanceof NestedExpression
-        ? node.right.accept(this)
-        : `(${node.right.accept(this)})`;
+    const leftSql = node.left instanceof NestedExpression ? node.left.accept(this) : `(${node.left.accept(this)})`;
+    const rightSql = node.right instanceof NestedExpression ? node.right.accept(this) : `(${node.right.accept(this)})`;
 
     // language=SQL format=false
-    let sql = `SELECT * FROM ${
-      leftSql
-    } AS [temp_table] UNION${node.all ? ' ALL' : ''} SELECT * FROM ${
+    let sql = `SELECT * FROM ${leftSql} AS [temp_table] UNION${node.all ? ' ALL' : ''} SELECT * FROM ${
       rightSql
     } AS [temp_table]`;
 
@@ -173,39 +168,36 @@ export class SqlserverQueryBuilderVisitor extends QueryBuilderVisitor {
 
   visitFunctionCallExpression(node: FunctionCallExpression): string {
     let funcName = node.name.accept(this);
-    funcName     = this._grammar.predicateFuncName(funcName);
+    funcName = this._grammar.predicateFuncName(funcName);
     if (['date', 'time'].includes(funcName)) {
       if (node.parameters.length === 1) {
-        node = new FunctionCallExpression(
-          createIdentifier('cast'),
-          [
-            new AsExpression(node.parameters[0],
-              createIdentifier(funcName))
-          ]
-        );
+        node = new FunctionCallExpression(createIdentifier('cast'), [
+          new AsExpression(node.parameters[0], createIdentifier(funcName)),
+        ]);
       }
     }
 
     if (['json_contains'].includes(funcName)) {
       const latestParam = node.parameters[node.parameters.length - 1];
-      const restParams  = node.parameters.slice(0, node.parameters.length - 1);
-      if (restParams.length === 1 && !(
-        restParams[0] instanceof ColumnReferenceExpression &&
-        restParams[0].expression instanceof JsonPathExpression
-      )) {
-        return `${latestParam.accept(this)} in (select [value] from openjson(${
-          restParams.map(it => it.accept(this)).join(', ')
-        }))`;
+      const restParams = node.parameters.slice(0, node.parameters.length - 1);
+      if (
+        restParams.length === 1 &&
+        !(restParams[0] instanceof ColumnReferenceExpression && restParams[0].expression instanceof JsonPathExpression)
+      ) {
+        return `${latestParam.accept(this)} in (select [value] from openjson(${restParams
+          .map((it) => it.accept(this))
+          .join(', ')}))`;
       }
-      return `${latestParam.accept(this)} in (select [value] from ${
-        restParams.map(it => it.accept(this)).join(', ')
-      })`;
+      return `${latestParam.accept(this)} in (select [value] from ${restParams
+        .map((it) => it.accept(this))
+        .join(', ')})`;
     }
 
     if (['json_length'].includes(funcName)) {
-      return `(select count(*) from openjson(${
-        node.parameters.map(it => it.accept(this)).join(', ').replace(/^openjson\((.+)\)$/, '$1')
-      }))`;
+      return `(select count(*) from openjson(${node.parameters
+        .map((it) => it.accept(this))
+        .join(', ')
+        .replace(/^openjson\((.+)\)$/, '$1')}))`;
     }
 
     return super.visitFunctionCallExpression(node);
@@ -214,19 +206,19 @@ export class SqlserverQueryBuilderVisitor extends QueryBuilderVisitor {
   visitJsonPathExpression(node: JsonPathExpression): string {
     const pathLeg = node.pathLeg.accept(this);
     if (pathLeg === '->') {
-      return `openjson(${node.pathExpression.accept(this)}, "$.${node.jsonLiteral.accept(
-        this)}")`;
+      return `openjson(${node.pathExpression.accept(this)}, "$.${node.jsonLiteral.accept(this)}")`;
     }
     throw new Error('unknown path leg');
     // return `'$.${node.pathExpression.map(it => `"${it.accept(this)}"`).join('.')}'`;
   }
 
   visitUpdateSpecification(node: UpdateSpecification): string {
-    let sql = `UPDATE ${node.target.accept(this).split(/\s+as\s+/ig).pop()}`;
+    let sql = `UPDATE ${node.target
+      .accept(this)
+      .split(/\s+as\s+/gi)
+      .pop()}`;
 
-    sql += ` SET ${node.setClauses.map(
-      it => it.accept(this)).join(', ')
-    }`;
+    sql += ` SET ${node.setClauses.map((it) => it.accept(this)).join(', ')}`;
 
     if (node.fromClause) {
       sql += ` ${node.fromClause.accept(this)}`;

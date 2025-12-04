@@ -5,6 +5,5 @@
  */
 
 export class BaseModel {
-  boot() {
-  }
+  boot() {}
 }

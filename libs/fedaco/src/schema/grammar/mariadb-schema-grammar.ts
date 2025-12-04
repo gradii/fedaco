@@ -11,7 +11,6 @@ import type { Blueprint } from '../blueprint';
 import type { ColumnDefinition } from '../column-definition';
 import { MysqlSchemaGrammar } from './mysql-schema-grammar';
 
-
 export class MariadbSchemaGrammar extends MysqlSchemaGrammar {
   public async compileRenameColumn(blueprint: Blueprint, command: ColumnDefinition, connection: Connection) {
     if (versionCompare(await (connection as MysqlConnection).getServerVersion(), '10.5.2') === -1) {
@@ -28,16 +27,20 @@ export class MariadbSchemaGrammar extends MysqlSchemaGrammar {
   public typeGeometry(column: ColumnDefinition) {
     let subtype = column.subtype ? column.subtype.toLowerCase() : null;
 
-    if (![
-      'point', 'linestring', 'polygon', 'geometrycollection', 'multipoint', 'multilinestring', 'multipolygon'
-    ].includes(subtype)) {
+    if (
+      ![
+        'point',
+        'linestring',
+        'polygon',
+        'geometrycollection',
+        'multipoint',
+        'multilinestring',
+        'multipolygon',
+      ].includes(subtype)
+    ) {
       subtype = null;
     }
 
-    return `${
-      subtype ?? 'geometry'
-    }${
-      column.srid ? ' ref_system_id=' + column.srid : ''
-    }`;
+    return `${subtype ?? 'geometry'}${column.srid ? ' ref_system_id=' + column.srid : ''}`;
   }
 }

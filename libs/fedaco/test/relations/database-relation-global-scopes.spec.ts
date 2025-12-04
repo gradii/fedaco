@@ -1,5 +1,4 @@
 import { Table } from './../../src/annotation/table/table';
-import { TableName } from './../../src/query/ast/table-name';
 import { FedacoBuilder } from './../../src/fedaco/fedaco-builder';
 import { FedacoRelationListType } from './../../src/fedaco/fedaco-types';
 import { QueryBuilder } from './../../src/query-builder/query-builder';

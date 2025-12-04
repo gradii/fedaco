@@ -17,7 +17,7 @@ import { SqliteConnector } from './sqlite/sqlite-connector';
 import { SqlServerConnector } from './sqlserver/sql-server-connector';
 
 export class ConnectionFactory {
-  /*The IoC container instance.*/
+  /* The IoC container instance. */
   // protected container: Container;
 
   // /*Create a new connection factory instance.*/
@@ -25,7 +25,7 @@ export class ConnectionFactory {
   //   this.container = container;
   // }
 
-  /*Establish a PDO connection based on the configuration.*/
+  /* Establish a PDO connection based on the configuration. */
   public make(config: any, name: string | null = null) {
     config = this.parseConfig(config, name);
     if (config['read'] !== undefined) {
@@ -34,7 +34,7 @@ export class ConnectionFactory {
     return this.createSingleConnection(config);
   }
 
-  /*Parse and prepare the database configuration.*/
+  /* Parse and prepare the database configuration. */
   protected parseConfig(config: any, name: string) {
     if (!has(config, 'prefix')) {
       config.prefix = '';
@@ -45,44 +45,41 @@ export class ConnectionFactory {
     return config;
   }
 
-  /*Create a single database connection instance.*/
+  /* Create a single database connection instance. */
   protected createSingleConnection(config: any) {
     const pdo = this.createPdoResolver(config);
-    return this.createConnection(
-      config['driver'], pdo, config['database'], config['prefix'], config
-    );
+    return this.createConnection(config['driver'], pdo, config['database'], config['prefix'], config);
   }
 
-  /*Create a read / write database connection instance.*/
+  /* Create a read / write database connection instance. */
   protected createReadWriteConnection(config: any[]) {
     const connection = this.createSingleConnection(this.getWriteConfig(config));
     return connection.setReadPdo(this.createReadPdo(config));
   }
 
-  /*Create a new PDO instance for reading.*/
+  /* Create a new PDO instance for reading. */
   protected createReadPdo(config: any[]) {
     return this.createPdoResolver(this.getReadConfig(config));
   }
 
-  /*Get the read configuration for a read / write connection.*/
+  /* Get the read configuration for a read / write connection. */
   protected getReadConfig(config: any[]) {
     return this.mergeReadWriteConfig(config, this.getReadWriteConfig(config, 'read'));
   }
 
-  /*Get the write configuration for a read / write connection.*/
+  /* Get the write configuration for a read / write connection. */
   protected getWriteConfig(config: any[]) {
     return this.mergeReadWriteConfig(config, this.getReadWriteConfig(config, 'write'));
   }
 
-  /*Get a read / write level configuration.*/
+  /* Get a read / write level configuration. */
   protected getReadWriteConfig(config: any, type: string) {
-    return config[type][0] !== undefined ? config[type][Math.floor(
-      Math.random() * config[type].length)] : config[type];
+    return config[type][0] !== undefined ? config[type][Math.floor(Math.random() * config[type].length)] : config[type];
   }
 
-  /*Merge a configuration for a read / write connection.*/
+  /* Merge a configuration for a read / write connection. */
   protected mergeReadWriteConfig(config: any[], merge: any[]) {
-    config = {...config, ...merge};
+    config = { ...config, ...merge };
     // @ts-ignore
     delete config.read;
     // @ts-ignore
@@ -90,16 +87,15 @@ export class ConnectionFactory {
     return config;
   }
 
-  /*Create a new Closure that resolves to a PDO instance.*/
+  /* Create a new Closure that resolves to a PDO instance. */
   protected createPdoResolver(config: any) {
-    return 'host' in config ? this.createPdoResolverWithHosts(
-      config) : this.createPdoResolverWithoutHosts(config);
+    return 'host' in config ? this.createPdoResolverWithHosts(config) : this.createPdoResolverWithoutHosts(config);
   }
 
-  /*Create a new Closure that resolves to a PDO instance with a specific host or an array of hosts.*/
+  /* Create a new Closure that resolves to a PDO instance with a specific host or an array of hosts. */
   protected createPdoResolverWithHosts(config: any) {
     return () => {
-      const hosts = this.parseHosts(config).sort(() => .5 - Math.random());
+      const hosts = this.parseHosts(config).sort(() => 0.5 - Math.random());
       for (const [key, host] of Object.entries(hosts)) {
         config['host'] = host;
         try {
@@ -112,7 +108,7 @@ export class ConnectionFactory {
     };
   }
 
-  /*Parse the hosts configuration item into an array.*/
+  /* Parse the hosts configuration item into an array. */
   protected parseHosts(config: any) {
     const hosts = wrap(config['host']);
     if (!hosts.length) {
@@ -121,14 +117,14 @@ export class ConnectionFactory {
     return hosts;
   }
 
-  /*Create a new Closure that resolves to a PDO instance where there is no configured host.*/
+  /* Create a new Closure that resolves to a PDO instance where there is no configured host. */
   protected createPdoResolverWithoutHosts(config: any[]) {
     return async () => {
       return this.createConnector(config).connect(config);
     };
   }
 
-  /*Create a connector instance based on the configuration.*/
+  /* Create a connector instance based on the configuration. */
   public createConnector(config: any) {
     if (!(config['driver'] !== undefined)) {
       throw new Error('InvalidArgumentException A driver must be specified.');
@@ -149,9 +145,8 @@ export class ConnectionFactory {
     throw new Error(`InvalidArgumentException Unsupported driver [${config['driver']}].`);
   }
 
-  /*Create a new connection instance.*/
-  protected createConnection(driver: string, connection: Function, database: string,
-                             prefix: string = '', config: any[] = []) {
+  /* Create a new connection instance. */
+  protected createConnection(driver: string, connection: Function, database: string, prefix = '', config: any[] = []) {
     const resolver = Connection.getResolver(driver);
     if (resolver) {
       return resolver(connection, database, prefix, config);

@@ -14,7 +14,7 @@ export class NodePart<T extends SqlNode = SqlNode> extends SqlNode {
   constructor(
     public part: T,
     public references: any[],
-    public declarations: any[]
+    public declarations: any[],
   ) {
     super();
   }

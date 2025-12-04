@@ -1,40 +1,35 @@
 // noinspection DuplicatedCode
 import { Connection } from '../../src/connection';
-import { WrappedConnection } from '../../src/connector/wrapped-connection';
+import { type WrappedConnection } from '../../src/connector/wrapped-connection';
 import { DatabaseConfig } from '../../src/database-config';
-import { ConnectionInterface } from '../../src/query-builder/connection-interface';
-import { QueryGrammar } from '../../src/query-builder/grammar/query-grammar';
+import { type ConnectionInterface } from '../../src/query-builder/connection-interface';
+import { type QueryGrammar } from '../../src/query-builder/grammar/query-grammar';
 import { SqliteQueryGrammar } from '../../src/query-builder/grammar/sqlite-query-grammar';
 import { Processor } from '../../src/query-builder/processor';
 import { QueryBuilder } from '../../src/query-builder/query-builder';
 import { Blueprint } from '../../src/schema/blueprint';
 import { ForeignIdColumnDefinition } from '../../src/schema/foreign-id-column-definition';
 import { SqliteSchemaGrammar } from '../../src/schema/grammar/sqlite-schema-grammar';
-import { SchemaBuilder } from '../../src/schema/schema-builder';
+import { type SchemaBuilder } from '../../src/schema/schema-builder';
 
 jest.setTimeout(100000);
 
 class Conn extends Connection implements ConnectionInterface {
-
   constructor() {
     super(undefined, undefined, undefined, undefined);
   }
 
   // @ts-ignore
-  getDefaultQueryGrammar(): QueryGrammar {
-  }
+  getDefaultQueryGrammar(): QueryGrammar {}
 
   // @ts-ignore
-  getDefaultPostProcessor(): Processor {
-  }
+  getDefaultPostProcessor(): Processor {}
 
   getSchemaBuilder(): SchemaBuilder {
     throw new Error('Method not implemented.');
   }
 
-  getConfig(): any {
-
-  }
+  getConfig(): any {}
 
   table(table: string | Function | QueryBuilder, as?: string): QueryBuilder {
     throw new Error('Method not implemented.');
@@ -44,24 +39,16 @@ class Conn extends Connection implements ConnectionInterface {
     throw new Error('Method not implemented.');
   }
 
-  getQueryGrammar(): any {
-
-  }
+  getQueryGrammar(): any {}
 
   getDatabaseName(): string {
     return 'default-database';
   }
 
-  getPostProcessor(): any {
-
-  }
+  getPostProcessor(): any {}
 
   query(): QueryBuilder {
-    return new QueryBuilder(
-      this,
-      new SqliteQueryGrammar(),
-      new Processor()
-    );
+    return new QueryBuilder(this, new SqliteQueryGrammar(), new Processor());
   }
 
   async select() {
@@ -72,27 +59,21 @@ class Conn extends Connection implements ConnectionInterface {
     throw new Error('not implement');
   }
 
-  async update() {
-  }
+  async update() {}
 
-  async delete() {
-  }
+  async delete() {}
 
-  async statement() {
-  }
+  async statement() {}
 
-  async affectingStatement() {
-  }
+  async affectingStatement() {}
 
   getName() {
     return '';
   }
 
-  recordsHaveBeenModified(): any {
-  }
+  recordsHaveBeenModified(): any {}
 
-  selectFromWriteConnection(sql: string, values: any): any {
-  }
+  selectFromWriteConnection(sql: string, values: any): any {}
 }
 
 function getConnection() {
@@ -104,7 +85,6 @@ function getGrammar() {
 }
 
 describe('test database sqlite schema grammar', () => {
-
   it('basic create table', async () => {
     let blueprint = new Blueprint('users');
     blueprint.create();
@@ -113,7 +93,8 @@ describe('test database sqlite schema grammar', () => {
     let statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'create table "users" ("id" integer primary key autoincrement not null, "email" varchar not null)');
+      'create table "users" ("id" integer primary key autoincrement not null, "email" varchar not null)'
+    );
     blueprint = new Blueprint('users');
     blueprint.increments('id');
     blueprint.string('email');
@@ -134,7 +115,8 @@ describe('test database sqlite schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'create temporary table "users" ("id" integer primary key autoincrement not null, "email" varchar not null)');
+      'create temporary table "users" ("id" integer primary key autoincrement not null, "email" varchar not null)'
+    );
   });
   it('drop table', async () => {
     const blueprint = new Blueprint('users');
@@ -167,19 +149,19 @@ describe('test database sqlite schema grammar', () => {
   it('drop column', async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      'driver'  : 'sqlite',
-      'database': ':memory:',
-      'prefix'  : 'prefix_'
+      driver  : 'sqlite',
+      database: ':memory:',
+      prefix  : 'prefix_',
     });
     db.setAsGlobal();
     const schema = db.getConnection().getSchemaBuilder();
-    await schema.create('users', table => {
+    await schema.create('users', (table) => {
       table.string('email');
       table.string('name');
     });
     expect(await schema.hasTable('users')).toBeTruthy();
     expect(await schema.hasColumn('users', 'name')).toBeTruthy();
-    await schema.table('users', table => {
+    await schema.table('users', (table) => {
       table.dropColumn('name');
     });
     expect(await schema.hasColumn('users', 'name')).toBeFalsy();
@@ -189,8 +171,7 @@ describe('test database sqlite schema grammar', () => {
       const blueprint = new Blueprint('geo');
       blueprint.dropSpatialIndex(['coordinates']);
       await blueprint.toSql(getConnection(), getGrammar());
-    }).rejects.toThrowError(
-      'RuntimeException The database driver in use does not support spatial indexes.');
+    }).rejects.toThrow('RuntimeException The database driver in use does not support spatial indexes.');
   });
   it('rename table', async () => {
     const blueprint = new Blueprint('users');
@@ -205,29 +186,32 @@ describe('test database sqlite schema grammar', () => {
     // }
     const db = new DatabaseConfig();
     db.addConnection({
-      'driver'  : 'sqlite',
-      'database': ':memory:',
-      'prefix'  : 'prefix_'
+      driver  : 'sqlite',
+      database: ':memory:',
+      prefix  : 'prefix_',
     });
     db.setAsGlobal();
     const schema = db.getConnection().getSchemaBuilder();
-    await schema.create('users', table => {
+    await schema.create('users', (table) => {
       table.string('name');
       table.string('email');
     });
-    await schema.table('users', table => {
+    await schema.table('users', (table) => {
       table.index(['name', 'email'], 'index1');
     });
     const indexes = await schema.getIndexListing('users');
     expect(indexes.includes('index1')).toBeTruthy();
     expect(indexes.includes('index2')).toBeFalsy();
-    await schema.table('users', table => {
+    await schema.table('users', (table) => {
       table.renameIndex('index1', 'index2');
     });
     expect(await schema.hasIndex('users', 'index1')).toBeFalsy();
     const _indexes = await schema.getIndexes('users');
-    expect(_indexes.find(
-      index => index['name'] === 'index2' && index['columns'][0] === 'name' && index['columns'][1] === 'email'));
+    expect(
+      _indexes.find(
+        (index) => index['name'] === 'index2' && index['columns'][0] === 'name' && index['columns'][1] === 'email'
+      )
+    );
   });
   it('adding primary key', async () => {
     const blueprint = new Blueprint('users');
@@ -235,8 +219,7 @@ describe('test database sqlite schema grammar', () => {
     blueprint.string('foo').withPrimary();
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'create table "users" ("foo" varchar not null, primary key ("foo"))');
+    expect(statements[0]).toBe('create table "users" ("foo" varchar not null, primary key ("foo"))');
   });
   it('adding foreign key', async () => {
     const blueprint = new Blueprint('users');
@@ -247,7 +230,8 @@ describe('test database sqlite schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'create table "users" ("foo" varchar not null, "order_id" varchar not null, foreign key("order_id") references "orders"("id"), primary key ("foo"))');
+      'create table "users" ("foo" varchar not null, "order_id" varchar not null, foreign key("order_id") references "orders"("id"), primary key ("foo"))'
+    );
   });
   it('adding unique key', async () => {
     const blueprint = new Blueprint('users');
@@ -268,16 +252,14 @@ describe('test database sqlite schema grammar', () => {
       const blueprint = new Blueprint('geo');
       blueprint.spatialIndex(['coordinates']);
       await blueprint.toSql(getConnection(), getGrammar());
-    }).rejects.toThrowError(
-      'RuntimeException The database driver in use does not support spatial indexes.');
+    }).rejects.toThrow('RuntimeException The database driver in use does not support spatial indexes.');
   });
   it('adding fluent spatial index', async () => {
     await expect(async () => {
       const blueprint = new Blueprint('geo');
       blueprint.point('coordinates').withSpatialIndex();
       await blueprint.toSql(getConnection(), getGrammar());
-    }).rejects.toThrowError(
-      'RuntimeException The database driver in use does not support spatial indexes.');
+    }).rejects.toThrow('RuntimeException The database driver in use does not support spatial indexes.');
   });
   it('adding raw index', async () => {
     const blueprint = new Blueprint('users');
@@ -291,38 +273,33 @@ describe('test database sqlite schema grammar', () => {
     blueprint.increments('id');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "id" integer primary key autoincrement not null');
+    expect(statements[0]).toBe('alter table "users" add column "id" integer primary key autoincrement not null');
   });
   it('adding small incrementing id', async () => {
     const blueprint = new Blueprint('users');
     blueprint.smallIncrements('id');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "id" integer primary key autoincrement not null');
+    expect(statements[0]).toBe('alter table "users" add column "id" integer primary key autoincrement not null');
   });
   it('adding medium incrementing id', async () => {
     const blueprint = new Blueprint('users');
     blueprint.mediumIncrements('id');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "id" integer primary key autoincrement not null');
+    expect(statements[0]).toBe('alter table "users" add column "id" integer primary key autoincrement not null');
   });
   it('adding id', async () => {
     let blueprint = new Blueprint('users');
     blueprint.id();
     let statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "id" integer primary key autoincrement not null');
+    expect(statements[0]).toBe('alter table "users" add column "id" integer primary key autoincrement not null');
     blueprint = new Blueprint('users');
     blueprint.id('foo');
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" integer primary key autoincrement not null');
+    expect(statements[0]).toBe('alter table "users" add column "foo" integer primary key autoincrement not null');
   });
   it('adding foreign id', async () => {
     const blueprint = new Blueprint('users');
@@ -338,7 +315,7 @@ describe('test database sqlite schema grammar', () => {
       'alter table "users" add column "company_id" integer not null',
       'alter table "users" add column "laravel_idea_id" integer not null',
       'alter table "users" add column "team_id" integer not null',
-      'alter table "users" add column "team_column_id" integer not null'
+      'alter table "users" add column "team_column_id" integer not null',
     ]);
   });
   it('adding big incrementing id', async () => {
@@ -346,8 +323,7 @@ describe('test database sqlite schema grammar', () => {
     blueprint.bigIncrements('id');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "id" integer primary key autoincrement not null');
+    expect(statements[0]).toBe('alter table "users" add column "id" integer primary key autoincrement not null');
   });
   it('adding string', async () => {
     let blueprint = new Blueprint('users');
@@ -364,8 +340,7 @@ describe('test database sqlite schema grammar', () => {
     blueprint.string('foo', 100).withNullable().withDefault('bar');
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" varchar default \'bar\'');
+    expect(statements[0]).toBe('alter table "users" add column "foo" varchar default \'bar\'');
   });
   it('adding text', async () => {
     const blueprint = new Blueprint('users');
@@ -384,8 +359,7 @@ describe('test database sqlite schema grammar', () => {
     blueprint.bigInteger('foo', true);
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" integer primary key autoincrement not null');
+    expect(statements[0]).toBe('alter table "users" add column "foo" integer primary key autoincrement not null');
   });
   it('adding integer', async () => {
     let blueprint = new Blueprint('users');
@@ -397,8 +371,7 @@ describe('test database sqlite schema grammar', () => {
     blueprint.integer('foo', true);
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" integer primary key autoincrement not null');
+    expect(statements[0]).toBe('alter table "users" add column "foo" integer primary key autoincrement not null');
   });
   it('adding medium integer', async () => {
     let blueprint = new Blueprint('users');
@@ -410,8 +383,7 @@ describe('test database sqlite schema grammar', () => {
     blueprint.mediumInteger('foo', true);
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" integer primary key autoincrement not null');
+    expect(statements[0]).toBe('alter table "users" add column "foo" integer primary key autoincrement not null');
   });
   it('adding tiny integer', async () => {
     let blueprint = new Blueprint('users');
@@ -423,8 +395,7 @@ describe('test database sqlite schema grammar', () => {
     blueprint.tinyInteger('foo', true);
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" integer primary key autoincrement not null');
+    expect(statements[0]).toBe('alter table "users" add column "foo" integer primary key autoincrement not null');
   });
   it('adding small integer', async () => {
     let blueprint = new Blueprint('users');
@@ -436,8 +407,7 @@ describe('test database sqlite schema grammar', () => {
     blueprint.smallInteger('foo', true);
     statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "users" add column "foo" integer primary key autoincrement not null');
+    expect(statements[0]).toBe('alter table "users" add column "foo" integer primary key autoincrement not null');
   });
   it('adding float', async () => {
     const blueprint = new Blueprint('users');
@@ -473,7 +443,8 @@ describe('test database sqlite schema grammar', () => {
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
     expect(statements[0]).toBe(
-      'alter table "users" add column "role" varchar check ("role" in (\'member\', \'admin\')) not null');
+      'alter table "users" add column "role" varchar check ("role" in (\'member\', \'admin\')) not null'
+    );
   });
   it('adding json', async () => {
     const blueprint = new Blueprint('users');
@@ -594,7 +565,7 @@ describe('test database sqlite schema grammar', () => {
     expect(statements).toHaveLength(2);
     expect(statements).toEqual([
       'alter table "users" add column "created_at" datetime',
-      'alter table "users" add column "updated_at" datetime'
+      'alter table "users" add column "updated_at" datetime',
     ]);
   });
   it('adding timestamps tz', async () => {
@@ -604,7 +575,7 @@ describe('test database sqlite schema grammar', () => {
     expect(statements).toHaveLength(2);
     expect(statements).toEqual([
       'alter table "users" add column "created_at" datetime',
-      'alter table "users" add column "updated_at" datetime'
+      'alter table "users" add column "updated_at" datetime',
     ]);
   });
   it('adding remember token', async () => {
@@ -629,7 +600,7 @@ describe('test database sqlite schema grammar', () => {
     expect(statements[0]).toBe('alter table "users" add column "foo" varchar not null');
   });
   it('adding foreign uuid', async () => {
-    const blueprint   = new Blueprint('users');
+    const blueprint = new Blueprint('users');
     const foreignUuid = blueprint.foreignUuid('foo');
     blueprint.foreignUuid('company_id').withConstrained();
     blueprint.foreignUuid('laravel_idea_id').withConstrained();
@@ -642,7 +613,7 @@ describe('test database sqlite schema grammar', () => {
       'alter table "users" add column "company_id" varchar not null',
       'alter table "users" add column "laravel_idea_id" varchar not null',
       'alter table "users" add column "team_id" varchar not null',
-      'alter table "users" add column "team_column_id" varchar not null'
+      'alter table "users" add column "team_column_id" varchar not null',
     ]);
   });
   it('adding ip address', async () => {
@@ -678,8 +649,7 @@ describe('test database sqlite schema grammar', () => {
     blueprint.lineString('coordinates');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "geo" add column "coordinates" linestring not null');
+    expect(statements[0]).toBe('alter table "geo" add column "coordinates" linestring not null');
   });
   it('adding polygon', async () => {
     const blueprint = new Blueprint('geo');
@@ -693,32 +663,28 @@ describe('test database sqlite schema grammar', () => {
     blueprint.geometryCollection('coordinates');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "geo" add column "coordinates" geometrycollection not null');
+    expect(statements[0]).toBe('alter table "geo" add column "coordinates" geometrycollection not null');
   });
   it('adding multi point', async () => {
     const blueprint = new Blueprint('geo');
     blueprint.multiPoint('coordinates');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "geo" add column "coordinates" multipoint not null');
+    expect(statements[0]).toBe('alter table "geo" add column "coordinates" multipoint not null');
   });
   it('adding multi line string', async () => {
     const blueprint = new Blueprint('geo');
     blueprint.multiLineString('coordinates');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "geo" add column "coordinates" multilinestring not null');
+    expect(statements[0]).toBe('alter table "geo" add column "coordinates" multilinestring not null');
   });
   it('adding multi polygon', async () => {
     const blueprint = new Blueprint('geo');
     blueprint.multiPolygon('coordinates');
     const statements = await blueprint.toSql(getConnection(), getGrammar());
     expect(statements).toHaveLength(1);
-    expect(statements[0]).toBe(
-      'alter table "geo" add column "coordinates" multipolygon not null');
+    expect(statements[0]).toBe('alter table "geo" add column "coordinates" multipolygon not null');
   });
   // it('grammars are macroable', () => {
   //   getGrammar().macro('compileReplace', () => {

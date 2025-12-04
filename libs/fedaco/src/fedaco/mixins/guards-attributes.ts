@@ -17,30 +17,30 @@ function isAnyGuarded(guarded: string[]) {
 
 // tslint:disable-next-line:no-namespace eslint-disable-next-line @typescript-eslint/no-namespace
 export declare class GuardsAttributes {
-  /*Indicates if all mass assignment is enabled.*/
+  /* Indicates if all mass assignment is enabled. */
   static _unguarded: boolean;
-  /*The actual columns that exist on the database and can be guarded.*/
+  /* The actual columns that exist on the database and can be guarded. */
   static readonly _guardableColumns: string[];
 
   static readonly _metaFillable: string[];
 
-  /*Disable all mass assignable restrictions.*/
+  /* Disable all mass assignable restrictions. */
   static unguard(state: boolean): void;
 
-  /*Enable the mass assignment restrictions.*/
+  /* Enable the mass assignment restrictions. */
   static reguard(): void;
 
-  /*Determine if the current state is "unguarded".*/
+  /* Determine if the current state is "unguarded". */
   static isUnguarded(): boolean;
 
-  /*Run the given callable while being unguarded.*/
+  /* Run the given callable while being unguarded. */
   static unguarded(callback: Function): any;
 }
 
 export interface GuardsAttributes {
-  /*The attributes that are mass assignable.*/
+  /* The attributes that are mass assignable. */
   _fillable: string[];
-  /*The attributes that aren't mass assignable.*/
+  /* The attributes that aren't mass assignable. */
   _guarded: string[];
 
   _unFillable: string[];
@@ -74,15 +74,15 @@ export type GuardsAttributesCtor<M> = Constructor<GuardsAttributes>;
 
 export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): GuardsAttributesCtor<M> & T {
   return class _Self extends base {
-    /*The attributes that are mass assignable.*/
+    /* The attributes that are mass assignable. */
     _fillable: string[] = [];
-    /*The attributes that aren't mass assignable.*/
+    /* The attributes that aren't mass assignable. */
     _guarded: string[] = ['*'];
 
     _unFillable: string[] = [];
-    /*Indicates if all mass assignment is enabled.*/
+    /* Indicates if all mass assignment is enabled. */
     static _unguarded = false;
-    /*The actual columns that exist on the database and can be guarded.*/
+    /* The actual columns that exist on the database and can be guarded. */
     static _guardableColumns: string[];
 
     static _metaFillable: string[];
@@ -93,7 +93,7 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
       this._initGuardedFromAnnotations();
     }
 
-    /*Get the fillable attributes for the model.*/
+    /* Get the fillable attributes for the model. */
     public GetFillable() {
       return this._fillable;
     }
@@ -135,30 +135,30 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
     //   return this.GetGuarded().includes(key)
     // }
 
-    /*Set the fillable attributes for the model.*/
+    /* Set the fillable attributes for the model. */
     public Fillable(fillable: string[]) {
       this._fillable = fillable;
       return this;
     }
 
-    /*Merge new fillable attributes with existing fillable attributes on the model.*/
+    /* Merge new fillable attributes with existing fillable attributes on the model. */
     public MergeFillable(fillable: any[]) {
       this._fillable = [...this._fillable, ...fillable];
       return this;
     }
 
-    /*Get the guarded attributes for the model.*/
+    /* Get the guarded attributes for the model. */
     public GetGuarded() {
       return this._guarded;
     }
 
-    /*Set the guarded attributes for the model.*/
+    /* Set the guarded attributes for the model. */
     public Guard(guarded: any[]) {
       this._guarded = guarded;
       return this;
     }
 
-    /*Merge new guarded attributes with existing guarded attributes on the model.*/
+    /* Merge new guarded attributes with existing guarded attributes on the model. */
     public MergeGuarded(guarded: any[]) {
       this._guarded = [...this._guarded, ...guarded];
       return this;
@@ -174,22 +174,22 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
       return this;
     }
 
-    /*Disable all mass assignable restrictions.*/
+    /* Disable all mass assignable restrictions. */
     public static unguard(state = true): void {
       this._unguarded = state;
     }
 
-    /*Enable the mass assignment restrictions.*/
+    /* Enable the mass assignment restrictions. */
     public static reguard(): void {
       this._unguarded = false;
     }
 
-    /*Determine if the current state is "unguarded".*/
+    /* Determine if the current state is "unguarded". */
     public static isUnguarded(): boolean {
       return this._unguarded;
     }
 
-    /*Run the given callable while being unguarded.*/
+    /* Run the given callable while being unguarded. */
     public static unguarded(callback: (...args: any[]) => Promise<any> | any): Promise<any> | any {
       if (this._unguarded) {
         return callback();
@@ -209,7 +209,7 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
       }
     }
 
-    /*Determine if the given attribute may be mass assigned.*/
+    /* Determine if the given attribute may be mass assigned. */
     public IsFillable(key: string) {
       if ((this.constructor as typeof _Self)._unguarded) {
         return true;
@@ -223,7 +223,7 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
       return this.#noDefinedFillable() && !key.includes('.') && !key.startsWith('_');
     }
 
-    /*Determine if the given key is guarded.*/
+    /* Determine if the given key is guarded. */
     public IsGuarded(key: string) {
       if (!this.GetGuarded().length) {
         return false;
@@ -231,17 +231,17 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
       return isAnyGuarded(this.GetGuarded()) || this.GetGuarded().includes(key) || !this._isGuardableColumn(key);
     }
 
-    /*Determine if the given column is a valid, guardable column.*/
+    /* Determine if the given column is a valid, guardable column. */
     _isGuardableColumn(key: string) {
       return (this.constructor as typeof _Self)._guardableColumns.includes(key);
     }
 
-    /*Determine if the model is totally guarded.*/
+    /* Determine if the model is totally guarded. */
     public TotallyGuarded() {
       return this.#realNoFillable() && isAnyGuarded(this.GetGuarded());
     }
 
-    /*Get the fillable attributes of a given array.*/
+    /* Get the fillable attributes of a given array. */
     _fillableFromArray(attributes: any) {
       if (!this.#realNoFillable() && !(this.constructor as typeof _Self)._unguarded) {
         const rst: any = {};
@@ -255,7 +255,7 @@ export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): G
       return attributes;
     }
 
-    /*Initialize the fillable attributes from annotations.*/
+    /* Initialize the fillable attributes from annotations. */
     _initFillableFromAnnotations() {
       if ((this.constructor as typeof _Self)._guardableColumns == undefined) {
         const _metaFillable: string[] = [];

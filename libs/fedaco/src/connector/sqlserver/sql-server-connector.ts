@@ -13,12 +13,12 @@ import type { WrappedConnection } from '../wrapped-connection';
 import { SqlServerWrappedConnection } from './sql-server-wrapped-connection';
 
 export class SqlServerConnector extends Connector implements ConnectorInterface {
-  /*The PDO connection options.*/
+  /* The PDO connection options. */
   protected options: any = {};
 
-  /*Establish a database connection.*/
+  /* Establish a database connection. */
   public async connect(config: any[]): Promise<WrappedConnection> {
-    const options    = this.getOptions(config);
+    const options = this.getOptions(config);
     const connection = await this.createConnection(this.getDsn(config), config, options);
 
     await this.configureIsolationLevel(connection, config);
@@ -26,30 +26,29 @@ export class SqlServerConnector extends Connector implements ConnectorInterface 
     return connection;
   }
 
-  public async createConnection(database: string, config: any,
-                                   options: any) {
+  public async createConnection(database: string, config: any, options: any) {
     const [username, password] = [config['username'] ?? null, config['password'] ?? null];
     // try {
-    const {Connection}         = await import('tedious');
-    const connection           = new Connection({
+    const { Connection } = await import('tedious');
+    const connection = new Connection({
       ...config,
-      server          : config['host'],
-      'authentication': {
-        'type'   : 'default',
-        'options': {
-          'userName': username,
-          'password': password
+      server        : config['host'],
+      authentication: {
+        type   : 'default',
+        options: {
+          userName: username,
+          password: password,
         },
-        ...(config.authentication || {})
+        ...(config.authentication || {}),
       },
-      options         : {
+      options: {
         ...(config.options || {}),
         port    : config['port'],
         database: config['database'],
       },
     });
     await new Promise<void>((ok, fail) => {
-      connection.connect(err => {
+      connection.connect((err) => {
         if (err) {
           fail(err);
         } else {
@@ -65,12 +64,10 @@ export class SqlServerConnector extends Connector implements ConnectorInterface 
       return;
     }
 
-    await (await connection.prepare(
-      `SET TRANSACTION ISOLATION LEVEL ${config['isolation_level']}`
-    )).execute();
+    await (await connection.prepare(`SET TRANSACTION ISOLATION LEVEL ${config['isolation_level']}`)).execute();
   }
 
-  /*Create a DSN string from a configuration.*/
+  /* Create a DSN string from a configuration. */
   protected getDsn(config: any) {
     return `${config.host}`;
     // if (this.prefersOdbc(config)) {

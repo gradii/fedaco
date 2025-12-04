@@ -49,19 +49,20 @@ export const enum BindingType {
 
 export class QueryBuilder extends Builder {
 
-  /*The database connection instance.*/
+  /* The database connection instance. */
   _connection: ConnectionInterface;
-  /*The database query post processor instance.*/
+  /* The database query post processor instance. */
   _processor: ProcessorInterface;
 
-  /*All of the available clause operators.*/
+  /* All of the available clause operators. */
   public operators: any[] = [
     '=', '<', '>', '<=', '>=', '<>', '!=', '<=>', 'like', 'like binary',
     'not like', 'ilike', '&', '|', '^', '<<', '>>', 'rlike', 'not rlike',
     'regexp', 'not regexp', '~', '~*', '!~', '!~*', 'similar to',
     'not similar to', 'not ilike', '~~*', '!~~*'
   ];
-  /*Whether use write connection for select.*/
+
+  /* Whether use write connection for select. */
   _useWriteConnection = false;
 
   private _sqlParser: SqlParser;
@@ -82,7 +83,7 @@ export class QueryBuilder extends Builder {
     this._sqlParser = new SqlParser();
   }
 
-  /*Create a new query instance for a sub-query.*/
+  /* Create a new query instance for a sub-query. */
   _forSubQuery() {
     return this.newQuery();
   }
@@ -111,7 +112,7 @@ export class QueryBuilder extends Builder {
     return cloned;
   }
 
-  /*Clone the query without the given properties.*/
+  /* Clone the query without the given properties. */
   public cloneWithout(properties: any[]): QueryBuilder {
     const cloned = this.clone();
     for (const property of properties) {
@@ -148,7 +149,7 @@ export class QueryBuilder extends Builder {
     return new JoinClauseBuilder(parentQuery, type, table);
   }
 
-  /*Creates a subquery and parse it.*/
+  /* Creates a subquery and parse it. */
   _createSubQuery(type: 'select' | string, query: Function | QueryBuilder | string) {
     if (isFunction(query)) {
       const callback = query
@@ -166,7 +167,7 @@ export class QueryBuilder extends Builder {
     return new NestedPredicateExpression(query);
   }
 
-  /*Parse the subquery into SQL and bindings.*/
+  /* Parse the subquery into SQL and bindings. */
   _parseSub(type: 'select' | string, query: any) {
     if (isString(query)) {
       return new NestedExpression(type, query, []);
@@ -228,7 +229,7 @@ export class QueryBuilder extends Builder {
   }
 
 
-  /*Get an array with the values of a given column.*/
+  /* Get an array with the values of a given column. */
   public async pluck(column: string, key?: string): Promise<any[] | Record<string, any>> {
     const queryResult = await this.onceWithColumns(isBlank(key) ? [column] : [column, key],
       async () => {
@@ -251,7 +252,7 @@ export class QueryBuilder extends Builder {
     this._bindings['where'] = this._bindings['where'].concat(bindings);
   }
 
-  /*Strip off the table name or alias from a column identifier.*/
+  /* Strip off the table name or alias from a column identifier. */
   protected stripTableForPluck(column: string) {
     if (isBlank(column)) {
       return column;
@@ -260,7 +261,7 @@ export class QueryBuilder extends Builder {
     return column.split(new RegExp(separator, 'ig')).pop();
   }
 
-  /*Retrieve column values from rows represented as objects.*/
+  /* Retrieve column values from rows represented as objects. */
   protected pluckFromColumn(queryResult: any[], column: string,
                             key?: string): any[] | Record<string, any> {
     if (isBlank(key)) {
@@ -279,7 +280,7 @@ export class QueryBuilder extends Builder {
   }
 
 
-  public addBinding(value: any, type: string = 'where') {
+  public addBinding(value: any, type = 'where') {
     if (!this._bindings[type]) {
       throw new Error(`InvalidArgumentException Invalid binding type: ${type}.`);
     }
@@ -329,8 +330,8 @@ export class QueryBuilder extends Builder {
     return this;
   }
 
-  /*Insert a new record and get the value of the primary key.*/
-  public async insertGetId(values: any, sequence: string = 'id') {
+  /* Insert a new record and get the value of the primary key. */
+  public async insertGetId(values: any, sequence = 'id') {
     this.applyBeforeQueryCallbacks();
 
     const sql = this._grammar.compileInsertGetId(this, values, sequence);
@@ -402,7 +403,7 @@ export class QueryBuilder extends Builder {
     return this._connection;
   }
 
-  /*Insert new records into the table using a subquery.*/
+  /* Insert new records into the table using a subquery. */
   public async insertUsing(columns: any[],
                            query: ((q: QueryBuilder) => void) | QueryBuilder | string) {
     this.applyBeforeQueryCallbacks();
@@ -418,7 +419,7 @@ export class QueryBuilder extends Builder {
   }
 
 
-  /*Insert a new record into the database while ignoring errors.*/
+  /* Insert a new record into the database while ignoring errors. */
   public insertOrIgnore(values: any) {
     if (isAnyEmpty(values)) {
       return 0;
@@ -465,7 +466,7 @@ export class QueryBuilder extends Builder {
     );
   }
 
-  /*Add a new "raw" select expression to the query.*/
+  /* Add a new "raw" select expression to the query. */
   public selectRaw(expression: string, bindings: any[] = []) {
     this._columns.push(rawSqlBindings(expression, bindings));
     // if (bindings) {
@@ -490,7 +491,7 @@ export class QueryBuilder extends Builder {
   }
 
 
-  /*Update a record in the database.*/
+  /* Update a record in the database. */
   public async update(values: any = {}): Promise<any> {
     this.applyBeforeQueryCallbacks();
 
@@ -500,8 +501,8 @@ export class QueryBuilder extends Builder {
     );
   }
 
-  /*Increment a column's value by a given amount.*/
-  public increment(column: string, amount: number = 1, extra: any = {}): Promise<any> {
+  /* Increment a column's value by a given amount. */
+  public increment(column: string, amount = 1, extra: any = {}): Promise<any> {
     if (!isNumber(amount)) {
       throw new Error('InvalidArgumentException Non-numeric value passed to increment method.');
     }
@@ -510,8 +511,8 @@ export class QueryBuilder extends Builder {
     return this.update(columns);
   }
 
-  /*Decrement a column's value by a given amount.*/
-  public decrement(column: string, amount: number = 1, extra: any = {}): Promise<any> {
+  /* Decrement a column's value by a given amount. */
+  public decrement(column: string, amount = 1, extra: any = {}): Promise<any> {
     if (!isNumber(amount)) {
       throw new Error('InvalidArgumentException Non-numeric value passed to decrement method.');
     }
@@ -520,7 +521,7 @@ export class QueryBuilder extends Builder {
     return this.update(columns);
   }
 
-  /*Delete a record from the database.*/
+  /* Delete a record from the database. */
   public delete(id?: any) {
     if (!isBlank(id)) {
       this.addWhere(
@@ -547,7 +548,7 @@ export class QueryBuilder extends Builder {
     );
   }
 
-  /*Run a truncate statement on the table.*/
+  /* Run a truncate statement on the table. */
   public truncate() {
     this.applyBeforeQueryCallbacks();
 
@@ -556,7 +557,7 @@ export class QueryBuilder extends Builder {
     }
   }
 
-  /*Insert or update a record matching the attributes, and fill it with values.*/
+  /* Insert or update a record matching the attributes, and fill it with values. */
   public async updateOrInsert(attributes: object, values: object = {}) {
     if (isBlank(this._from)) {
       throw new Error('must call from before insert');
@@ -570,12 +571,12 @@ export class QueryBuilder extends Builder {
     return await this.limit(1).update(values);
   }
 
-  /*Insert new records or update the existing ones.*/
+  /* Insert new records or update the existing ones. */
   public upsert(values: any[], uniqueBy: any[] | string, update: any[] | null = null) {
     if (!values.length) {
       return 0;
     } else if (!update?.length) {
-      return /*cast type int*/ this.insert(values);
+      return /* cast type int */ this.insert(values);
     }
     if (!isArray(values)) {
       values = [values];
@@ -584,7 +585,7 @@ export class QueryBuilder extends Builder {
         // ksort(value);
         values[key] = value;
       }
-    }*/
+    } */
     if (isBlank(update)) {
       update = Object.keys(values[0]);
     }
@@ -596,7 +597,7 @@ export class QueryBuilder extends Builder {
     //   return isNumber(key);
     // }).all()]);
     return this._connection.affectingStatement(
-      this._grammar.compileUpsert(this, values, /*cast type array*/ uniqueBy, update),
+      this._grammar.compileUpsert(this, values, /* cast type array */ uniqueBy, update),
       this.getBindings()
     );
   }
@@ -730,13 +731,13 @@ export class QueryBuilder extends Builder {
 }
 
 export class JoinClauseBuilder extends QueryBuilder {
-  /*The type of join being performed.*/
+  /* The type of join being performed. */
   public type: string;
-  /*The table the join clause is joining to.*/
+  /* The table the join clause is joining to. */
   public table: string | TableReferenceExpression;
 
 
-  /*Create a new join clause instance.*/
+  /* Create a new join clause instance. */
   public constructor(parentQuery: QueryBuilder, type: string,
                      table: string | TableReferenceExpression) {
     super(parentQuery.getConnection(), parentQuery.getGrammar(), parentQuery.getProcessor());
@@ -744,13 +745,13 @@ export class JoinClauseBuilder extends QueryBuilder {
     this.table = table;
   }
 
-  /*Get a new instance of the join clause builder.*/
+  /* Get a new instance of the join clause builder. */
   public override newQuery<T extends Builder = JoinClauseBuilder>(): T {
     // @ts-ignore
     return new JoinClauseBuilder(this.newParentQuery(), this.type, this.table);
   }
 
-  /*Add an "on" clause to the join.
+  /* Add an "on" clause to the join.
 
   On clauses can be chained, e.g.
 
@@ -759,7 +760,7 @@ export class JoinClauseBuilder extends QueryBuilder {
 
   will produce the following SQL:
 
-  on `contacts`.`user_id` = `users`.`id` and `contacts`.`info_id` = `info`.`id`*/
+  on `contacts`.`user_id` = `users`.`id` and `contacts`.`info_id` = `info`.`id` */
   public on(first: ((q?: JoinClauseBuilder) => any) | string,
             operator?: string,
             second?: string,
@@ -770,19 +771,19 @@ export class JoinClauseBuilder extends QueryBuilder {
     return this.whereColumn(first, operator, second, conjunction);
   }
 
-  /*Add an "or on" clause to the join.*/
+  /* Add an "or on" clause to the join. */
   public orOn(first: ((query?: JoinClauseBuilder) => any) | string,
               operator?: string,
               second?: string): this {
     return this.on(first, operator, second, 'or');
   }
 
-  /*Create a new query instance for sub-query.*/
+  /* Create a new query instance for sub-query. */
   protected forSubQuery() {
     return this.newParentQuery().newQuery();
   }
 
-  /*Create a new parent query instance.*/
+  /* Create a new parent query instance. */
   protected newParentQuery() {
     return super.newQuery();
   }

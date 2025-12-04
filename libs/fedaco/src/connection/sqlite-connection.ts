@@ -16,18 +16,15 @@ import type { SchemaBuilder } from '../schema/schema-builder';
 import { SqliteSchemaState } from '../schema/sqlite-schema-state';
 
 export class SqliteConnection extends Connection {
-  /*Create a new database connection instance.*/
-  public constructor(pdo: any,
-                     database    = '',
-                     tablePrefix = '',
-                     config: any = {}) {
+  /* Create a new database connection instance. */
+  public constructor(pdo: any, database = '', tablePrefix = '', config: any = {}) {
     super(pdo, database, tablePrefix, config);
     const enableForeignKeyConstraints = this.getForeignKeyConstraintsConfigurationValue();
 
     if (!isBlank(enableForeignKeyConstraints)) {
-      enableForeignKeyConstraints ?
-        this.getSchemaBuilder().enableForeignKeyConstraints() :
-        this.getSchemaBuilder().disableForeignKeyConstraints();
+      enableForeignKeyConstraints
+        ? this.getSchemaBuilder().enableForeignKeyConstraints()
+        : this.getSchemaBuilder().disableForeignKeyConstraints();
     }
   }
 
@@ -37,12 +34,12 @@ export class SqliteConnection extends Connection {
     return `x'${hex}'`;
   }
 
-  /*Get the default query grammar instance.*/
+  /* Get the default query grammar instance. */
   protected getDefaultQueryGrammar(): QueryGrammar {
     return this.withTablePrefix(new SqliteQueryGrammar()) as QueryGrammar;
   }
 
-  /*Get a schema builder instance for the connection.*/
+  /* Get a schema builder instance for the connection. */
   public getSchemaBuilder(): SchemaBuilder {
     if (isBlank(this.schemaGrammar)) {
       this.useDefaultSchemaGrammar();
@@ -50,22 +47,22 @@ export class SqliteConnection extends Connection {
     return new SqliteSchemaBuilder(this);
   }
 
-  /*Get the default schema grammar instance.*/
+  /* Get the default schema grammar instance. */
   protected getDefaultSchemaGrammar(): SchemaGrammar {
     return this.withTablePrefix(new SqliteSchemaGrammar()) as SchemaGrammar;
   }
 
-  /*Get the schema state for the connection.*/
+  /* Get the schema state for the connection. */
   public getSchemaState(files: any = null, processFactory: Function | null = null) {
     return new SqliteSchemaState(this, files, processFactory);
   }
 
-  /*Get the default post processor instance.*/
+  /* Get the default post processor instance. */
   protected getDefaultPostProcessor() {
     return new SqliteProcessor();
   }
 
-  /*Get the database connection foreign key constraints configuration option.*/
+  /* Get the database connection foreign key constraints configuration option. */
   protected getForeignKeyConstraintsConfigurationValue() {
     return this.getConfig('foreign_key_constraints');
   }

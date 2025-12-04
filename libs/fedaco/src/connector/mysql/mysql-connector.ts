@@ -9,10 +9,10 @@ import type { ConnectorInterface } from '../connector-interface';
 import { MysqlWrappedConnection } from './mysql-wrapped-connection';
 
 export class MysqlConnector extends Connector implements ConnectorInterface {
-  /*Establish a database connection.*/
+  /* Establish a database connection. */
   public async connect(config: any): Promise<MysqlWrappedConnection> {
-    const dsn        = this.getDsn(config);
-    const options    = this.getOptions(config);
+    const dsn = this.getDsn(config);
+    const options = this.getOptions(config);
     const connection = await this.createConnection(dsn, config, options);
     if (config['database'].length) {
       await connection.exec(`use \`${config['database']}\`;`);
@@ -24,21 +24,22 @@ export class MysqlConnector extends Connector implements ConnectorInterface {
     return connection;
   }
 
-  async createConnection(database: string, config: any,
-                         options: any): Promise<MysqlWrappedConnection> {
+  async createConnection(database: string, config: any, options: any): Promise<MysqlWrappedConnection> {
     const [username, password] = [config['username'] ?? null, config['password'] ?? null];
     // try {
-    const mysql2               = await import('mysql2');
+    const mysql2 = await import('mysql2');
     return Promise.resolve(
-      new MysqlWrappedConnection(mysql2.createConnection({
-        host    : config['host'],
-        port    : config['port'],
-        user    : username,
-        password: password,
-        database: config['database'],
-        timezone: config['timezone'],
-        ssl     : config['ssl']
-      }))
+      new MysqlWrappedConnection(
+        mysql2.createConnection({
+          host    : config['host'],
+          port    : config['port'],
+          user    : username,
+          password: password,
+          database: config['database'],
+          timezone: config['timezone'],
+          ssl     : config['ssl'],
+        }),
+      ),
     );
 
     // } catch (e) {
@@ -47,32 +48,30 @@ export class MysqlConnector extends Connector implements ConnectorInterface {
     // }
   }
 
-  /*Set the connection transaction isolation level.*/
+  /* Set the connection transaction isolation level. */
   protected async configureIsolationLevel(connection: any, config: any) {
     if (!(config['isolation_level'] !== undefined)) {
       return;
     }
-    const stmt = await connection.prepare(
-      `SET SESSION TRANSACTION ISOLATION LEVEL ${config['isolation_level']}`);
+    const stmt = await connection.prepare(`SET SESSION TRANSACTION ISOLATION LEVEL ${config['isolation_level']}`);
     await stmt.execute();
   }
 
-  /*Set the connection character set and collation.*/
+  /* Set the connection character set and collation. */
   protected async configureEncoding(connection: any, config: any) {
     if (!(config['charset'] !== undefined)) {
       return connection;
     }
-    const stmt = await connection.prepare(
-      `set names '${config['charset']}'${this.getCollation(config)}`);
+    const stmt = await connection.prepare(`set names '${config['charset']}'${this.getCollation(config)}`);
     await stmt.execute();
   }
 
-  /*Get the collation for the configuration.*/
+  /* Get the collation for the configuration. */
   protected getCollation(config: any) {
     return config['collation'] !== undefined ? ` collate '${config['collation']}'` : '';
   }
 
-  /*Set the timezone on the connection.*/
+  /* Set the timezone on the connection. */
   protected async configureTimezone(connection: MysqlWrappedConnection, config: any) {
     if (config['timezone'] !== undefined) {
       const stmt = await connection.prepare(`set time_zone="${config['timezone']}"`);
@@ -80,31 +79,31 @@ export class MysqlConnector extends Connector implements ConnectorInterface {
     }
   }
 
-  /*Create a DSN string from a configuration.
+  /* Create a DSN string from a configuration.
 
-  Chooses socket or host/port based on the 'unix_socket' config value.*/
+  Chooses socket or host/port based on the 'unix_socket' config value. */
   protected getDsn(config: any[]) {
     return this.hasSocket(config) ? this.getSocketDsn(config) : this.getHostDsn(config);
   }
 
-  /*Determine if the given configuration array has a UNIX socket value.*/
+  /* Determine if the given configuration array has a UNIX socket value. */
   protected hasSocket(config: any) {
     return config['unix_socket'] !== undefined && config['unix_socket'].length;
   }
 
-  /*Get the DSN string for a socket configuration.*/
+  /* Get the DSN string for a socket configuration. */
   protected getSocketDsn(config: any) {
     return `mysql:unix_socket=${config['unix_socket']};dbname=${config['database']}`;
   }
 
-  /*Get the DSN string for a host / port configuration.*/
+  /* Get the DSN string for a host / port configuration. */
   protected getHostDsn(config: any) {
     return config.port !== undefined
       ? `mysql:host=${config.host};port=${config.port};dbname=${config.database}`
       : `mysql:host=${config.host};dbname=${config.database}"`;
   }
 
-  /*Set the modes for the connection.*/
+  /* Set the modes for the connection. */
   protected async setModes(connection: any, config: any) {
     if (config['modes'] !== undefined) {
       await this.setCustomModes(connection, config);
@@ -117,13 +116,13 @@ export class MysqlConnector extends Connector implements ConnectorInterface {
     }
   }
 
-  /*Set the custom modes on the connection.*/
+  /* Set the custom modes on the connection. */
   protected async setCustomModes(connection: any, config: any) {
     const modes = config['modes'].join(',');
     await (await connection.prepare(`set session sql_mode='${modes}'`)).execute();
   }
 
-  /*Get the query to enable strict mode.*/
+  /* Get the query to enable strict mode. */
   protected strictMode(connection: any, config: any) {
     const version = config['version'] || connection.getAttribute('ATTR_SERVER_VERSION');
     // todo fixme

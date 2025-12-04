@@ -6,14 +6,13 @@
 
 import { Connector } from '../connector';
 import type { ConnectorInterface } from '../connector-interface';
-import { MysqlWrappedConnection } from '../mysql/mysql-wrapped-connection';
 import { PostgresWrappedConnection } from './postgres-wrapped-connection';
 
 export class PostgresConnector extends Connector implements ConnectorInterface {
-  /*The default PDO connection options.*/
+  /* The default PDO connection options. */
   protected options: any = {};
 
-  /*Establish a database connection.*/
+  /* Establish a database connection. */
   public async connect(config: any) {
     const connection = await this.createConnection(this.getDsn(config), config, this.getOptions(config));
     await this.configureEncoding(connection, config);
@@ -24,11 +23,10 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
     return connection;
   }
 
-  async createConnection(database: string, config: any,
-                         options: any): Promise<PostgresWrappedConnection> {
+  async createConnection(database: string, config: any, options: any): Promise<PostgresWrappedConnection> {
     const [username, password] = [config['username'] ?? null, config['password'] ?? null];
     // try {
-    const {Client}             = await import('pg');
+    const { Client } = await import('pg');
     const client = new Client({
       ...config,
       host    : config['host'],
@@ -41,7 +39,7 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
     return new PostgresWrappedConnection(client);
   }
 
-  /*Set the connection character set and collation.*/
+  /* Set the connection character set and collation. */
   protected async configureEncoding(connection: any, config: any) {
     if (!(config['charset'] !== undefined)) {
       return;
@@ -49,7 +47,7 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
     await (await connection.prepare(`set names '${config['charset']}'`)).execute();
   }
 
-  /*Set the timezone on the connection.*/
+  /* Set the timezone on the connection. */
   protected async configureTimezone(connection: any, config: any) {
     if (config['timezone'] !== undefined) {
       const timezone = config['timezone'];
@@ -57,7 +55,7 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
     }
   }
 
-  /*Set the "search_path" on the database connection.*/
+  /* Set the "search_path" on the database connection. */
   protected async configureSearchPath(connection: any, config: any) {
     if (config['search_path'] !== undefined) {
       const searchPath = this.quoteSearchPath(this.parseSearchPath(config['search_path']));
@@ -65,7 +63,7 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
     }
   }
 
-  /*Parse the "search_path" configuration value into an array.*/
+  /* Parse the "search_path" configuration value into an array. */
   protected parseSearchPath(searchPath: string | any) {
     // if (isString(searchPath)) {
     //   preg_match_all(/[a-zA-z0-9$]{1,}/i, searchPath, matches);
@@ -77,13 +75,12 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
     return searchPath;
   }
 
-  /*Format the search path for the DSN.*/
+  /* Format the search path for the DSN. */
   protected quoteSearchPath(searchPath: any[]) {
-    return searchPath.length === 1 ?
-      `"${searchPath[0]}"` : `"${searchPath.join(', ')}"`;
+    return searchPath.length === 1 ? `"${searchPath[0]}"` : `"${searchPath.join(', ')}"`;
   }
 
-  /*Set the application name on the connection.*/
+  /* Set the application name on the connection. */
   protected async configureApplicationName(connection: any, config: any) {
     if (config['application_name'] !== undefined) {
       const applicationName = config['application_name'];
@@ -91,12 +88,11 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
     }
   }
 
-  /*Create a DSN string from a configuration.*/
+  /* Create a DSN string from a configuration. */
   protected getDsn(config: any) {
-    // eslint-disable-next-line prefer-const
-    let {host, database, port} = config;
+    let { host, database, port } = config;
 
-    host    = host !== undefined ? `host=${host};` : '';
+    host = host !== undefined ? `host=${host};` : '';
     let dsn = `pgsql:${host}dbname=${database}`;
     if (config['port'] !== undefined) {
       dsn += `;port=${port}`;
@@ -104,7 +100,7 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
     return this.addSslOptions(dsn, config);
   }
 
-  /*Add the SSL options to the DSN.*/
+  /* Add the SSL options to the DSN. */
   protected addSslOptions(dsn: string, config: any) {
     for (const option of ['sslmode', 'sslcert', 'sslkey', 'sslrootcert']) {
       if (config[option]) {
@@ -115,13 +111,11 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
     return dsn;
   }
 
-
-  /*Configure the synchronous_commit setting.*/
+  /* Configure the synchronous_commit setting. */
   protected async configureSynchronousCommit(connection: any, config: any) {
     if (!(config['synchronous_commit'] !== undefined)) {
       return;
     }
-    await (await connection.prepare(
-      `set synchronous_commit to '${config['synchronous_commit']}'`)).execute();
+    await (await connection.prepare(`set synchronous_commit to '${config['synchronous_commit']}'`)).execute();
   }
 }

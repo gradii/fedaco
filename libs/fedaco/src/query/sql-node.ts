@@ -7,7 +7,6 @@
 import type { SqlVisitor } from './sql-visitor';
 
 export abstract class SqlNode {
-
   public __toString() {
     // return this.dump(this);
   }
@@ -16,7 +15,5 @@ export abstract class SqlNode {
     // throw ASTException.noDispatchForNode(this);
   }
 
-  public dump(obj: object) {
-
-  }
+  public dump(obj: object) {}
 }

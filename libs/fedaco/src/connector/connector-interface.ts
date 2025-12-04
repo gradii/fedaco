@@ -6,6 +6,6 @@
 import type { WrappedConnection } from './wrapped-connection';
 
 export interface ConnectorInterface {
-  /*Establish a database connection.*/
+  /* Establish a database connection. */
   connect(config: any[]): Promise<WrappedConnection>;
 }

@@ -12,11 +12,11 @@ import type { Identifier } from './identifier';
 import type { PathExpression } from './path-expression';
 import type { TableName } from './table-name';
 
-
 export class TableReferenceExpression extends SqlNode {
-
-  constructor(public expression: ParenthesizedExpression | TableName | NestedExpression,
-              public alias?: Identifier | PathExpression) {
+  constructor(
+    public expression: ParenthesizedExpression | TableName | NestedExpression,
+    public alias?: Identifier | PathExpression,
+  ) {
     super();
   }
 

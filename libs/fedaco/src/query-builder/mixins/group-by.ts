@@ -27,11 +27,10 @@ export type QueryBuilderGroupByCtor = Constructor<QueryBuilderGroupBy>;
 
 export function mixinGroupBy<T extends Constructor<any>>(base: T): QueryBuilderGroupByCtor & T {
   return class _Self extends base {
-    /*Add a "group by" clause to the query.*/
+    /* Add a "group by" clause to the query. */
     public groupBy(this: QueryBuilder & _Self, ...groups: any[]) {
-
       for (const group of groups) {
-        const newAsts = wrapToArray(group).map(it => {
+        const newAsts = wrapToArray(group).map((it) => {
           if (it instanceof RawExpression) {
             return it;
           }
@@ -43,21 +42,18 @@ export function mixinGroupBy<T extends Constructor<any>>(base: T): QueryBuilderG
       return this;
     }
 
-    /*Add a raw groupBy clause to the query.*/
+    /* Add a raw groupBy clause to the query. */
     public groupByRaw(this: QueryBuilder & _Self, sql: string, bindings: any[] = []) {
       this._groups.push(
         new RawBindingExpression(
           raw(sql),
-          bindings.map(it => {
-            return new BindingVariable(
-              raw(it)
-            );
-          })
-        )
+          bindings.map((it) => {
+            return new BindingVariable(raw(it));
+          }),
+        ),
       );
 
       return this;
     }
-
   };
 }

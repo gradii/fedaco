@@ -8,11 +8,8 @@ import type { ForwardRefFn } from '../../query-builder/forward-ref';
 import { SqlNode } from '../sql-node';
 import type { SqlVisitor } from '../sql-visitor';
 
-
 export class Identifier extends SqlNode {
-  constructor(
-    public name: string | ForwardRefFn<string>
-  ) {
+  constructor(public name: string | ForwardRefFn<string>) {
     super();
   }
 

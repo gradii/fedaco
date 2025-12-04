@@ -7,7 +7,6 @@
 import { SqlNode } from '../sql-node';
 import type { SqlVisitor } from '../sql-visitor';
 
-
 export class SetClause extends SqlNode {
   constructor() {
     super();

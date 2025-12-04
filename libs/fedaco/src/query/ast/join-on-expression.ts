@@ -12,7 +12,7 @@ export class JoinOnExpression extends SqlNode {
   constructor(
     public columnExpression: Expression,
     public operator: any,
-    public rightExpression: Expression
+    public rightExpression: Expression,
   ) {
     super();
   }

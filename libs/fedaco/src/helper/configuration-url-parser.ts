@@ -8,22 +8,22 @@ import { filter } from 'ramda';
 import type { ConnectionConfig } from '../database-config';
 
 export class ConfigurationUrlParser {
-  /*The drivers aliases map.*/
+  /* The drivers aliases map. */
   protected static driverAliases: any = {
-    'mssql'     : 'sqlsrv',
-    'mysql2'    : 'mysql',
-    'postgres'  : 'pgsql',
-    'postgresql': 'pgsql',
-    'sqlite3'   : 'sqlite',
-    'redis'     : 'tcp',
-    'rediss'    : 'tls'
+    mssql     : 'sqlsrv',
+    mysql2    : 'mysql',
+    postgres  : 'pgsql',
+    postgresql: 'pgsql',
+    sqlite3   : 'sqlite',
+    redis     : 'tcp',
+    rediss    : 'tls',
   };
 
-  /*Parse the database configuration, hydrating options using a database configuration URL if possible.*/
+  /* Parse the database configuration, hydrating options using a database configuration URL if possible. */
   public parseConfiguration(config: ConnectionConfig | string) {
     if (isString(config)) {
       config = {
-        'url': config
+        url: config,
       };
     }
     const url = config['url'];
@@ -31,8 +31,8 @@ export class ConfigurationUrlParser {
     if (!url) {
       return config;
     }
-    const rawComponents     = this.parseUrl(url);
-    const data              = {
+    const rawComponents = this.parseUrl(url);
+    const data = {
       hash        : rawComponents.hash,
       host        : rawComponents.host,
       hostname    : rawComponents.hostname,
@@ -51,25 +51,28 @@ export class ConfigurationUrlParser {
     return {
       ...config,
       ...this.getPrimaryOptions(decodedComponents),
-      ...this.getQueryOptions(rawComponents)
+      ...this.getQueryOptions(rawComponents),
     };
   }
 
-  /*Get the primary database connection options.*/
+  /* Get the primary database connection options. */
   protected getPrimaryOptions(url: any) {
-    return filter(value => {
-      return !isBlank(value);
-    }, {
-      'driver'  : this.getDriver(url),
-      'database': this.getDatabase(url),
-      'host'    : url['host'] ?? null,
-      'port'    : !isStringEmpty(url['port']) ? +url['port'] : null,
-      'username': url['username'] ?? null,
-      'password': url['password'] ?? null
-    });
+    return filter(
+      (value) => {
+        return !isBlank(value);
+      },
+      {
+        driver  : this.getDriver(url),
+        database: this.getDatabase(url),
+        host    : url['host'] ?? null,
+        port    : !isStringEmpty(url['port']) ? +url['port'] : null,
+        username: url['username'] ?? null,
+        password: url['password'] ?? null,
+      },
+    );
   }
 
-  /*Get the database driver from the URL.*/
+  /* Get the database driver from the URL. */
   protected getDriver(url: any) {
     const alias = url['protocol'].replace(/:$/, '') ?? null;
     if (!alias) {
@@ -78,13 +81,13 @@ export class ConfigurationUrlParser {
     return ConfigurationUrlParser.driverAliases[alias] ?? alias;
   }
 
-  /*Get the database name from the URL.*/
+  /* Get the database name from the URL. */
   protected getDatabase(url: any) {
     const path = url['pathname'] ?? null;
     return path && path !== '/' ? path.substring(1) : null;
   }
 
-  /*Get all of the additional database options from the query string.*/
+  /* Get all of the additional database options from the query string. */
   protected getQueryOptions(url: any) {
     const queryString = url['searchParams'] ?? null;
     if (!queryString) {
@@ -95,7 +98,7 @@ export class ConfigurationUrlParser {
     return this.parseStringsToNativeTypes(query);
   }
 
-  /*Parse the string URL to an array of components.*/
+  /* Parse the string URL to an array of components. */
   protected parseUrl(url: string): URL {
     url = url.replace(/^(sqlite3?):\/\/\//, '$1://null/');
     try {
@@ -105,10 +108,10 @@ export class ConfigurationUrlParser {
     }
   }
 
-  /*Convert string casted values to their native types.*/
+  /* Convert string casted values to their native types. */
   protected parseStringsToNativeTypes(value: Record<string, string | any>): Record<string, any> | any {
     if (isArray(value)) {
-      return value.map(it => this.parseStringsToNativeTypes(it));
+      return value.map((it) => this.parseStringsToNativeTypes(it));
     }
     if (isObject(value)) {
       for (const [key, val] of Object.entries(value)) {
@@ -125,12 +128,12 @@ export class ConfigurationUrlParser {
     }
   }
 
-  /*Get all of the current drivers' aliases.*/
+  /* Get all of the current drivers' aliases. */
   public static getDriverAliases() {
     return ConfigurationUrlParser.driverAliases;
   }
 
-  /*Add the given driver alias to the driver aliases array.*/
+  /* Add the given driver alias to the driver aliases array. */
   public static addDriverAlias(alias: string, driver: string) {
     ConfigurationUrlParser.driverAliases[alias] = driver;
   }

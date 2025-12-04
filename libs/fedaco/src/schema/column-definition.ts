@@ -7,62 +7,60 @@ import { value } from '../helper/fn';
 import type { SqlNode } from '../query/sql-node';
 
 export type PostgresColumnDefineAttributes = {
-  deferrable?: boolean
-  initiallyImmediate?: boolean
-  isGeometry?: boolean
-  projection?: boolean
+  deferrable?        : boolean;
+  initiallyImmediate?: boolean;
+  isGeometry?        : boolean;
+  projection?        : boolean;
 };
 
 export type ColumnDefineAttributes = {
-  name?: string,
-  after?: string,
-  always?: boolean,
-  algorithm?: string,
-  allowed?: boolean, // sql server
-  autoIncrement?: boolean,
-  change?: boolean,
-  charset?: string,
-  columns?: string[],
-  length?: number,
-  collation?: string,
-  comment?: string,
-  default?: string,
-  double?: boolean,
-  total?: number,
-  places?: number,
-  first?: boolean,
-  generatedAs?: string | SqlNode | boolean,
-  index?: string,
-  nullable?: boolean,
-  persisted?: boolean,
-  primary?: boolean,
-  precision?: boolean,
-  spatialIndex?: boolean,
-  startingValue?: number,
-  storedAs?: string,
-  storedAsJson?: string,
-  virtualAsJson?: string,
-  type?: string,
-  unique?: string,
-  unsigned?: boolean,
-  useCurrent?: boolean,
-  useCurrentOnUpdate?: boolean,
-  virtualAs?: string,
-  from?: string, // rename from
-  to?: string, // rename to
-  expression?: string,
-  srid?: number,
-  renameTo?: string,
-  subtype?: string,
-  language?: string,
-  column?: any,
-  [key: string]: any
+  name?              : string;
+  after?             : string;
+  always?            : boolean;
+  algorithm?         : string;
+  allowed?           : boolean; // sql server
+  autoIncrement?     : boolean;
+  change?            : boolean;
+  charset?           : string;
+  columns?           : string[];
+  length?            : number;
+  collation?         : string;
+  comment?           : string;
+  default?           : string;
+  double?            : boolean;
+  total?             : number;
+  places?            : number;
+  first?             : boolean;
+  generatedAs?       : string | SqlNode | boolean;
+  index?             : string;
+  nullable?          : boolean;
+  persisted?         : boolean;
+  primary?           : boolean;
+  precision?         : boolean;
+  spatialIndex?      : boolean;
+  startingValue?     : number;
+  storedAs?          : string;
+  storedAsJson?      : string;
+  virtualAsJson?     : string;
+  type?              : string;
+  unique?            : string;
+  unsigned?          : boolean;
+  useCurrent?        : boolean;
+  useCurrentOnUpdate?: boolean;
+  virtualAs?         : string;
+  from?              : string; // rename from
+  to?                : string; // rename to
+  expression?        : string;
+  srid?              : number;
+  renameTo?          : string;
+  subtype?           : string;
+  language?          : string;
+  column?            : any;
+  [key: string]      : any;
 } & PostgresColumnDefineAttributes;
 
 export class ColumnDefinition {
-
-  constructor(public attributes: ColumnDefineAttributes = {}) {
-  }
+  constructor(public attributes: ColumnDefineAttributes = {}) {}
 
   /**
    * Get an attribute from the fluent instance.
@@ -274,7 +272,7 @@ export class ColumnDefinition {
     return this.get('column');
   }
 
-  //endregion
+  // endregion
 
   /**
    * Get the attributes from the fluent instance.
@@ -401,7 +399,7 @@ export class ColumnDefinition {
     return this;
   }
 
-  withDouble(val: boolean = true) {
+  withDouble(val = true) {
     this.attributes['double'] = val;
     return this;
   }
@@ -444,7 +442,7 @@ export class ColumnDefinition {
   /**
    * Allow NULL values to be inserted into the column
    */
-  withNullable(val: boolean = true) {
+  withNullable(val = true) {
     this.attributes['nullable'] = val;
     return this;
   }
@@ -597,5 +595,5 @@ export class ColumnDefinition {
     return this;
   }
 
-  //endregion
+  // endregion
 }

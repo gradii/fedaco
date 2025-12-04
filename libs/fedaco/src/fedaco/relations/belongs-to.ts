@@ -11,85 +11,65 @@ import type { Constructor } from '../../helper/constructor';
 import { BaseModel } from '../base-model';
 import type { FedacoBuilder } from '../fedaco-builder';
 import type { Model } from '../model';
-import type {
-  ComparesRelatedModels} from './concerns/compares-related-models';
-import { mixinComparesRelatedModels
-} from './concerns/compares-related-models';
-import type {
-  InteractsWithDictionary} from './concerns/interacts-with-dictionary';
-import { mixinInteractsWithDictionary
-} from './concerns/interacts-with-dictionary';
-import type { SupportsDefaultModels
-} from './concerns/supports-default-models';
-import {
-  mixinSupportsDefaultModels
-} from './concerns/supports-default-models';
+import type { ComparesRelatedModels } from './concerns/compares-related-models';
+import { mixinComparesRelatedModels } from './concerns/compares-related-models';
+import type { InteractsWithDictionary } from './concerns/interacts-with-dictionary';
+import { mixinInteractsWithDictionary } from './concerns/interacts-with-dictionary';
+import type { SupportsDefaultModels } from './concerns/supports-default-models';
+import { mixinSupportsDefaultModels } from './concerns/supports-default-models';
 import { Relation } from './relation';
 
-export interface BelongsTo extends ComparesRelatedModels, InteractsWithDictionary,
-  SupportsDefaultModels, Constructor<Relation> {
-
-  getRelationExistenceQuery(query: FedacoBuilder, parentQuery: FedacoBuilder,
-                            columns: any[] | any): FedacoBuilder;
+export interface BelongsTo
+  extends ComparesRelatedModels, InteractsWithDictionary, SupportsDefaultModels, Constructor<Relation> {
+  getRelationExistenceQuery(query: FedacoBuilder, parentQuery: FedacoBuilder, columns: any[] | any): FedacoBuilder;
 }
 
 export class BelongsTo extends mixinComparesRelatedModels(
-  mixinInteractsWithDictionary(
-    mixinSupportsDefaultModels(
-      Relation
-    )
-  )
+  mixinInteractsWithDictionary(mixinSupportsDefaultModels(Relation)),
 ) {
-  /*The child model instance of the relation.*/
+  /* The child model instance of the relation. */
   protected _child: Model;
-  /*The foreign key of the parent model.*/
+  /* The foreign key of the parent model. */
   protected _foreignKey: string;
-  /*The associated key on the parent model.*/
+  /* The associated key on the parent model. */
   protected _ownerKey: string;
-  /*The name of the relationship.*/
+  /* The name of the relationship. */
   protected _relationName: string;
 
-  /*Create a new belongs to relationship instance.*/
-  public constructor(query: FedacoBuilder,
-                     child: Model,
-                     foreignKey: string,
-                     ownerKey: string,
-                     relationName: string) {
+  /* Create a new belongs to relationship instance. */
+  public constructor(query: FedacoBuilder, child: Model, foreignKey: string, ownerKey: string, relationName: string) {
     super(query, child);
-    this._ownerKey     = ownerKey;
+    this._ownerKey = ownerKey;
     this._relationName = relationName;
-    this._foreignKey   = foreignKey;
-    this._child        = child;
+    this._foreignKey = foreignKey;
+    this._child = child;
     this.addConstraints();
   }
 
-  /*Get the results of the relationship.*/
+  /* Get the results of the relationship. */
   public async getResults() {
     if (isBlank(this._child.GetAttribute(this._foreignKey))) {
       return this._getDefaultFor(this._parent);
     }
-    return await this._query.first() || this._getDefaultFor(this._parent);
+    return (await this._query.first()) || this._getDefaultFor(this._parent);
   }
 
-  /*Set the base constraints on the relation query.*/
+  /* Set the base constraints on the relation query. */
   public addConstraints() {
     if ((this.constructor as typeof BelongsTo).constraints) {
       const table = this._related.GetTable();
-      this._query.where(
-        `${table}.${this._ownerKey}`,
-        '=',
-        this._child.GetAttribute(this._foreignKey));
+      this._query.where(`${table}.${this._ownerKey}`, '=', this._child.GetAttribute(this._foreignKey));
     }
   }
 
-  /*Set the constraints for an eager load of the relation.*/
+  /* Set the constraints for an eager load of the relation. */
   public addEagerConstraints(models: Model[]) {
-    const key     = `${this._related.GetTable()}.${this._ownerKey}`;
+    const key = `${this._related.GetTable()}.${this._ownerKey}`;
     const whereIn = this._whereInMethod(this._related, this._ownerKey);
     this._query[whereIn](key, this.getEagerModelKeys(models));
   }
 
-  /*Gather the keys from an array of related models.*/
+  /* Gather the keys from an array of related models. */
   protected getEagerModelKeys(models: Model[]) {
     const keys = [];
     for (const model of models) {
@@ -102,7 +82,7 @@ export class BelongsTo extends mixinComparesRelatedModels(
     return uniq(keys);
   }
 
-  /*Initialize the relation on a set of models.*/
+  /* Initialize the relation on a set of models. */
   public initRelation(models: Model[], relation: string) {
     for (const model of models) {
       model.SetRelation(relation, this._getDefaultFor(model));
@@ -110,13 +90,13 @@ export class BelongsTo extends mixinComparesRelatedModels(
     return models;
   }
 
-  /*Match the eagerly loaded results to their parents.*/
+  /* Match the eagerly loaded results to their parents. */
   public match(models: Model[], results: Collection, relation: string) {
-    const foreign    = this._foreignKey;
-    const owner      = this._ownerKey;
+    const foreign = this._foreignKey;
+    const owner = this._ownerKey;
     const dictionary: Record<string, any> = {};
     for (const result of results) {
-      const attribute       = this._getDictionaryKey(result.GetAttribute(owner));
+      const attribute = this._getDictionaryKey(result.GetAttribute(owner));
       dictionary[attribute] = result;
     }
     for (const model of models) {
@@ -128,10 +108,9 @@ export class BelongsTo extends mixinComparesRelatedModels(
     return models;
   }
 
-  /*Associate the model instance to the given parent.*/
+  /* Associate the model instance to the given parent. */
   public associate(model: Model | number | string) {
-    const ownerKey = model instanceof BaseModel ?
-      model.GetAttribute(this._ownerKey) : model;
+    const ownerKey = model instanceof BaseModel ? model.GetAttribute(this._ownerKey) : model;
     this._child.SetAttribute(this._foreignKey, ownerKey);
     if (model instanceof BaseModel) {
       this._child.SetRelation(this._relationName, model);
@@ -141,85 +120,90 @@ export class BelongsTo extends mixinComparesRelatedModels(
     return this._child;
   }
 
-  /*Dissociate previously associated model from the given parent.*/
+  /* Dissociate previously associated model from the given parent. */
   public dissociate() {
     this._child.SetAttribute(this._foreignKey, null);
     return this._child.SetRelation(this._relationName, null);
   }
 
-  /*Alias of "dissociate" method.*/
+  /* Alias of "dissociate" method. */
   public disassociate() {
     return this.dissociate();
   }
 
-  /*Add the constraints for a relationship query.*/
-  public getRelationExistenceQuery(query: FedacoBuilder, parentQuery: FedacoBuilder,
-                                   columns: any[] | any = ['*']): FedacoBuilder {
+  /* Add the constraints for a relationship query. */
+  public getRelationExistenceQuery(
+    query: FedacoBuilder,
+    parentQuery: FedacoBuilder,
+    columns: any[] | any = ['*'],
+  ): FedacoBuilder {
     // todo check
     if (parentQuery.getModel().GetTable() == query.getModel().GetTable()) {
       return this.getRelationExistenceQueryForSelfRelation(query, parentQuery, columns);
     }
-    return query.select(columns).whereColumn(
-      this.getQualifiedForeignKeyName(), '=', query.qualifyColumn(this._ownerKey)
-    );
+    return query
+      .select(columns)
+      .whereColumn(this.getQualifiedForeignKeyName(), '=', query.qualifyColumn(this._ownerKey));
   }
 
-  /*Add the constraints for a relationship query on the same table.*/
-  public getRelationExistenceQueryForSelfRelation(query: FedacoBuilder, parentQuery: FedacoBuilder,
-                                                  columns: any[] | any = ['*']): FedacoBuilder {
+  /* Add the constraints for a relationship query on the same table. */
+  public getRelationExistenceQueryForSelfRelation(
+    query: FedacoBuilder,
+    parentQuery: FedacoBuilder,
+    columns: any[] | any = ['*'],
+  ): FedacoBuilder {
     const hash = this.getRelationCountHash();
     query.select(columns).from(query.getModel().GetTable() + ' as ' + hash);
     query.getModel().SetTable(hash);
     return (query as FedacoBuilder).whereColumn(`${hash}.${this._ownerKey}`, '=', this.getQualifiedForeignKeyName());
   }
 
-  /*Determine if the related model has an auto-incrementing ID.*/
+  /* Determine if the related model has an auto-incrementing ID. */
   protected relationHasIncrementingId() {
-    return this._related.GetIncrementing() && ['int', 'integer'].includes(
-      this._related.GetKeyType());
+    return this._related.GetIncrementing() && ['int', 'integer'].includes(this._related.GetKeyType());
   }
 
-  /*Make a new related instance for the given model.*/
+  /* Make a new related instance for the given model. */
   protected newRelatedInstanceFor(parent: Model) {
     return this._related.NewInstance();
   }
 
-  /*Get the child of the relationship.*/
+  /* Get the child of the relationship. */
   public getChild() {
     return this._child;
   }
 
-  /*Get the foreign key of the relationship.*/
+  /* Get the foreign key of the relationship. */
   public getForeignKeyName() {
     return this._foreignKey;
   }
 
-  /*Get the fully qualified foreign key of the relationship.*/
+  /* Get the fully qualified foreign key of the relationship. */
   public getQualifiedForeignKeyName() {
     return this._child.QualifyColumn(this._foreignKey);
   }
 
-  /*Get the key value of the child's foreign key.*/
+  /* Get the key value of the child's foreign key. */
   public getParentKey() {
     return this._child[this._foreignKey];
   }
 
-  /*Get the associated key of the relationship.*/
+  /* Get the associated key of the relationship. */
   public getOwnerKeyName() {
     return this._ownerKey;
   }
 
-  /*Get the fully qualified associated key of the relationship.*/
+  /* Get the fully qualified associated key of the relationship. */
   public getQualifiedOwnerKeyName() {
     return this._related.QualifyColumn(this._ownerKey);
   }
 
-  /*Get the value of the model's associated key.*/
+  /* Get the value of the model's associated key. */
   _getRelatedKeyFrom(model: Model) {
     return model[this._ownerKey];
   }
 
-  /*Get the name of the relationship.*/
+  /* Get the name of the relationship. */
   public getRelationName() {
     return this._relationName;
   }

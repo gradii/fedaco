@@ -12,9 +12,7 @@ import type { SqlVisitor } from '../sql-visitor';
  */
 
 export class IndexBy extends SqlNode {
-  public constructor(
-    public simpleStateFieldPathExpression: SqlNode/*: PathExpression*/ = null
-  ) {
+  public constructor(public simpleStateFieldPathExpression: SqlNode /* : PathExpression */ = null) {
     super();
   }
 

@@ -88,7 +88,7 @@ describe('test database fedaco belongs to many chunk by id', () => {
     await user.NewRelation('articles').chunkById(1).pipe(
       tap(({results: collection}: { results: any[] }) => {
         i++;
-        //must be string!
+        // must be string!
         expect(head(collection).aid).toBe(`${i}`);
       })
     ).toPromise();

@@ -4,16 +4,14 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isAnyEmpty, isArray, isBlank, isString } from '@gradii/nanofn';
+import { isAnyEmpty, isArray, isString } from '@gradii/nanofn';
 import { BaseGrammar } from '../../base-grammar';
-import { camelCase } from '@gradii/nanofn';
 import { AssignmentSetClause } from '../../query/ast/assignment-set-clause';
 import { BinaryUnionQueryExpression } from '../../query/ast/binary-union-query-expression';
 import { DeleteSpecification } from '../../query/ast/delete-specification';
 import { ConditionExpression } from '../../query/ast/expression/condition-expression';
 import { FunctionCallExpression } from '../../query/ast/expression/function-call-expression';
 import { ParenthesizedExpression } from '../../query/ast/expression/parenthesized-expression';
-import { AggregateFunctionCallFragment } from '../../query/ast/fragment/aggregate-function-call-fragment';
 import { NestedExpression } from '../../query/ast/fragment/nested-expression';
 import { FromClause } from '../../query/ast/from-clause';
 import { FromTable } from '../../query/ast/from-table';
@@ -38,7 +36,7 @@ import { WhereClause } from '../../query/ast/where-clause';
 import { SqlParser } from '../../query/parser/sql-parser';
 import type { SqlNode } from '../../query/sql-node';
 import type { SqlVisitor } from '../../query/sql-visitor';
-import { bindingVariable, createColumnReferenceExpression, createIdentifier, raw } from '../ast-factory';
+import { bindingVariable, createColumnReferenceExpression, createIdentifier } from '../ast-factory';
 import type { Builder } from '../builder';
 import type { GrammarInterface } from '../grammar.interface';
 import type { JoinClauseBuilder, QueryBuilder } from '../query-builder';
@@ -64,27 +62,20 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
   ];
 
   protected _prepareUpdateAst(builder: QueryBuilder, values: any) {
-
     const columnNodes = [];
     for (const [key, value] of Object.entries(values)) {
       const columnNode = SqlParser.createSqlParser(key).parseColumnWithoutAlias(builder._from);
-      columnNodes.push(new AssignmentSetClause(
-        columnNode,
-        bindingVariable(value as any, 'update')
-      ));
+      columnNodes.push(new AssignmentSetClause(columnNode, bindingVariable(value as any, 'update')));
     }
 
     const ast = new UpdateSpecification(
       builder._from,
       columnNodes,
-      builder._wheres.length > 0 ? new WhereClause(
-        new ConditionExpression(builder._wheres)
-      ) : undefined
+      builder._wheres.length > 0 ? new WhereClause(new ConditionExpression(builder._wheres)) : undefined,
     );
 
     if (builder._joins.length > 0) {
-      (ast as UpdateSpecification).fromClause = new FromClause(builder._from,
-        builder._joins as JoinedTable[]);
+      (ast as UpdateSpecification).fromClause = new FromClause(builder._from, builder._joins as JoinedTable[]);
     }
 
     if (builder._limit >= 0) {
@@ -96,21 +87,17 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     }
 
     if (builder._orders.length > 0) {
-      (ast as UpdateSpecification).orderByClause = new OrderByClause(
-        builder._orders as OrderByElement[]
-      );
+      (ast as UpdateSpecification).orderByClause = new OrderByClause(builder._orders as OrderByElement[]);
     }
 
     return ast;
   }
 
-  stepAggregateFragment(aggregateFunctionName: any,
-                        aggregateColumns: any,
-                        visitor: SqlVisitor) {
+  stepAggregateFragment(aggregateFunctionName: any, aggregateColumns: any, visitor: SqlVisitor) {
     return ``;
   }
 
-  /*Compile a delete statement into SQL.*/
+  /* Compile a delete statement into SQL. */
   public compileDelete(query: QueryBuilder, ctx: any = {}) {
     let ast;
     if (query._joins.length > 0) {
@@ -150,13 +137,13 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
       new ValuesInsertSource(
         false,
         sources.map((columnValues: any[]) => {
-          return columnValues.map(it => bindingVariable(it, 'insert'));
-        })
+          return columnValues.map((it) => bindingVariable(it, 'insert'));
+        }),
       ),
-      keys.map(it => {
+      keys.map((it) => {
         return SqlParser.createSqlParser(it).parseColumnAlias();
       }),
-      builder._from
+      builder._from,
     );
 
     return ast.accept(visitor);
@@ -170,20 +157,20 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     return this.compileInsert(builder, values, 'ignore into', ctx);
   }
 
-  compileInsertUsing(builder: QueryBuilder, columns: string[],
-                     nestedExpression: NestedExpression, ctx: any = {}): string {
-    const ast     = new InsertSpecification(
+  compileInsertUsing(
+    builder: QueryBuilder,
+    columns: string[],
+    nestedExpression: NestedExpression,
+    ctx: any = {},
+  ): string {
+    const ast = new InsertSpecification(
       'into',
 
-      new ValuesInsertSource(
-        false,
-        [],
-        nestedExpression
-      ),
+      new ValuesInsertSource(false, [], nestedExpression),
       columns.map((it: string) => {
         return SqlParser.createSqlParser(it).parseColumnAlias();
       }),
-      builder._from
+      builder._from,
     );
     const visitor = this._createVisitor(builder, ctx);
 
@@ -194,9 +181,7 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     let whereClause: ConditionExpression;
     if (builder._wheres.length > 0) {
       // todo check
-      whereClause = new ConditionExpression(
-        builder._wheres
-      );
+      whereClause = new ConditionExpression(builder._wheres);
     }
     let table;
     if (isString(builder.table)) {
@@ -211,21 +196,13 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
       table = new JoinedTable(table, builder._joins as JoinExpression[]);
     }
 
-    const ast = new JoinExpression(
-      builder.type,
-      table,
-      whereClause
-    );
+    const ast = new JoinExpression(builder.type, table, whereClause);
 
     return ast.accept(visitor);
   }
 
   stepNestedPredicate(builder: Builder, visitor: SqlVisitor): string {
-    const ast = new ParenthesizedExpression(
-      new ConditionExpression(
-        builder._wheres
-      )
-    );
+    const ast = new ParenthesizedExpression(new ConditionExpression(builder._wheres));
     return ast.accept(visitor);
   }
 
@@ -292,19 +269,18 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     // foreach (This->selectComponents as Component) {
     // if (isset(Query->Component)) {
     // Method = 'compile'.ucfirst(Component);
-//
-//   Sql[Component] = This->Method(Query, Query->Component);
-// }
-// }
+    //
+    //   Sql[Component] = This->Method(Query, Query->Component);
+    // }
+    // }
 
-// return Sql;
+    // return Sql;
     return '';
   }
 
   compileTruncate(builder: QueryBuilder, ctx: any = {}): { [sql: string]: any[] } {
     return {
-      [`TRUNCATE TABLE ${builder._from.accept(
-        this._createVisitor(builder, ctx))}`]: builder.getBindings()
+      [`TRUNCATE TABLE ${builder._from.accept(this._createVisitor(builder, ctx))}`]: builder.getBindings(),
     };
   }
 
@@ -316,8 +292,7 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     return ast.accept(visitor);
   }
 
-  compileUpsert(builder: Builder, values: any, uniqueBy: any[] | string,
-                update: any[] | null, ctx: any = {}): string {
+  compileUpsert(builder: Builder, values: any, uniqueBy: any[] | string, update: any[] | null, ctx: any = {}): string {
     throw new Error('RuntimeException This database engine does not support upserts.');
   }
 
@@ -385,25 +360,17 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     if (builder._unions.length > 0) {
       if (builder._aggregate) {
         ast = new QuerySpecification(
-          new SelectClause(
-            [
-              new SelectScalarExpression(
-                new FunctionCallExpression(
-                  builder._aggregate.aggregateFunctionName,
-                  builder._aggregate.aggregateColumns
-                ),
-                createIdentifier('aggregate')
-              )
-            ]
-          ),
+          new SelectClause([
+            new SelectScalarExpression(
+              new FunctionCallExpression(builder._aggregate.aggregateFunctionName, builder._aggregate.aggregateColumns),
+              createIdentifier('aggregate'),
+            ),
+          ]),
           new FromClause(
             new FromTable(
-              new TableReferenceExpression(
-                new ParenthesizedExpression(ast),
-                createIdentifier('temp_table')
-              )
-            )
-          )
+              new TableReferenceExpression(new ParenthesizedExpression(ast), createIdentifier('temp_table')),
+            ),
+          ),
         );
       }
     }
@@ -414,37 +381,25 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
   protected _prepareSelectAst(builder: QueryBuilder) {
     let whereClause, selectClause;
     if (builder._wheres.length > 0) {
-      whereClause = new WhereClause(
-        new ConditionExpression(
-          builder._wheres
-        )
-      );
+      whereClause = new WhereClause(new ConditionExpression(builder._wheres));
     }
 
     if (builder._aggregate && builder._unions.length === 0) {
-      builder._aggregate.distinct = isArray(builder._distinct) ?
-        builder._distinct.map(it => createColumnReferenceExpression(it)) :
-        builder._distinct;
-      selectClause                = new SelectClause(
-        [
-          new SelectScalarExpression(
-            builder._aggregate,
-            createIdentifier('aggregate')
-          )
-        ],
-        false
+      builder._aggregate.distinct = isArray(builder._distinct)
+        ? builder._distinct.map((it) => createColumnReferenceExpression(it))
+        : builder._distinct;
+      selectClause = new SelectClause(
+        [new SelectScalarExpression(builder._aggregate, createIdentifier('aggregate'))],
+        false,
       );
     } else {
-      selectClause = new SelectClause(
-        builder._columns,
-        builder._distinct
-      );
+      selectClause = new SelectClause(builder._columns, builder._distinct);
     }
 
     let ast: QuerySpecification | BinaryUnionQueryExpression = new QuerySpecification(
       selectClause,
       builder._from ? new FromClause(builder._from, builder._joins as JoinedTable[]) : undefined,
-      whereClause
+      whereClause,
     );
 
     if (builder._limit >= 0) {
@@ -456,27 +411,19 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     }
 
     if (builder._orders.length > 0) {
-      (ast as QueryExpression).orderByClause = new OrderByClause(
-        builder._orders as OrderByElement[]
-      );
+      (ast as QueryExpression).orderByClause = new OrderByClause(builder._orders as OrderByElement[]);
     }
 
     if (builder._groups.length > 0) {
-      (ast as QuerySpecification).groupByClause = new GroupByClause(
-        builder._groups
-      );
+      (ast as QuerySpecification).groupByClause = new GroupByClause(builder._groups);
     }
 
     if (builder._havings.length > 0) {
-      (ast as QuerySpecification).havingClause = new HavingClause(
-        builder._havings
-      );
+      (ast as QuerySpecification).havingClause = new HavingClause(builder._havings);
     }
 
     if (builder._lock !== undefined) {
-      (ast as QuerySpecification).lockClause = new LockClause(
-        builder._lock
-      );
+      (ast as QuerySpecification).lockClause = new LockClause(builder._lock);
     }
 
     if (builder._unions.length > 0) {
@@ -496,9 +443,7 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
       }
 
       if (builder._unionOrders.length > 0) {
-        (ast as BinaryUnionQueryExpression).orderByClause = new OrderByClause(
-          builder._unionOrders as OrderByElement[]
-        );
+        (ast as BinaryUnionQueryExpression).orderByClause = new OrderByClause(builder._unionOrders as OrderByElement[]);
       }
     }
 
@@ -512,23 +457,20 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     return new QueryBuilderVisitor(queryBuilder._grammar, queryBuilder, ctx);
   }
 
-  /*Compile a delete statement without joins into SQL.*/
+  /* Compile a delete statement without joins into SQL. */
   protected _prepareDeleteAstWithoutJoins(builder: QueryBuilder) {
     return this._prepareDeleteAstWithJoins(builder);
   }
 
-  /*Compile a delete statement with joins into SQL.*/
+  /* Compile a delete statement with joins into SQL. */
   protected _prepareDeleteAstWithJoins(builder: QueryBuilder) {
     const ast = new DeleteSpecification(
       builder._from,
-      builder._wheres.length > 0 ? new WhereClause(
-        new ConditionExpression(builder._wheres)
-      ) : undefined
+      builder._wheres.length > 0 ? new WhereClause(new ConditionExpression(builder._wheres)) : undefined,
     );
 
     if (builder._joins.length > 0) {
-      (ast as DeleteSpecification).fromClause = new FromClause(builder._from,
-        builder._joins as JoinedTable[]);
+      (ast as DeleteSpecification).fromClause = new FromClause(builder._from, builder._joins as JoinedTable[]);
     }
 
     if (builder._limit >= 0) {
@@ -540,9 +482,7 @@ export abstract class QueryGrammar extends BaseGrammar implements GrammarInterfa
     }
 
     if (builder._orders.length > 0) {
-      (ast as DeleteSpecification).orderByClause = new OrderByClause(
-        builder._orders as OrderByElement[]
-      );
+      (ast as DeleteSpecification).orderByClause = new OrderByClause(builder._orders as OrderByElement[]);
     }
 
     return ast;

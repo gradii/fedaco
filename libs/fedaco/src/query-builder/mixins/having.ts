@@ -21,8 +21,12 @@ export interface QueryBuilderHaving {
 
   having(column: string, value?: string | number | boolean | RawExpression): this;
 
-  having(column: string, operator?: string, value?: string | number | boolean | RawExpression,
-         conjunction?: string): this;
+  having(
+    column: string,
+    operator?: string,
+    value?: string | number | boolean | RawExpression,
+    conjunction?: string,
+  ): this;
 
   havingBetween(column: string, values: any[], conjunction?: string, not?: boolean): this;
 
@@ -32,8 +36,7 @@ export interface QueryBuilderHaving {
 
   orHaving(column: string, value?: string | number | boolean | RawExpression): this;
 
-  orHaving(column: string, operator?: string,
-           value?: string | number | boolean | RawExpression): this;
+  orHaving(column: string, operator?: string, value?: string | number | boolean | RawExpression): this;
 
   orHavingRaw(sql: string): this;
 
@@ -46,18 +49,11 @@ export type QueryBuilderHavingCtor = Constructor<QueryBuilderHaving>;
 
 export function mixinHaving<T extends Constructor<any>>(base: T): QueryBuilderHavingCtor & T {
   return class _Self extends base {
-    addHaving(this: QueryBuilder & _Self, where: SqlNode,
-              conjunction: 'and' | 'or' | 'andX' | 'orX') {
+    addHaving(this: QueryBuilder & _Self, where: SqlNode, conjunction: 'and' | 'or' | 'andX' | 'orX') {
       if (this._havings.length > 0) {
         if (conjunction === 'and' || conjunction === 'or') {
           const left = this._havings.pop();
-          this._havings.push(
-            new BinaryExpression(
-              left,
-              conjunction,
-              where
-            )
-          );
+          this._havings.push(new BinaryExpression(left, conjunction, where));
         } else if (conjunction === 'andX' || conjunction === 'orX') {
           throw new Error('not implement');
         } else {
@@ -68,79 +64,63 @@ export function mixinHaving<T extends Constructor<any>>(base: T): QueryBuilderHa
       }
     }
 
-    /*Add a "having" clause to the query.*/
-    public having(this: QueryBuilder & _Self, column: string, operator?: string, value?: string,
-                  conjunction: string = 'and') {
+    /* Add a "having" clause to the query. */
+    public having(this: QueryBuilder & _Self, column: string, operator?: string, value?: string, conjunction = 'and') {
       [value, operator] = this._prepareValueAndOperator(value, operator, arguments.length === 2);
       if (this._invalidOperator(operator)) {
         [value, operator] = [operator, '='];
       }
       // this._havings.push(compact('type', 'column', 'operator', 'value', 'boolean'));
 
-      const leftNode  = SqlParser.createSqlParser(column).parseColumnAlias();
-      const rightNode = ((value as Object) instanceof RawExpression) ?
-        // @ts-ignore
-        (value as RawExpression) :
-        new BindingVariable(raw(value), 'having');
+      const leftNode = SqlParser.createSqlParser(column).parseColumnAlias();
+      const rightNode =
+        (value as unknown) instanceof RawExpression
+          ? // @ts-ignore
+            (value as RawExpression)
+          : new BindingVariable(raw(value), 'having');
       this.addHaving(
         // new ConditionFactorExpression(),
-        new ComparisonPredicateExpression(
-          leftNode,
-          operator,
-          rightNode
-        ),
-        conjunction
+        new ComparisonPredicateExpression(leftNode, operator, rightNode),
+        conjunction,
       );
 
       return this;
     }
 
-    /*Add a "having between " clause to the query.*/
-    public havingBetween(this: QueryBuilder & _Self, column: string, values: any[],
-                         conjunction: string = 'and', not: boolean = false) {
-      const expression    = SqlParser.createSqlParser(column).parseColumnAlias();
+    /* Add a "having between " clause to the query. */
+    public havingBetween(this: QueryBuilder & _Self, column: string, values: any[], conjunction = 'and', not = false) {
+      const expression = SqlParser.createSqlParser(column).parseColumnAlias();
       const [left, right] = values;
 
       let leftBetween, rightBetween;
-      leftBetween  = left instanceof RawExpression ?
-        left :
-        new BindingVariable(raw(left), 'having');
-      rightBetween = right instanceof RawExpression ?
-        right :
-        new BindingVariable(raw(right), 'having');
-      this.addHaving(
-        new BetweenPredicateExpression(
-          expression,
-          leftBetween,
-          rightBetween,
-          not
-        ),
-        conjunction
-      );
+      leftBetween = left instanceof RawExpression ? left : new BindingVariable(raw(left), 'having');
+      rightBetween = right instanceof RawExpression ? right : new BindingVariable(raw(right), 'having');
+      this.addHaving(new BetweenPredicateExpression(expression, leftBetween, rightBetween, not), conjunction);
 
       return this;
     }
 
-    /*Add a raw having clause to the query.*/
-    public havingRaw(this: QueryBuilder & _Self, sql: string, bindings: any[] = [],
-                     conjunction: string = 'and') {
+    /* Add a raw having clause to the query. */
+    public havingRaw(this: QueryBuilder & _Self, sql: string, bindings: any[] = [], conjunction = 'and') {
       this.addHaving(
         // new HavingClause(
-        new RawBindingExpression(raw(sql),
-          bindings.map(it => new BindingVariable(raw(it), 'having'))),
-        conjunction
+        new RawBindingExpression(
+          raw(sql),
+          bindings.map((it) => new BindingVariable(raw(it), 'having')),
+        ),
+        conjunction,
         // )
       );
       return this;
     }
 
-    /*Add a "or having" clause to the query.*/
+    /* Add a "or having" clause to the query. */
     public orHaving(this: QueryBuilder & _Self, column: string, operator?: string, value?: string) {
       [value, operator] = this._prepareValueAndOperator(value, operator, arguments.length === 2);
       return this.having(column, operator, value, 'or');
     }
 
-    /*Add a raw or having clause to the query.*/
+    /* Add a raw or having clause to the query. */
     public orHavingRaw(this: QueryBuilder & _Self, sql: string, bindings: any[] = []) {
       return this.havingRaw(sql, bindings, 'or');
     }

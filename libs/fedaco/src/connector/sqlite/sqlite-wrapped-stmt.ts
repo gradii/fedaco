@@ -13,8 +13,7 @@ export class SqliteWrappedStmt implements WrappedStmt {
   _lastInsertId: number;
   _affectRows: number;
 
-  constructor(public driverStmt: Statement) {
-  }
+  constructor(public driverStmt: Statement) {}
 
   bindValues(bindings: any[]) {
     this._bindingValues = bindings;
@@ -27,14 +26,13 @@ export class SqliteWrappedStmt implements WrappedStmt {
 
     return new Promise((ok, fail) => {
       this.driverStmt
-        .run(...(bindings ?? this._bindingValues),
-          function (this: RunResult, err: string) {
-            if (err) {
-              return fail(err);
-            }
-            _self._lastInsertId = this.lastID;
-            _self._affectRows   = this.changes;
-          })
+        .run(...(bindings ?? this._bindingValues), function (this: RunResult, err: string) {
+          if (err) {
+            return fail(err);
+          }
+          _self._lastInsertId = this.lastID;
+          _self._affectRows = this.changes;
+        })
         .finalize((err) => {
           if (err) {
             return fail(err);
@@ -46,15 +44,13 @@ export class SqliteWrappedStmt implements WrappedStmt {
 
   async fetchAll(bindings?: any[]) {
     return new Promise((ok, fail) => {
-      this.driverStmt.all(bindings ?? this._bindingValues,
-        function (this: RunResult, err: string, rows) {
-          if (err) {
-            return fail(err);
-          }
-          ok(rows);
-        });
-      this.driverStmt.finalize((err) => {
+      this.driverStmt.all(bindings ?? this._bindingValues, function (this: RunResult, err: string, rows) {
+        if (err) {
+          return fail(err);
+        }
+        ok(rows);
       });
+      this.driverStmt.finalize((err) => {});
     });
   }
 

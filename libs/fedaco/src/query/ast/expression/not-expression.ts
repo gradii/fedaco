@@ -5,13 +5,10 @@
  */
 
 import type { SqlVisitor } from '../../sql-visitor';
-import { Identifier } from '../identifier';
 import { Expression } from './expression';
 
 export class NotExpression extends Expression {
-  constructor(
-    public expression: Expression
-  ) {
+  constructor(public expression: Expression) {
     super();
   }
 

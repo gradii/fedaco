@@ -8,7 +8,6 @@ import type { SqlNode } from '../../sql-node';
 import type { SqlVisitor } from '../../sql-visitor';
 import { Expression } from './expression';
 
-
 export class ComparisonPredicateExpression extends Expression {
   constructor(
     public left: SqlNode,

@@ -58,7 +58,6 @@ export function get(target: any[] | any, key?: string | number, defaultValue?: a
 //   return true;
 // }
 
-
 function _assocPath(obj: any, path: string[], val: any) {
   if (path.length === 0) {
     return val;
@@ -67,9 +66,7 @@ function _assocPath(obj: any, path: string[], val: any) {
   const idx = path[0];
 
   if (path.length > 1) {
-    const nextObj = !isBlank(obj) && has(obj, idx) ?
-      obj[idx] :
-      isNumber(path[1]) ? [] : {};
+    const nextObj = !isBlank(obj) && has(obj, idx) ? obj[idx] : isNumber(path[1]) ? [] : {};
 
     val = _assocPath(nextObj, Array.prototype.slice.call(path, 1), val);
   }
@@ -85,9 +82,7 @@ function _disAssocPath(obj: any, path: string[]) {
   const idx = path[0];
 
   if (path.length > 1) {
-    const nextObj = !isBlank(obj) && has(obj, idx) ?
-      obj[idx] :
-      isNumber(path[1]) ? [] : {};
+    const nextObj = !isBlank(obj) && has(obj, idx) ? obj[idx] : isNumber(path[1]) ? [] : {};
 
     _disAssocPath(nextObj, Array.prototype.slice.call(path, 1));
   }
@@ -95,7 +90,6 @@ function _disAssocPath(obj: any, path: string[]) {
   delete obj[idx];
   return obj;
 }
-
 
 export function set(target: any, key: string, data: any) {
   return _assocPath(target, key.split('.'), data);

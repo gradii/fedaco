@@ -14,8 +14,10 @@ export class MysqlWrappedStmt implements WrappedStmt {
   _lastInsertId: number;
   _affectRows: number;
 
-  constructor(public driverConnection: Connection, public sqlStmt: string) {
-  }
+  constructor(
+    public driverConnection: Connection,
+    public sqlStmt: string,
+  ) {}
 
   bindValues(bindings: any[]) {
     this._bindingValues = bindings;
@@ -39,7 +41,7 @@ export class MysqlWrappedStmt implements WrappedStmt {
           } else {
             // this._affectRows = isArray(fields) ? fields.length : fields;
           }
-        }
+        },
       );
     });
   }
@@ -54,7 +56,7 @@ export class MysqlWrappedStmt implements WrappedStmt {
             return fail(err);
           }
           ok(result);
-        }
+        },
       );
     });
   }
@@ -69,8 +71,7 @@ export class MysqlWrappedStmt implements WrappedStmt {
     return this._affectRows;
   }
 
-  close() {
-  }
+  close() {}
 
   bindValue(): this {
     return undefined;

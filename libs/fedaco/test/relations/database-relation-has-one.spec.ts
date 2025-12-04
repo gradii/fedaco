@@ -33,31 +33,30 @@ function getRelation() {
 }
 
 describe('test database fedaco has one', () => {
-
   it('has one with default', async () => {
     const relation = getRelation().withDefault();
-    const spy1     = jest.spyOn(builder, 'first').mockReturnValue(null);
+    const spy1 = jest.spyOn(builder, 'first').mockReturnValue(null);
     const newModel = new EloquentHasOneModelStub();
-    const spy2     = jest.spyOn(related, 'NewInstance').mockReturnValue(newModel);
+    const spy2 = jest.spyOn(related, 'NewInstance').mockReturnValue(newModel);
     expect(await relation.getResults()).toEqual(newModel);
     expect(newModel.GetAttribute('foreign_key')).toEqual(1);
 
-    expect(spy1).toBeCalled();
-    expect(spy2).toBeCalled();
+    expect(spy1).toHaveBeenCalled();
+    expect(spy2).toHaveBeenCalled();
   });
 
   it('has one with dynamic default', async () => {
     const relation = getRelation().withDefault((newModel: Model) => {
       newModel.username = 'taylor';
     });
-    const spy1     = jest.spyOn(builder, 'first').mockReturnValue(null);
+    const spy1 = jest.spyOn(builder, 'first').mockReturnValue(null);
     const newModel = new EloquentHasOneModelStub();
-    const spy2     = jest.spyOn(related, 'NewInstance').mockReturnValue(newModel);
+    const spy2 = jest.spyOn(related, 'NewInstance').mockReturnValue(newModel);
     expect(await relation.getResults()).toEqual(newModel);
     expect(newModel.username).toBe('taylor');
     expect(newModel.GetAttribute('foreign_key')).toEqual(1);
-    expect(spy1).toBeCalled();
-    expect(spy2).toBeCalled();
+    expect(spy1).toHaveBeenCalled();
+    expect(spy2).toHaveBeenCalled();
   });
 
   it('has one with dynamic default use parent model', async () => {
@@ -76,9 +75,9 @@ describe('test database fedaco has one', () => {
 
   it('has one with array default', async () => {
     const attributes = {
-      'username': 'taylor'
+      username: 'taylor',
     };
-    const relation   = getRelation().withDefault(attributes);
+    const relation = getRelation().withDefault(attributes);
     // builder.shouldReceive('first').once().andReturnNull();
     jest.spyOn(builder, 'first').mockReturnValue(null);
     const newModel = new EloquentHasOneModelStub();
@@ -91,33 +90,35 @@ describe('test database fedaco has one', () => {
   it('make method does not save new model', () => {
     const relation = getRelation();
     const instance = new Model();
-    const spy1     = jest.spyOn(relation.getRelated(), 'NewInstance').mockReturnValue(instance);
+    const spy1 = jest.spyOn(relation.getRelated(), 'NewInstance').mockReturnValue(instance);
     // relation.getRelated().shouldReceive('newInstance')._with({
     //   'name': 'taylor'
     // }).andReturn(instance);
     // instance.expects(this.once()).method('setAttribute')._with('foreign_key', 1);
     // instance.expects(this.never()).method('save');
-    expect(relation.make({
-      'name': 'taylor'
-    })).toEqual(instance);
+    expect(
+      relation.make({
+        name: 'taylor',
+      })
+    ).toEqual(instance);
 
-    expect(spy1).toBeCalledWith({'name': 'taylor'});
+    expect(spy1).toHaveBeenCalledWith({ name: 'taylor' });
   });
 
   it('save method sets foreign key on model', async () => {
-    const relation  = getRelation();
+    const relation = getRelation();
     const mockModel = new Model();
     // mockModel.expects(this.once()).method('save').willReturn(true);
     jest.spyOn(mockModel, 'Save').mockReturnValue(Promise.resolve(true));
     // @ts-ignore
     const result: Model = await relation.save(mockModel);
-    const attributes    = result.GetAttributes();
+    const attributes = result.GetAttributes();
     expect(attributes['foreign_key']).toEqual(1);
   });
 
   it('create method properly creates new model', async () => {
     const relation = getRelation();
-    const created  = new Model();
+    const created = new Model();
     jest.spyOn(created, 'Save').mockReturnValue(Promise.resolve(true));
     // created.expects(this.once()).method('save').willReturn(true);
     // relation.getRelated().shouldReceive('newInstance').once()._with({
@@ -125,55 +126,57 @@ describe('test database fedaco has one', () => {
     // }).andReturn(created);
     jest.spyOn(relation.getRelated(), 'NewInstance').mockReturnValue(created);
     // created.expects(this.once()).method('setAttribute')._with('foreign_key', 1);
-    expect(await relation.create({
-      'name': 'taylor'
-    })).toEqual(created);
+    expect(
+      await relation.create({
+        name: 'taylor',
+      })
+    ).toEqual(created);
   });
 
   it('relation is properly initialized', () => {
     const relation = getRelation();
-    const model    = new Model();
-    const spy1     = jest.spyOn(model, 'SetRelation');
-    const models   = relation.initRelation([model], 'foo');
+    const model = new Model();
+    const spy1 = jest.spyOn(model, 'SetRelation');
+    const models = relation.initRelation([model], 'foo');
     expect(models).toEqual([model]);
 
-    expect(spy1).toBeCalledWith('foo', null);
+    expect(spy1).toHaveBeenCalledWith('foo', null);
   });
 
   it('eager constraints are properly added', () => {
     const relation = getRelation();
-    const spy1     = jest.spyOn(relation.getParent(), 'GetKeyName').mockReturnValue('id');
-    const spy2     = jest.spyOn(relation.getParent(), 'GetKeyType').mockReturnValue('int');
-    const spy3     = jest.spyOn(relation.getQuery(), 'whereIntegerInRaw');
+    const spy1 = jest.spyOn(relation.getParent(), 'GetKeyName').mockReturnValue('id');
+    const spy2 = jest.spyOn(relation.getParent(), 'GetKeyType').mockReturnValue('int');
+    const spy3 = jest.spyOn(relation.getQuery(), 'whereIntegerInRaw');
 
     // relation.getParent().shouldReceive('getKeyName').once().andReturn('id');
     // relation.getParent().shouldReceive('getKeyType').once().andReturn('int');
     // relation.getQuery().shouldReceive('whereIntegerInRaw').once()._with('table.foreign_key', [1, 2]);
 
     const model1 = new EloquentHasOneModelStub();
-    model1.id    = 1;
+    model1.id = 1;
     const model2 = new EloquentHasOneModelStub();
-    model2.id    = 2;
+    model2.id = 2;
     relation.addEagerConstraints([model1, model2]);
 
-    expect(spy1).toBeCalled();
-    expect(spy2).toBeCalled();
-    expect(spy3).toBeCalledWith('_table.foreign_key', [1, 2]);
+    expect(spy1).toHaveBeenCalled();
+    expect(spy2).toHaveBeenCalled();
+    expect(spy3).toHaveBeenCalledWith('_table.foreign_key', [1, 2]);
   });
 
   it('models are properly matched to parents', () => {
-    const relation      = getRelation();
-    const result1       = new EloquentHasOneModelStub();
+    const relation = getRelation();
+    const result1 = new EloquentHasOneModelStub();
     result1.foreign_key = 1;
-    const result2       = new EloquentHasOneModelStub();
+    const result2 = new EloquentHasOneModelStub();
     result2.foreign_key = 2;
-    const model1        = new EloquentHasOneModelStub();
-    model1.id           = 1;
-    const model2        = new EloquentHasOneModelStub();
-    model2.id           = 2;
-    const model3        = new EloquentHasOneModelStub();
-    model3.id           = 3;
-    const models        = relation.match([model1, model2, model3], [result1, result2], 'foo');
+    const model1 = new EloquentHasOneModelStub();
+    model1.id = 1;
+    const model2 = new EloquentHasOneModelStub();
+    model2.id = 2;
+    const model3 = new EloquentHasOneModelStub();
+    model3.id = 3;
+    const models = relation.match([model1, model2, model3], [result1, result2], 'foo');
     expect(models[0].GetRelation('foo').foreign_key).toEqual(1);
     expect(models[1].GetRelation('foo').foreign_key).toEqual(2);
     expect(models[2].GetRelation('foo')).toBeUndefined();

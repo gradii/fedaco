@@ -10,7 +10,7 @@ import { Processor } from '../processor';
 import type { QueryBuilder } from '../query-builder';
 
 export class SqlServerProcessor extends Processor {
-  /*Process an "insert get ID" query.*/
+  /* Process an "insert get ID" query. */
   public async processInsertGetId(query: QueryBuilder, sql: string, values: any[],
                                   sequence: string | null = null) {
     const connection = query.getConnection() as Connection;
@@ -21,10 +21,10 @@ export class SqlServerProcessor extends Processor {
     } else {
       // id = await connection.getPdo().lastInsertId();
     }
-    return isNumber(id) ? /*cast type int*/ id : id;
+    return isNumber(id) ? /* cast type int */ id : id;
   }
 
-  /*Process an "insert get ID" query for ODBC.*/
+  /* Process an "insert get ID" query for ODBC. */
   protected async processInsertGetIdForOdbc(connection: Connection) {
     const result = await connection.selectFromWriteConnection(
       'SELECT CAST(COALESCE(SCOPE_IDENTITY(), @@IDENTITY) AS int) AS insertid');
@@ -42,12 +42,12 @@ export class SqlServerProcessor extends Processor {
     return $results.map(function (result) {
       const typeName = result.type_name;
       const type     = ({
-        'binary'        : 'binary',
-        'varbinary'     : 'varbinary',
-        'char'          : 'char',
-        'varchar'       : 'varchar',
-        'nchar'         : 'nchar',
-        'nvarchar'      : result.length == -1 ?
+        'binary'   : 'binary',
+        'varbinary': 'varbinary',
+        'char'     : 'char',
+        'varchar'  : 'varchar',
+        'nchar'    : 'nchar',
+        'nvarchar' : result.length == -1 ?
           typeName + '(max)' :
           `${typeName}(${result.length})`,
         'decimal'       : 'decimal',

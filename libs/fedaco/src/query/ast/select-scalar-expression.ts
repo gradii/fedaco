@@ -8,12 +8,11 @@ import { SqlNode } from '../sql-node';
 import type { SqlVisitor } from '../sql-visitor';
 import type { Expression } from './expression/expression';
 
-
 export class SelectScalarExpression extends SqlNode {
   constructor(
     public expression: Expression,
     // identifierOrValueExpression
-    public columnName: SqlNode
+    public columnName: SqlNode,
   ) {
     super();
   }

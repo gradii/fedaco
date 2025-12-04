@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import type { Connection, } from 'tedious';
+import type { Connection } from 'tedious';
 import type { WrappedStmt } from '../wrapped-stmt';
 
 export class SqlServerWrappedStmt implements WrappedStmt {
@@ -13,9 +13,12 @@ export class SqlServerWrappedStmt implements WrappedStmt {
   _lastInsertId: number | bigint;
   _affectRows: number;
 
-  constructor(public driver: Connection, public sql: string) {
+  constructor(
+    public driver: Connection,
+    public sql: string,
+  ) {
     let count = 0;
-    this.sql  = sql.replace(/\?/g, () => `@val${++count}`);
+    this.sql = sql.replace(/\?/g, () => `@val${++count}`);
   }
 
   bindValues(bindings: any[]) {
@@ -24,10 +27,10 @@ export class SqlServerWrappedStmt implements WrappedStmt {
   }
 
   async execute(bindings?: any[]): Promise<any[]> {
-    bindings        = bindings || this._bindingValues || [];
-    const {Request} = await import('tedious');
+    bindings = bindings || this._bindingValues || [];
+    const { Request } = await import('tedious');
     return new Promise((ok, fail) => {
-      const request     = new Request(this.sql, err => {
+      const request = new Request(this.sql, (err) => {
         if (err) {
           fail(err);
         }
@@ -40,10 +43,12 @@ export class SqlServerWrappedStmt implements WrappedStmt {
         ok(list);
       });
       this.driver.prepare(request);
-      this.driver.execute(request, bindings.reduce((prev, curr, index) => {
-        prev[`val${index + 1}`] = curr;
-      }, {}));
-
+      this.driver.execute(
+        request,
+        bindings.reduce((prev, curr, index) => {
+          prev[`val${index + 1}`] = curr;
+        }, {}),
+      );
     });
   }
 
@@ -51,15 +56,13 @@ export class SqlServerWrappedStmt implements WrappedStmt {
     return this.execute(bindings);
   }
 
-  lastInsertId() {
-  }
+  lastInsertId() {}
 
   affectCount() {
     return this._affectRows;
   }
 
-  close() {
-  }
+  close() {}
 
   bindValue(): this {
     return undefined;

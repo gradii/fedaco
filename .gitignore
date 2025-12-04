@@ -42,7 +42,10 @@ Thumbs.db
 tmp
 
 .nx/cache
+.nx/workspace-data
 
 dist
 .temp
 cache
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md

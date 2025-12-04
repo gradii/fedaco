@@ -1,4 +1,3 @@
-import { timer } from 'rxjs';
 import { PrimaryColumn } from '../../src/annotation/column/primary.column';
 import { BelongsToManyColumn } from '../../src/annotation/relation-column/belongs-to-many.relation-column';
 import { DatabaseConfig } from '../../src/database-config';
@@ -47,7 +46,7 @@ async function seedData() {
       'id'   : '7b7306ae-5a02-46fa-a84c-9538f45c7dd4',
       'title': 'uuid title'
     }, {
-      'id'   : /*cast type string*/ 10000000 + 1,
+      'id'   : /* cast type string */ 10000000 + 1,
       'title': 'Another title'
     }, {
       'id'   : '1',
@@ -60,8 +59,8 @@ describe('test database fedaco belongs to many sync return value type', () => {
   beforeAll(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      'driver'  : 'sqlite',
-      'database': ':memory:',
+      'driver'                 : 'sqlite',
+      'database'               : ':memory:',
       'foreign_key_constraints': false
     });
     db.bootFedaco();

@@ -7,11 +7,8 @@
 import { SqlNode } from '../sql-node';
 import type { SqlVisitor } from '../sql-visitor';
 
-
 export class OffsetClause extends SqlNode {
-  constructor(
-    public offset: number
-  ) {
+  constructor(public offset: number) {
     super();
   }
 

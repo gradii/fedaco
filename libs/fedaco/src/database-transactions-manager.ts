@@ -8,26 +8,26 @@ import { partition } from 'ramda';
 import { DatabaseTransactionRecord } from './database-transaction-record';
 
 export class DatabaseTransactionsManager {
-  /*All of the recorded transactions.*/
+  /* All of the recorded transactions. */
   protected transactions: DatabaseTransactionRecord[] = [];
 
-  /*Create a new database transactions manager instance.*/
+  /* Create a new database transactions manager instance. */
   public constructor() {
   }
 
-  /*Start a new database transaction.*/
+  /* Start a new database transaction. */
   public begin(connection: string, level: number) {
     this.transactions.push(new DatabaseTransactionRecord(connection, level));
   }
 
-  /*Rollback the active database transaction.*/
+  /* Rollback the active database transaction. */
   public rollback(connection: string, level: number): void {
     this.transactions = this.transactions.filter(transaction => {
       return !(transaction.connection == connection && transaction.level > level);
     });
   }
 
-  /*Commit the active database transaction.*/
+  /* Commit the active database transaction. */
   public async commit(connection: string) {
     const [forThisConnection, forOtherConnections] = partition((transaction => {
       return transaction.connection == connection;
@@ -40,7 +40,7 @@ export class DatabaseTransactionsManager {
     }
   }
 
-  /*Register a transaction callback.*/
+  /* Register a transaction callback. */
   public addCallback(callback: Function) {
     const current = this.transactions[this.transactions.length - 1];
     if (current) {
@@ -49,7 +49,7 @@ export class DatabaseTransactionsManager {
     callback();
   }
 
-  /*Get all the transactions.*/
+  /* Get all the transactions. */
   public getTransactions() {
     return this.transactions;
   }

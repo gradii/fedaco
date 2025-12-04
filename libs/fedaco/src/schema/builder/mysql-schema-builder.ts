@@ -6,16 +6,15 @@
 import { SchemaBuilder } from '../schema-builder';
 
 export class MysqlSchemaBuilder extends SchemaBuilder {
-  /*Create a database in the schema.*/
+  /* Create a database in the schema. */
   public createDatabase(name: string) {
     return this.connection.statement(this.grammar.compileCreateDatabase(name, this.connection));
   }
 
-  /*Drop a database from the schema if the database exists.*/
+  /* Drop a database from the schema if the database exists. */
   public dropDatabaseIfExists(name: string) {
     return this.connection.statement(this.grammar.compileDropDatabaseIfExists(name));
   }
-
 
   /**
    * Get the tables for the database.
@@ -23,11 +22,11 @@ export class MysqlSchemaBuilder extends SchemaBuilder {
    * @return array
    */
   public async getTables(withSize = true) {
-    return this.connection.getPostProcessor().processTables(
-      await this.connection.selectFromWriteConnection(
-        this.grammar.compileTables(this.connection.getDatabaseName())
-      )
-    );
+    return this.connection
+      .getPostProcessor()
+      .processTables(
+        await this.connection.selectFromWriteConnection(this.grammar.compileTables(this.connection.getDatabaseName())),
+      );
   }
 
   /**
@@ -36,11 +35,11 @@ export class MysqlSchemaBuilder extends SchemaBuilder {
    * @return array
    */
   public async getViews() {
-    return this.connection.getPostProcessor().processViews(
-      await this.connection.selectFromWriteConnection(
-        this.grammar.compileViews(this.connection.getDatabaseName())
-      )
-    );
+    return this.connection
+      .getPostProcessor()
+      .processViews(
+        await this.connection.selectFromWriteConnection(this.grammar.compileViews(this.connection.getDatabaseName())),
+      );
   }
 
   /**
@@ -53,7 +52,7 @@ export class MysqlSchemaBuilder extends SchemaBuilder {
     table = this.connection.getTablePrefix() + table;
 
     const results = await this.connection.selectFromWriteConnection(
-      this.grammar.compileColumns(this.connection.getDatabaseName(), table)
+      this.grammar.compileColumns(this.connection.getDatabaseName(), table),
     );
 
     return this.connection.getPostProcessor().processColumns(results);
@@ -68,11 +67,13 @@ export class MysqlSchemaBuilder extends SchemaBuilder {
   public async getIndexes(table: string) {
     table = this.connection.getTablePrefix() + table;
 
-    return this.connection.getPostProcessor().processIndexes(
-      await this.connection.selectFromWriteConnection(
-        this.grammar.compileIndexes(this.connection.getDatabaseName(), table)
-      )
-    );
+    return this.connection
+      .getPostProcessor()
+      .processIndexes(
+        await this.connection.selectFromWriteConnection(
+          this.grammar.compileIndexes(this.connection.getDatabaseName(), table),
+        ),
+      );
   }
 
   /**
@@ -84,17 +85,19 @@ export class MysqlSchemaBuilder extends SchemaBuilder {
   public async getForeignKeys(table: string) {
     table = this.connection.getTablePrefix() + table;
 
-    return this.connection.getPostProcessor().processForeignKeys(
-      await this.connection.selectFromWriteConnection(
-        this.grammar.compileForeignKeys(this.connection.getDatabaseName(), table)
-      )
-    );
+    return this.connection
+      .getPostProcessor()
+      .processForeignKeys(
+        await this.connection.selectFromWriteConnection(
+          this.grammar.compileForeignKeys(this.connection.getDatabaseName(), table),
+        ),
+      );
   }
 
-  /*Drop all tables from the database.*/
+  /* Drop all tables from the database. */
   public async dropAllTables() {
     const tables: string[] = [];
-    const result           = await this.getTables();
+    const result = await this.getTables();
     for (const row of result) {
       tables.push(row['name'] as string);
     }
@@ -106,9 +109,9 @@ export class MysqlSchemaBuilder extends SchemaBuilder {
     await this.enableForeignKeyConstraints();
   }
 
-  /*Drop all views from the database.*/
+  /* Drop all views from the database. */
   public async dropAllViews() {
-    const views  = [];
+    const views = [];
     const result = await this.getViews();
     for (const row of result) {
       views.push(row['name']);
@@ -118,5 +121,4 @@ export class MysqlSchemaBuilder extends SchemaBuilder {
     }
     await this.connection.statement(this.grammar.compileDropAllViews(views));
   }
-
 }

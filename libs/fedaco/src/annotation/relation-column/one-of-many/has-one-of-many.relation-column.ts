@@ -9,7 +9,7 @@ import { isString } from '@gradii/nanofn';
 import type { FedacoBuilder } from '../../../fedaco/fedaco-builder';
 import type { Model } from '../../../fedaco/model';
 import { HasOne } from '../../../fedaco/relations/has-one';
-import type { ForwardRefFn} from '../../../query-builder/forward-ref';
+import type { ForwardRefFn } from '../../../query-builder/forward-ref';
 import { resolveForwardRef } from '../../../query-builder/forward-ref';
 import { _additionalProcessingGetter } from '../../additional-processing';
 import type { FedacoDecorator } from '../../annotation.interface';
@@ -35,14 +35,10 @@ export const HasOneOfManyColumn: FedacoDecorator<HasOneOfManyRelationAnnotation>
     type        : RelationType.HasOne,
     _getRelation: function (m: Model, relation: string) {
       // region copied from has one annotation. don't modify it
-      const instance   = m._newRelatedInstance(resolveForwardRef(p.related));
+      const instance = m._newRelatedInstance(resolveForwardRef(p.related));
       const foreignKey = p.foreignKey || m.GetForeignKey();
-      const localKey   = p.localKey || m.GetKeyName();
-      const r          = new HasOne(
-        instance.NewQuery(),
-        m,
-        `${instance.GetTable()}.${foreignKey}`,
-        localKey);
+      const localKey = p.localKey || m.GetKeyName();
+      const r = new HasOne(instance.NewQuery(), m, `${instance.GetTable()}.${foreignKey}`, localKey);
       // endregion
 
       if (isString(p.aggregate)) {
@@ -63,11 +59,10 @@ export const HasOneOfManyColumn: FedacoDecorator<HasOneOfManyRelationAnnotation>
       }
       return r;
     },
-    ...p
+    ...p,
   }),
   FedacoRelationColumn,
   (target: any, name: string, decorator) => {
     _additionalProcessingGetter(target, name, decorator);
-  }
+  },
 );
-

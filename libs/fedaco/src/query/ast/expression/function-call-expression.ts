@@ -11,7 +11,7 @@ import { Expression } from './expression';
 export class FunctionCallExpression extends Expression {
   constructor(
     public name: Identifier,
-    public parameters: Expression[]
+    public parameters: Expression[],
   ) {
     super();
   }

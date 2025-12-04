@@ -1,16 +1,16 @@
 /* tslint:disable:max-line-length */
 import { raw } from '../../src/query-builder/ast-factory';
 import { Connection } from '../../src/connection';
-import { WrappedConnection } from '../../src/connector/wrapped-connection';
-import { ConnectionInterface } from '../../src/query-builder/connection-interface';
+import { type WrappedConnection } from '../../src/connector/wrapped-connection';
+import { type ConnectionInterface } from '../../src/query-builder/connection-interface';
 import { MysqlQueryGrammar } from '../../src/query-builder/grammar/mysql-query-grammar';
-import { QueryGrammar } from '../../src/query-builder/grammar/query-grammar';
+import { type QueryGrammar } from '../../src/query-builder/grammar/query-grammar';
 import { Processor } from '../../src/query-builder/processor';
 import { QueryBuilder } from '../../src/query-builder/query-builder';
 import { Blueprint } from '../../src/schema/blueprint';
 import { ForeignIdColumnDefinition } from '../../src/schema/foreign-id-column-definition';
 import { MysqlSchemaGrammar } from '../../src/schema/grammar/mysql-schema-grammar';
-import { SchemaBuilder } from '../../src/schema/schema-builder';
+import { type SchemaBuilder } from '../../src/schema/schema-builder';
 
 // noinspection DuplicatedCode
 class Conn extends Connection implements ConnectionInterface {

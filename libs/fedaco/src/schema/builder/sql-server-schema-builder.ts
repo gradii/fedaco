@@ -6,12 +6,12 @@
 import { SchemaBuilder } from '../schema-builder';
 
 export class SqlServerSchemaBuilder extends SchemaBuilder {
-  /*Create a database in the schema.*/
+  /* Create a database in the schema. */
   public async createDatabase(name: string) {
     return this.connection.statement(this.grammar.compileCreateDatabase(name, this.connection));
   }
 
-  /*Drop a database from the schema if the database exists.*/
+  /* Drop a database from the schema if the database exists. */
   public async dropDatabaseIfExists(name: string) {
     return this.connection.statement(this.grammar.compileDropDatabaseIfExists(name));
   }
@@ -30,8 +30,7 @@ export class SqlServerSchemaBuilder extends SchemaBuilder {
     table = this.connection.getTablePrefix() + table;
 
     for (const value of await this.getTables()) {
-      if (table.toLowerCase() === value['name'] &&
-        schema.toLowerCase() === value['schema']) {
+      if (table.toLowerCase() === value['name'] && schema.toLowerCase() === value['schema']) {
         return true;
       }
     }
@@ -53,8 +52,7 @@ export class SqlServerSchemaBuilder extends SchemaBuilder {
     view = this.connection.getTablePrefix() + view;
 
     for (const value of await this.getViews()) {
-      if (view.toLowerCase() === value['name'] &&
-        schema.toLowerCase() === value['schema']) {
+      if (view.toLowerCase() === value['name'] && schema.toLowerCase() === value['schema']) {
         return true;
       }
     }
@@ -62,13 +60,13 @@ export class SqlServerSchemaBuilder extends SchemaBuilder {
     return false;
   }
 
-  /*Drop all tables from the database.*/
+  /* Drop all tables from the database. */
   public async dropAllTables() {
     await this.connection.statement(this.grammar.compileDropAllForeignKeys());
     await this.connection.statement(this.grammar.compileDropAllTables());
   }
 
-  /*Drop all views from the database.*/
+  /* Drop all views from the database. */
   public async dropAllViews() {
     await this.connection.statement(this.grammar.compileDropAllViews());
   }
@@ -85,9 +83,7 @@ export class SqlServerSchemaBuilder extends SchemaBuilder {
 
     table = this.connection.getTablePrefix() + table;
 
-    const results = await this.connection.selectFromWriteConnection(
-      this.grammar.compileColumns(schema, table)
-    );
+    const results = await this.connection.selectFromWriteConnection(this.grammar.compileColumns(schema, table));
 
     return this.connection.getPostProcessor().processColumns(results);
   }
@@ -104,9 +100,9 @@ export class SqlServerSchemaBuilder extends SchemaBuilder {
 
     table = this.connection.getTablePrefix() + table;
 
-    return this.connection.getPostProcessor().processIndexes(
-      await this.connection.selectFromWriteConnection(this.grammar.compileIndexes(schema, table))
-    );
+    return this.connection
+      .getPostProcessor()
+      .processIndexes(await this.connection.selectFromWriteConnection(this.grammar.compileIndexes(schema, table)));
   }
 
   /**
@@ -121,9 +117,11 @@ export class SqlServerSchemaBuilder extends SchemaBuilder {
 
     table = this.connection.getTablePrefix() + table;
 
-    return this.connection.getPostProcessor().processForeignKeys(
-      await this.connection.selectFromWriteConnection(this.grammar.compileForeignKeys(schema, table))
-    );
+    return this.connection
+      .getPostProcessor()
+      .processForeignKeys(
+        await this.connection.selectFromWriteConnection(this.grammar.compileForeignKeys(schema, table)),
+      );
   }
 
   /**
@@ -151,7 +149,8 @@ export class SqlServerSchemaBuilder extends SchemaBuilder {
       const database = parts[0];
 
       throw new Error(
-        `InvalidArgumentException Using three-part reference is not supported, you may use \`Schema::connection('${database}')\` instead.`);
+        `InvalidArgumentException Using three-part reference is not supported, you may use \`Schema::connection('${database}')\` instead.`,
+      );
     }
 
     return parts;

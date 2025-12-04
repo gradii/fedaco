@@ -8,14 +8,11 @@ import type { SoftDeletes } from '../mixins/soft-deletes';
 import type { Model } from '../model';
 import { Scope } from '../scope';
 
-
 export function restore() {
   return (builder: FedacoBuilder<Model & SoftDeletes>) => {
-    builder.pipe(
-      withTrashed()
-    );
+    builder.pipe(withTrashed());
     return builder.update({
-      [builder.getModel().GetDeletedAtColumn()]: null
+      [builder.getModel().GetDeletedAtColumn()]: null,
     });
   };
 }
@@ -23,9 +20,7 @@ export function restore() {
 export function withTrashed(withTrashed = true) {
   return (builder: FedacoBuilder) => {
     if (!withTrashed) {
-      return builder.pipe(
-        withoutTrashed()
-      );
+      return builder.pipe(withoutTrashed());
     }
     return builder.withoutGlobalScope('softDeleting');
   };
@@ -34,8 +29,7 @@ export function withTrashed(withTrashed = true) {
 export function withoutTrashed() {
   return (builder: FedacoBuilder) => {
     const model: Model & SoftDeletes = builder.getModel() as unknown as Model & SoftDeletes;
-    builder.withoutGlobalScope('softDeleting')
-      .whereNull(model.GetQualifiedDeletedAtColumn());
+    builder.withoutGlobalScope('softDeleting').whereNull(model.GetQualifiedDeletedAtColumn());
     return builder;
   };
 }
@@ -43,25 +37,23 @@ export function withoutTrashed() {
 export function onlyTrashed() {
   return (builder: FedacoBuilder) => {
     const model = builder.getModel() as unknown as Model & SoftDeletes;
-    builder.withoutGlobalScope('softDeleting')
-      .whereNotNull(model.GetQualifiedDeletedAtColumn());
+    builder.withoutGlobalScope('softDeleting').whereNotNull(model.GetQualifiedDeletedAtColumn());
     return builder;
   };
 }
 
-
 // import { Builder } from 'Illuminate/Database/Eloquent/Builder';
 // import { Model } from 'Illuminate/Database/Eloquent/Model';
 export class SoftDeletingScope extends Scope {
-  /*All of the extensions to be added to the builder.*/
+  /* All of the extensions to be added to the builder. */
   protected extensions: string[] = ['Restore', 'WithTrashed', 'WithoutTrashed', 'OnlyTrashed'];
 
-  /*Apply the scope to a given Eloquent query builder.*/
+  /* Apply the scope to a given Eloquent query builder. */
   public apply(builder: FedacoBuilder, model: Model) {
     builder.whereNull((model as unknown as Model & SoftDeletes).GetQualifiedDeletedAtColumn());
   }
 
-  /*Extend the query builder with the needed functions.*/
+  /* Extend the query builder with the needed functions. */
   public extend(builder: FedacoBuilder) {
     // for (let extension of this.extensions) {
     //   this['"add{Extension}"'](builder);
@@ -69,12 +61,12 @@ export class SoftDeletingScope extends Scope {
     builder.onDelete((builder: FedacoBuilder) => {
       const column = this._getDeletedAtColumn(builder);
       return builder.update({
-        [column]: builder.getModel().FreshTimestampString()
+        [column]: builder.getModel().FreshTimestampString(),
       });
     });
   }
 
-  /*Get the "deleted at" column for the builder.*/
+  /* Get the "deleted at" column for the builder. */
   protected _getDeletedAtColumn(builder: FedacoBuilder) {
     if (builder.getQuery()._joins.length > 0) {
       return (builder.getModel() as unknown as Model & SoftDeletes).GetQualifiedDeletedAtColumn();

@@ -10,7 +10,6 @@ import type { FedacoDecorator } from '../annotation.interface';
 import type { ColumnAnnotation } from '../column';
 import { FedacoColumn } from '../column';
 
-
 export interface PrimaryColumnAnnotation extends ColumnAnnotation {
   field?: string;
   keyType?: string;
@@ -20,8 +19,8 @@ export const PrimaryColumn: FedacoDecorator<PrimaryColumnAnnotation> = makePropD
   'Fedaco:PrimaryColumn',
   (p: PrimaryColumnAnnotation): PrimaryColumnAnnotation => ({
     fillable: true,
-    keyType   : 'int',
-    ...p
+    keyType : 'int',
+    ...p,
   }),
   FedacoColumn,
   (target: any, key: string, decorator: any) => {
@@ -31,12 +30,13 @@ export const PrimaryColumn: FedacoDecorator<PrimaryColumnAnnotation> = makePropD
       enumerable  : false,
       configurable: true,
       writable    : false,
-      value       : decorator.field || key
+      value       : decorator.field || key,
     });
     Object.defineProperty(target, '_keyType', {
       enumerable  : false,
       configurable: true,
       writable    : false,
-      value       : decorator.keyType
+      value       : decorator.keyType,
     });
-  });
+  },
+);

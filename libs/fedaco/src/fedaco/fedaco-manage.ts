@@ -5,7 +5,5 @@
  */
 
 export class FedacoManage {
-  constructor() {
-  }
-
+  constructor() {}
 }

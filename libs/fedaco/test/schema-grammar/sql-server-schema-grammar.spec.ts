@@ -1,15 +1,15 @@
 /* tslint:disable:max-line-length */
 import { Connection } from '../../src/connection';
-import { WrappedConnection } from '../../src/connector/wrapped-connection';
-import { ConnectionInterface } from '../../src/query-builder/connection-interface';
-import { QueryGrammar } from '../../src/query-builder/grammar/query-grammar';
+import { type WrappedConnection } from '../../src/connector/wrapped-connection';
+import { type ConnectionInterface } from '../../src/query-builder/connection-interface';
+import { type QueryGrammar } from '../../src/query-builder/grammar/query-grammar';
 import { SqlserverQueryGrammar } from '../../src/query-builder/grammar/sqlserver-query-grammar';
 import { Processor } from '../../src/query-builder/processor';
 import { QueryBuilder } from '../../src/query-builder/query-builder';
 import { Blueprint } from '../../src/schema/blueprint';
 import { ForeignIdColumnDefinition } from '../../src/schema/foreign-id-column-definition';
 import { SqlServerSchemaGrammar } from '../../src/schema/grammar/sql-server-schema-grammar';
-import { SchemaBuilder } from '../../src/schema/schema-builder';
+import { type SchemaBuilder } from '../../src/schema/schema-builder';
 
 
 // noinspection DuplicatedCode

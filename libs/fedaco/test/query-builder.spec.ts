@@ -1,7 +1,7 @@
 /* tslint:disable:max-line-length */
-import { DatabaseTransactionsManager } from '../src/database-transactions-manager';
+import { type DatabaseTransactionsManager } from '../src/database-transactions-manager';
 import { raw } from '../src/query-builder/ast-factory';
-import { ConnectionInterface } from '../src/query-builder/connection-interface';
+import { type ConnectionInterface } from '../src/query-builder/connection-interface';
 import { MysqlQueryGrammar } from '../src/query-builder/grammar/mysql-query-grammar';
 import { PostgresQueryGrammar } from '../src/query-builder/grammar/postgres-query-grammar';
 import { SqliteQueryGrammar } from '../src/query-builder/grammar/sqlite-query-grammar';
@@ -10,9 +10,8 @@ import { Processor } from '../src/query-builder/processor';
 import { MysqlProcessor } from '../src/query-builder/processor/mysql-processor';
 import { PostgresProcessor } from '../src/query-builder/processor/postgres-processor';
 import { SqlServerProcessor } from '../src/query-builder/processor/sql-server-processor';
-import { JoinClauseBuilder, QueryBuilder } from '../src/query-builder/query-builder';
-import { SchemaBuilder } from '../src/schema/schema-builder';
-
+import { type JoinClauseBuilder, QueryBuilder } from '../src/query-builder/query-builder';
+import { type SchemaBuilder } from '../src/schema/schema-builder';
 
 /**
  * this.assertSame\((.+?), (.+?)\)$
@@ -29,34 +28,27 @@ describe('database query builder test', () => {
   let builder: QueryBuilder;
 
   class Conn implements ConnectionInterface {
-    async select() {
-    }
+    async select() {}
 
     async insert(sql: string, bindings: any[]): Promise<boolean> {
       return false;
     }
 
-    async update() {
-    }
+    async update() {}
 
-    async delete() {
-    }
+    async delete() {}
 
-    async statement() {
-    }
+    async statement() {}
 
-    async affectingStatement() {
-    }
+    async affectingStatement() {}
 
     getName() {
       return '';
     }
 
-    getConfig(name: string): any {
-    }
+    getConfig(name: string): any {}
 
-    getPdo(): any {
-    }
+    getPdo(): any {}
 
     getSchemaBuilder(): SchemaBuilder {
       return undefined;
@@ -66,11 +58,9 @@ describe('database query builder test', () => {
       return undefined;
     }
 
-    recordsHaveBeenModified(): any {
-    }
+    recordsHaveBeenModified(): any {}
 
-    selectFromWriteConnection(sql: string, values: any): any {
-    }
+    selectFromWriteConnection(sql: string, values: any): any {}
 
     table(table: Function | QueryBuilder | string, as?: string): QueryBuilder {
       return undefined;
@@ -95,8 +85,7 @@ describe('database query builder test', () => {
       return Promise.resolve(undefined);
     }
 
-    setTablePrefix(prefix: string): any {
-    }
+    setTablePrefix(prefix: string): any {}
 
     setTransactionManager(manager: DatabaseTransactionsManager): this {
       return undefined;
@@ -110,12 +99,11 @@ describe('database query builder test', () => {
       return 0;
     }
 
-    unsetTransactionManager(): void {
-    }
+    unsetTransactionManager(): void {}
   }
 
   function getBuilder() {
-    const grammar   = new MysqlQueryGrammar();
+    const grammar = new MysqlQueryGrammar();
     const processor = new MysqlProcessor();
 
     const conn = new Conn();
@@ -127,25 +115,25 @@ describe('database query builder test', () => {
   }
 
   function getPostgresBuilder() {
-    const grammar   = new PostgresQueryGrammar();
+    const grammar = new PostgresQueryGrammar();
     const processor = new PostgresProcessor();
-    const conn      = new Conn();
+    const conn = new Conn();
 
     return new QueryBuilder(conn, grammar, processor);
   }
 
   function getSqlServerBuilder() {
-    const grammar   = new SqlserverQueryGrammar();
+    const grammar = new SqlserverQueryGrammar();
     const processor = new SqlServerProcessor();
-    const conn      = new Conn();
+    const conn = new Conn();
 
     return new QueryBuilder(conn, grammar, processor);
   }
 
   function getSQLiteBuilder() {
-    const grammar   = new SqliteQueryGrammar();
+    const grammar = new SqliteQueryGrammar();
     const processor = new Processor();
-    const conn      = new Conn();
+    const conn = new Conn();
 
     return new QueryBuilder(conn, grammar, processor);
   }
@@ -183,7 +171,7 @@ describe('database query builder test', () => {
 
     expect(() => {
       builder.select('*').from('`users');
-    }).toThrowError('tableName error');
+    }).toThrow('tableName error');
 
     // expect(builder.toSql()).toBe('SELECT * FROM `users`');
 
@@ -298,7 +286,8 @@ describe('database query builder test', () => {
 
   it('test join aliases with prefix', () => {
     builder.getGrammar().setTablePrefix('prefix_');
-    builder.select('*')
+    builder
+      .select('*')
       .from('services')
       /**
        * this join is mean that
@@ -315,9 +304,7 @@ describe('database query builder test', () => {
 
   it('test join aliases with multi argument with prefix', () => {
     builder.getGrammar().setTablePrefix('prefix_');
-    builder.select('*')
-      .from('services')
-      .join('translations AS t', 't.item_id', '=', 'services.id');
+    builder.select('*').from('services').join('translations AS t', 't.item_id', '=', 'services.id');
     expect(builder.toSql()).toBe(
       'SELECT * FROM `prefix_services` INNER JOIN `prefix_translations` AS `prefix_t` ON `prefix_t`.`item_id` = `prefix_services`.`id`'
     );
@@ -330,7 +317,7 @@ describe('database query builder test', () => {
     expect(builder.toSql()).toBe('SELECT * FROM `public`.`users`');
   });
 
-  //region test build query
+  // region test build query
 
   it('test when callback', () => {
     const callback = (query: QueryBuilder, condition: boolean) => {
@@ -339,18 +326,11 @@ describe('database query builder test', () => {
     };
 
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .when(true, callback)
-      .where('email', 'foo');
+    builder.select('*').from('users').when(true, callback).where('email', 'foo');
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? AND `email` = ?');
 
     builder = getBuilder();
-    builder.select('*')
-      .from('users')
-      .when(false, callback)
-      .where('email', 'foo');
+    builder.select('*').from('users').when(false, callback).where('email', 'foo');
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `email` = ?');
   });
 
@@ -361,19 +341,11 @@ describe('database query builder test', () => {
     };
 
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .when(true, callback)
-      .where('email', 'foo');
+    builder.select('*').from('users').when(true, callback).where('email', 'foo');
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? AND `email` = ?');
 
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .when(false, callback)
-      .where('email', 'foo');
+    builder.select('*').from('users').when(false, callback).where('email', 'foo');
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `email` = ?');
   });
 
@@ -395,10 +367,7 @@ describe('database query builder test', () => {
       .when('truthy', callback, _default)
       .where('email', 'foo');
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? AND `email` = ?');
-    expect(builder.getBindings()).toStrictEqual([
-      1,
-      'foo'
-    ]);
+    expect(builder.getBindings()).toStrictEqual([1, 'foo']);
 
     builder = getBuilder();
     builder
@@ -408,10 +377,7 @@ describe('database query builder test', () => {
       .when(0, callback, _default)
       .where('email', 'foo');
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? AND `email` = ?');
-    expect(builder.getBindings()).toStrictEqual([
-      2,
-      'foo'
-    ]);
+    expect(builder.getBindings()).toStrictEqual([2, 'foo']);
   });
 
   it('test unless callback', () => {
@@ -419,20 +385,12 @@ describe('database query builder test', () => {
       expect(condition).toBeFalsy();
       query.where('id', '=', 1);
     };
-    builder        = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .unless(false, callback)
-      .where('email', 'foo');
+    builder = getBuilder();
+    builder.select('*').from('users').unless(false, callback).where('email', 'foo');
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? AND `email` = ?');
 
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .unless(true, callback)
-      .where('email', 'foo');
+    builder.select('*').from('users').unless(true, callback).where('email', 'foo');
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `email` = ?');
   });
 
@@ -443,19 +401,11 @@ describe('database query builder test', () => {
     };
 
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .unless(false, callback)
-      .where('email', 'foo');
+    builder.select('*').from('users').unless(false, callback).where('email', 'foo');
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? AND `email` = ?');
 
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .unless(true, callback)
-      .where('email', 'foo');
+    builder.select('*').from('users').unless(true, callback).where('email', 'foo');
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `email` = ?');
   });
 
@@ -470,28 +420,14 @@ describe('database query builder test', () => {
     };
 
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .unless(0, callback, _default)
-      .where('email', 'foo');
+    builder.select('*').from('users').unless(0, callback, _default).where('email', 'foo');
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? AND `email` = ?');
-    expect(builder.getBindings()).toStrictEqual([
-      1,
-      'foo'
-    ]);
+    expect(builder.getBindings()).toStrictEqual([1, 'foo']);
 
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .unless('truthy', callback, _default)
-      .where('email', 'foo');
+    builder.select('*').from('users').unless('truthy', callback, _default).where('email', 'foo');
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? AND `email` = ?');
-    expect(builder.getBindings()).toStrictEqual([
-      2,
-      'foo'
-    ]);
+    expect(builder.getBindings()).toStrictEqual([2, 'foo']);
   });
 
   it('test tap callback', () => {
@@ -500,10 +436,7 @@ describe('database query builder test', () => {
     };
 
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .tap(callback).where('email', 'foo');
+    builder.select('*').from('users').tap(callback).where('email', 'foo');
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? AND `email` = ?');
   });
 
@@ -518,135 +451,88 @@ describe('database query builder test', () => {
     builder = getBuilder();
     builder.select('*').from('users').where('id', [12, 30]);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ?');
-    expect(builder.getBindings()).toStrictEqual([
-      12,
-      30
-    ]);
+    expect(builder.getBindings()).toStrictEqual([12, 30]);
 
     builder = getBuilder();
     builder.select('*').from('users').where('id', '=', [12, 30]);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ?');
-    expect(builder.getBindings()).toStrictEqual([
-      12,
-      30
-    ]);
+    expect(builder.getBindings()).toStrictEqual([12, 30]);
 
     builder = getBuilder();
     builder.select('*').from('users').where('id', '!=', [12, 30]);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` != ?');
-    expect(builder.getBindings()).toStrictEqual([
-      12,
-      30
-    ]);
+    expect(builder.getBindings()).toStrictEqual([12, 30]);
 
     builder = getBuilder();
     builder.select('*').from('users').where('id', '<>', [12, 30]);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` <> ?');
-    expect(builder.getBindings()).toStrictEqual([
-      12,
-      30
-    ]);
+    expect(builder.getBindings()).toStrictEqual([12, 30]);
   });
 
-  //endregion
+  // endregion
 
   // todo the lexer can't handle special char like `\``, `'`, `"`
   xit('xtest my sql wrapping protects quotation marks', () => {
     builder = getMySqlBuilder();
-    builder
-      .select('*')
-      .from('some`table');
+    builder.select('*').from('some`table');
     expect(builder.toSql()).toBe('SELECT * FROM `some``table`');
   });
 
   it('test date based wheres accepts two arguments', () => {
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .whereDate('created_at', 1);
+    builder.select('*').from('users').whereDate('created_at', 1);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE Date(`created_at`) = ?');
 
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .whereDay('created_at', 1);
+    builder.select('*').from('users').whereDay('created_at', 1);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE Day(`created_at`) = ?');
 
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .whereMonth('created_at', 1);
+    builder.select('*').from('users').whereMonth('created_at', 1);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE Month(`created_at`) = ?');
 
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .whereYear('created_at', 1);
+    builder.select('*').from('users').whereYear('created_at', 1);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE Year(`created_at`) = ?');
   });
 
   it('test date based or wheres accepts two arguments', () => {
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .where('id', 1)
-      .orWhereDate('created_at', 1);
+    builder.select('*').from('users').where('id', 1).orWhereDate('created_at', 1);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? OR Date(`created_at`) = ?');
 
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .where('id', 1)
-      .orWhereDay('created_at', 1);
+    builder.select('*').from('users').where('id', 1).orWhereDay('created_at', 1);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? OR Day(`created_at`) = ?');
 
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .where('id', 1)
-      .orWhereMonth('created_at', 1);
+    builder.select('*').from('users').where('id', 1).orWhereMonth('created_at', 1);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? OR Month(`created_at`) = ?');
 
     builder = getBuilder();
-    builder
-      .select('*')
-      .from('users')
-      .where('id', 1)
-      .orWhereYear('created_at', 1);
+    builder.select('*').from('users').where('id', 1).orWhereYear('created_at', 1);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? OR Year(`created_at`) = ?');
   });
 
   it('test date based wheres expression is not bound', () => {
     // changed only get sql then have binding variables
     builder = getBuilder();
-    builder.select('*').from('users')
-      .whereDate('created_at', raw('NOW()'))
-      .where('admin', true);
+    builder.select('*').from('users').whereDate('created_at', raw('NOW()')).where('admin', true);
     builder.toSql();
     expect(builder.getBindings()).toStrictEqual([true]);
 
     builder = getBuilder();
-    builder.select('*').from('users')
-      .whereDay('created_at', raw('NOW()'));
+    builder.select('*').from('users').whereDay('created_at', raw('NOW()'));
     builder.toSql();
     expect(builder.getBindings()).toStrictEqual([]);
 
     builder = getBuilder();
-    builder.select('*').from('users')
-      .whereMonth('created_at', raw('NOW()'));
+    builder.select('*').from('users').whereMonth('created_at', raw('NOW()'));
     builder.toSql();
     expect(builder.getBindings()).toStrictEqual([]);
 
     builder = getBuilder();
-    builder.select('*').from('users')
-      .whereYear('created_at', raw('NOW()'));
+    builder.select('*').from('users').whereYear('created_at', raw('NOW()'));
     builder.toSql();
     expect(builder.getBindings()).toStrictEqual([]);
   });
@@ -655,9 +541,7 @@ describe('database query builder test', () => {
     builder = getBuilder();
     builder.select('*').from('users').whereDate('created_at', '=', '2015-12-21');
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE Date(`created_at`) = ?');
-    expect(builder.getBindings()).toStrictEqual([
-      '2015-12-21'
-    ]);
+    expect(builder.getBindings()).toStrictEqual(['2015-12-21']);
 
     builder = getBuilder();
     builder.select('*').from('users').whereDate('created_at', '=', raw('NOW()'));
@@ -673,10 +557,8 @@ describe('database query builder test', () => {
 
   it('test or where day my sql', () => {
     builder = getBuilder();
-    builder.select('*').from('users').whereDay('created_at', '=', 1).orWhereDay('created_at', '=',
-      2);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM `users` WHERE Day(`created_at`) = ? OR Day(`created_at`) = ?');
+    builder.select('*').from('users').whereDay('created_at', '=', 1).orWhereDay('created_at', '=', 2);
+    expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE Day(`created_at`) = ? OR Day(`created_at`) = ?');
     expect(builder.getBindings()).toStrictEqual(['01', '02']);
   });
 
@@ -689,10 +571,8 @@ describe('database query builder test', () => {
 
   it('test or where month my sql', () => {
     builder = getBuilder();
-    builder.select('*').from('users').whereMonth('created_at', '=', 5).orWhereMonth('created_at',
-      '=', 6);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM `users` WHERE Month(`created_at`) = ? OR Month(`created_at`) = ?');
+    builder.select('*').from('users').whereMonth('created_at', '=', 5).orWhereMonth('created_at', '=', 6);
+    expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE Month(`created_at`) = ? OR Month(`created_at`) = ?');
     expect(builder.getBindings()).toStrictEqual(['05', '06']);
   });
 
@@ -705,10 +585,8 @@ describe('database query builder test', () => {
 
   it('test or where year my sql', () => {
     builder = getBuilder();
-    builder.select('*').from('users').whereYear('created_at', '=', 2014).orWhereYear('created_at',
-      '=', 2015);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM `users` WHERE Year(`created_at`) = ? OR Year(`created_at`) = ?');
+    builder.select('*').from('users').whereYear('created_at', '=', 2014).orWhereYear('created_at', '=', 2015);
+    expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE Year(`created_at`) = ? OR Year(`created_at`) = ?');
     expect(builder.getBindings()).toStrictEqual([2014, 2015]);
   });
 
@@ -765,8 +643,7 @@ describe('database query builder test', () => {
   it('test where month postgres', () => {
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereMonth('created_at', '=', 5);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM "users" WHERE extract(month from "created_at") = $1');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE extract(month from "created_at") = $1');
     expect(builder.getBindings()).toStrictEqual(['05']);
   });
 
@@ -810,55 +687,47 @@ describe('database query builder test', () => {
   it('test where date sqlite', () => {
     builder = getSQLiteBuilder();
     builder.select('*').from('users').whereDate('created_at', '=', '2015-12-21');
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM "users" WHERE strftime(\'%Y-%m-%d\', "created_at") = cast(? AS text)');
-    expect(builder.getBindings()).toStrictEqual(
-      ['2015-12-21']
-    );
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE strftime(\'%Y-%m-%d\', "created_at") = cast(? AS text)');
+    expect(builder.getBindings()).toStrictEqual(['2015-12-21']);
     builder = getSQLiteBuilder();
     builder.select('*').from('users').whereDate('created_at', raw('NOW()'));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM "users" WHERE strftime(\'%Y-%m-%d\', "created_at") = cast(NOW() AS text)');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM "users" WHERE strftime(\'%Y-%m-%d\', "created_at") = cast(NOW() AS text)'
+    );
   });
 
   it('test where day sqlite', () => {
     builder = getSQLiteBuilder();
     builder.select('*').from('users').whereDay('created_at', '=', 1);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM "users" WHERE strftime(\'%d\', "created_at") = cast(? AS text)');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE strftime(\'%d\', "created_at") = cast(? AS text)');
     expect(builder.getBindings()).toStrictEqual(['01']);
   });
 
   it('test where month sqlite', () => {
     builder = getSQLiteBuilder();
     builder.select('*').from('users').whereMonth('created_at', '=', 5);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM "users" WHERE strftime(\'%m\', "created_at") = cast(? AS text)');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE strftime(\'%m\', "created_at") = cast(? AS text)');
     expect(builder.getBindings()).toStrictEqual(['05']);
   });
 
   it('test where year sqlite', () => {
     builder = getSQLiteBuilder();
     builder.select('*').from('users').whereYear('created_at', '=', 2014);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM "users" WHERE strftime(\'%Y\', "created_at") = cast(? AS text)');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE strftime(\'%Y\', "created_at") = cast(? AS text)');
     expect(builder.getBindings()).toStrictEqual([2014]);
   });
 
   it('test where time sqlite', () => {
     builder = getSQLiteBuilder();
     builder.select('*').from('users').whereTime('created_at', '>=', '22:00');
-    expect(builder.toSql())
-      .toBe('SELECT * FROM "users" WHERE strftime(\'%H:%M:%S\', "created_at") >= cast(? AS text)');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE strftime(\'%H:%M:%S\', "created_at") >= cast(? AS text)');
     expect(builder.getBindings()).toStrictEqual(['22:00']);
   });
 
   it('test where time operator optional sqlite', () => {
     builder = getSQLiteBuilder();
     builder.select('*').from('users').whereTime('created_at', '22:00');
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM "users" WHERE strftime(\'%H:%M:%S\', "created_at") = cast(? AS text)');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE strftime(\'%H:%M:%S\', "created_at") = cast(? AS text)');
     expect(builder.getBindings()).toStrictEqual(['22:00']);
   });
 
@@ -906,7 +775,10 @@ describe('database query builder test', () => {
     expect(builder.getBindings()).toStrictEqual([1, 2]);
 
     builder = getBuilder();
-    builder.select('*').from('users').whereBetween('id', [raw(1), raw(2)]);
+    builder
+      .select('*')
+      .from('users')
+      .whereBetween('id', [raw(1), raw(2)]);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` BETWEEN 1 AND 2');
     expect(builder.getBindings()).toStrictEqual([]);
   });
@@ -957,11 +829,18 @@ describe('database query builder test', () => {
 
   it('test raw where ins', () => {
     builder = getBuilder();
-    builder.select('*').from('users').whereIn('id', [raw(1)]);
+    builder
+      .select('*')
+      .from('users')
+      .whereIn('id', [raw(1)]);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` IN (1)');
 
     builder = getBuilder();
-    builder.select('*').from('users').where('id', '=', 1).orWhereIn('id', [raw(1)]);
+    builder
+      .select('*')
+      .from('users')
+      .where('id', '=', 1)
+      .orWhereIn('id', [raw(1)]);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? OR `id` IN (1)');
     expect(builder.getBindings()).toStrictEqual([1]);
   });
@@ -1033,11 +912,10 @@ describe('database query builder test', () => {
 
   it('test basic where column', () => {
     builder = getBuilder();
-    builder.select('*').from('users').whereColumn('first_name', 'last_name').orWhereColumn(
-      'first_name', 'middle_name');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` WHERE `first_name` = `last_name` OR `first_name` = `middle_name`');
+    builder.select('*').from('users').whereColumn('first_name', 'last_name').orWhereColumn('first_name', 'middle_name');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` WHERE `first_name` = `last_name` OR `first_name` = `middle_name`'
+    );
     expect(builder.getBindings()).toStrictEqual([]);
     builder = getBuilder();
     builder.select('*').from('users').whereColumn('updated_at', '>', 'created_at');
@@ -1046,12 +924,15 @@ describe('database query builder test', () => {
   });
 
   it('test array where column', () => {
-    const conditions = [['first_name', 'last_name'], ['updated_at', '>', 'created_at']];
-    builder          = getBuilder();
+    const conditions = [
+      ['first_name', 'last_name'],
+      ['updated_at', '>', 'created_at'],
+    ];
+    builder = getBuilder();
     builder.select('*').from('users').whereColumn(conditions);
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` WHERE (`first_name` = `last_name` AND `updated_at` > `created_at`)');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` WHERE (`first_name` = `last_name` AND `updated_at` > `created_at`)'
+    );
     expect(builder.getBindings()).toStrictEqual([]);
   });
 
@@ -1060,40 +941,41 @@ describe('database query builder test', () => {
     builder = getBuilder();
     builder.select('*').from('users').where('id', '=', 1);
     builder.union(getBuilder().select('*').from('users').where('id', '=', 2));
-    expect(builder.toSql()).toBe(
-      '(SELECT * FROM `users` WHERE `id` = ?) UNION (SELECT * FROM `users` WHERE `id` = ?)');
+    expect(builder.toSql()).toBe('(SELECT * FROM `users` WHERE `id` = ?) UNION (SELECT * FROM `users` WHERE `id` = ?)');
     expect(builder.getBindings()).toStrictEqual([1, 2]);
 
     builder = getMySqlBuilder();
     builder.select('*').from('users').where('id', '=', 1);
     builder.union(getMySqlBuilder().select('*').from('users').where('id', '=', 2));
-    expect(builder.toSql()).toBe(
-      '(SELECT * FROM `users` WHERE `id` = ?) UNION (SELECT * FROM `users` WHERE `id` = ?)');
+    expect(builder.toSql()).toBe('(SELECT * FROM `users` WHERE `id` = ?) UNION (SELECT * FROM `users` WHERE `id` = ?)');
     expect(builder.getBindings()).toStrictEqual([1, 2]);
 
-    builder     = getMySqlBuilder();
-    expectedSql = '(SELECT `a` FROM `t1` WHERE `a` = ? AND `b` = ?) UNION (SELECT `a` FROM `t2` WHERE `a` = ? AND `b` = ?) ORDER BY `a` ASC LIMIT 10';
+    builder = getMySqlBuilder();
+    expectedSql =
+      '(SELECT `a` FROM `t1` WHERE `a` = ? AND `b` = ?) UNION (SELECT `a` FROM `t2` WHERE `a` = ? AND `b` = ?) ORDER BY `a` ASC LIMIT 10';
     const union = getMySqlBuilder().select('a').from('t2').where('a', 11).where('b', 2);
     builder.select('a').from('t1').where('a', 10).where('b', 1).union(union).orderBy('a').limit(10);
     expect(builder.toSql()).toBe(expectedSql);
     expect(builder.getBindings()).toStrictEqual([10, 1, 11, 2]);
 
-    builder     = getPostgresBuilder();
+    builder = getPostgresBuilder();
     expectedSql = '(SELECT "name" FROM "users" WHERE "id" = $1) UNION (SELECT "name" FROM "users" WHERE "id" = $2)';
     builder.select('name').from('users').where('id', '=', 1);
     builder.union(getPostgresBuilder().select('name').from('users').where('id', '=', 2));
     expect(builder.toSql()).toBe(expectedSql);
     expect(builder.getBindings()).toStrictEqual([1, 2]);
 
-    builder     = getSQLiteBuilder();
-    expectedSql = 'SELECT * FROM (SELECT "name" FROM "users" WHERE "id" = ?) UNION SELECT * FROM (SELECT "name" FROM "users" WHERE "id" = ?)';
+    builder = getSQLiteBuilder();
+    expectedSql =
+      'SELECT * FROM (SELECT "name" FROM "users" WHERE "id" = ?) UNION SELECT * FROM (SELECT "name" FROM "users" WHERE "id" = ?)';
     builder.select('name').from('users').where('id', '=', 1);
     builder.union(getSQLiteBuilder().select('name').from('users').where('id', '=', 2));
     expect(builder.toSql()).toBe(expectedSql);
     expect(builder.getBindings()).toStrictEqual([1, 2]);
 
-    builder     = getSqlServerBuilder();
-    expectedSql = 'SELECT * FROM (SELECT [name] FROM [users] WHERE [id] = ?) AS [temp_table] UNION SELECT * FROM (SELECT [name] FROM [users] WHERE [id] = ?) AS [temp_table]';
+    builder = getSqlServerBuilder();
+    expectedSql =
+      'SELECT * FROM (SELECT [name] FROM [users] WHERE [id] = ?) AS [temp_table] UNION SELECT * FROM (SELECT [name] FROM [users] WHERE [id] = ?) AS [temp_table]';
     builder.select('name').from('users').where('id', '=', 1);
     builder.union(getSqlServerBuilder().select('name').from('users').where('id', '=', 2));
     expect(builder.toSql()).toBe(expectedSql);
@@ -1104,12 +986,12 @@ describe('database query builder test', () => {
     builder = getBuilder();
     builder.select('*').from('users').where('id', '=', 1);
     builder.unionAll(getBuilder().select('*').from('users').where('id', '=', 2));
-    expect(builder.toSql())
-      .toBe(
-        '(SELECT * FROM `users` WHERE `id` = ?) UNION ALL (SELECT * FROM `users` WHERE `id` = ?)');
+    expect(builder.toSql()).toBe(
+      '(SELECT * FROM `users` WHERE `id` = ?) UNION ALL (SELECT * FROM `users` WHERE `id` = ?)'
+    );
     expect(builder.getBindings()).toStrictEqual([1, 2]);
     const expectedSql = '(SELECT * FROM "users" WHERE "id" = $1) UNION ALL (SELECT * FROM "users" WHERE "id" = $2)';
-    builder           = getPostgresBuilder();
+    builder = getPostgresBuilder();
     builder.select('*').from('users').where('id', '=', 1);
     builder.unionAll(getPostgresBuilder().select('*').from('users').where('id', '=', 2));
     expect(builder.toSql()).toBe(expectedSql);
@@ -1121,9 +1003,9 @@ describe('database query builder test', () => {
     builder.select('*').from('users').where('id', '=', 1);
     builder.union(getBuilder().select('*').from('users').where('id', '=', 2));
     builder.union(getBuilder().select('*').from('users').where('id', '=', 3));
-    expect(builder.toSql())
-      .toBe(
-        '(SELECT * FROM `users` WHERE `id` = ?) UNION (SELECT * FROM `users` WHERE `id` = ?) UNION (SELECT * FROM `users` WHERE `id` = ?)');
+    expect(builder.toSql()).toBe(
+      '(SELECT * FROM `users` WHERE `id` = ?) UNION (SELECT * FROM `users` WHERE `id` = ?) UNION (SELECT * FROM `users` WHERE `id` = ?)'
+    );
     expect(builder.getBindings()).toStrictEqual([1, 2, 3]);
   });
 
@@ -1132,9 +1014,9 @@ describe('database query builder test', () => {
     builder.select('*').from('users').where('id', '=', 1);
     builder.unionAll(getBuilder().select('*').from('users').where('id', '=', 2));
     builder.unionAll(getBuilder().select('*').from('users').where('id', '=', 3));
-    expect(builder.toSql())
-      .toBe(
-        '(SELECT * FROM `users` WHERE `id` = ?) UNION ALL (SELECT * FROM `users` WHERE `id` = ?) UNION ALL (SELECT * FROM `users` WHERE `id` = ?)');
+    expect(builder.toSql()).toBe(
+      '(SELECT * FROM `users` WHERE `id` = ?) UNION ALL (SELECT * FROM `users` WHERE `id` = ?) UNION ALL (SELECT * FROM `users` WHERE `id` = ?)'
+    );
     expect(builder.getBindings()).toStrictEqual([1, 2, 3]);
   });
 
@@ -1143,9 +1025,9 @@ describe('database query builder test', () => {
     builder.select('*').from('users').where('id', '=', 1);
     builder.union(getBuilder().select('*').from('users').where('id', '=', 2));
     builder.orderBy('id', 'desc');
-    expect(builder.toSql())
-      .toBe(
-        '(SELECT * FROM `users` WHERE `id` = ?) UNION (SELECT * FROM `users` WHERE `id` = ?) ORDER BY `id` DESC');
+    expect(builder.toSql()).toBe(
+      '(SELECT * FROM `users` WHERE `id` = ?) UNION (SELECT * FROM `users` WHERE `id` = ?) ORDER BY `id` DESC'
+    );
     expect(builder.getBindings()).toStrictEqual([1, 2]);
   });
 
@@ -1155,18 +1037,17 @@ describe('database query builder test', () => {
     builder.select('*').from('users');
     builder.union(getBuilder().select('*').from('dogs'));
     builder.skip(5).take(10);
-    expect(builder.toSql()).toBe(
-      '(SELECT * FROM `users`) UNION (SELECT * FROM `dogs`) LIMIT 10 OFFSET 5');
+    expect(builder.toSql()).toBe('(SELECT * FROM `users`) UNION (SELECT * FROM `dogs`) LIMIT 10 OFFSET 5');
 
     expectedSql = '(SELECT * FROM "users") UNION (SELECT * FROM "dogs") LIMIT 10 OFFSET 5';
-    builder     = getPostgresBuilder();
+    builder = getPostgresBuilder();
     builder.select('*').from('users');
     builder.union(getPostgresBuilder().select('*').from('dogs'));
     builder.skip(5).take(10);
     expect(builder.toSql()).toBe(expectedSql);
 
     expectedSql = '(SELECT * FROM "users" LIMIT 11) UNION (SELECT * FROM "dogs" LIMIT 22) LIMIT 10 OFFSET 5';
-    builder     = getPostgresBuilder();
+    builder = getPostgresBuilder();
     builder.select('*').from('users').limit(11);
     builder.union(getPostgresBuilder().select('*').from('dogs').limit(22));
     builder.skip(5).take(10);
@@ -1176,13 +1057,17 @@ describe('database query builder test', () => {
   it('test union with join', () => {
     builder = getBuilder();
     builder.select('*').from('users');
-    builder.union(getBuilder().select('*').from('dogs')
-      .join('breeds', (join: JoinClauseBuilder) => {
-        join.on('dogs.breed_id', '=', 'breeds.id').where('breeds.is_native', '=', 1);
-      }));
-    expect(builder.toSql())
-      .toBe(
-        '(SELECT * FROM `users`) UNION (SELECT * FROM `dogs` INNER JOIN `breeds` ON `dogs`.`breed_id` = `breeds`.`id` AND `breeds`.`is_native` = ?)');
+    builder.union(
+      getBuilder()
+        .select('*')
+        .from('dogs')
+        .join('breeds', (join: JoinClauseBuilder) => {
+          join.on('dogs.breed_id', '=', 'breeds.id').where('breeds.is_native', '=', 1);
+        })
+    );
+    expect(builder.toSql()).toBe(
+      '(SELECT * FROM `users`) UNION (SELECT * FROM `dogs` INNER JOIN `breeds` ON `dogs`.`breed_id` = `breeds`.`id` AND `breeds`.`is_native` = ?)'
+    );
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 
@@ -1191,9 +1076,9 @@ describe('database query builder test', () => {
     builder.select('*').from('users').where('id', '=', 1);
     builder.union(getMySqlBuilder().select('*').from('users').where('id', '=', 2));
     builder.orderBy('id', 'desc');
-    expect(builder.toSql())
-      .toBe(
-        '(SELECT * FROM `users` WHERE `id` = ?) UNION (SELECT * FROM `users` WHERE `id` = ?) ORDER BY `id` DESC');
+    expect(builder.toSql()).toBe(
+      '(SELECT * FROM `users` WHERE `id` = ?) UNION (SELECT * FROM `users` WHERE `id` = ?) ORDER BY `id` DESC'
+    );
     expect(builder.getBindings()).toStrictEqual([1, 2]);
   });
 
@@ -1202,77 +1087,85 @@ describe('database query builder test', () => {
     builder.select('*').from('users');
     builder.union(getMySqlBuilder().select('*').from('dogs'));
     builder.skip(5).take(10);
-    expect(builder.toSql()).toBe(
-      '(SELECT * FROM `users`) UNION (SELECT * FROM `dogs`) LIMIT 10 OFFSET 5');
+    expect(builder.toSql()).toBe('(SELECT * FROM `users`) UNION (SELECT * FROM `dogs`) LIMIT 10 OFFSET 5');
   });
-
 
   it('test union aggregate', async () => {
     let expected, spySelect, spyProcessSelect;
 
-    expected = 'SELECT count(*) AS aggregate FROM ((SELECT * FROM `posts`) UNION (SELECT * FROM `videos`)) AS `temp_table`';
-    builder  = getMySqlBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select'), spyProcessSelect = jest.spyOn(
-      builder._processor, 'processSelect');
+    expected =
+      'SELECT count(*) AS aggregate FROM ((SELECT * FROM `posts`) UNION (SELECT * FROM `videos`)) AS `temp_table`';
+    builder = getMySqlBuilder();
+    (spySelect = jest.spyOn(builder._connection, 'select')),
+      (spyProcessSelect = jest.spyOn(builder._processor, 'processSelect'));
     await builder.from('posts').union(getMySqlBuilder().from('videos')).count();
-    expect(spySelect).toBeCalledTimes(1);
-    expect(spySelect).toBeCalledWith(expected, [], true);
-    expect(spyProcessSelect).toBeCalledTimes(1);
+    expect(spySelect).toHaveBeenCalledTimes(1);
+    expect(spySelect).toHaveBeenCalledWith(expected, [], true);
+    expect(spyProcessSelect).toHaveBeenCalledTimes(1);
 
-    expected = 'SELECT count(*) AS aggregate FROM ((SELECT `id` FROM `posts`) UNION (SELECT `id` FROM `videos`)) AS `temp_table`';
-    builder  = getMySqlBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select'), spyProcessSelect = jest.spyOn(
-      builder._processor, 'processSelect');
-    await builder.from('posts').select('id').union(
-      getMySqlBuilder().from('videos').select('id')).count();
-    expect(spySelect).toBeCalledTimes(1);
-    expect(spySelect).toBeCalledWith(expected, [], true);
-    expect(spyProcessSelect).toBeCalledTimes(1);
+    expected =
+      'SELECT count(*) AS aggregate FROM ((SELECT `id` FROM `posts`) UNION (SELECT `id` FROM `videos`)) AS `temp_table`';
+    builder = getMySqlBuilder();
+    (spySelect = jest.spyOn(builder._connection, 'select')),
+      (spyProcessSelect = jest.spyOn(builder._processor, 'processSelect'));
+    await builder.from('posts').select('id').union(getMySqlBuilder().from('videos').select('id')).count();
+    expect(spySelect).toHaveBeenCalledTimes(1);
+    expect(spySelect).toHaveBeenCalledWith(expected, [], true);
+    expect(spyProcessSelect).toHaveBeenCalledTimes(1);
 
-    expected = 'SELECT count(*) AS aggregate FROM ((SELECT * FROM "posts") UNION (SELECT * FROM "videos")) AS "temp_table"';
-    builder  = getPostgresBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select'), spyProcessSelect = jest.spyOn(
-      builder._processor, 'processSelect');
+    expected =
+      'SELECT count(*) AS aggregate FROM ((SELECT * FROM "posts") UNION (SELECT * FROM "videos")) AS "temp_table"';
+    builder = getPostgresBuilder();
+    (spySelect = jest.spyOn(builder._connection, 'select')),
+      (spyProcessSelect = jest.spyOn(builder._processor, 'processSelect'));
     await builder.from('posts').union(getPostgresBuilder().from('videos')).count();
-    expect(spySelect).toBeCalledTimes(1);
-    expect(spySelect).toBeCalledWith(expected, [], true);
-    expect(spyProcessSelect).toBeCalledTimes(1);
+    expect(spySelect).toHaveBeenCalledTimes(1);
+    expect(spySelect).toHaveBeenCalledWith(expected, [], true);
+    expect(spyProcessSelect).toHaveBeenCalledTimes(1);
 
-    expected = 'SELECT count(*) AS aggregate FROM (SELECT * FROM (SELECT * FROM "posts") UNION SELECT * FROM (SELECT * FROM "videos")) AS "temp_table"';
-    builder  = getSQLiteBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select'), spyProcessSelect = jest.spyOn(
-      builder._processor, 'processSelect');
+    expected =
+      'SELECT count(*) AS aggregate FROM (SELECT * FROM (SELECT * FROM "posts") UNION SELECT * FROM (SELECT * FROM "videos")) AS "temp_table"';
+    builder = getSQLiteBuilder();
+    (spySelect = jest.spyOn(builder._connection, 'select')),
+      (spyProcessSelect = jest.spyOn(builder._processor, 'processSelect'));
     await builder.from('posts').union(getSQLiteBuilder().from('videos')).count();
-    expect(spySelect).toBeCalledTimes(1);
-    expect(spySelect).toBeCalledWith(expected, [], true);
-    expect(spyProcessSelect).toBeCalledTimes(1);
+    expect(spySelect).toHaveBeenCalledTimes(1);
+    expect(spySelect).toHaveBeenCalledWith(expected, [], true);
+    expect(spyProcessSelect).toHaveBeenCalledTimes(1);
 
-    expected = 'SELECT count(*) AS aggregate FROM (SELECT * FROM (SELECT * FROM [posts]) AS [temp_table] UNION SELECT * FROM (SELECT * FROM [videos]) AS [temp_table]) AS [temp_table]';
-    builder  = getSqlServerBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select'), spyProcessSelect = jest.spyOn(
-      builder._processor, 'processSelect');
+    expected =
+      'SELECT count(*) AS aggregate FROM (SELECT * FROM (SELECT * FROM [posts]) AS [temp_table] UNION SELECT * FROM (SELECT * FROM [videos]) AS [temp_table]) AS [temp_table]';
+    builder = getSqlServerBuilder();
+    (spySelect = jest.spyOn(builder._connection, 'select')),
+      (spyProcessSelect = jest.spyOn(builder._processor, 'processSelect'));
     await builder.from('posts').union(getSqlServerBuilder().from('videos')).count();
-    expect(spySelect).toBeCalledTimes(1);
-    expect(spySelect).toBeCalledWith(expected, [], true);
-    expect(spyProcessSelect).toBeCalledTimes(1);
+    expect(spySelect).toHaveBeenCalledTimes(1);
+    expect(spySelect).toHaveBeenCalledWith(expected, [], true);
+    expect(spyProcessSelect).toHaveBeenCalledTimes(1);
   });
 
   it('test sub select where ins', () => {
     builder = getBuilder();
-    builder.select('*').from('users').whereIn('id', q => {
-      q.select('id').from('users').where('age', '>', 25).take(3);
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` WHERE `id` IN (SELECT `id` FROM `users` WHERE `age` > ? LIMIT 3)');
+    builder
+      .select('*')
+      .from('users')
+      .whereIn('id', (q) => {
+        q.select('id').from('users').where('age', '>', 25).take(3);
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` WHERE `id` IN (SELECT `id` FROM `users` WHERE `age` > ? LIMIT 3)'
+    );
     expect(builder.getBindings()).toStrictEqual([25]);
     builder = getBuilder();
-    builder.select('*').from('users').whereNotIn('id', q => {
-      q.select('id').from('users').where('age', '>', 25).take(3);
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` WHERE `id` NOT IN (SELECT `id` FROM `users` WHERE `age` > ? LIMIT 3)');
+    builder
+      .select('*')
+      .from('users')
+      .whereNotIn('id', (q) => {
+        q.select('id').from('users').where('age', '>', 25).take(3);
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` WHERE `id` NOT IN (SELECT `id` FROM `users` WHERE `age` > ? LIMIT 3)'
+    );
     expect(builder.getBindings()).toStrictEqual([25]);
   });
 
@@ -1290,29 +1183,27 @@ describe('database query builder test', () => {
   it('test json where null mysql', () => {
     builder = getMySqlBuilder();
     builder.select('*').from('users').whereNull('items->id');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` WHERE (json_extract(`items`, "$.id") IS NULL OR json_type(json_extract(`items`, "$.id")) = \'NULL\')');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` WHERE (json_extract(`items`, "$.id") IS NULL OR json_type(json_extract(`items`, "$.id")) = \'NULL\')'
+    );
   });
 
   it('test json where not null mysql', () => {
     builder = getMySqlBuilder();
     builder.select('*').from('users').whereNotNull('items->id');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` WHERE (json_extract(`items`, "$.id") IS NOT NULL AND json_type(json_extract(`items`, "$.id")) != \'NULL\')');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` WHERE (json_extract(`items`, "$.id") IS NOT NULL AND json_type(json_extract(`items`, "$.id")) != \'NULL\')'
+    );
   });
 
   it('test array where nulls', () => {
     builder = getBuilder();
     builder.select('*').from('users').whereNull(['id', 'expires_at']);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM `users` WHERE `id` IS NULL AND `expires_at` IS NULL');
+    expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` IS NULL AND `expires_at` IS NULL');
     expect(builder.getBindings()).toStrictEqual([]);
     builder = getBuilder();
     builder.select('*').from('users').where('id', '=', 1).orWhereNull(['id', 'expires_at']);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM `users` WHERE `id` = ? OR `id` IS NULL OR `expires_at` IS NULL');
+    expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? OR `id` IS NULL OR `expires_at` IS NULL');
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 
@@ -1330,13 +1221,13 @@ describe('database query builder test', () => {
   it('test array where not nulls', () => {
     builder = getBuilder();
     builder.select('*').from('users').whereNotNull(['id', 'expires_at']);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM `users` WHERE `id` IS NOT NULL AND `expires_at` IS NOT NULL');
+    expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` IS NOT NULL AND `expires_at` IS NOT NULL');
     expect(builder.getBindings()).toStrictEqual([]);
     builder = getBuilder();
     builder.select('*').from('users').where('id', '>', 1).orWhereNotNull(['id', 'expires_at']);
-    expect(builder.toSql())
-      .toBe('SELECT * FROM `users` WHERE `id` > ? OR `id` IS NOT NULL OR `expires_at` IS NOT NULL');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` WHERE `id` > ? OR `id` IS NOT NULL OR `expires_at` IS NOT NULL'
+    );
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 
@@ -1358,14 +1249,14 @@ describe('database query builder test', () => {
     expect(builder.toSql()).toBe('SELECT * FROM `users` GROUP BY DATE(created_at), ? DESC');
     expect(builder.getBindings()).toStrictEqual(['foo']);
     builder = getBuilder();
-    builder.from('users')
+    builder
+      .from('users')
       .havingRaw('?', ['havingRawBinding'])
       .groupByRaw('?', ['groupByRawBinding'])
       .whereRaw('?', ['whereRawBinding']);
 
     builder.toSql();
-    expect(builder.getBindings()).toStrictEqual(
-      ['whereRawBinding', 'groupByRawBinding', 'havingRawBinding']);
+    expect(builder.getBindings()).toStrictEqual(['whereRawBinding', 'groupByRawBinding', 'havingRawBinding']);
   });
 
   it('test order bys', () => {
@@ -1384,14 +1275,15 @@ describe('database query builder test', () => {
     builder.select('*').from('users').orderByDesc('name');
     expect(builder.toSql()).toBe('SELECT * FROM `users` ORDER BY `name` DESC');
     builder = getBuilder();
-    builder.select('*')
+    builder
+      .select('*')
       .from('posts')
       .where('public', 1)
       .unionAll(getBuilder().select('*').from('videos').where('public', 1))
       .orderByRaw('field(category, ?, ?) asc', ['news', 'opinion']);
-    expect(builder.toSql())
-      .toBe(
-        '(SELECT * FROM `posts` WHERE `public` = ?) UNION ALL (SELECT * FROM `videos` WHERE `public` = ?) ORDER BY field(category, ?, ?) asc');
+    expect(builder.toSql()).toBe(
+      '(SELECT * FROM `posts` WHERE `public` = ?) UNION ALL (SELECT * FROM `videos` WHERE `public` = ?) ORDER BY field(category, ?, ?) asc'
+    );
     expect(builder.getBindings()).toStrictEqual([1, 1, 'news', 'opinion']);
   });
 
@@ -1410,8 +1302,7 @@ describe('database query builder test', () => {
     builder.select('*').from('first');
     builder.union(getBuilder().select('*').from('second'));
     builder.orderBy('name');
-    expect(builder.toSql()).toBe(
-      '(SELECT * FROM `first`) UNION (SELECT * FROM `second`) ORDER BY `name` ASC');
+    expect(builder.toSql()).toBe('(SELECT * FROM `first`) UNION (SELECT * FROM `second`) ORDER BY `name` ASC');
     builder.reorder();
     expect(builder.toSql()).toBe('(SELECT * FROM `first`) UNION (SELECT * FROM `second`)');
     builder = getBuilder();
@@ -1424,36 +1315,36 @@ describe('database query builder test', () => {
   });
 
   it('test order by sub queries', () => {
-    const expected = 'SELECT * FROM `users` ORDER BY (SELECT `created_at` FROM `logins` WHERE `user_id` = `users`.`id` LIMIT 1)';
+    const expected =
+      'SELECT * FROM `users` ORDER BY (SELECT `created_at` FROM `logins` WHERE `user_id` = `users`.`id` LIMIT 1)';
     const subQuery = (query: QueryBuilder) => {
       return query.select('created_at').from('logins').whereColumn('user_id', 'users.id').limit(1);
     };
-    builder        = getBuilder().select('*').from('users').orderBy(subQuery);
+    builder = getBuilder().select('*').from('users').orderBy(subQuery);
     expect(builder.toSql()).toBe(`${expected} ASC`);
     builder = getBuilder().select('*').from('users').orderBy(subQuery, 'desc');
     expect(builder.toSql()).toBe(`${expected} DESC`);
     builder = getBuilder().select('*').from('users').orderByDesc(subQuery);
     expect(builder.toSql()).toBe(`${expected} DESC`);
     builder = getBuilder();
-    builder.select('*')
+    builder
+      .select('*')
       .from('posts')
       .where('public', 1)
       .unionAll(getBuilder().select('*').from('videos').where('public', 1))
       .orderBy(getBuilder().selectRaw('field(category, ?, ?)', ['news', 'opinion']));
-    expect(builder.toSql())
-      .toBe(
-        '(SELECT * FROM `posts` WHERE `public` = ?) UNION ALL (SELECT * FROM `videos` WHERE `public` = ?) ORDER BY (SELECT field(category, ?, ?)) ASC');
+    expect(builder.toSql()).toBe(
+      '(SELECT * FROM `posts` WHERE `public` = ?) UNION ALL (SELECT * FROM `videos` WHERE `public` = ?) ORDER BY (SELECT field(category, ?, ?)) ASC'
+    );
     expect(builder.getBindings()).toStrictEqual([1, 1, 'news', 'opinion']);
   });
-
 
   it('test order by invalid direction param', () => {
     builder = getBuilder();
 
     expect(() => {
       builder.select('*').from('users').orderBy('age', 'asec');
-    }).toThrowError('InvalidArgumentException');
-
+    }).toThrow('InvalidArgumentException');
   });
 
   it('test havings', () => {
@@ -1461,7 +1352,8 @@ describe('database query builder test', () => {
     builder.select('*').from('users').having('email', '>', 1);
     expect(builder.toSql()).toBe('SELECT * FROM `users` HAVING `email` > ?');
     builder = getBuilder();
-    builder.select('*')
+    builder
+      .select('*')
       .from('users')
       .orHaving('email', '=', 'test@example.com')
       .orHaving('email', '=', 'test2@example.com');
@@ -1471,29 +1363,29 @@ describe('database query builder test', () => {
     expect(builder.toSql()).toBe('SELECT * FROM `users` GROUP BY `email` HAVING `email` > ?');
     builder = getBuilder();
     builder.select('email as foo_email').from('users').having('foo_email', '>', 1);
-    expect(builder.toSql()).toBe(
-      'SELECT `email` AS `foo_email` FROM `users` HAVING `foo_email` > ?');
+    expect(builder.toSql()).toBe('SELECT `email` AS `foo_email` FROM `users` HAVING `foo_email` > ?');
     builder = getBuilder();
-    builder.select(['category', raw('count(*) as `total`')])
+    builder
+      .select(['category', raw('count(*) as `total`')])
       .from('item')
       .where('department', '=', 'popular')
       .groupBy('category')
       .having('total', '>', raw('3'));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT `category`, count(*) as `total` FROM `item` WHERE `department` = ? GROUP BY `category` HAVING `total` > 3');
+    expect(builder.toSql()).toBe(
+      'SELECT `category`, count(*) as `total` FROM `item` WHERE `department` = ? GROUP BY `category` HAVING `total` > 3'
+    );
     builder = getBuilder();
-    builder.select(['category', raw('count(*) as `total`')])
+    builder
+      .select(['category', raw('count(*) as `total`')])
       .from('item')
       .where('department', '=', 'popular')
       .groupBy('category')
       .having('total', '>', 3);
-    expect(builder.toSql())
-      .toBe(
-        'SELECT `category`, count(*) as `total` FROM `item` WHERE `department` = ? GROUP BY `category` HAVING `total` > ?');
+    expect(builder.toSql()).toBe(
+      'SELECT `category`, count(*) as `total` FROM `item` WHERE `department` = ? GROUP BY `category` HAVING `total` > ?'
+    );
     builder = getBuilder();
-    builder.select('*').from('users').havingBetween('last_login_date',
-      ['2018-11-16', '2018-12-16']);
+    builder.select('*').from('users').havingBetween('last_login_date', ['2018-11-16', '2018-12-16']);
     expect(builder.toSql()).toBe('SELECT * FROM `users` HAVING `last_login_date` BETWEEN ? AND ?');
   });
 
@@ -1505,62 +1397,64 @@ describe('database query builder test', () => {
 
   it('test having followed by select get', async () => {
     let spySelect, spyProcessSelect, result, query;
-    builder          = getBuilder();
-    spySelect        = jest.spyOn(builder._connection, 'select').mockImplementation(async () => {
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockImplementation(async () => {
       return [
         {
-          'category': 'rock',
-          'total'   : 5
-        }
+          category: 'rock',
+          total   : 5,
+        },
       ];
     });
-    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
-      (builder, results) => {
-        return results;
-      });
-    query            = 'SELECT `category`, count(*) as `total` FROM `item` WHERE `department` = ? GROUP BY `category` HAVING `total` > ?';
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
+      return results;
+    });
+    query =
+      'SELECT `category`, count(*) as `total` FROM `item` WHERE `department` = ? GROUP BY `category` HAVING `total` > ?';
 
     builder.from('item');
 
-    result = await builder.select(['category', raw('count(*) as `total`')])
+    result = await builder
+      .select(['category', raw('count(*) as `total`')])
       .where('department', '=', 'popular')
       .groupBy('category')
       .having('total', '>', 3)
       .get();
-    expect(spySelect).toBeCalledWith(query, ['popular', 3], true);
+    expect(spySelect).toHaveBeenCalledWith(query, ['popular', 3], true);
     expect(result).toStrictEqual([
       {
-        'category': 'rock',
-        'total'   : 5
-      }
+        category: 'rock',
+        total   : 5,
+      },
     ]);
 
-    builder          = getBuilder();
-    spySelect        = jest.spyOn(builder._connection, 'select').mockImplementation(async () => {
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockImplementation(async () => {
       return [
         {
-          'category': 'rock',
-          'total'   : 5
-        }
+          category: 'rock',
+          total   : 5,
+        },
       ];
     });
-    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
-      (builder, results) => {
-        return results;
-      });
-    query            = 'SELECT `category`, count(*) as `total` FROM `item` WHERE `department` = ? GROUP BY `category` HAVING `total` > 3';
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
+      return results;
+    });
+    query =
+      'SELECT `category`, count(*) as `total` FROM `item` WHERE `department` = ? GROUP BY `category` HAVING `total` > 3';
     builder.from('item');
-    result = await builder.select(['category', raw('count(*) as `total`')])
+    result = await builder
+      .select(['category', raw('count(*) as `total`')])
       .where('department', '=', 'popular')
       .groupBy('category')
       .having('total', '>', raw('3'))
       .get();
-    expect(spySelect).toBeCalledWith(query, ['popular'], true);
+    expect(spySelect).toHaveBeenCalledWith(query, ['popular'], true);
     expect(result).toStrictEqual([
       {
-        'category': 'rock',
-        'total'   : 5
-      }
+        category: 'rock',
+        total   : 5,
+      },
     ]);
   });
 
@@ -1572,13 +1466,14 @@ describe('database query builder test', () => {
     builder.select('*').from('users').having('baz', '=', 1).orHavingRaw('user_foo < user_bar');
     expect(builder.toSql()).toBe('SELECT * FROM `users` HAVING `baz` = ? OR user_foo < user_bar');
     builder = getBuilder();
-    builder.select('*')
+    builder
+      .select('*')
       .from('users')
       .havingBetween('last_login_date', ['2018-11-16', '2018-12-16'])
       .orHavingRaw('user_foo < user_bar');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` HAVING `last_login_date` BETWEEN ? AND ? OR user_foo < user_bar');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` HAVING `last_login_date` BETWEEN ? AND ? OR user_foo < user_bar'
+    );
   });
 
   it('test limits and offsets', () => {
@@ -1624,23 +1519,24 @@ describe('database query builder test', () => {
       q.select('body').from('posts').where('id', 4);
     }, 'post');
 
-    spySelector = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'aggregate': 1
-      }
-    ]));
+    spySelector = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          aggregate: 1,
+        },
+      ])
+    );
 
     // builder.getProcessor().shouldReceive('processSelect').once().andReturnUsing((builder, results) => {
     //   return results;
     // });
 
-    spyProcessSelector = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
-      (builder, results) => {
-        return results;
-      });
+    spyProcessSelector = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
+      return results;
+    });
 
     const count = await builder.getCountForPagination();
-    expect(spySelector).toBeCalledWith('SELECT count(*) AS aggregate FROM `users`', [], true);
+    expect(spySelector).toHaveBeenCalledWith('SELECT count(*) AS aggregate FROM `users`', [], true);
     expect(count).toBe(1);
     expect(builder.getBindings()).toStrictEqual([]); // todo check
   });
@@ -1649,22 +1545,25 @@ describe('database query builder test', () => {
     let spySelector, spyProcessSelector;
     builder = getBuilder();
 
-    spySelector        = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'aggregate': 1
-      }
-    ]));
-    spyProcessSelector = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
-      (builder, results) => {
-        return results;
-      });
-    const columns      = ['body as post_body', 'teaser', 'posts.created as published'];
+    spySelector = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          aggregate: 1,
+        },
+      ])
+    );
+    spyProcessSelector = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
+      return results;
+    });
+    const columns = ['body as post_body', 'teaser', 'posts.created as published'];
     builder.from('posts').select(columns);
 
     const count = await builder.getCountForPagination(columns);
-    expect(spySelector)
-      .toBeCalledWith('SELECT count(`body`, `teaser`, `posts`.`created`) AS aggregate FROM `posts`',
-        [], true);
+    expect(spySelector).toHaveBeenCalledWith(
+      'SELECT count(`body`, `teaser`, `posts`.`created`) AS aggregate FROM `posts`',
+      [],
+      true
+    );
 
     expect(count).toBe(1);
   });
@@ -1673,20 +1572,22 @@ describe('database query builder test', () => {
     let spySelector, spyProcessSelector;
     builder = getBuilder();
     builder.from('posts').select('id').union(getBuilder().from('videos').select('id'));
-    spySelector        = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'aggregate': 1
-      }
-    ]));
-    spyProcessSelector = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
-      (builder, results) => {
-        return results;
-      });
-    const count        = await builder.getCountForPagination();
-    expect(spySelector)
-      .toBeCalledWith(
-        'SELECT count(*) AS aggregate FROM ((SELECT `id` FROM `posts`) UNION (SELECT `id` FROM `videos`)) AS `temp_table`',
-        [], true);
+    spySelector = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          aggregate: 1,
+        },
+      ])
+    );
+    spyProcessSelector = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
+      return results;
+    });
+    const count = await builder.getCountForPagination();
+    expect(spySelector).toHaveBeenCalledWith(
+      'SELECT count(*) AS aggregate FROM ((SELECT `id` FROM `posts`) UNION (SELECT `id` FROM `videos`)) AS `temp_table`',
+      [],
+      true
+    );
 
     expect(count).toBe(1);
   });
@@ -1700,29 +1601,44 @@ describe('database query builder test', () => {
 
   it('test where with array conditions', () => {
     builder = getBuilder();
-    builder.select('*').from('users').where([['foo', 1], ['bar', 2]]);
+    builder
+      .select('*')
+      .from('users')
+      .where([
+        ['foo', 1],
+        ['bar', 2],
+      ]);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE (`foo` = ? AND `bar` = ?)');
     expect(builder.getBindings()).toStrictEqual([1, 2]);
     builder = getBuilder();
     builder.select('*').from('users').where({
-      'foo': 1,
-      'bar': 2
+      foo: 1,
+      bar: 2,
     });
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE (`foo` = ? AND `bar` = ?)');
     expect(builder.getBindings()).toStrictEqual([1, 2]);
     builder = getBuilder();
-    builder.select('*').from('users').where([['foo', 1], ['bar', '<', 2]]);
+    builder
+      .select('*')
+      .from('users')
+      .where([
+        ['foo', 1],
+        ['bar', '<', 2],
+      ]);
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE (`foo` = ? AND `bar` < ?)');
     expect(builder.getBindings()).toStrictEqual([1, 2]);
   });
 
   it('test nested wheres', () => {
     builder = getBuilder();
-    builder.select('*').from('users').where('email', '=', 'foo').orWhere(q => {
-      q.where('name', '=', 'bar').where('age', '=', 25);
-    });
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM `users` WHERE `email` = ? OR (`name` = ? AND `age` = ?)');
+    builder
+      .select('*')
+      .from('users')
+      .where('email', '=', 'foo')
+      .orWhere((q) => {
+        q.where('name', '=', 'bar').where('age', '=', 25);
+      });
+    expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `email` = ? OR (`name` = ? AND `age` = ?)');
     expect(builder.getBindings()).toStrictEqual(['foo', 'bar', 25]);
   });
 
@@ -1737,72 +1653,86 @@ describe('database query builder test', () => {
 
   it('test full sub selects', () => {
     builder = getBuilder();
-    builder.select('*').from('users')
+    builder
+      .select('*')
+      .from('users')
       .where('email', '=', 'foo')
-      .orWhere('id', '=', q => {
+      .orWhere('id', '=', (q) => {
         q.select(raw('max(id)')).from('users').where('email', '=', 'bar');
       });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` WHERE `email` = ? OR `id` = (SELECT max(id) FROM `users` WHERE `email` = ?)');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` WHERE `email` = ? OR `id` = (SELECT max(id) FROM `users` WHERE `email` = ?)'
+    );
     expect(builder.getBindings()).toStrictEqual(['foo', 'bar']);
   });
 
   it('test where exists', () => {
     builder = getBuilder();
-    builder.select('*')
+    builder
+      .select('*')
       .from('orders')
       .whereExists((q: QueryBuilder) => {
-        q.select('*').from('products')
-          .where('products.id', '=', raw('`orders`.`id`'));
+        q.select('*').from('products').where('products.id', '=', raw('`orders`.`id`'));
       });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `orders` WHERE EXISTS (SELECT * FROM `products` WHERE `products`.`id` = `orders`.`id`)');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `orders` WHERE EXISTS (SELECT * FROM `products` WHERE `products`.`id` = `orders`.`id`)'
+    );
     builder = getBuilder();
-    builder.select('*').from('orders').whereNotExists((q: QueryBuilder) => {
-      q.select('*').from('products').where('products.id', '=', raw('`orders`.`id`'));
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `orders` WHERE NOT EXISTS (SELECT * FROM `products` WHERE `products`.`id` = `orders`.`id`)');
+    builder
+      .select('*')
+      .from('orders')
+      .whereNotExists((q: QueryBuilder) => {
+        q.select('*').from('products').where('products.id', '=', raw('`orders`.`id`'));
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `orders` WHERE NOT EXISTS (SELECT * FROM `products` WHERE `products`.`id` = `orders`.`id`)'
+    );
     builder = getBuilder();
-    builder.select('*').from('orders').where('id', '=', 1).orWhereExists((q: QueryBuilder) => {
-      q.select('*').from('products').where('products.id', '=', raw('`orders`.`id`'));
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `orders` WHERE `id` = ? OR EXISTS (SELECT * FROM `products` WHERE `products`.`id` = `orders`.`id`)');
+    builder
+      .select('*')
+      .from('orders')
+      .where('id', '=', 1)
+      .orWhereExists((q: QueryBuilder) => {
+        q.select('*').from('products').where('products.id', '=', raw('`orders`.`id`'));
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `orders` WHERE `id` = ? OR EXISTS (SELECT * FROM `products` WHERE `products`.`id` = `orders`.`id`)'
+    );
     builder = getBuilder();
-    builder.select('*').from('orders').where('id', '=', 1).orWhereNotExists((q: QueryBuilder) => {
-      q.select('*').from('products').where('products.id', '=', raw('`orders`.`id`'));
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `orders` WHERE `id` = ? OR NOT EXISTS (SELECT * FROM `products` WHERE `products`.`id` = `orders`.`id`)');
+    builder
+      .select('*')
+      .from('orders')
+      .where('id', '=', 1)
+      .orWhereNotExists((q: QueryBuilder) => {
+        q.select('*').from('products').where('products.id', '=', raw('`orders`.`id`'));
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `orders` WHERE `id` = ? OR NOT EXISTS (SELECT * FROM `products` WHERE `products`.`id` = `orders`.`id`)'
+    );
   });
 
   it('test basic joins', () => {
     builder = getBuilder();
     builder.select('*').from('users').join('contacts', 'users.id', 'contacts.id');
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id`');
+    expect(builder.toSql()).toBe('SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id`');
     builder = getBuilder();
-    builder.select('*')
+    builder
+      .select('*')
       .from('users')
       .join('contacts', 'users.id', '=', 'contacts.id')
       .leftJoin('photos', 'users.id', '=', 'photos.id');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` LEFT JOIN `photos` ON `users`.`id` = `photos`.`id`');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` LEFT JOIN `photos` ON `users`.`id` = `photos`.`id`'
+    );
     builder = getBuilder();
-    builder.select('*')
+    builder
+      .select('*')
       .from('users')
       .leftJoinWhere('photos', 'users.id', '=', 'bar')
       .joinWhere('photos', 'users.id', '=', 'foo');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` LEFT JOIN `photos` ON `users`.`id` = ? INNER JOIN `photos` ON `users`.`id` = ?');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` LEFT JOIN `photos` ON `users`.`id` = ? INNER JOIN `photos` ON `users`.`id` = ?'
+    );
     expect(builder.getBindings()).toStrictEqual(['bar', 'foo']);
   });
 
@@ -1811,291 +1741,355 @@ describe('database query builder test', () => {
     builder.select('*').from('sizes').crossJoin('colors');
     expect(builder.toSql()).toBe('SELECT * FROM `sizes` CROSS JOIN `colors`');
     builder = getBuilder();
-    builder.select('*').from('tableB')
-      .join('tableA', 'tableA.column1', '=', 'tableB.column2', 'cross');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `tableB` CROSS JOIN `tableA` ON `tableA`.`column1` = `tableB`.`column2`');
+    builder.select('*').from('tableB').join('tableA', 'tableA.column1', '=', 'tableB.column2', 'cross');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `tableB` CROSS JOIN `tableA` ON `tableA`.`column1` = `tableB`.`column2`'
+    );
     builder = getBuilder();
     builder.select('*').from('tableB').crossJoin('tableA', 'tableA.column1', '=', 'tableB.column2');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `tableB` CROSS JOIN `tableA` ON `tableA`.`column1` = `tableB`.`column2`');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `tableB` CROSS JOIN `tableA` ON `tableA`.`column1` = `tableB`.`column2`'
+    );
   });
 
   it('test complex join', () => {
     builder = getBuilder();
-    builder.select('*').from('users').join('contacts', j => {
-      j.on('users.id', '=', 'contacts.id')
-        .orOn('users.name', '=', 'contacts.name');
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` OR `users`.`name` = `contacts`.`name`');
+    builder
+      .select('*')
+      .from('users')
+      .join('contacts', (j) => {
+        j.on('users.id', '=', 'contacts.id').orOn('users.name', '=', 'contacts.name');
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` OR `users`.`name` = `contacts`.`name`'
+    );
     builder = getBuilder();
-    builder.select('*').from('users').join('contacts', j => {
-      j.where('users.id', '=', 'foo').orWhere('users.name', '=', 'bar');
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = ? OR `users`.`name` = ?');
+    builder
+      .select('*')
+      .from('users')
+      .join('contacts', (j) => {
+        j.where('users.id', '=', 'foo').orWhere('users.name', '=', 'bar');
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = ? OR `users`.`name` = ?'
+    );
     expect(builder.getBindings()).toStrictEqual(['foo', 'bar']);
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = ? OR `users`.`name` = ?');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = ? OR `users`.`name` = ?'
+    );
     expect(builder.getBindings()).toStrictEqual(['foo', 'bar']);
   });
 
   it('test join where null', () => {
     builder = getBuilder();
-    builder.select('*').from('users').join('contacts', j => {
-      j.on('users.id', '=', 'contacts.id').whereNull('contacts.deleted_at');
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND `contacts`.`deleted_at` IS NULL');
+    builder
+      .select('*')
+      .from('users')
+      .join('contacts', (j) => {
+        j.on('users.id', '=', 'contacts.id').whereNull('contacts.deleted_at');
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND `contacts`.`deleted_at` IS NULL'
+    );
     builder = getBuilder();
-    builder.select('*').from('users').join('contacts', j => {
-      j.on('users.id', '=', 'contacts.id').orWhereNull('contacts.deleted_at');
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` OR `contacts`.`deleted_at` IS NULL');
+    builder
+      .select('*')
+      .from('users')
+      .join('contacts', (j) => {
+        j.on('users.id', '=', 'contacts.id').orWhereNull('contacts.deleted_at');
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` OR `contacts`.`deleted_at` IS NULL'
+    );
   });
 
   it('test join where not null', () => {
     builder = getBuilder();
-    builder.select('*').from('users').join('contacts', j => {
-      j.on('users.id', '=', 'contacts.id').whereNotNull('contacts.deleted_at');
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND `contacts`.`deleted_at` IS NOT NULL');
+    builder
+      .select('*')
+      .from('users')
+      .join('contacts', (j) => {
+        j.on('users.id', '=', 'contacts.id').whereNotNull('contacts.deleted_at');
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND `contacts`.`deleted_at` IS NOT NULL'
+    );
     builder = getBuilder();
-    builder.select('*').from('users').join('contacts', j => {
-      j.on('users.id', '=', 'contacts.id').orWhereNotNull('contacts.deleted_at');
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` OR `contacts`.`deleted_at` IS NOT NULL');
+    builder
+      .select('*')
+      .from('users')
+      .join('contacts', (j) => {
+        j.on('users.id', '=', 'contacts.id').orWhereNotNull('contacts.deleted_at');
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` OR `contacts`.`deleted_at` IS NOT NULL'
+    );
   });
 
   it('test join where in', () => {
     builder = getBuilder();
-    builder.select('*').from('users').join('contacts', j => {
-      j.on('users.id', '=', 'contacts.id').whereIn('contacts.name', [48, 'baz', null]);
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND `contacts`.`name` IN (?, ?, ?)');
+    builder
+      .select('*')
+      .from('users')
+      .join('contacts', (j) => {
+        j.on('users.id', '=', 'contacts.id').whereIn('contacts.name', [48, 'baz', null]);
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND `contacts`.`name` IN (?, ?, ?)'
+    );
     expect(builder.getBindings()).toStrictEqual([48, 'baz', null]);
     builder = getBuilder();
-    builder.select('*').from('users').join('contacts', j => {
-      j.on('users.id', '=', 'contacts.id').orWhereIn('contacts.name', [48, 'baz', null]);
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` OR `contacts`.`name` IN (?, ?, ?)');
+    builder
+      .select('*')
+      .from('users')
+      .join('contacts', (j) => {
+        j.on('users.id', '=', 'contacts.id').orWhereIn('contacts.name', [48, 'baz', null]);
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` OR `contacts`.`name` IN (?, ?, ?)'
+    );
     expect(builder.getBindings()).toStrictEqual([48, 'baz', null]);
   });
 
   it('test join where in subquery', () => {
     builder = getBuilder();
-    builder.select('*').from('users').join('contacts', j => {
-      const q = getBuilder();
-      q.select('name').from('contacts').where('name', 'baz');
-      j.on('users.id', '=', 'contacts.id').whereIn('contacts.name', q);
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND `contacts`.`name` IN (SELECT `name` FROM `contacts` WHERE `name` = ?)');
+    builder
+      .select('*')
+      .from('users')
+      .join('contacts', (j) => {
+        const q = getBuilder();
+        q.select('name').from('contacts').where('name', 'baz');
+        j.on('users.id', '=', 'contacts.id').whereIn('contacts.name', q);
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND `contacts`.`name` IN (SELECT `name` FROM `contacts` WHERE `name` = ?)'
+    );
     expect(builder.getBindings()).toStrictEqual(['baz']);
     builder = getBuilder();
-    builder.select('*').from('users').join('contacts', j => {
-      const q = getBuilder();
-      q.select('name').from('contacts').where('name', 'baz');
-      j.on('users.id', '=', 'contacts.id').orWhereIn('contacts.name', q);
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` OR `contacts`.`name` IN (SELECT `name` FROM `contacts` WHERE `name` = ?)');
+    builder
+      .select('*')
+      .from('users')
+      .join('contacts', (j) => {
+        const q = getBuilder();
+        q.select('name').from('contacts').where('name', 'baz');
+        j.on('users.id', '=', 'contacts.id').orWhereIn('contacts.name', q);
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` OR `contacts`.`name` IN (SELECT `name` FROM `contacts` WHERE `name` = ?)'
+    );
     expect(builder.getBindings()).toStrictEqual(['baz']);
   });
 
   it('test join where not in', () => {
     builder = getBuilder();
-    builder.select('*').from('users').join('contacts', j => {
-      j.on('users.id', '=', 'contacts.id').whereNotIn('contacts.name', [48, 'baz', null]);
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND `contacts`.`name` NOT IN (?, ?, ?)');
+    builder
+      .select('*')
+      .from('users')
+      .join('contacts', (j) => {
+        j.on('users.id', '=', 'contacts.id').whereNotIn('contacts.name', [48, 'baz', null]);
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND `contacts`.`name` NOT IN (?, ?, ?)'
+    );
     expect(builder.getBindings()).toStrictEqual([48, 'baz', null]);
     builder = getBuilder();
-    builder.select('*').from('users').join('contacts', j => {
-      j.on('users.id', '=', 'contacts.id').orWhereNotIn('contacts.name', [48, 'baz', null]);
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` OR `contacts`.`name` NOT IN (?, ?, ?)');
+    builder
+      .select('*')
+      .from('users')
+      .join('contacts', (j) => {
+        j.on('users.id', '=', 'contacts.id').orWhereNotIn('contacts.name', [48, 'baz', null]);
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` OR `contacts`.`name` NOT IN (?, ?, ?)'
+    );
     expect(builder.getBindings()).toStrictEqual([48, 'baz', null]);
   });
 
   it('test joins with nested conditions', () => {
     builder = getBuilder();
-    builder.select('*').from('users').leftJoin('contacts', j => {
-      j.on('users.id', '=', 'contacts.id').where(j => {
-        j.where('contacts.country', '=', 'US').orWhere('contacts.is_partner', '=', 1);
-      });
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` LEFT JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND (`contacts`.`country` = ? OR `contacts`.`is_partner` = ?)');
-    expect(builder.getBindings()).toStrictEqual(['US', 1]);
-    builder = getBuilder();
-    builder.select('*').from('users').leftJoin('contacts', j => {
-      j.on('users.id', '=', 'contacts.id').where('contacts.is_active', '=', 1).orOn(j => {
-        j.orWhere(j => {
-          j.where('contacts.country', '=', 'UK').orOn('contacts.type', '=', 'users.type');
-        }).where(j => {
-          j.where('contacts.country', '=', 'US').orWhereNull('contacts.is_partner');
+    builder
+      .select('*')
+      .from('users')
+      .leftJoin('contacts', (j) => {
+        j.on('users.id', '=', 'contacts.id').where((j) => {
+          j.where('contacts.country', '=', 'US').orWhere('contacts.is_partner', '=', 1);
         });
       });
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` LEFT JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND `contacts`.`is_active` = ? OR ((`contacts`.`country` = ? OR `contacts`.`type` = `users`.`type`) AND (`contacts`.`country` = ? OR `contacts`.`is_partner` IS NULL))');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` LEFT JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND (`contacts`.`country` = ? OR `contacts`.`is_partner` = ?)'
+    );
+    expect(builder.getBindings()).toStrictEqual(['US', 1]);
+    builder = getBuilder();
+    builder
+      .select('*')
+      .from('users')
+      .leftJoin('contacts', (j) => {
+        j.on('users.id', '=', 'contacts.id')
+          .where('contacts.is_active', '=', 1)
+          .orOn((j) => {
+            j.orWhere((j) => {
+              j.where('contacts.country', '=', 'UK').orOn('contacts.type', '=', 'users.type');
+            }).where((j) => {
+              j.where('contacts.country', '=', 'US').orWhereNull('contacts.is_partner');
+            });
+          });
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` LEFT JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND `contacts`.`is_active` = ? OR ((`contacts`.`country` = ? OR `contacts`.`type` = `users`.`type`) AND (`contacts`.`country` = ? OR `contacts`.`is_partner` IS NULL))'
+    );
     expect(builder.getBindings()).toStrictEqual([1, 'UK', 'US']);
   });
 
   it('test joins with advanced conditions', () => {
     builder = getBuilder();
-    builder.select('*').from('users').leftJoin('contacts', j => {
-      j.on('users.id', 'contacts.id').where(j => {
-        j.where('role', 'admin').orWhereNull('contacts.disabled').orWhereRaw(
-          'year(contacts.created_at) = 2016');
+    builder
+      .select('*')
+      .from('users')
+      .leftJoin('contacts', (j) => {
+        j.on('users.id', 'contacts.id').where((j) => {
+          j.where('role', 'admin').orWhereNull('contacts.disabled').orWhereRaw('year(contacts.created_at) = 2016');
+        });
       });
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` LEFT JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND (`role` = ? OR `contacts`.`disabled` IS NULL OR year(contacts.created_at) = 2016)');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` LEFT JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND (`role` = ? OR `contacts`.`disabled` IS NULL OR year(contacts.created_at) = 2016)'
+    );
     expect(builder.getBindings()).toStrictEqual(['admin']);
   });
 
   it('test joins with subquery condition', () => {
     builder = getBuilder();
-    builder.select('*').from('users').leftJoin('contacts', j => {
-      j.on('users.id', 'contacts.id').whereIn('contact_type_id', q => {
-        q.select('id').from('contact_types').where('category_id', '1').whereNull('deleted_at');
+    builder
+      .select('*')
+      .from('users')
+      .leftJoin('contacts', (j) => {
+        j.on('users.id', 'contacts.id').whereIn('contact_type_id', (q) => {
+          q.select('id').from('contact_types').where('category_id', '1').whereNull('deleted_at');
+        });
       });
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` LEFT JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND `contact_type_id` IN (SELECT `id` FROM `contact_types` WHERE `category_id` = ? AND `deleted_at` IS NULL)');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` LEFT JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND `contact_type_id` IN (SELECT `id` FROM `contact_types` WHERE `category_id` = ? AND `deleted_at` IS NULL)'
+    );
     expect(builder.getBindings()).toStrictEqual(['1']);
     builder = getBuilder();
-    builder.select('*').from('users').leftJoin('contacts', j => {
-      j.on('users.id', 'contacts.id').whereExists(q => {
-        q.selectRaw('1')
-          .from('contact_types')
-          .whereRaw('contact_types.id = contacts.contact_type_id')
-          .where('category_id', '1')
-          .whereNull('deleted_at');
+    builder
+      .select('*')
+      .from('users')
+      .leftJoin('contacts', (j) => {
+        j.on('users.id', 'contacts.id').whereExists((q) => {
+          q.selectRaw('1')
+            .from('contact_types')
+            .whereRaw('contact_types.id = contacts.contact_type_id')
+            .where('category_id', '1')
+            .whereNull('deleted_at');
+        });
       });
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` LEFT JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND EXISTS (SELECT 1 FROM `contact_types` WHERE contact_types.id = contacts.contact_type_id AND `category_id` = ? AND `deleted_at` IS NULL)');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` LEFT JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND EXISTS (SELECT 1 FROM `contact_types` WHERE contact_types.id = contacts.contact_type_id AND `category_id` = ? AND `deleted_at` IS NULL)'
+    );
     expect(builder.getBindings()).toStrictEqual(['1']);
   });
 
   it('test joins with advanced subquery condition', () => {
     builder = getBuilder();
-    builder.select('*').from('users').leftJoin('contacts', j => {
-      j.on('users.id', 'contacts.id').whereExists(q => {
-        q.selectRaw('1')
-          .from('contact_types')
-          .whereRaw('contact_types.id = contacts.contact_type_id')
-          .where('category_id', '1')
-          .whereNull('deleted_at')
-          .whereIn('level_id', q => {
-            q.select('id').from('levels').where('is_active', true);
-          });
+    builder
+      .select('*')
+      .from('users')
+      .leftJoin('contacts', (j) => {
+        j.on('users.id', 'contacts.id').whereExists((q) => {
+          q.selectRaw('1')
+            .from('contact_types')
+            .whereRaw('contact_types.id = contacts.contact_type_id')
+            .where('category_id', '1')
+            .whereNull('deleted_at')
+            .whereIn('level_id', (q) => {
+              q.select('id').from('levels').where('is_active', true);
+            });
+        });
       });
-    });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` LEFT JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND EXISTS (SELECT 1 FROM `contact_types` WHERE contact_types.id = contacts.contact_type_id AND `category_id` = ? AND `deleted_at` IS NULL AND `level_id` IN (SELECT `id` FROM `levels` WHERE `is_active` = ?))');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` LEFT JOIN `contacts` ON `users`.`id` = `contacts`.`id` AND EXISTS (SELECT 1 FROM `contact_types` WHERE contact_types.id = contacts.contact_type_id AND `category_id` = ? AND `deleted_at` IS NULL AND `level_id` IN (SELECT `id` FROM `levels` WHERE `is_active` = ?))'
+    );
     expect(builder.getBindings()).toStrictEqual(['1', true]);
   });
 
   it('test joins with nested joins', () => {
     builder = getBuilder();
-    builder.select('users.id', 'contacts.id', 'contact_types.id').from('users').leftJoin('contacts',
-      j => {
-        j.on('users.id', 'contacts.id').join('contact_types', 'contacts.contact_type_id', '=',
-          'contact_types.id');
+    builder
+      .select('users.id', 'contacts.id', 'contact_types.id')
+      .from('users')
+      .leftJoin('contacts', (j) => {
+        j.on('users.id', 'contacts.id').join('contact_types', 'contacts.contact_type_id', '=', 'contact_types.id');
       });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT `users`.`id`, `contacts`.`id`, `contact_types`.`id` FROM `users` LEFT JOIN (`contacts` INNER JOIN `contact_types` ON `contacts`.`contact_type_id` = `contact_types`.`id`) ON `users`.`id` = `contacts`.`id`');
+    expect(builder.toSql()).toBe(
+      'SELECT `users`.`id`, `contacts`.`id`, `contact_types`.`id` FROM `users` LEFT JOIN (`contacts` INNER JOIN `contact_types` ON `contacts`.`contact_type_id` = `contact_types`.`id`) ON `users`.`id` = `contacts`.`id`'
+    );
   });
 
   it('test joins with multiple nested joins', () => {
     builder = getBuilder();
-    builder.select('users.id', 'contacts.id', 'contact_types.id', 'countrys.id', 'planets.id')
+    builder
+      .select('users.id', 'contacts.id', 'contact_types.id', 'countrys.id', 'planets.id')
       .from('users')
-      .leftJoin('contacts', j => {
+      .leftJoin('contacts', (j) => {
         j.on('users.id', 'contacts.id')
           .join('contact_types', 'contacts.contact_type_id', '=', 'contact_types.id')
-          .leftJoin('countrys', q => {
-            q.on('contacts.country', '=', 'countrys.country').join('planets', q => {
+          .leftJoin('countrys', (q) => {
+            q.on('contacts.country', '=', 'countrys.country').join('planets', (q) => {
               q.on('countrys.planet_id', '=', 'planet.id')
                 .where('planet.is_settled', '=', 1)
                 .where('planet.population', '>=', 10000);
             });
           });
       });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT `users`.`id`, `contacts`.`id`, `contact_types`.`id`, `countrys`.`id`, `planets`.`id` FROM `users` LEFT JOIN (`contacts` INNER JOIN `contact_types` ON `contacts`.`contact_type_id` = `contact_types`.`id` LEFT JOIN (`countrys` INNER JOIN `planets` ON `countrys`.`planet_id` = `planet`.`id` AND `planet`.`is_settled` = ? AND `planet`.`population` >= ?) ON `contacts`.`country` = `countrys`.`country`) ON `users`.`id` = `contacts`.`id`');
+    expect(builder.toSql()).toBe(
+      'SELECT `users`.`id`, `contacts`.`id`, `contact_types`.`id`, `countrys`.`id`, `planets`.`id` FROM `users` LEFT JOIN (`contacts` INNER JOIN `contact_types` ON `contacts`.`contact_type_id` = `contact_types`.`id` LEFT JOIN (`countrys` INNER JOIN `planets` ON `countrys`.`planet_id` = `planet`.`id` AND `planet`.`is_settled` = ? AND `planet`.`population` >= ?) ON `contacts`.`country` = `countrys`.`country`) ON `users`.`id` = `contacts`.`id`'
+    );
     expect(builder.getBindings()).toStrictEqual([1, 10000]);
   });
 
   it('test joins with nested join with advanced subquery condition', () => {
     builder = getBuilder();
-    builder.select('users.id', 'contacts.id', 'contact_types.id').from('users')
-      .leftJoin(
-        'contacts',
-        j => {
-          j.on('users.id', 'contacts.id')
-            .join('contact_types', 'contacts.contact_type_id', '=', 'contact_types.id')
-            .whereExists(q => {
-              q.select('*').from('countrys').whereColumn('contacts.country', '=',
-                'countrys.country').join('planets', q => {
+    builder
+      .select('users.id', 'contacts.id', 'contact_types.id')
+      .from('users')
+      .leftJoin('contacts', (j) => {
+        j.on('users.id', 'contacts.id')
+          .join('contact_types', 'contacts.contact_type_id', '=', 'contact_types.id')
+          .whereExists((q) => {
+            q.select('*')
+              .from('countrys')
+              .whereColumn('contacts.country', '=', 'countrys.country')
+              .join('planets', (q) => {
                 q.on('countrys.planet_id', '=', 'planet.id').where('planet.is_settled', '=', 1);
-              }).where('planet.population', '>=', 10000);
-            });
-        });
-    expect(builder.toSql())
-      .toBe(
-        'SELECT `users`.`id`, `contacts`.`id`, `contact_types`.`id` FROM `users` LEFT JOIN (`contacts` INNER JOIN `contact_types` ON `contacts`.`contact_type_id` = `contact_types`.`id`) ON `users`.`id` = `contacts`.`id` AND EXISTS (SELECT * FROM `countrys` INNER JOIN `planets` ON `countrys`.`planet_id` = `planet`.`id` AND `planet`.`is_settled` = ? WHERE `contacts`.`country` = `countrys`.`country` AND `planet`.`population` >= ?)');
+              })
+              .where('planet.population', '>=', 10000);
+          });
+      });
+    expect(builder.toSql()).toBe(
+      'SELECT `users`.`id`, `contacts`.`id`, `contact_types`.`id` FROM `users` LEFT JOIN (`contacts` INNER JOIN `contact_types` ON `contacts`.`contact_type_id` = `contact_types`.`id`) ON `users`.`id` = `contacts`.`id` AND EXISTS (SELECT * FROM `countrys` INNER JOIN `planets` ON `countrys`.`planet_id` = `planet`.`id` AND `planet`.`is_settled` = ? WHERE `contacts`.`country` = `countrys`.`country` AND `planet`.`population` >= ?)'
+    );
     expect(builder.getBindings()).toStrictEqual([1, 10000]);
   });
 
   it('test join sub', () => {
     builder = getBuilder();
     builder.from('users').joinSub('SELECT * FROM `contacts`', 'sub', 'users.id', '=', 'sub.id');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN (SELECT * FROM `contacts`) AS `sub` ON `users`.`id` = `sub`.`id`');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN (SELECT * FROM `contacts`) AS `sub` ON `users`.`id` = `sub`.`id`'
+    );
     builder = getBuilder();
-    builder.from('users').joinSub(q => {
-      q.from('contacts');
-    }, 'sub', 'users.id', '=', 'sub.id');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` INNER JOIN (SELECT * FROM `contacts`) AS `sub` ON `users`.`id` = `sub`.`id`');
+    builder.from('users').joinSub(
+      (q) => {
+        q.from('contacts');
+      },
+      'sub',
+      'users.id',
+      '=',
+      'sub.id'
+    );
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` INNER JOIN (SELECT * FROM `contacts`) AS `sub` ON `users`.`id` = `sub`.`id`'
+    );
     builder = getBuilder();
 
     // todo support
@@ -2104,10 +2098,11 @@ describe('database query builder test', () => {
     // expect(builder.toSql())
     //   .toBe('SELECT * FROM `users` inner join (SELECT * FROM `contacts`) as `sub` on `users`.`id` = `sub`.`id`');
 
-    builder    = getBuilder();
+    builder = getBuilder();
     const sub1 = getBuilder().from('contacts').where('name', 'foo');
     const sub2 = getBuilder().from('contacts').where('name', 'bar');
-    builder.from('users')
+    builder
+      .from('users')
       .joinSub(sub1, 'sub1', 'users.id', '=', 1, 'inner', true)
       .joinSub(sub2, 'sub2', 'users.id', '=', 'sub2.user_id');
     let expected = 'SELECT * FROM `users` ';
@@ -2119,45 +2114,42 @@ describe('database query builder test', () => {
     expect(() => {
       // @ts-ignore
       builder.from('users').joinSub(['foo'], 'sub', 'users.id', '=', 'sub.id');
-    }).toThrowError('InvalidArgumentException');
-
+    }).toThrow('InvalidArgumentException');
   });
 
   it('test join sub with prefix', () => {
     builder = getBuilder();
     builder.getGrammar().setTablePrefix('prefix_');
     builder.from('users').joinSub('SELECT * FROM `contacts`', 'sub', 'users.id', '=', 'sub.id');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `prefix_users` INNER JOIN (SELECT * FROM `contacts`) AS `prefix_sub` ON `prefix_users`.`id` = `prefix_sub`.`id`');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `prefix_users` INNER JOIN (SELECT * FROM `contacts`) AS `prefix_sub` ON `prefix_users`.`id` = `prefix_sub`.`id`'
+    );
   });
 
   it('test left join sub', () => {
     builder = getBuilder();
-    builder.from('users').leftJoinSub(getBuilder().from('contacts'), 'sub', 'users.id', '=',
-      'sub.id');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` LEFT JOIN (SELECT * FROM `contacts`) AS `sub` ON `users`.`id` = `sub`.`id`');
+    builder.from('users').leftJoinSub(getBuilder().from('contacts'), 'sub', 'users.id', '=', 'sub.id');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` LEFT JOIN (SELECT * FROM `contacts`) AS `sub` ON `users`.`id` = `sub`.`id`'
+    );
     builder = getBuilder();
     expect(() => {
       // @ts-ignore
       builder.from('users').leftJoinSub(['foo'], 'sub', 'users.id', '=', 'sub.id');
-    }).toThrowError('InvalidArgumentException');
+    }).toThrow('InvalidArgumentException');
   });
 
   it('test right join sub', () => {
     builder = getBuilder();
-    builder.from('users').rightJoinSub(getBuilder().from('contacts'), 'sub', 'users.id', '=',
-      'sub.id');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` RIGHT JOIN (SELECT * FROM `contacts`) AS `sub` ON `users`.`id` = `sub`.`id`');
+    builder.from('users').rightJoinSub(getBuilder().from('contacts'), 'sub', 'users.id', '=', 'sub.id');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` RIGHT JOIN (SELECT * FROM `contacts`) AS `sub` ON `users`.`id` = `sub`.`id`'
+    );
     builder = getBuilder();
     expect(() => {
       // @ts-ignore
       builder.from('users').rightJoinSub(['foo'], 'sub', 'users.id', '=', 'sub.id');
-    }).toThrowError('InvalidArgumentException');
+    }).toThrow('InvalidArgumentException');
   });
 
   it('test raw expressions in select', () => {
@@ -2168,31 +2160,32 @@ describe('database query builder test', () => {
 
   it('test find returns first result by i d', async () => {
     let spySelect, spyProcessSelect;
-    builder   = getBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'foo': 'bar'
-      }
-    ]));
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          foo: 'bar',
+        },
+      ])
+    );
 
-    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
-      (query, results) => {
-        expect(query).toBe(builder);
-        expect(results).toStrictEqual([
-          {
-            'foo': 'bar'
-          }
-        ]);
-        return results;
-      });
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((query, results) => {
+      expect(query).toBe(builder);
+      expect(results).toStrictEqual([
+        {
+          foo: 'bar',
+        },
+      ]);
+      return results;
+    });
 
     const results = await builder.from('users').find(1);
-    expect(spySelect).toBeCalledWith('SELECT * FROM `users` WHERE `id` = ? LIMIT 1', [1], true);
+    expect(spySelect).toHaveBeenCalledWith('SELECT * FROM `users` WHERE `id` = ? LIMIT 1', [1], true);
     // expect(spyProcessSelect).toHaveBeenCalledWith(builder, [{
     //   'foo': 'bar'
     // }]);
     expect(results).toStrictEqual({
-      'foo': 'bar'
+      foo: 'bar',
     });
   });
 
@@ -2200,87 +2193,92 @@ describe('database query builder test', () => {
     let spySelect, spyProcessSelect;
     builder = getBuilder();
 
-    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'foo': 'bar'
-      }
-    ]));
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          foo: 'bar',
+        },
+      ])
+    );
 
-    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
-      (query, results) => {
-        expect(query).toBe(builder);
-        expect(results).toStrictEqual([
-          {
-            'foo': 'bar'
-          }
-        ]);
-        return results;
-      });
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((query, results) => {
+      expect(query).toBe(builder);
+      expect(results).toStrictEqual([
+        {
+          foo: 'bar',
+        },
+      ]);
+      return results;
+    });
 
     const results = await builder.from('users').where('id', '=', 1).first();
-    expect(spySelect).toBeCalledWith('SELECT * FROM `users` WHERE `id` = ? LIMIT 1', [1], true);
+    expect(spySelect).toHaveBeenCalledWith('SELECT * FROM `users` WHERE `id` = ? LIMIT 1', [1], true);
     expect(results).toStrictEqual({
-      'foo': 'bar'
+      foo: 'bar',
     });
   });
 
   it('test pluck method gets collection of column values', async () => {
     let spySelect, spyProcessSelect, results;
-    builder          = getBuilder();
-    spySelect        = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'foo': 'bar'
-      }, {
-        'foo': 'baz'
-      }
-    ]));
-    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
-      (query, results) => {
-        expect(query).toBe(builder);
-        expect(results).toStrictEqual([
-          {
-            'foo': 'bar'
-          }, {
-            'foo': 'baz'
-          }
-        ]);
-        return results;
-      });
-    results          = await builder.from('users').where('id', '=', 1).pluck('foo');
-    expect(spySelect).toBeCalledWith('SELECT `foo` FROM `users` WHERE `id` = ?', [1], true);
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          foo: 'bar',
+        },
+        {
+          foo: 'baz',
+        },
+      ])
+    );
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((query, results) => {
+      expect(query).toBe(builder);
+      expect(results).toStrictEqual([
+        {
+          foo: 'bar',
+        },
+        {
+          foo: 'baz',
+        },
+      ]);
+      return results;
+    });
+    results = await builder.from('users').where('id', '=', 1).pluck('foo');
+    expect(spySelect).toHaveBeenCalledWith('SELECT `foo` FROM `users` WHERE `id` = ?', [1], true);
     expect(results).toStrictEqual(['bar', 'baz']);
 
-
-    builder          = getBuilder();
-    spySelect        = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'id' : 1,
-        'foo': 'bar'
-      }, {
-        'id' : 10,
-        'foo': 'baz'
-      }
-    ]));
-    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
-      (query, results) => {
-        expect(query).toBe(builder);
-        expect(results).toStrictEqual([
-          {
-            'id' : 1,
-            'foo': 'bar'
-          }, {
-            'id' : 10,
-            'foo': 'baz'
-          }
-        ]);
-        return results;
-      });
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          id : 1,
+          foo: 'bar',
+        },
+        {
+          id : 10,
+          foo: 'baz',
+        },
+      ])
+    );
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((query, results) => {
+      expect(query).toBe(builder);
+      expect(results).toStrictEqual([
+        {
+          id : 1,
+          foo: 'bar',
+        },
+        {
+          id : 10,
+          foo: 'baz',
+        },
+      ]);
+      return results;
+    });
 
     results = await builder.from('users').where('id', '=', 1).pluck('foo', 'id');
-    expect(spySelect).toBeCalledWith('SELECT `foo`, `id` FROM `users` WHERE `id` = ?', [1], true);
+    expect(spySelect).toHaveBeenCalledWith('SELECT `foo`, `id` FROM `users` WHERE `id` = ?', [1], true);
 
-    expect(results).toStrictEqual({'1': 'bar', '10': 'baz'});
-
+    expect(results).toStrictEqual({ '1': 'bar', '10': 'baz' });
   });
 
   /*
@@ -2340,120 +2338,127 @@ describe('database query builder test', () => {
 
   it('test aggregate functions', async () => {
     let spySelect, spyProcessSelect, results;
-    builder   = getBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'aggregate': 1
-      }
-    ]));
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          aggregate: 1,
+        },
+      ])
+    );
 
-    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
-      (builder, results) => {
-        return results;
-      });
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
+      return results;
+    });
 
     results = await builder.from('users').count();
-    expect(spySelect).toBeCalledWith('SELECT count(*) AS aggregate FROM `users`', [], true);
+    expect(spySelect).toHaveBeenCalledWith('SELECT count(*) AS aggregate FROM `users`', [], true);
     expect(results).toBe(1);
-    builder   = getBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'exists': 1
-      }
-    ]));
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          exists: 1,
+        },
+      ])
+    );
 
     results = await builder.from('users').exists();
-    expect(spySelect).toBeCalledWith('SELECT exists(SELECT * FROM `users`) AS `exists`', [], true);
+    expect(spySelect).toHaveBeenCalledWith('SELECT exists(SELECT * FROM `users`) AS `exists`', [], true);
     expect(results).toBeTruthy();
-    builder   = getBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'exists': 0
-      }
-    ]));
-    results   = await builder.from('users').doesntExist();
-    expect(spySelect).toBeCalledWith('SELECT exists(SELECT * FROM `users`) AS `exists`', [], true);
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          exists: 0,
+        },
+      ])
+    );
+    results = await builder.from('users').doesntExist();
+    expect(spySelect).toHaveBeenCalledWith('SELECT exists(SELECT * FROM `users`) AS `exists`', [], true);
     expect(results).toBeTruthy();
-    builder          = getBuilder();
-    spySelect        = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'aggregate': 1
-      }
-    ]));
-    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
-      (builder, results) => {
-        return results;
-      });
-    results          = await builder.from('users').max('id');
-    expect(spySelect).toBeCalledWith('SELECT max(`id`) AS aggregate FROM `users`', [], true);
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          aggregate: 1,
+        },
+      ])
+    );
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
+      return results;
+    });
+    results = await builder.from('users').max('id');
+    expect(spySelect).toHaveBeenCalledWith('SELECT max(`id`) AS aggregate FROM `users`', [], true);
     expect(results).toBeTruthy();
-    builder          = getBuilder();
-    spySelect        = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'aggregate': 1
-      }
-    ]));
-    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
-      (query, results) => {
-        return results;
-      });
-    results          = await builder.from('users').min('id');
-    expect(spySelect).toBeCalledWith('SELECT min(`id`) AS aggregate FROM `users`', [], true);
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          aggregate: 1,
+        },
+      ])
+    );
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((query, results) => {
+      return results;
+    });
+    results = await builder.from('users').min('id');
+    expect(spySelect).toHaveBeenCalledWith('SELECT min(`id`) AS aggregate FROM `users`', [], true);
     expect(results).toBeTruthy();
-    builder          = getBuilder();
-    spySelect        = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'aggregate': 1
-      }
-    ]));
-    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
-      (query, results) => {
-        return results;
-      });
-    results          = await builder.from('users').sum('id');
-    expect(spySelect).toBeCalledWith('SELECT sum(`id`) AS aggregate FROM `users`', [], true);
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          aggregate: 1,
+        },
+      ])
+    );
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((query, results) => {
+      return results;
+    });
+    results = await builder.from('users').sum('id');
+    expect(spySelect).toHaveBeenCalledWith('SELECT sum(`id`) AS aggregate FROM `users`', [], true);
     expect(results).toBe(1);
   });
 
   it('test aggregate functions with distinct', async () => {
-    let spySelect, spyProcessSelect, results
-    builder   = getBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'aggregate': 1
-      }
-    ]));
+    let spySelect, spyProcessSelect, results;
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          aggregate: 1,
+        },
+      ])
+    );
 
-    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
-      (builder, results) => {
-        return results;
-      });
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
+      return results;
+    });
 
     results = await builder.distinct('foo').from('users').count();
-    expect(spySelect).toBeCalledWith('SELECT count(DISTINCT `foo`) AS aggregate FROM `users`', [], true);
+    expect(spySelect).toHaveBeenCalledWith('SELECT count(DISTINCT `foo`) AS aggregate FROM `users`', [], true);
     expect(results).toBe(1);
 
-    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'aggregate': 2
-      }
-    ]));
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          aggregate: 2,
+        },
+      ])
+    );
 
-    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation(
-      (builder, results) => {
-        return results;
-      });
+    spyProcessSelect = jest.spyOn(builder._processor, 'processSelect').mockImplementation((builder, results) => {
+      return results;
+    });
 
     results = await builder.distinct().from('users').count('*');
-    expect(spySelect).toBeCalledWith('SELECT count(*) AS aggregate FROM `users`', [], true);
+    expect(spySelect).toHaveBeenCalledWith('SELECT count(*) AS aggregate FROM `users`', [], true);
     expect(results).toBe(2);
 
     results = await builder.distinct().from('users').count('bar');
-    expect(spySelect).toBeCalledWith('SELECT count(DISTINCT `bar`) AS aggregate FROM `users`', [], true);
-
+    expect(spySelect).toHaveBeenCalledWith('SELECT count(DISTINCT `bar`) AS aggregate FROM `users`', [], true);
   });
-
-
 
   /*
       it('test sql server exists', () => {
@@ -2510,78 +2515,84 @@ describe('database query builder test', () => {
 
   it('test aggregate reset followed by get', async () => {
     let spySelect, spyProcessSelect, count, result, sum;
-    builder   = getBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'aggregate': 1
-      }
-    ]));
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          aggregate: 1,
+        },
+      ])
+    );
     builder.from('users').select('column1', 'column2');
     count = await builder.count();
-    expect(spySelect).toBeCalledWith('SELECT count(*) AS aggregate FROM `users`', [], true);
+    expect(spySelect).toHaveBeenCalledWith('SELECT count(*) AS aggregate FROM `users`', [], true);
     expect(count).toBe(1);
 
-
-    builder   = getBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'aggregate': 2
-      }
-    ]));
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          aggregate: 2,
+        },
+      ])
+    );
     builder.from('users').select('column1', 'column2');
     sum = await builder.sum('id');
-    expect(spySelect).toBeCalledWith('SELECT sum(`id`) AS aggregate FROM `users`', [], true);
+    expect(spySelect).toHaveBeenCalledWith('SELECT sum(`id`) AS aggregate FROM `users`', [], true);
     expect(sum).toBe(2);
 
-
-    builder   = getBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'column1': 'foo',
-        'column2': 'bar'
-      }
-    ]));
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          column1: 'foo',
+          column2: 'bar',
+        },
+      ])
+    );
     builder.from('users').select('column1', 'column2');
     result = await builder.get();
-    expect(spySelect).toBeCalledWith('SELECT `column1`, `column2` FROM `users`', [], true);
+    expect(spySelect).toHaveBeenCalledWith('SELECT `column1`, `column2` FROM `users`', [], true);
     expect(result).toStrictEqual([
       {
-        'column1': 'foo',
-        'column2': 'bar'
-      }
+        column1: 'foo',
+        column2: 'bar',
+      },
     ]);
-
   });
 
   it('test aggregate reset followed by select get', async () => {
     let spySelect, spyProcessSelect, result;
-    builder   = getBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'aggregate': 1
-      }
-    ]));
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          aggregate: 1,
+        },
+      ])
+    );
     builder.from('users');
     const count = await builder.count('column1');
-    expect(spySelect).toBeCalledWith('SELECT count(`column1`) AS aggregate FROM `users`', [], true);
+    expect(spySelect).toHaveBeenCalledWith('SELECT count(`column1`) AS aggregate FROM `users`', [], true);
     expect(count).toBe(1);
 
-
-    builder   = getBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'column2': 'foo',
-        'column3': 'bar'
-      }
-    ]));
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          column2: 'foo',
+          column3: 'bar',
+        },
+      ])
+    );
     builder.from('users');
     result = await builder.select('column2', 'column3').get();
-    expect(spySelect).toBeCalledWith('SELECT `column2`, `column3` FROM `users`', [], true);
+    expect(spySelect).toHaveBeenCalledWith('SELECT `column2`, `column3` FROM `users`', [], true);
     expect(result).toStrictEqual([
       {
-        'column2': 'foo',
-        'column3': 'bar'
-      }
+        column2: 'foo',
+        column3: 'bar',
+      },
     ]);
   });
 
@@ -2589,72 +2600,76 @@ describe('database query builder test', () => {
     let spySelect, count, result;
     builder = getBuilder();
 
-    builder   = getBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'aggregate': 1
-      }
-    ]));
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          aggregate: 1,
+        },
+      ])
+    );
     builder.from('users');
     count = await builder.count('column1');
-    expect(spySelect).toBeCalledWith('SELECT count(`column1`) AS aggregate FROM `users`', [], true);
+    expect(spySelect).toHaveBeenCalledWith('SELECT count(`column1`) AS aggregate FROM `users`', [], true);
     expect(count).toBe(1);
 
-
-    builder   = getBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'column2': 'foo',
-        'column3': 'bar'
-      }
-    ]));
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          column2: 'foo',
+          column3: 'bar',
+        },
+      ])
+    );
     builder.from('users');
     result = await builder.get(['column2', 'column3']);
-    expect(spySelect).toBeCalledWith('SELECT `column2`, `column3` FROM `users`', [], true);
+    expect(spySelect).toHaveBeenCalledWith('SELECT `column2`, `column3` FROM `users`', [], true);
     expect(result).toStrictEqual([
       {
-        'column2': 'foo',
-        'column3': 'bar'
-      }
+        column2: 'foo',
+        column3: 'bar',
+      },
     ]);
   });
 
   it('test aggregate with sub select', async () => {
     let spySelect, count;
-    builder   = getBuilder();
-    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([
-      {
-        'aggregate': 1
-      }
-    ]));
+    builder = getBuilder();
+    spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
+      Promise.resolve([
+        {
+          aggregate: 1,
+        },
+      ])
+    );
 
-    builder.from('users').selectSub(query => {
+    builder.from('users').selectSub((query) => {
       query.from('posts').select('foo', 'bar').where('title', 'foo');
     }, 'post');
     count = await builder.count();
-    expect(spySelect).toHaveBeenLastCalledWith('SELECT count(*) AS aggregate FROM `users`', [],
-      true);
+    expect(spySelect).toHaveBeenLastCalledWith('SELECT count(*) AS aggregate FROM `users`', [], true);
     expect(count).toBe(1);
 
     // expect(builder.toSql()).toBe('SELECT * FROM `users`')
     // expect(builder._columns[0].getValue()).toBe('(select `foo`, `bar` from `posts` where `title` = ?) as `post`')
-    expect(builder.toSql()).toBe(
-      'SELECT (SELECT `foo`, `bar` FROM `posts` WHERE `title` = ?) AS `post` FROM `users`');
+    expect(builder.toSql()).toBe('SELECT (SELECT `foo`, `bar` FROM `posts` WHERE `title` = ?) AS `post` FROM `users`');
     // expect(builder.getBindings()).toStrictEqual(['foo']);
   });
 
   it('test subqueries bindings', () => {
-    builder      = getBuilder();
+    builder = getBuilder();
     const second = getBuilder().select('*').from('users').orderByRaw('id = ?', 2);
-    const third  = getBuilder().select('*').from('users').where('id', 3).groupBy('id').having('id',
-      '!=', 4);
+    const third = getBuilder().select('*').from('users').where('id', 3).groupBy('id').having('id', '!=', 4);
     builder.groupBy('a').having('a', '=', 1).union(second).union(third);
-    expect(builder.toSql())
-      .toBe(
-        '(SELECT * GROUP BY `a` HAVING `a` = ?) UNION (SELECT * FROM `users` ORDER BY id = ?) UNION (SELECT * FROM `users` WHERE `id` = ? GROUP BY `id` HAVING `id` != ?)');
+    expect(builder.toSql()).toBe(
+      '(SELECT * GROUP BY `a` HAVING `a` = ?) UNION (SELECT * FROM `users` ORDER BY id = ?) UNION (SELECT * FROM `users` WHERE `id` = ? GROUP BY `id` HAVING `id` != ?)'
+    );
     expect(builder.getBindings()).toStrictEqual([1, 2, 3, 4]);
-    builder = getBuilder().select('*').from('users')
-      .where('email', '=', q => {
+    builder = getBuilder()
+      .select('*')
+      .from('users')
+      .where('email', '=', (q) => {
         q.select(raw('max(id)'))
           .from('users')
           .where('email', '=', 'bar')
@@ -2662,38 +2677,39 @@ describe('database query builder test', () => {
           .groupBy('id')
           .having('id', '=', 4);
       })
-      .orWhere('id', '=', 'foo').groupBy('id').having('id', '=', 5);
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` WHERE `email` = (SELECT max(id) FROM `users` WHERE `email` = ? GROUP BY `id` HAVING `id` = ? ORDER BY email like ?) OR `id` = ? GROUP BY `id` HAVING `id` = ?');
+      .orWhere('id', '=', 'foo')
+      .groupBy('id')
+      .having('id', '=', 5);
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` WHERE `email` = (SELECT max(id) FROM `users` WHERE `email` = ? GROUP BY `id` HAVING `id` = ? ORDER BY email like ?) OR `id` = ? GROUP BY `id` HAVING `id` = ?'
+    );
     expect(builder.getBindings()).toStrictEqual(['bar', 4, '%.com', 'foo', 5]);
   });
 
   it('test insert method', () => {
     let spyInsert, result;
-    builder   = getBuilder();
+    builder = getBuilder();
     spyInsert = jest.spyOn(builder._connection, 'insert').mockReturnValue(Promise.resolve(true));
 
     result = builder.from('users').insert({
-      'email': 'foo'
+      email: 'foo',
     });
-    expect(spyInsert).toBeCalledWith('INSERT INTO `users` (`email`) VALUES (?)', ['foo']);
+    expect(spyInsert).toHaveBeenCalledWith('INSERT INTO `users` (`email`) VALUES (?)', ['foo']);
     expect(result).toBeTruthy();
   });
 
-
   it('test insert using method', async () => {
     let spyInsert, result;
-    builder   = getBuilder();
-    spyInsert = jest.spyOn(builder._connection, 'affectingStatement').mockReturnValue(
-      Promise.resolve(1));
+    builder = getBuilder();
+    spyInsert = jest.spyOn(builder._connection, 'affectingStatement').mockReturnValue(Promise.resolve(1));
 
-    result = await builder.from('table1').insertUsing(['foo'], query => {
+    result = await builder.from('table1').insertUsing(['foo'], (query) => {
       query.select(['bar']).from('table2').where('foreign_id', '=', 5);
     });
-    expect(spyInsert)
-      .toBeCalledWith(
-        'INSERT INTO `table1` (`foo`) (SELECT `bar` FROM `table2` WHERE `foreign_id` = ?)', [5]);
+    expect(spyInsert).toHaveBeenCalledWith(
+      'INSERT INTO `table1` (`foo`) (SELECT `bar` FROM `table2` WHERE `foreign_id` = ?)',
+      [5]
+    );
     expect(result).toBe(1);
   });
 
@@ -2702,7 +2718,7 @@ describe('database query builder test', () => {
     await expect(async () => {
       // @ts-ignore
       await builder.from('table1').insertUsing(['foo'], ['bar']);
-    }).rejects.toThrowError('InvalidArgumentException');
+    }).rejects.toThrow('InvalidArgumentException');
   });
 
   // it('test insert or ignore method', () => {
@@ -2716,41 +2732,37 @@ describe('database query builder test', () => {
 
   it('test my sql insert or ignore method', async () => {
     let spyInsert, result;
-    builder   = getMySqlBuilder();
-    spyInsert = jest.spyOn(builder._connection, 'affectingStatement').mockReturnValue(
-      Promise.resolve(1));
+    builder = getMySqlBuilder();
+    spyInsert = jest.spyOn(builder._connection, 'affectingStatement').mockReturnValue(Promise.resolve(1));
 
     result = await builder.from('users').insertOrIgnore({
-      'email': 'foo'
+      email: 'foo',
     });
-    expect(spyInsert).toBeCalledWith('INSERT IGNORE INTO `users` (`email`) VALUES (?)', ['foo']);
+    expect(spyInsert).toHaveBeenCalledWith('INSERT IGNORE INTO `users` (`email`) VALUES (?)', ['foo']);
     expect(result).toBe(1);
   });
 
   it('test postgres insert or ignore method', async () => {
     let spyInsert, result;
-    builder   = getPostgresBuilder();
-    spyInsert = jest.spyOn(builder._connection, 'affectingStatement').mockReturnValue(
-      Promise.resolve(1));
+    builder = getPostgresBuilder();
+    spyInsert = jest.spyOn(builder._connection, 'affectingStatement').mockReturnValue(Promise.resolve(1));
 
     result = await builder.from('users').insertOrIgnore({
-      'email': 'foo'
+      email: 'foo',
     });
-    expect(spyInsert).toBeCalledWith(
-      'INSERT INTO "users" ("email") VALUES ($1) ON conflict do nothing', ['foo']);
+    expect(spyInsert).toHaveBeenCalledWith('INSERT INTO "users" ("email") VALUES ($1) ON conflict do nothing', ['foo']);
     expect(result).toBe(1);
   });
 
   it('test sqlite insert or ignore method', async () => {
     let spyInsert, result;
-    builder   = getSQLiteBuilder();
-    spyInsert = jest.spyOn(builder._connection, 'affectingStatement').mockReturnValue(
-      Promise.resolve(1));
+    builder = getSQLiteBuilder();
+    spyInsert = jest.spyOn(builder._connection, 'affectingStatement').mockReturnValue(Promise.resolve(1));
 
     result = await builder.from('users').insertOrIgnore({
-      'email': 'foo'
+      email: 'foo',
     });
-    expect(spyInsert).toBeCalledWith('INSERT OR IGNORE INTO "users" ("email") VALUES (?)', ['foo']);
+    expect(spyInsert).toHaveBeenCalledWith('INSERT OR IGNORE INTO "users" ("email") VALUES (?)', ['foo']);
     expect(result).toBe(1);
   });
 
@@ -2761,404 +2773,436 @@ describe('database query builder test', () => {
     await expect(async () => {
       builder = getSqlServerBuilder();
       await builder.from('users').insertOrIgnore({
-        'email': 'foo'
+        email: 'foo',
       });
-    }).rejects.toThrowError('RuntimeException');
-
+    }).rejects.toThrow('RuntimeException');
   });
 
   it('test insert get id method', async () => {
     let spyInsert, result;
-    builder   = getBuilder();
-    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId').mockReturnValue(
-      Promise.resolve(1));
+    builder = getBuilder();
+    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId').mockReturnValue(Promise.resolve(1));
 
-    result = await builder.from('users').insertGetId({
-      'email': 'foo'
-    }, 'id');
-    expect(spyInsert).toBeCalledWith(builder,
-      'INSERT INTO `users` (`email`) VALUES (?) returning `id`', ['foo'], 'id');
+    result = await builder.from('users').insertGetId(
+      {
+        email: 'foo',
+      },
+      'id'
+    );
+    expect(spyInsert).toHaveBeenCalledWith(
+      builder,
+      'INSERT INTO `users` (`email`) VALUES (?) returning `id`',
+      ['foo'],
+      'id'
+    );
     expect(result).toBe(1);
   });
 
   it('test insert get id method removes expressions', async () => {
     let spyInsert, result;
-    builder   = getBuilder();
-    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId')
-      .mockReturnValue(Promise.resolve(1));
+    builder = getBuilder();
+    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId').mockReturnValue(Promise.resolve(1));
 
-    result = await builder.from('users').insertGetId({
-      'email': 'foo',
-      'bar'  : raw('bar')
-    }, 'id');
-    expect(spyInsert).toBeCalledWith(builder,
+    result = await builder.from('users').insertGetId(
+      {
+        email: 'foo',
+        bar  : raw('bar'),
+      },
+      'id'
+    );
+    expect(spyInsert).toHaveBeenCalledWith(
+      builder,
       'INSERT INTO `users` (`email`, `bar`) VALUES (?, bar) returning `id`',
-      ['foo'], 'id');
+      ['foo'],
+      'id'
+    );
     expect(result).toBe(1);
   });
 
-
   it('test insert get id with empty values', async () => {
     let spyInsert, result;
-    builder   = getMySqlBuilder();
-    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId')
-      .mockReturnValue(Promise.resolve(1));
+    builder = getMySqlBuilder();
+    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId').mockReturnValue(Promise.resolve(1));
     await builder.from('users').insertGetId([]);
-    expect(spyInsert).toBeCalledWith(builder, 'INSERT INTO `users` () VALUES () returning `id`', [],
-      'id');
+    expect(spyInsert).toHaveBeenCalledWith(builder, 'INSERT INTO `users` () VALUES () returning `id`', [], 'id');
 
-
-    builder   = getPostgresBuilder();
-    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId')
-      .mockReturnValue(Promise.resolve(1));
+    builder = getPostgresBuilder();
+    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId').mockReturnValue(Promise.resolve(1));
     await builder.from('users').insertGetId([]);
-    expect(spyInsert).toBeCalledWith(builder, 'INSERT INTO "users" DEFAULT VALUES returning "id"',
-      [], 'id');
+    expect(spyInsert).toHaveBeenCalledWith(builder, 'INSERT INTO "users" DEFAULT VALUES returning "id"', [], 'id');
 
-
-    builder   = getSQLiteBuilder();
-    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId')
-      .mockReturnValue(Promise.resolve(1));
+    builder = getSQLiteBuilder();
+    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId').mockReturnValue(Promise.resolve(1));
     await builder.from('users').insertGetId([]);
-    expect(spyInsert).toBeCalledWith(builder, 'INSERT INTO "users" DEFAULT VALUES', [], 'id');
+    expect(spyInsert).toHaveBeenCalledWith(builder, 'INSERT INTO "users" DEFAULT VALUES', [], 'id');
 
-    builder   = getSqlServerBuilder();
-    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId')
-      .mockReturnValue(Promise.resolve(1));
+    builder = getSqlServerBuilder();
+    spyInsert = jest.spyOn(builder._processor, 'processInsertGetId').mockReturnValue(Promise.resolve(1));
     await builder.from('users').insertGetId([]);
-    expect(spyInsert)
-      .toBeCalledWith(builder,
-        'set nocount on;INSERT INTO [users] DEFAULT VALUES;select scope_identity() as [id]', [],
-        'id');
+    expect(spyInsert).toHaveBeenCalledWith(
+      builder,
+      'set nocount on;INSERT INTO [users] DEFAULT VALUES;select scope_identity() as [id]',
+      [],
+      'id'
+    );
   });
 
   it('test insert method respects raw bindings', async () => {
     let spyInsert, result;
-    builder   = getBuilder();
+    builder = getBuilder();
     spyInsert = jest.spyOn(builder._connection, 'insert').mockReturnValue(Promise.resolve(true));
 
     result = await builder.from('users').insert({
-      'email': raw('CURRENT TIMESTAMP')
+      email: raw('CURRENT TIMESTAMP'),
     });
-    expect(spyInsert).toBeCalledWith('INSERT INTO `users` (`email`) VALUES (CURRENT TIMESTAMP)',
-      []);
+    expect(spyInsert).toHaveBeenCalledWith('INSERT INTO `users` (`email`) VALUES (CURRENT TIMESTAMP)', []);
     expect(result).toBeTruthy();
   });
 
   it('test multiple inserts with expression values', async () => {
     let spyInsert, result;
-    builder   = getBuilder();
+    builder = getBuilder();
     spyInsert = jest.spyOn(builder._connection, 'insert').mockReturnValue(Promise.resolve(true));
-
 
     result = await builder.from('users').insert([
       {
-        'email': raw('UPPER(\'Foo\')')
-      }, {
-        'email': raw('LOWER(\'Foo\')')
-      }
+        email: raw("UPPER('Foo')"),
+      },
+      {
+        email: raw("LOWER('Foo')"),
+      },
     ]);
 
-
-    expect(spyInsert).toBeCalledWith(
-      'INSERT INTO `users` (`email`) VALUES (UPPER(\'Foo\')), (LOWER(\'Foo\'))', []);
+    expect(spyInsert).toHaveBeenCalledWith("INSERT INTO `users` (`email`) VALUES (UPPER('Foo')), (LOWER('Foo'))", []);
     expect(result).toBeTruthy();
   });
 
   it('test update method', async () => {
     let spyUpdate, result;
-    builder   = getBuilder();
+    builder = getBuilder();
     // @ts-ignore
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
 
     result = await builder.from('users').where('id', '=', 1).update({
-      'email': 'foo',
-      'name' : 'bar'
+      email: 'foo',
+      name : 'bar',
     });
-    expect(spyUpdate).toBeCalledWith('UPDATE `users` SET `email` = ?, `name` = ? WHERE `id` = ?',
-      ['foo', 'bar', 1]);
+    expect(spyUpdate).toHaveBeenCalledWith('UPDATE `users` SET `email` = ?, `name` = ? WHERE `id` = ?', [
+      'foo',
+      'bar',
+      1,
+    ]);
     expect(result).toBe(1);
-    builder   = getMySqlBuilder();
+    builder = getMySqlBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').where('id', '=', 1).orderBy('foo', 'desc').limit(
-      5).update({
-      'email': 'foo',
-      'name' : 'bar'
+    result = await builder.from('users').where('id', '=', 1).orderBy('foo', 'desc').limit(5).update({
+      email: 'foo',
+      name : 'bar',
     });
-    expect(spyUpdate)
-      .toBeCalledWith(
-        'UPDATE `users` SET `email` = ?, `name` = ? WHERE `id` = ? ORDER BY `foo` DESC LIMIT 5',
-        ['foo', 'bar', 1]);
+    expect(spyUpdate).toHaveBeenCalledWith(
+      'UPDATE `users` SET `email` = ?, `name` = ? WHERE `id` = ? ORDER BY `foo` DESC LIMIT 5',
+      ['foo', 'bar', 1]
+    );
     expect(result).toBe(1);
   });
 
   it('test update method with joins', async () => {
     let spyUpdate, result;
-    builder   = getBuilder();
+    builder = getBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
 
-    result = await builder.from('users')
+    result = await builder
+      .from('users')
       .join('orders', 'users.id', '=', 'orders.user_id')
       .where('users.id', '=', 1)
       .update({
-        'email': 'foo',
-        'name' : 'bar'
+        email: 'foo',
+        name : 'bar',
       });
-    expect(spyUpdate)
-      .toBeCalledWith(
-        'UPDATE `users` INNER JOIN `orders` ON `users`.`id` = `orders`.`user_id` SET `users`.`email` = ?, `users`.`name` = ? WHERE `users`.`id` = ?',
-        ['foo', 'bar', 1]);
+    expect(spyUpdate).toHaveBeenCalledWith(
+      'UPDATE `users` INNER JOIN `orders` ON `users`.`id` = `orders`.`user_id` SET `users`.`email` = ?, `users`.`name` = ? WHERE `users`.`id` = ?',
+      ['foo', 'bar', 1]
+    );
 
     expect(result).toBe(1);
-    builder   = getBuilder();
+    builder = getBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
 
-    result = await builder.from('users').join('orders', join => {
-      join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
-    }).update({
-      'email': 'foo',
-      'name' : 'bar'
-    });
-    expect(spyUpdate)
-      .toBeCalledWith(
-        'UPDATE `users` INNER JOIN `orders` ON `users`.`id` = `orders`.`user_id` AND `users`.`id` = ? SET `users`.`email` = ?, `users`.`name` = ?',
-        [1, 'foo', 'bar']);
+    result = await builder
+      .from('users')
+      .join('orders', (join) => {
+        join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
+      })
+      .update({
+        email: 'foo',
+        name : 'bar',
+      });
+    expect(spyUpdate).toHaveBeenCalledWith(
+      'UPDATE `users` INNER JOIN `orders` ON `users`.`id` = `orders`.`user_id` AND `users`.`id` = ? SET `users`.`email` = ?, `users`.`name` = ?',
+      [1, 'foo', 'bar']
+    );
     expect(result).toBe(1);
   });
 
   it('test update method with joins on sql server', async () => {
     let spyUpdate, result;
-    builder   = getSqlServerBuilder();
+    builder = getSqlServerBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users')
+    result = await builder
+      .from('users')
       .join('orders', 'users.id', '=', 'orders.user_id')
       .where('users.id', '=', 1)
       .update({
-        'email': 'foo',
-        'name' : 'bar'
+        email: 'foo',
+        name : 'bar',
       });
-    expect(spyUpdate)
-      .toBeCalledWith(
-        'UPDATE [users] SET [users].[email] = ?, [users].[name] = ? FROM [users] INNER JOIN [orders] ON [users].[id] = [orders].[user_id] WHERE [users].[id] = ?',
-        ['foo', 'bar', 1]);
+    expect(spyUpdate).toHaveBeenCalledWith(
+      'UPDATE [users] SET [users].[email] = ?, [users].[name] = ? FROM [users] INNER JOIN [orders] ON [users].[id] = [orders].[user_id] WHERE [users].[id] = ?',
+      ['foo', 'bar', 1]
+    );
     expect(result).toBe(1);
 
-    builder   = getSqlServerBuilder();
+    builder = getSqlServerBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').join('orders', join => {
-      join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
-    }).update({
-      'email': 'foo',
-      'name' : 'bar'
-    });
-    expect(spyUpdate)
-      .toBeCalledWith(
-        'UPDATE [users] SET [users].[email] = ?, [users].[name] = ? FROM [users] INNER JOIN [orders] ON [users].[id] = [orders].[user_id] AND [users].[id] = ?',
-        ['foo', 'bar', 1]);
+    result = await builder
+      .from('users')
+      .join('orders', (join) => {
+        join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
+      })
+      .update({
+        email: 'foo',
+        name : 'bar',
+      });
+    expect(spyUpdate).toHaveBeenCalledWith(
+      'UPDATE [users] SET [users].[email] = ?, [users].[name] = ? FROM [users] INNER JOIN [orders] ON [users].[id] = [orders].[user_id] AND [users].[id] = ?',
+      ['foo', 'bar', 1]
+    );
     expect(result).toBe(1);
   });
 
   it('test update method with joins on my sql', async () => {
     let spyUpdate, result;
-    builder   = getMySqlBuilder();
+    builder = getMySqlBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users')
+    result = await builder
+      .from('users')
       .join('orders', 'users.id', '=', 'orders.user_id')
       .where('users.id', '=', 1)
       .update({
-        'email': 'foo',
-        'name' : 'bar'
+        email: 'foo',
+        name : 'bar',
       });
-    expect(spyUpdate)
-      .toBeCalledWith(
-        'UPDATE `users` INNER JOIN `orders` ON `users`.`id` = `orders`.`user_id` SET `users`.`email` = ?, `users`.`name` = ? WHERE `users`.`id` = ?',
-        ['foo', 'bar', 1]);
+    expect(spyUpdate).toHaveBeenCalledWith(
+      'UPDATE `users` INNER JOIN `orders` ON `users`.`id` = `orders`.`user_id` SET `users`.`email` = ?, `users`.`name` = ? WHERE `users`.`id` = ?',
+      ['foo', 'bar', 1]
+    );
     expect(result).toBe(1);
 
-    builder   = getMySqlBuilder();
+    builder = getMySqlBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').join('orders', join => {
-      join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
-    }).update({
-      'email': 'foo',
-      'name' : 'bar'
-    });
-    expect(spyUpdate)
-      .toBeCalledWith(
-        'UPDATE `users` INNER JOIN `orders` ON `users`.`id` = `orders`.`user_id` AND `users`.`id` = ? SET `users`.`email` = ?, `users`.`name` = ?',
-        [1, 'foo', 'bar']);
+    result = await builder
+      .from('users')
+      .join('orders', (join) => {
+        join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
+      })
+      .update({
+        email: 'foo',
+        name : 'bar',
+      });
+    expect(spyUpdate).toHaveBeenCalledWith(
+      'UPDATE `users` INNER JOIN `orders` ON `users`.`id` = `orders`.`user_id` AND `users`.`id` = ? SET `users`.`email` = ?, `users`.`name` = ?',
+      [1, 'foo', 'bar']
+    );
     expect(result).toBe(1);
   });
 
   xit('test update method with joins on sqlite', async () => {
     let spyUpdate, result;
-    builder   = getSQLiteBuilder();
+    builder = getSQLiteBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').where('users.id', '>', 1).limit(3).oldest('id').update({
-      'email': 'foo',
-      'name' : 'bar'
+    result = await builder.from('users').where('users.id', '>', 1).limit(3).oldest('id').update({
+      email: 'foo',
+      name : 'bar',
     });
-    expect(spyUpdate)
-      .toBeCalledWith(
-        'UPDATE "users" SET "email" = ?, "name" = ? WHERE "rowid" IN (SELECT "users"."rowid" FROM "users" WHERE "users"."id" > ? ORDER BY "id" ASC limit 3)',
-        ['foo', 'bar', 1]);
+    expect(spyUpdate).toHaveBeenCalledWith(
+      'UPDATE "users" SET "email" = ?, "name" = ? WHERE "rowid" IN (SELECT "users"."rowid" FROM "users" WHERE "users"."id" > ? ORDER BY "id" ASC limit 3)',
+      ['foo', 'bar', 1]
+    );
     expect(result).toBe(1);
 
-    builder   = getSQLiteBuilder();
+    builder = getSQLiteBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users')
+    result = await builder
+      .from('users')
       .join('orders', 'users.id', '=', 'orders.user_id')
       .where('users.id', '=', 1)
       .update({
-        'email': 'foo',
-        'name' : 'bar'
+        email: 'foo',
+        name : 'bar',
       });
-    expect(spyUpdate)
-      .toBeCalledWith(
-        'UPDATE "users" SET "email" = ?, "name" = ? WHERE "rowid" IN (SELECT "users"."rowid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" WHERE "users"."id" = ?)',
-        ['foo', 'bar', 1]);
+    expect(spyUpdate).toHaveBeenCalledWith(
+      'UPDATE "users" SET "email" = ?, "name" = ? WHERE "rowid" IN (SELECT "users"."rowid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" WHERE "users"."id" = ?)',
+      ['foo', 'bar', 1]
+    );
     expect(result).toBe(1);
 
-    builder   = getSQLiteBuilder();
+    builder = getSQLiteBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').join('orders', join => {
-      join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
-    }).update({
-      'email': 'foo',
-      'name' : 'bar'
-    });
-    expect(spyUpdate)
-      .toBeCalledWith(
-        'UPDATE "users" SET "email" = ?, "name" = ? WHERE "rowid" IN (SELECT "users"."rowid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" AND "users"."id" = ?)',
-        ['foo', 'bar', 1]);
+    result = await builder
+      .from('users')
+      .join('orders', (join) => {
+        join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
+      })
+      .update({
+        email: 'foo',
+        name : 'bar',
+      });
+    expect(spyUpdate).toHaveBeenCalledWith(
+      'UPDATE "users" SET "email" = ?, "name" = ? WHERE "rowid" IN (SELECT "users"."rowid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" AND "users"."id" = ?)',
+      ['foo', 'bar', 1]
+    );
     expect(result).toBe(1);
 
-    builder   = getSQLiteBuilder();
+    builder = getSQLiteBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users as u').join('orders as o', 'u.id', '=',
-      'o.user_id').update({
-      'email': 'foo',
-      'name' : 'bar'
+    result = await builder.from('users as u').join('orders as o', 'u.id', '=', 'o.user_id').update({
+      email: 'foo',
+      name : 'bar',
     });
-    expect(spyUpdate)
-      .toBeCalledWith(
-        'update "users" as "u" set "email" = ?, "name" = ? where "rowid" in (select "u"."rowid" from "users" as "u" inner join "orders" as "o" on "u"."id" = "o"."user_id")',
-        ['foo', 'bar']);
+    expect(spyUpdate).toHaveBeenCalledWith(
+      'update "users" as "u" set "email" = ?, "name" = ? where "rowid" in (select "u"."rowid" from "users" as "u" inner join "orders" as "o" on "u"."id" = "o"."user_id")',
+      ['foo', 'bar']
+    );
     expect(result).toBe(1);
   });
 
   it('test update method with joins and aliases on sql server', async () => {
     let spyUpdate, result;
-    builder   = getSqlServerBuilder();
+    builder = getSqlServerBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users as u').join('orders', 'u.id', '=',
-      'orders.user_id').where(
-      'u.id', '=', 1).update({
-      'email': 'foo',
-      'name' : 'bar'
-    });
-    expect(spyUpdate)
-      .toBeCalledWith(
-        'UPDATE [u] SET [u].[email] = ?, [u].[name] = ? FROM [users] AS [u] INNER JOIN [orders] ON [u].[id] = [orders].[user_id] WHERE [u].[id] = ?',
-        ['foo', 'bar', 1]);
+    result = await builder
+      .from('users as u')
+      .join('orders', 'u.id', '=', 'orders.user_id')
+      .where('u.id', '=', 1)
+      .update({
+        email: 'foo',
+        name : 'bar',
+      });
+    expect(spyUpdate).toHaveBeenCalledWith(
+      'UPDATE [u] SET [u].[email] = ?, [u].[name] = ? FROM [users] AS [u] INNER JOIN [orders] ON [u].[id] = [orders].[user_id] WHERE [u].[id] = ?',
+      ['foo', 'bar', 1]
+    );
     expect(result).toBe(1);
   });
 
   it('test update method without joins on postgres', async () => {
     let spyUpdate, result;
-    builder   = getPostgresBuilder();
+    builder = getPostgresBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').where('id', '=', 1).update({
+    result = await builder.from('users').where('id', '=', 1).update({
       'users.email': 'foo',
-      'name'       : 'bar'
+      name         : 'bar',
     });
-    expect(spyUpdate).toBeCalledWith('UPDATE "users" SET "email" = $1, "name" = $2 WHERE "id" = $3',
-      ['foo', 'bar', 1]);
+    expect(spyUpdate).toHaveBeenCalledWith('UPDATE "users" SET "email" = $1, "name" = $2 WHERE "id" = $3', [
+      'foo',
+      'bar',
+      1,
+    ]);
     expect(result).toBe(1);
 
-
-    builder   = getPostgresBuilder();
+    builder = getPostgresBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').where('id', '=', 1).selectRaw('?', ['ignore']).update({
+    result = await builder.from('users').where('id', '=', 1).selectRaw('?', ['ignore']).update({
       'users.email': 'foo',
-      'name'       : 'bar'
+      name         : 'bar',
     });
-    expect(spyUpdate).toBeCalledWith('UPDATE "users" SET "email" = $1, "name" = $2 WHERE "id" = $3',
-      ['foo', 'bar', 1]);
+    expect(spyUpdate).toHaveBeenCalledWith('UPDATE "users" SET "email" = $1, "name" = $2 WHERE "id" = $3', [
+      'foo',
+      'bar',
+      1,
+    ]);
     expect(result).toBe(1);
 
-
-    builder   = getPostgresBuilder();
+    builder = getPostgresBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users.users').where('id', '=', 1).selectRaw('?',
-      ['ignore']).update({
+    result = await builder.from('users.users').where('id', '=', 1).selectRaw('?', ['ignore']).update({
       'users.users.email': 'foo',
-      'name'             : 'bar'
+      name               : 'bar',
     });
-    expect(spyUpdate)
-      .toBeCalledWith('UPDATE "users"."users" SET "email" = $1, "name" = $2 WHERE "id" = $3',
-        ['foo', 'bar', 1]);
+    expect(spyUpdate).toHaveBeenCalledWith('UPDATE "users"."users" SET "email" = $1, "name" = $2 WHERE "id" = $3', [
+      'foo',
+      'bar',
+      1,
+    ]);
     expect(result).toBe(1);
   });
 
   it('test update method with joins on postgres', async () => {
     let spyUpdate, result;
-    builder   = getPostgresBuilder();
+    builder = getPostgresBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users')
+    result = await builder
+      .from('users')
       .join('orders', 'users.id', '=', 'orders.user_id')
       .where('users.id', '=', 1)
       .update({
-        'email': 'foo',
-        'name' : 'bar'
+        email: 'foo',
+        name : 'bar',
       });
-    expect(spyUpdate)
-      .toBeCalledWith(
-        'UPDATE "users" SET "email" = $1, "name" = $2 WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" WHERE "users"."id" = $3)',
-        ['foo', 'bar', 1]);
+    expect(spyUpdate).toHaveBeenCalledWith(
+      'UPDATE "users" SET "email" = $1, "name" = $2 WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" WHERE "users"."id" = $3)',
+      ['foo', 'bar', 1]
+    );
     expect(result).toBe(1);
 
-
-    builder   = getPostgresBuilder();
+    builder = getPostgresBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').join('orders', join => {
-      join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
-    }).update({
-      'email': 'foo',
-      'name' : 'bar'
-    });
-    expect(spyUpdate)
-      .toBeCalledWith(
-        'UPDATE "users" SET "email" = $1, "name" = $2 WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" AND "users"."id" = $3)',
-        ['foo', 'bar', 1]);
+    result = await builder
+      .from('users')
+      .join('orders', (join) => {
+        join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
+      })
+      .update({
+        email: 'foo',
+        name : 'bar',
+      });
+    expect(spyUpdate).toHaveBeenCalledWith(
+      'UPDATE "users" SET "email" = $1, "name" = $2 WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" AND "users"."id" = $3)',
+      ['foo', 'bar', 1]
+    );
     expect(result).toBe(1);
 
-
-    builder   = getPostgresBuilder();
+    builder = getPostgresBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').join('orders', join => {
-      join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
-    }).where('name', 'baz').update({
-      'email': 'foo',
-      'name' : 'bar'
-    });
-    expect(spyUpdate)
-      .toBeCalledWith(
-        'UPDATE "users" SET "email" = $1, "name" = $2 WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" AND "users"."id" = $3 WHERE "name" = $4)',
-        ['foo', 'bar', 1, 'baz']);
+    result = await builder
+      .from('users')
+      .join('orders', (join) => {
+        join.on('users.id', '=', 'orders.user_id').where('users.id', '=', 1);
+      })
+      .where('name', 'baz')
+      .update({
+        email: 'foo',
+        name : 'bar',
+      });
+    expect(spyUpdate).toHaveBeenCalledWith(
+      'UPDATE "users" SET "email" = $1, "name" = $2 WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" AND "users"."id" = $3 WHERE "name" = $4)',
+      ['foo', 'bar', 1, 'baz']
+    );
     expect(result).toBe(1);
   });
 
   it('test update method respects raw', async () => {
     let spyUpdate, result;
-    builder   = getBuilder();
+    builder = getBuilder();
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').where('id', '=', 1).update({
-      'email': raw('foo'),
-      'name' : 'bar'
-    });
-    expect(spyUpdate)
-      .toBeCalledWith('UPDATE `users` SET `email` = foo, `name` = ? WHERE `id` = ?', ['bar', 1]);
+    result = await builder
+      .from('users')
+      .where('id', '=', 1)
+      .update({
+        email: raw('foo'),
+        name : 'bar',
+      });
+    expect(spyUpdate).toHaveBeenCalledWith('UPDATE `users` SET `email` = foo, `name` = ? WHERE `id` = ?', ['bar', 1]);
     expect(result).toBe(1);
   });
 
@@ -3198,313 +3242,309 @@ describe('database query builder test', () => {
   it('test update or insert method works with empty update values without from', async () => {
     let spyUpdate, spyExists, spyWhere;
     builder = getBuilder();
-    jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([{exists: 0}]));
+    jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([{ exists: 0 }]));
     spyUpdate = jest.spyOn(builder, 'update').mockRestore();
     spyExists = jest.spyOn(builder, 'exists').mockRestore();
-    spyWhere  = jest.spyOn(builder, 'where').mockRestore();
+    spyWhere = jest.spyOn(builder, 'where').mockRestore();
 
     await expect(async () => {
       await builder.updateOrInsert({
-        'email': 'foo'
+        email: 'foo',
       });
-    }).rejects.toThrowError('must call from before insert');
-
+    }).rejects.toThrow('must call from before insert');
   });
 
   it('test update or insert method works with empty update values', async () => {
     let spyUpdate, spyExists, spyWhere;
     builder = getBuilder();
-    jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([{exists: 0}]));
+    jest.spyOn(builder._connection, 'select').mockReturnValue(Promise.resolve([{ exists: 0 }]));
     jest.spyOn(builder._connection, 'insert').mockReturnValue(Promise.resolve(true));
     spyUpdate = jest.spyOn(builder, 'update');
     spyExists = jest.spyOn(builder, 'exists');
-    spyWhere  = jest.spyOn(builder, 'where');
+    spyWhere = jest.spyOn(builder, 'where');
 
-    expect(builder.from('users').updateOrInsert({
-      'email': 'foo'
-    })).toBeTruthy();
-    expect(spyWhere).toBeCalledWith({'email': 'foo'});
-    expect(spyUpdate).toBeCalledTimes(0);
-
+    expect(
+      builder.from('users').updateOrInsert({
+        email: 'foo',
+      })
+    ).toBeTruthy();
+    expect(spyWhere).toHaveBeenCalledWith({ email: 'foo' });
+    expect(spyUpdate).toHaveBeenCalledTimes(0);
   });
 
   it('test delete method', async () => {
     let spyDelete, result;
-    builder   = getBuilder();
+    builder = getBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').where('email', '=', 'foo').delete();
-    expect(spyDelete)
-      .toBeCalledWith('DELETE FROM `users` WHERE `email` = ?', ['foo']);
+    result = await builder.from('users').where('email', '=', 'foo').delete();
+    expect(spyDelete).toHaveBeenCalledWith('DELETE FROM `users` WHERE `email` = ?', ['foo']);
     expect(result).toBe(1);
 
-
-    builder   = getBuilder();
+    builder = getBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').delete(1);
-    expect(spyDelete)
-      .toBeCalledWith('DELETE FROM `users` WHERE `users`.`id` = ?', [1]);
+    result = await builder.from('users').delete(1);
+    expect(spyDelete).toHaveBeenCalledWith('DELETE FROM `users` WHERE `users`.`id` = ?', [1]);
     expect(result).toBe(1);
 
-
-    builder   = getBuilder();
+    builder = getBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').selectRaw('?', ['ignore']).delete(1);
-    expect(spyDelete)
-      .toBeCalledWith('DELETE FROM `users` WHERE `users`.`id` = ?', [1]);
+    result = await builder.from('users').selectRaw('?', ['ignore']).delete(1);
+    expect(spyDelete).toHaveBeenCalledWith('DELETE FROM `users` WHERE `users`.`id` = ?', [1]);
     expect(result).toBe(1);
 
-
-    builder   = getSQLiteBuilder();
+    builder = getSQLiteBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').where('email', '=', 'foo').orderBy('id').take(
-      1).delete();
-    expect(spyDelete)
-      .toBeCalledWith(
-        'DELETE FROM "users" WHERE "rowid" IN (SELECT "users"."rowid" FROM "users" WHERE "email" = ? ORDER BY "id" ASC LIMIT 1)',
-        ['foo']);
+    result = await builder.from('users').where('email', '=', 'foo').orderBy('id').take(1).delete();
+    expect(spyDelete).toHaveBeenCalledWith(
+      'DELETE FROM "users" WHERE "rowid" IN (SELECT "users"."rowid" FROM "users" WHERE "email" = ? ORDER BY "id" ASC LIMIT 1)',
+      ['foo']
+    );
     expect(result).toBe(1);
 
-
-    builder   = getMySqlBuilder();
+    builder = getMySqlBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').where('email', '=', 'foo').orderBy('id').take(
-      1).delete();
-    expect(spyDelete)
-      .toBeCalledWith('DELETE FROM `users` WHERE `email` = ? ORDER BY `id` ASC LIMIT 1', ['foo']);
+    result = await builder.from('users').where('email', '=', 'foo').orderBy('id').take(1).delete();
+    expect(spyDelete).toHaveBeenCalledWith('DELETE FROM `users` WHERE `email` = ? ORDER BY `id` ASC LIMIT 1', ['foo']);
     expect(result).toBe(1);
 
-
-    builder   = getSqlServerBuilder();
+    builder = getSqlServerBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').where('email', '=', 'foo').delete();
-    expect(spyDelete)
-      .toBeCalledWith('DELETE FROM [users] WHERE [email] = ?', ['foo']);
+    result = await builder.from('users').where('email', '=', 'foo').delete();
+    expect(spyDelete).toHaveBeenCalledWith('DELETE FROM [users] WHERE [email] = ?', ['foo']);
     expect(result).toBe(1);
 
-
-    builder   = getSqlServerBuilder();
+    builder = getSqlServerBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').where('email', '=', 'foo').orderBy('id').take(
-      1).delete();
-    expect(spyDelete)
-      .toBeCalledWith('DELETE top (1) FROM [users] WHERE [email] = ?', ['foo']);
+    result = await builder.from('users').where('email', '=', 'foo').orderBy('id').take(1).delete();
+    expect(spyDelete).toHaveBeenCalledWith('DELETE top (1) FROM [users] WHERE [email] = ?', ['foo']);
     expect(result).toBe(1);
   });
 
   it('test delete with join method', async () => {
     let spyDelete, result;
-    builder   = getSQLiteBuilder();
+    builder = getSQLiteBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users')
+    result = await builder
+      .from('users')
       .join('contacts', 'users.id', '=', 'contacts.id')
       .where('users.email', '=', 'foo')
       .orderBy('users.id')
       .limit(1)
       .delete();
-    expect(spyDelete)
-      .toBeCalledWith(
-        'DELETE FROM "users" WHERE "rowid" IN (SELECT "users"."rowid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."id" WHERE "users"."email" = ? ORDER BY "users"."id" ASC LIMIT 1)',
-        ['foo']);
+    expect(spyDelete).toHaveBeenCalledWith(
+      'DELETE FROM "users" WHERE "rowid" IN (SELECT "users"."rowid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."id" WHERE "users"."email" = ? ORDER BY "users"."id" ASC LIMIT 1)',
+      ['foo']
+    );
     expect(result).toBe(1);
 
-
-    builder   = getSQLiteBuilder();
+    builder = getSQLiteBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users as u').join('contacts as c', 'u.id', '=',
-      'c.id').delete();
-    expect(spyDelete)
-      .toBeCalledWith(
-        'DELETE FROM "users" AS "u" WHERE "rowid" IN (SELECT "u"."rowid" FROM "users" AS "u" INNER JOIN "contacts" AS "c" ON "u"."id" = "c"."id")',
-        []);
+    result = await builder.from('users as u').join('contacts as c', 'u.id', '=', 'c.id').delete();
+    expect(spyDelete).toHaveBeenCalledWith(
+      'DELETE FROM "users" AS "u" WHERE "rowid" IN (SELECT "u"."rowid" FROM "users" AS "u" INNER JOIN "contacts" AS "c" ON "u"."id" = "c"."id")',
+      []
+    );
     expect(result).toBe(1);
 
-
-    builder   = getMySqlBuilder();
+    builder = getMySqlBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users')
+    result = await builder
+      .from('users')
       .join('contacts', 'users.id', '=', 'contacts.id')
       .where('email', '=', 'foo')
       .orderBy('id')
       .limit(1)
       .delete();
-    expect(spyDelete)
-      .toBeCalledWith(
-        'DELETE `users` FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` WHERE `email` = ?',
-        ['foo']);
+    expect(spyDelete).toHaveBeenCalledWith(
+      'DELETE `users` FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` WHERE `email` = ?',
+      ['foo']
+    );
     expect(result).toBe(1);
 
-
-    builder   = getMySqlBuilder();
+    builder = getMySqlBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users AS a')
+    result = await builder
+      .from('users AS a')
       .join('users AS b', 'a.id', '=', 'b.user_id')
       .where('email', '=', 'foo')
       .orderBy('id')
       .limit(1)
       .delete();
-    expect(spyDelete)
-      .toBeCalledWith(
-        'DELETE `a` FROM `users` AS `a` INNER JOIN `users` AS `b` ON `a`.`id` = `b`.`user_id` WHERE `email` = ?',
-        ['foo']);
+    expect(spyDelete).toHaveBeenCalledWith(
+      'DELETE `a` FROM `users` AS `a` INNER JOIN `users` AS `b` ON `a`.`id` = `b`.`user_id` WHERE `email` = ?',
+      ['foo']
+    );
     expect(result).toBe(1);
 
-
-    builder   = getMySqlBuilder();
+    builder = getMySqlBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').join('contacts', 'users.id', '=',
-      'contacts.id').orderBy(
-      'id').take(1).delete(1);
-    expect(spyDelete)
-      .toBeCalledWith(
-        'DELETE `users` FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` WHERE `users`.`id` = ?',
-        [1]);
+    result = await builder
+      .from('users')
+      .join('contacts', 'users.id', '=', 'contacts.id')
+      .orderBy('id')
+      .take(1)
+      .delete(1);
+    expect(spyDelete).toHaveBeenCalledWith(
+      'DELETE `users` FROM `users` INNER JOIN `contacts` ON `users`.`id` = `contacts`.`id` WHERE `users`.`id` = ?',
+      [1]
+    );
     expect(result).toBe(1);
 
-
-    builder   = getSqlServerBuilder();
+    builder = getSqlServerBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users')
+    result = await builder
+      .from('users')
       .join('contacts', 'users.id', '=', 'contacts.id')
       .where('email', '=', 'foo')
       .delete();
-    expect(spyDelete)
-      .toBeCalledWith(
-        'DELETE [users] FROM [users] INNER JOIN [contacts] ON [users].[id] = [contacts].[id] WHERE [email] = ?',
-        ['foo']);
+    expect(spyDelete).toHaveBeenCalledWith(
+      'DELETE [users] FROM [users] INNER JOIN [contacts] ON [users].[id] = [contacts].[id] WHERE [email] = ?',
+      ['foo']
+    );
     expect(result).toBe(1);
 
-
-    builder   = getSqlServerBuilder();
+    builder = getSqlServerBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users AS a')
+    result = await builder
+      .from('users AS a')
       .join('users AS b', 'a.id', '=', 'b.user_id')
       .where('email', '=', 'foo')
       .orderBy('id')
       .limit(1)
       .delete();
-    expect(spyDelete)
-      .toBeCalledWith(
-        'DELETE [a] FROM [users] AS [a] INNER JOIN [users] AS [b] ON [a].[id] = [b].[user_id] WHERE [email] = ?',
-        ['foo']);
+    expect(spyDelete).toHaveBeenCalledWith(
+      'DELETE [a] FROM [users] AS [a] INNER JOIN [users] AS [b] ON [a].[id] = [b].[user_id] WHERE [email] = ?',
+      ['foo']
+    );
     expect(result).toBe(1);
 
-
-    builder   = getSqlServerBuilder();
+    builder = getSqlServerBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').join('contacts', 'users.id', '=', 'contacts.id').delete(
-      1);
-    expect(spyDelete)
-      .toBeCalledWith(
-        'DELETE [users] FROM [users] INNER JOIN [contacts] ON [users].[id] = [contacts].[id] WHERE [users].[id] = ?',
-        [1]);
+    result = await builder.from('users').join('contacts', 'users.id', '=', 'contacts.id').delete(1);
+    expect(spyDelete).toHaveBeenCalledWith(
+      'DELETE [users] FROM [users] INNER JOIN [contacts] ON [users].[id] = [contacts].[id] WHERE [users].[id] = ?',
+      [1]
+    );
     expect(result).toBe(1);
 
-
-    builder   = getPostgresBuilder();
+    builder = getPostgresBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users')
+    result = await builder
+      .from('users')
       .join('contacts', 'users.id', '=', 'contacts.id')
       .where('users.email', '=', 'foo')
       .delete();
-    expect(spyDelete)
-      .toBeCalledWith(
-        'DELETE FROM "users" WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."id" WHERE "users"."email" = $1)',
-        ['foo']);
+    expect(spyDelete).toHaveBeenCalledWith(
+      'DELETE FROM "users" WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."id" WHERE "users"."email" = $1)',
+      ['foo']
+    );
     expect(result).toBe(1);
 
-
-    builder   = getPostgresBuilder();
+    builder = getPostgresBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users AS a')
+    result = await builder
+      .from('users AS a')
       .join('users AS b', 'a.id', '=', 'b.user_id')
       .where('email', '=', 'foo')
       .orderBy('id')
       .limit(1)
       .delete();
-    expect(spyDelete)
-      .toBeCalledWith(
-        'DELETE FROM "users" AS "a" WHERE "ctid" IN (SELECT "a"."ctid" FROM "users" AS "a" INNER JOIN "users" AS "b" ON "a"."id" = "b"."user_id" WHERE "email" = $1 ORDER BY "id" ASC LIMIT 1)',
-        ['foo']);
+    expect(spyDelete).toHaveBeenCalledWith(
+      'DELETE FROM "users" AS "a" WHERE "ctid" IN (SELECT "a"."ctid" FROM "users" AS "a" INNER JOIN "users" AS "b" ON "a"."id" = "b"."user_id" WHERE "email" = $1 ORDER BY "id" ASC LIMIT 1)',
+      ['foo']
+    );
     expect(result).toBe(1);
 
-
-    builder   = getPostgresBuilder();
+    builder = getPostgresBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').join('contacts', 'users.id', '=',
-      'contacts.id').orderBy(
-      'id').take(1).delete(1);
-    expect(spyDelete)
-      .toBeCalledWith(
-        'DELETE FROM "users" WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."id" WHERE "users"."id" = $1 ORDER BY "id" ASC LIMIT 1)',
-        [1]);
+    result = await builder
+      .from('users')
+      .join('contacts', 'users.id', '=', 'contacts.id')
+      .orderBy('id')
+      .take(1)
+      .delete(1);
+    expect(spyDelete).toHaveBeenCalledWith(
+      'DELETE FROM "users" WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."id" WHERE "users"."id" = $1 ORDER BY "id" ASC LIMIT 1)',
+      [1]
+    );
     expect(result).toBe(1);
 
-
-    builder   = getPostgresBuilder();
+    builder = getPostgresBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').join('contacts', join => {
-      join.on('users.id', '=', 'contacts.user_id').where('users.id', '=', 1);
-    }).where('name', 'baz').delete();
-    expect(spyDelete)
-      .toBeCalledWith(
-        'DELETE FROM "users" WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."user_id" AND "users"."id" = $1 WHERE "name" = $2)',
-        [1, 'baz']);
+    result = await builder
+      .from('users')
+      .join('contacts', (join) => {
+        join.on('users.id', '=', 'contacts.user_id').where('users.id', '=', 1);
+      })
+      .where('name', 'baz')
+      .delete();
+    expect(spyDelete).toHaveBeenCalledWith(
+      'DELETE FROM "users" WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."user_id" AND "users"."id" = $1 WHERE "name" = $2)',
+      [1, 'baz']
+    );
     expect(result).toBe(1);
 
-
-    builder   = getPostgresBuilder();
+    builder = getPostgresBuilder();
     spyDelete = jest.spyOn(builder._connection, 'delete').mockReturnValue(Promise.resolve(1));
-    result    = await builder.from('users').join('contacts', 'users.id', '=',
-      'contacts.id').delete();
-    expect(spyDelete)
-      .toBeCalledWith(
-        'DELETE FROM "users" WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."id")',
-        []);
+    result = await builder.from('users').join('contacts', 'users.id', '=', 'contacts.id').delete();
+    expect(spyDelete).toHaveBeenCalledWith(
+      'DELETE FROM "users" WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "contacts" ON "users"."id" = "contacts"."id")',
+      []
+    );
     expect(result).toBe(1);
-
   });
 
   it('test truncate method', async () => {
     let spyStatement;
-    builder      = getBuilder();
+    builder = getBuilder();
     spyStatement = jest.spyOn(builder._connection, 'statement').mockReturnValue(Promise.resolve(1));
     await builder.from('users').truncate();
-    expect(spyStatement).toBeCalledWith('TRUNCATE TABLE `users`', []);
+    expect(spyStatement).toHaveBeenCalledWith('TRUNCATE TABLE `users`', []);
 
     const sqlite = new SqliteQueryGrammar();
-    builder      = getSQLiteBuilder();
+    builder = getSQLiteBuilder();
     builder.from('usersx');
     expect(sqlite.compileTruncate(builder)).toStrictEqual({
       'DELETE FROM sqlite_sequence WHERE name = ?': ['usersx'],
-      'DELETE FROM "usersx"'                      : []
+      'DELETE FROM "usersx"'                      : [],
     });
   });
 
   it('test postgres insert get id', async () => {
     let spyInsertGetId, result;
-    builder        = getPostgresBuilder();
-    spyInsertGetId = jest.spyOn(builder._processor, 'processInsertGetId').mockReturnValue(
-      Promise.resolve(1));
-    result         = await builder.from('users').insertGetId({
-      'email': 'foo'
-    }, 'id');
-    expect(spyInsertGetId).toBeCalledWith(builder,
+    builder = getPostgresBuilder();
+    spyInsertGetId = jest.spyOn(builder._processor, 'processInsertGetId').mockReturnValue(Promise.resolve(1));
+    result = await builder.from('users').insertGetId(
+      {
+        email: 'foo',
+      },
+      'id'
+    );
+    expect(spyInsertGetId).toHaveBeenCalledWith(
+      builder,
       'INSERT INTO "users" ("email") VALUES ($1) returning "id"',
-      ['foo'], 'id');
+      ['foo'],
+      'id'
+    );
     expect(result).toBe(1);
   });
 
   it('test sql server insert get id', async () => {
     let spyInsertGetId, result;
-    builder        = getSqlServerBuilder();
-    spyInsertGetId = jest.spyOn(builder._processor, 'processInsertGetId').mockReturnValue(
-      Promise.resolve(1));
-    result         = await builder.from('users').insertGetId({
-      'email': 'foo'
-    }, 'id');
-    expect(spyInsertGetId).toBeCalledWith(builder,
+    builder = getSqlServerBuilder();
+    spyInsertGetId = jest.spyOn(builder._processor, 'processInsertGetId').mockReturnValue(Promise.resolve(1));
+    result = await builder.from('users').insertGetId(
+      {
+        email: 'foo',
+      },
+      'id'
+    );
+    expect(spyInsertGetId).toHaveBeenCalledWith(
+      builder,
       'set nocount on;INSERT INTO [users] ([email]) VALUES (?);select scope_identity() as [id]',
-      ['foo'], 'id');
+      ['foo'],
+      'id'
+    );
     expect(result).toBe(1);
   });
 
@@ -3844,19 +3884,19 @@ describe('database query builder test', () => {
     expect(builder.toSql()).toBe('SELECT top 10 * FROM [users]');
     builder = getSqlServerBuilder();
     builder.select('*').from('users').skip(10);
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM (select *, row_number() over (order by (select 0)) as row_num from [users]) as temp_table where row_num >= 11 ORDER BY row_num');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM (select *, row_number() over (order by (select 0)) as row_num from [users]) as temp_table where row_num >= 11 ORDER BY row_num'
+    );
     builder = getSqlServerBuilder();
     builder.select('*').from('users').skip(10).take(10);
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM (select *, row_number() over (order by (select 0)) as row_num from [users]) as temp_table where row_num between 11 and 20 ORDER BY row_num');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM (select *, row_number() over (order by (select 0)) as row_num from [users]) as temp_table where row_num between 11 and 20 ORDER BY row_num'
+    );
     builder = getSqlServerBuilder();
     builder.select('*').from('users').skip(10).take(10).orderBy('email', 'desc');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM (select *, row_number() over (order by [email] desc) as row_num from [users]) as temp_table where row_num between 11 and 20 ORDER BY row_num');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM (select *, row_number() over (order by [email] desc) as row_num from [users]) as temp_table where row_num between 11 and 20 ORDER BY row_num'
+    );
   });
 
   it('test my sql sounds like operator', () => {
@@ -3960,8 +4000,7 @@ describe('database query builder test', () => {
   it('test sql server lock', () => {
     builder = getSqlServerBuilder();
     builder.select('*').from('foo').where('bar', '=', 'baz').lock();
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM [foo] with(rowlock,updlock,holdlock) WHERE [bar] = ?');
+    expect(builder.toSql()).toBe('SELECT * FROM [foo] with(rowlock,updlock,holdlock) WHERE [bar] = ?');
     expect(builder.getBindings()).toStrictEqual(['baz']);
     builder = getSqlServerBuilder();
     builder.select('*').from('foo').where('bar', '=', 'baz').lock(false);
@@ -3983,12 +4022,14 @@ describe('database query builder test', () => {
   });
 
   it('test binding order', () => {
-    const expectedSql      = 'SELECT * FROM `users` INNER JOIN `othertable` ON `bar` = ? WHERE `registered` = ? GROUP BY `city` HAVING `population` > ? ORDER BY match ("foo") against(?)';
+    const expectedSql =
+      'SELECT * FROM `users` INNER JOIN `othertable` ON `bar` = ? WHERE `registered` = ? GROUP BY `city` HAVING `population` > ? ORDER BY match ("foo") against(?)';
     const expectedBindings = ['foo', 1, 3, 'bar'];
-    builder                = getBuilder();
-    builder.select('*')
+    builder = getBuilder();
+    builder
+      .select('*')
       .from('users')
-      .join('othertable', join => {
+      .join('othertable', (join) => {
         join.where('bar', '=', 'foo');
       })
       .where('registered', 1)
@@ -3998,13 +4039,14 @@ describe('database query builder test', () => {
     expect(builder.toSql()).toBe(expectedSql);
     expect(builder.getBindings()).toStrictEqual(expectedBindings);
     builder = getBuilder();
-    builder.select('*')
+    builder
+      .select('*')
       .from('users')
       .orderByRaw('match ("foo") against(?)', ['bar'])
       .having('population', '>', 3)
       .groupBy('city')
       .where('registered', 1)
-      .join('othertable', join => {
+      .join('othertable', (join) => {
         join.where('bar', '=', 'foo');
       });
     expect(builder.toSql()).toBe(expectedSql);
@@ -4045,12 +4087,12 @@ describe('database query builder test', () => {
   // });
 
   it('test sub select', () => {
-    const expectedSql      = 'SELECT "foo", "bar", (SELECT "baz" FROM "two" WHERE "subkey" = $1) AS "sub" FROM "one" WHERE "_key" = $2';
+    const expectedSql =
+      'SELECT "foo", "bar", (SELECT "baz" FROM "two" WHERE "subkey" = $1) AS "sub" FROM "one" WHERE "_key" = $2';
     const expectedBindings = ['subval', 'val'];
-    builder                = getPostgresBuilder();
-    builder.from('one').select(['foo', 'bar'])
-      .where('_key', '=', 'val');
-    builder.selectSub(query => {
+    builder = getPostgresBuilder();
+    builder.from('one').select(['foo', 'bar']).where('_key', '=', 'val');
+    builder.selectSub((query) => {
       query.from('two').select('baz').where('subkey', '=', 'subval');
     }, 'sub');
     expect(builder.toSql()).toBe(expectedSql);
@@ -4068,16 +4110,15 @@ describe('database query builder test', () => {
     expect(() => {
       // @ts-ignore
       builder.selectSub(['foo'], 'sub');
-    }).toThrowError('InvalidArgumentException');
+    }).toThrow('InvalidArgumentException');
   });
 
   it('test sub select reset bindings', () => {
     builder = getPostgresBuilder();
-    builder.from('one').selectSub(query => {
+    builder.from('one').selectSub((query) => {
       query.from('two').select('baz').where('subkey', '=', 'subval');
     }, 'sub');
-    expect(builder.toSql()).toBe(
-      'SELECT (SELECT "baz" FROM "two" WHERE "subkey" = $1) AS "sub" FROM "one"');
+    expect(builder.toSql()).toBe('SELECT (SELECT "baz" FROM "two" WHERE "subkey" = $1) AS "sub" FROM "one"');
     expect(builder.getBindings()).toStrictEqual(['subval']);
     builder.select('*');
     expect(builder.toSql()).toBe('SELECT * FROM "one"');
@@ -4088,9 +4129,7 @@ describe('database query builder test', () => {
     builder = getSqlServerBuilder();
     builder.select('*').from('users').whereDate('created_at', '=', '2015-09-23');
     expect(builder.toSql()).toBe('SELECT * FROM [users] WHERE cast([created_at] AS date) = ?');
-    expect(builder.getBindings()).toStrictEqual([
-      '2015-09-23'
-    ]);
+    expect(builder.getBindings()).toStrictEqual(['2015-09-23']);
   });
   //
   it('test uppercase leading booleans are removed', () => {
@@ -4444,26 +4483,21 @@ describe('database query builder test', () => {
     builder = getMySqlBuilder();
     builder.select('*').from('users').whereJsonContains('users.options->languages', ['en']);
     expect(builder.toSql()).toBe(
-      'SELECT * FROM `users` WHERE json_contains(json_extract(`users`.`options`, "$.languages"), ?)');
+      'SELECT * FROM `users` WHERE json_contains(json_extract(`users`.`options`, "$.languages"), ?)'
+    );
     expect(builder.getBindings()).toStrictEqual(['["en"]']);
     builder = getMySqlBuilder();
-    builder.select('*')
-      .from('users')
-      .where('id', '=', 1)
-      .orWhereJsonContains('options->languages', raw('\'["en"]\''));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` WHERE `id` = ? OR json_contains(json_extract(`options`, "$.languages"), \'["en"]\')');
+    builder.select('*').from('users').where('id', '=', 1).orWhereJsonContains('options->languages', raw('\'["en"]\''));
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` WHERE `id` = ? OR json_contains(json_extract(`options`, "$.languages"), \'["en"]\')'
+    );
     expect(builder.getBindings()).toStrictEqual([1]);
 
     builder = getMySqlBuilder();
-    builder.select('*')
-      .from('users')
-      .where('id', '=', 1)
-      .orWhereJsonContains('options->>languages', raw('\'["en"]\''));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` WHERE `id` = ? OR json_contains(json_unquote(json_extract(`options`, "$.languages")), \'["en"]\')');
+    builder.select('*').from('users').where('id', '=', 1).orWhereJsonContains('options->>languages', raw('\'["en"]\''));
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` WHERE `id` = ? OR json_contains(json_unquote(json_extract(`options`, "$.languages")), \'["en"]\')'
+    );
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 
@@ -4474,17 +4508,17 @@ describe('database query builder test', () => {
     expect(builder.getBindings()).toStrictEqual(['["en"]']);
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereJsonContains('users.options->languages', ['en']);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM "users" WHERE ("users"."options"->"languages")::jsonb @> $1');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE ("users"."options"->"languages")::jsonb @> $1');
     expect(builder.getBindings()).toStrictEqual(['["en"]']);
     builder = getPostgresBuilder();
-    builder.select('*')
+    builder
+      .select('*')
       .from('users')
       .where('id', '=', 1)
       .orWhereJsonContains('options->languages', raw('\'["en\\"]\''));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM "users" WHERE "id" = $1 OR ("options"->"languages")::jsonb @> \'["en\\"]\'');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM "users" WHERE "id" = $1 OR ("options"->"languages")::jsonb @> \'["en\\"]\''
+    );
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 
@@ -4492,27 +4526,25 @@ describe('database query builder test', () => {
     expect(() => {
       builder = getSQLiteBuilder();
       builder.select('*').from('users').whereJsonContains('options->languages', ['en']).toSql();
-    }).toThrowError('ExceptionRuntimeException');
+    }).toThrow('ExceptionRuntimeException');
   });
 
   it('test where json contains sql server', () => {
     builder = getSqlServerBuilder();
     builder.select('*').from('users').whereJsonContains('options', true);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM [users] WHERE ? in (select [value] from openjson([options]))');
+    expect(builder.toSql()).toBe('SELECT * FROM [users] WHERE ? in (select [value] from openjson([options]))');
     expect(builder.getBindings()).toStrictEqual(['true']);
     builder = getSqlServerBuilder();
     builder.select('*').from('users').whereJsonContains('users.options->languages', 'en');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM [users] WHERE ? in (select [value] from openjson([users].[options], "$.languages"))');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM [users] WHERE ? in (select [value] from openjson([users].[options], "$.languages"))'
+    );
     expect(builder.getBindings()).toStrictEqual(['en']);
     builder = getSqlServerBuilder();
-    builder.select('*').from('users').where('id', '=', 1).orWhereJsonContains('options->languages',
-      raw('\'en\''));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM [users] WHERE [id] = ? OR \'en\' in (select [value] from openjson([options], "$.languages"))');
+    builder.select('*').from('users').where('id', '=', 1).orWhereJsonContains('options->languages', raw("'en'"));
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM [users] WHERE [id] = ? OR \'en\' in (select [value] from openjson([options], "$.languages"))'
+    );
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 
@@ -4520,59 +4552,57 @@ describe('database query builder test', () => {
     builder = getMySqlBuilder();
     builder.select('*').from('users').whereJsonDoesntContain('options->languages', ['en']);
     expect(builder.toSql()).toBe(
-      'SELECT * FROM `users` WHERE not json_contains(json_extract(`options`, "$.languages"), ?)');
+      'SELECT * FROM `users` WHERE not json_contains(json_extract(`options`, "$.languages"), ?)'
+    );
     expect(builder.getBindings()).toStrictEqual(['["en"]']);
     builder = getMySqlBuilder();
-    builder.select('*')
+    builder
+      .select('*')
       .from('users')
       .where('id', '=', 1)
       .orWhereJsonDoesntContain('options->languages', raw('\'["en\\"]\''));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` WHERE `id` = ? OR not json_contains(json_extract(`options`, "$.languages"), \'["en\\"]\')');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM `users` WHERE `id` = ? OR not json_contains(json_extract(`options`, "$.languages"), \'["en\\"]\')'
+    );
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 
   it('test where json doesnt contain postgres', () => {
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereJsonDoesntContain('options->languages', ['en']);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM "users" WHERE not ("options"->"languages")::jsonb @> $1');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE not ("options"->"languages")::jsonb @> $1');
     expect(builder.getBindings()).toStrictEqual(['["en"]']);
     builder = getPostgresBuilder();
-    builder.select('*')
+    builder
+      .select('*')
       .from('users')
       .where('id', '=', 1)
       .orWhereJsonDoesntContain('options->languages', raw('\'["en\\"]\''));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM "users" WHERE "id" = $1 OR not ("options"->"languages")::jsonb @> \'["en\\"]\'');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM "users" WHERE "id" = $1 OR not ("options"->"languages")::jsonb @> \'["en\\"]\''
+    );
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 
   it('test where json doesnt contain sqlite', () => {
     expect(() => {
       builder = getSQLiteBuilder();
-      builder.select('*').from('users').whereJsonDoesntContain('options->languages',
-        ['en']).toSql();
-    }).toThrowError('RuntimeException');
+      builder.select('*').from('users').whereJsonDoesntContain('options->languages', ['en']).toSql();
+    }).toThrow('RuntimeException');
   });
 
   it('test where json doesnt contain sql server', () => {
     builder = getSqlServerBuilder();
     builder.select('*').from('users').whereJsonDoesntContain('options->languages', 'en');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM [users] WHERE not ? in (select [value] from openjson([options], "$.languages"))');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM [users] WHERE not ? in (select [value] from openjson([options], "$.languages"))'
+    );
     expect(builder.getBindings()).toStrictEqual(['en']);
     builder = getSqlServerBuilder();
-    builder.select('*')
-      .from('users')
-      .where('id', '=', 1)
-      .orWhereJsonDoesntContain('options->languages', raw('\'en\''));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM [users] WHERE [id] = ? OR not \'en\' in (select [value] from openjson([options], "$.languages"))');
+    builder.select('*').from('users').where('id', '=', 1).orWhereJsonDoesntContain('options->languages', raw("'en'"));
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM [users] WHERE [id] = ? OR not \'en\' in (select [value] from openjson([options], "$.languages"))'
+    );
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 
@@ -4583,50 +4613,40 @@ describe('database query builder test', () => {
     expect(builder.getBindings()).toStrictEqual([0]);
     builder = getMySqlBuilder();
     builder.select('*').from('users').whereJsonLength('users.options->languages', '>', 0);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM `users` WHERE json_length(`users`.`options`, "$.languages") > ?');
+    expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE json_length(`users`.`options`, "$.languages") > ?');
     expect(builder.getBindings()).toStrictEqual([0]);
     builder = getMySqlBuilder();
-    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages',
-      raw('0'));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` WHERE `id` = ? OR json_length(`options`, "$.languages") = 0');
+    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages', raw('0'));
+    expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? OR json_length(`options`, "$.languages") = 0');
     expect(builder.getBindings()).toStrictEqual([1]);
     builder = getMySqlBuilder();
-    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages',
-      '>', raw('0'));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM `users` WHERE `id` = ? OR json_length(`options`, "$.languages") > 0');
+    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages', '>', raw('0'));
+    expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? OR json_length(`options`, "$.languages") > 0');
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 
   it('test where json length postgres', () => {
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereJsonLength('options', 0);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM "users" WHERE json_array_length(("options")::json) = $1');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE json_array_length(("options")::json) = $1');
     expect(builder.getBindings()).toStrictEqual([0]);
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereJsonLength('users.options->languages', '>', 0);
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM "users" WHERE json_array_length(("users"."options"->"languages")::json) > $1');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM "users" WHERE json_array_length(("users"."options"->"languages")::json) > $1'
+    );
     expect(builder.getBindings()).toStrictEqual([0]);
     builder = getPostgresBuilder();
-    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages',
-      raw('0'));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM "users" WHERE "id" = $1 OR json_array_length(("options"->"languages")::json) = 0');
+    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages', raw('0'));
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM "users" WHERE "id" = $1 OR json_array_length(("options"->"languages")::json) = 0'
+    );
     expect(builder.getBindings()).toStrictEqual([1]);
     builder = getPostgresBuilder();
-    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages',
-      '>', raw('0'));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM "users" WHERE "id" = $1 OR json_array_length(("options"->"languages")::json) > 0');
+    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages', '>', raw('0'));
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM "users" WHERE "id" = $1 OR json_array_length(("options"->"languages")::json) > 0'
+    );
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 
@@ -4637,109 +4657,102 @@ describe('database query builder test', () => {
     expect(builder.getBindings()).toStrictEqual([0]);
     builder = getSQLiteBuilder();
     builder.select('*').from('users').whereJsonLength('users.options->languages', '>', 0);
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM "users" WHERE json_array_length("users"."options", "$.languages") > ?');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE json_array_length("users"."options", "$.languages") > ?');
     expect(builder.getBindings()).toStrictEqual([0]);
     builder = getSQLiteBuilder();
-    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages',
-      raw('0'));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM "users" WHERE "id" = ? OR json_array_length("options", "$.languages") = 0');
+    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages', raw('0'));
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM "users" WHERE "id" = ? OR json_array_length("options", "$.languages") = 0'
+    );
     expect(builder.getBindings()).toStrictEqual([1]);
     builder = getSQLiteBuilder();
-    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages',
-      '>', raw('0'));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM "users" WHERE "id" = ? OR json_array_length("options", "$.languages") > 0');
+    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages', '>', raw('0'));
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM "users" WHERE "id" = ? OR json_array_length("options", "$.languages") > 0'
+    );
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 
   it('test where json length sql server', () => {
     builder = getSqlServerBuilder();
     builder.select('*').from('users').whereJsonLength('options', 0);
-    expect(builder.toSql()).toBe(
-      'SELECT * FROM [users] WHERE (select count(*) from openjson([options])) = ?');
+    expect(builder.toSql()).toBe('SELECT * FROM [users] WHERE (select count(*) from openjson([options])) = ?');
     expect(builder.getBindings()).toStrictEqual([0]);
     builder = getSqlServerBuilder();
     builder.select('*').from('users').whereJsonLength('users.options->languages', '>', 0);
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM [users] WHERE (select count(*) from openjson([users].[options], "$.languages")) > ?');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM [users] WHERE (select count(*) from openjson([users].[options], "$.languages")) > ?'
+    );
     expect(builder.getBindings()).toStrictEqual([0]);
     builder = getSqlServerBuilder();
-    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages',
-      raw('0'));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM [users] WHERE [id] = ? OR (select count(*) from openjson([options], "$.languages")) = 0');
+    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages', raw('0'));
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM [users] WHERE [id] = ? OR (select count(*) from openjson([options], "$.languages")) = 0'
+    );
     expect(builder.getBindings()).toStrictEqual([1]);
     builder = getSqlServerBuilder();
-    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages',
-      '>', raw('0'));
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM [users] WHERE [id] = ? OR (select count(*) from openjson([options], "$.languages")) > 0');
+    builder.select('*').from('users').where('id', '=', 1).orWhereJsonLength('options->languages', '>', raw('0'));
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM [users] WHERE [id] = ? OR (select count(*) from openjson([options], "$.languages")) > 0'
+    );
     expect(builder.getBindings()).toStrictEqual([1]);
   });
 
   it('test from sub', () => {
     builder = getBuilder();
-    builder.fromSub(query => {
-      query.select(raw('max(last_seen_at) as last_seen_at')).from('user_sessions').where('foo', '=',
-        '1');
-    }, 'sessions').where('bar', '<', '10');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM (SELECT max(last_seen_at) as last_seen_at FROM `user_sessions` WHERE `foo` = ?) AS `sessions` WHERE `bar` < ?');
+    builder
+      .fromSub((query) => {
+        query.select(raw('max(last_seen_at) as last_seen_at')).from('user_sessions').where('foo', '=', '1');
+      }, 'sessions')
+      .where('bar', '<', '10');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM (SELECT max(last_seen_at) as last_seen_at FROM `user_sessions` WHERE `foo` = ?) AS `sessions` WHERE `bar` < ?'
+    );
     expect(builder.getBindings()).toStrictEqual(['1', '10']);
 
     builder = getBuilder();
     expect(() => {
       builder.fromSub(['invalid'], 'sessions').where('bar', '<', '10');
-    }).toThrowError('InvalidArgumentException');
+    }).toThrow('InvalidArgumentException');
   });
 
   it('test from sub with prefix', () => {
     builder = getBuilder();
     builder.getGrammar().setTablePrefix('prefix_');
-    builder.fromSub(query => {
-      query.select(raw('max(last_seen_at) as last_seen_at')).from('user_sessions').where('foo', '=',
-        '1');
-    }, 'sessions').where('bar', '<', '10');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM (SELECT max(last_seen_at) as last_seen_at FROM `prefix_user_sessions` WHERE `foo` = ?) AS `prefix_sessions` WHERE `bar` < ?');
+    builder
+      .fromSub((query) => {
+        query.select(raw('max(last_seen_at) as last_seen_at')).from('user_sessions').where('foo', '=', '1');
+      }, 'sessions')
+      .where('bar', '<', '10');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM (SELECT max(last_seen_at) as last_seen_at FROM `prefix_user_sessions` WHERE `foo` = ?) AS `prefix_sessions` WHERE `bar` < ?'
+    );
     expect(builder.getBindings()).toStrictEqual(['1', '10']);
   });
 
   it('test from sub without bindings', () => {
     builder = getBuilder();
-    builder.fromSub(query => {
+    builder.fromSub((query) => {
       query.select(raw('max(last_seen_at) as last_seen_at')).from('user_sessions');
     }, 'sessions');
-    expect(builder.toSql())
-      .toBe(
-        'SELECT * FROM (SELECT max(last_seen_at) as last_seen_at FROM `user_sessions`) AS `sessions`');
+    expect(builder.toSql()).toBe(
+      'SELECT * FROM (SELECT max(last_seen_at) as last_seen_at FROM `user_sessions`) AS `sessions`'
+    );
     expect(() => {
-        getBuilder();
-        builder.fromSub(['invalid'], 'sessions');
-      }
-    ).toThrowError('InvalidArgumentException');
+      getBuilder();
+      builder.fromSub(['invalid'], 'sessions');
+    }).toThrow('InvalidArgumentException');
     expect(() => {
       builder = getBuilder();
       builder.fromSub(['invalid'], 'sessions');
-    }).toThrowError('InvalidArgumentException');
-
+    }).toThrow('InvalidArgumentException');
   });
 
-  it('test group by raw', ()=>{
+  it('test group by raw', () => {
     builder = getBuilder();
     const sql = builder.from('users').selectRaw('COUNT(*) as count').toSql();
-    expect(sql).toEqual('SELECT COUNT(*) as count FROM `users`')
-  })
+    expect(sql).toEqual('SELECT COUNT(*) as count FROM `users`');
+  });
 
   // it('test from raw', () => {
   //   builder = getBuilder();
@@ -4768,6 +4781,4 @@ describe('database query builder test', () => {
   //   expect(builder.getBindings()).toStrictEqual(['1520652582']);
   //
   // });
-
-
 });

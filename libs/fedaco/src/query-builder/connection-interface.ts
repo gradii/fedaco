@@ -18,7 +18,7 @@ export interface ConnectionInterface extends ManagesTransactions {
 
   insertGetId(sql: string, bindings: any[], sequence?: string): Promise<any> | boolean;
 
-  /*Run an SQL statement and get the number of rows affected.*/
+  /* Run an SQL statement and get the number of rows affected. */
   affectingStatement(query: string, bindings: any[]): Promise<any> | any;
 
   update(sql: string, bindings: any[]): Promise<any> | any;

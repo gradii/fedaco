@@ -6,9 +6,6 @@
 
 import type { Model } from './model';
 
-
 export class ModelMetaData {
-  read(model: typeof Model) {
-
-  }
+  read(model: typeof Model) {}
 }

@@ -7,12 +7,8 @@
 import type { Expression } from '../../ast/expression/expression';
 import { FunctionNode } from './function-node';
 
-
 export class AbsFunction extends FunctionNode {
-  constructor(
-    public aggregateExpression: Expression
-  ) {
+  constructor(public aggregateExpression: Expression) {
     super();
   }
-
 }

@@ -10,7 +10,6 @@ import type { Model } from '../model';
 import type { Scope } from '../scope';
 
 export interface HasGlobalScopes {
-
   GetGlobalScopes(): { [key: string]: Scope | Function };
 }
 
@@ -24,23 +23,22 @@ const globalScopes = new WeakMap();
 
 export function mixinHasGlobalScopes<T extends Constructor<{}>>(base: T): HasGlobalScopesCtor & T {
   return class _Self extends base {
-    /*Register a new global scope on the model.*/
-    public static addGlobalScope(this: typeof Model & typeof _Self, scope: string,
-                                 implementation: Function) {
+    /* Register a new global scope on the model. */
+    public static addGlobalScope(this: typeof Model & typeof _Self, scope: string, implementation: Function) {
       let targetScopes = globalScopes.get(this);
       if (!targetScopes) {
         targetScopes = {};
         globalScopes.set(this, targetScopes);
       }
-      return targetScopes[scope] = implementation;
+      return (targetScopes[scope] = implementation);
     }
 
-    /*Determine if a model has a global scope.*/
+    /* Determine if a model has a global scope. */
     public static hasGlobalScope(scope: string) {
       return !isBlank(this.getGlobalScope(scope));
     }
 
-    /*Get a global scope registered with the model.*/
+    /* Get a global scope registered with the model. */
     public static getGlobalScope(scope: string) {
       const target = globalScopes.get(this);
       if (target) {
@@ -49,7 +47,7 @@ export function mixinHasGlobalScopes<T extends Constructor<{}>>(base: T): HasGlo
       return undefined;
     }
 
-    /*Get the global scopes for this class instance.*/
+    /* Get the global scopes for this class instance. */
     public GetGlobalScopes(this: Model & _Self) {
       const target = globalScopes.get(this.constructor);
       return target || [];

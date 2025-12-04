@@ -6,12 +6,12 @@
 import type { ConnectionInterface } from '../query-builder/connection-interface';
 
 export interface ConnectionResolverInterface {
-  /*Get a database connection instance.*/
+  /* Get a database connection instance. */
   connection(name?: string): ConnectionInterface;
 
-  /*Get the default connection name.*/
+  /* Get the default connection name. */
   getDefaultConnection(): any;
 
-  /*Set the default connection name.*/
+  /* Set the default connection name. */
   setDefaultConnection(name: string): any;
 }

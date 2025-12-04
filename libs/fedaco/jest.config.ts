@@ -1,12 +1,12 @@
-/* eslint-disable */
+ 
 export default {
-  displayName: 'fedaco',
-  preset: '../../jest.preset.js',
+  displayName    : 'fedaco',
+  preset         : '../../jest.preset.js',
   testEnvironment: 'node',
-  transform: {
+  transform      : {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
-  maxWorkers: 1,
+  maxWorkers          : 1,
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/libs/fedaco',
+  coverageDirectory   : '../../coverage/libs/fedaco',
 };

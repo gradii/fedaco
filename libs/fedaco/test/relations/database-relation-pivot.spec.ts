@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
+ 
 import { Column } from '../../src/annotation/column/column';
 import { JsonColumn } from '../../src/annotation/column/json.column';
 import { Model } from '../../src/fedaco/model';

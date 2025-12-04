@@ -42,19 +42,18 @@ export class PostgresWrappedConnection implements WrappedConnection {
   }
 
   async beginTransaction(): Promise<void> {
-    await this.driver.query('BEGIN TRANSACTION')
+    await this.driver.query('BEGIN TRANSACTION');
   }
 
   async commit(): Promise<void> {
-    await this.driver.query('COMMIT')
+    await this.driver.query('COMMIT');
   }
 
   async rollBack(): Promise<void> {
-    await this.driver.query('ROLLBACK')
+    await this.driver.query('ROLLBACK');
   }
 
-  disconnect(): void {
-    this.driver.end();
+  async disconnect(): Promise<void> {
+    await this.driver.end();
   }
-
 }

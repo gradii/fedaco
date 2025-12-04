@@ -5,14 +5,14 @@
  */
 
 import { isString } from '@gradii/nanofn';
-import { BindingVariable } from '../../query/ast/binding-variable';
+import { type BindingVariable } from '../../query/ast/binding-variable';
 import type { ColumnReferenceExpression } from '../../query/ast/column-reference-expression';
 import type { ComparisonPredicateExpression } from '../../query/ast/expression/comparison-predicate-expression';
 import type { FunctionCallExpression } from '../../query/ast/expression/function-call-expression';
 import type { JsonPathExpression } from '../../query/ast/json-path-expression';
 import type { LockClause } from '../../query/ast/lock-clause';
 import type { GrammarInterface } from '../grammar.interface';
-import { QueryBuilder } from '../query-builder';
+import { type QueryBuilder } from '../query-builder';
 import { QueryBuilderVisitor } from './query-builder-visitor';
 
 const LIKES = ['LIKE', 'ILIKE', 'NOT LIKE', 'NOT ILIKE'];
@@ -25,7 +25,7 @@ export class PostgresQueryBuilderVisitor extends QueryBuilderVisitor {
      * todo remove queryBuilder. should use binding only
      */
     _queryBuilder: QueryBuilder,
-    ctx: Record<string | 'offset', any>
+    ctx: Record<string | 'offset', any>,
   ) {
     ctx.offset = ctx.offset ?? 0;
     super(_grammar, _queryBuilder, ctx);
@@ -35,27 +35,19 @@ export class PostgresQueryBuilderVisitor extends QueryBuilderVisitor {
     let funcName = node.name.accept(this);
     funcName = this._grammar.predicateFuncName(funcName);
     if (['day', 'month', 'year'].includes(funcName)) {
-      return `extract(${funcName} from ${node.parameters
-        .map((it) => it.accept(this))
-        .join(', ')})`;
+      return `extract(${funcName} from ${node.parameters.map((it) => it.accept(this)).join(', ')})`;
     }
     if (['date', 'time'].includes(funcName)) {
-      return `${node.parameters
-        .map((it) => it.accept(this))
-        .join(', ')}::${funcName}`;
+      return `${node.parameters.map((it) => it.accept(this)).join(', ')}::${funcName}`;
     }
     if (['json_contains'].includes(funcName)) {
       return `(${node.parameters
         .slice(0, node.parameters.length - 1)
         .map((it) => it.accept(this))
-        .join(', ')})::jsonb @> ${node.parameters[
-        node.parameters.length - 1
-      ].accept(this)}`;
+        .join(', ')})::jsonb @> ${node.parameters[node.parameters.length - 1].accept(this)}`;
     }
     if (['json_array_length'].includes(funcName)) {
-      return `json_array_length((${node.parameters
-        .map((it) => it.accept(this))
-        .join(', ')})::json)`;
+      return `json_array_length((${node.parameters.map((it) => it.accept(this)).join(', ')})::json)`;
     }
 
     return super.visitFunctionCallExpression(node);
@@ -64,9 +56,7 @@ export class PostgresQueryBuilderVisitor extends QueryBuilderVisitor {
   visitComparisonExpression(node: ComparisonPredicateExpression): string {
     const operator = node.operator.toUpperCase();
     if (LIKES.includes(operator)) {
-      return `${node.left.accept(this)}::text ${operator} ${node.right.accept(
-        this
-      )}`;
+      return `${node.left.accept(this)}::text ${operator} ${node.right.accept(this)}`;
     }
     return super.visitComparisonExpression(node);
   }
@@ -83,13 +73,9 @@ export class PostgresQueryBuilderVisitor extends QueryBuilderVisitor {
   visitJsonPathExpression(node: JsonPathExpression): string {
     const pathLeg = node.pathLeg.accept(this);
     if (pathLeg === '->') {
-      return `${node.pathExpression.accept(this)}->"${node.jsonLiteral.accept(
-        this
-      )}"`;
+      return `${node.pathExpression.accept(this)}->"${node.jsonLiteral.accept(this)}"`;
     } else if (pathLeg === '->>') {
-      return `${node.pathExpression.accept(this)}->>"${node.jsonLiteral.accept(
-        this
-      )}"`;
+      return `${node.pathExpression.accept(this)}->>"${node.jsonLiteral.accept(this)}"`;
     }
     throw new Error('unknown path leg');
   }

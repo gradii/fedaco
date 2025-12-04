@@ -37,7 +37,7 @@ export class QuerySpecification extends QueryExpression {
     super();
   }
 
-  /*{@inheritdoc}*/
+  /* {@inheritdoc} */
   public accept(sqlVisitor: SqlVisitor) {
     return sqlVisitor.visitQuerySpecification(this);
   }

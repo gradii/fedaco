@@ -14,7 +14,7 @@ import type { RawExpression } from './expression/raw-expression';
 export class AssignmentSetClause extends SqlNode {
   constructor(
     public column: ColumnReferenceExpression,
-    public value: RawExpression | RawBindingExpression | BindingVariable
+    public value: RawExpression | RawBindingExpression | BindingVariable,
   ) {
     super();
   }

@@ -5,11 +5,10 @@
  */
 
 import { makePropDecorator } from '@gradii/annotation';
-import { isBlank } from '@gradii/nanofn';
+import { isBlank, snakeCase } from '@gradii/nanofn';
 import type { Model } from '../../fedaco/model';
 import { BelongsTo } from '../../fedaco/relations/belongs-to';
-import { snakeCase } from '@gradii/nanofn';
-import type { ForwardRefFn} from '../../query-builder/forward-ref';
+import type { ForwardRefFn } from '../../query-builder/forward-ref';
 import { resolveForwardRef } from '../../query-builder/forward-ref';
 import { _additionalProcessingGetter } from '../additional-processing';
 import type { FedacoDecorator } from '../annotation.interface';
@@ -38,18 +37,18 @@ export const BelongsToColumn: FedacoDecorator<BelongsToRelationAnnotation> = mak
       }
 
       const instance = m._newRelatedInstance(resolveForwardRef(p.related));
-      p.foreignKey   = p.foreignKey || `${snakeCase(p.relation)}_${instance.GetKeyName()}`;
-      p.ownerKey     = p.ownerKey || instance.GetKeyName();
-      const r        = new BelongsTo(instance.NewQuery(), m, p.foreignKey, p.ownerKey, p.relation);
+      p.foreignKey = p.foreignKey || `${snakeCase(p.relation)}_${instance.GetKeyName()}`;
+      p.ownerKey = p.ownerKey || instance.GetKeyName();
+      const r = new BelongsTo(instance.NewQuery(), m, p.foreignKey, p.ownerKey, p.relation);
       if (p.onQuery) {
         p.onQuery(r);
       }
       return r;
     },
-    ...p
+    ...p,
   }),
   FedacoRelationColumn,
   (target: any, name: string, decorator) => {
     _additionalProcessingGetter(target, name, decorator);
-  }
+  },
 );

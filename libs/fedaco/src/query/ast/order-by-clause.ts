@@ -8,11 +8,8 @@ import { SqlNode } from '../sql-node';
 import type { SqlVisitor } from '../sql-visitor';
 import type { OrderByElement } from './order-by-element';
 
-
 export class OrderByClause extends SqlNode {
-  constructor(
-    public elements: OrderByElement[]
-  ) {
+  constructor(public elements: OrderByElement[]) {
     super();
   }
 

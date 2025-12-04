@@ -17,10 +17,8 @@ export class SchemaState {
   // protected processFactory: callable;
   // /*The output callable instance.*/
   // protected output: callable;
-  /*Create a new dumper instance.*/
-  public constructor(connection: Connection,
-                     files?: any,
-                     processFactory?: Function) {
+  /* Create a new dumper instance. */
+  public constructor(connection: Connection, files?: any, processFactory?: Function) {
     // this.connection     = connection;
     // this.files          = files || new Filesystem();
     // this.processFactory = processFactory || (arguments => {

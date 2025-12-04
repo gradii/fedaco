@@ -7,11 +7,8 @@
 import { SqlNode } from '../sql-node';
 import type { SqlVisitor } from '../sql-visitor';
 
-
 export class GroupByClause extends SqlNode {
-  constructor(
-    public groups: SqlNode[]
-  ) {
+  constructor(public groups: SqlNode[]) {
     super();
   }
 

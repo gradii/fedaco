@@ -9,24 +9,25 @@ import type { WrappedConnection } from '../wrapped-connection';
 import { SqlServerWrappedStmt } from './sql-server-wrapped-stmt';
 
 export class SqlServerWrappedConnection implements WrappedConnection {
-
-  constructor(public driver: Connection) {
-  }
+  constructor(public driver: Connection) {}
 
   async execute(sql: string, bindings?: any[]): Promise<void> {
     let count = 0;
     sql.replace(/\?/g, () => `@val${++count}`);
-    const {Request} = await import('tedious');
+    const { Request } = await import('tedious');
     return new Promise((ok, fail) => {
-      this.driver.execute(new Request(sql, err => {
-        if (err) {
-          fail(err);
-        } else {
-          ok();
-        }
-      }), (bindings ? bindings : []).reduce((prev, curr, index) => {
-        prev[`val${index + 1}`] = curr;
-      }, {}));
+      this.driver.execute(
+        new Request(sql, (err) => {
+          if (err) {
+            fail(err);
+          } else {
+            ok();
+          }
+        }),
+        (bindings ? bindings : []).reduce((prev, curr, index) => {
+          prev[`val${index + 1}`] = curr;
+        }, {}),
+      );
     });
   }
 
@@ -54,8 +55,7 @@ export class SqlServerWrappedConnection implements WrappedConnection {
     return this.execute('ROLLBACK');
   }
 
-  disconnect(): void {
+  async disconnect(): Promise<void> {
     this.driver.close();
   }
-
 }

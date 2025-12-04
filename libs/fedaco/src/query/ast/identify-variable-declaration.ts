@@ -14,10 +14,11 @@ import type { RangeVariableDeclaration } from './range-variable-declaration';
  */
 
 export class IdentifyVariableDeclaration extends SqlNode {
-
-  public constructor(public rangeVariableDeclaration: RangeVariableDeclaration,
-                     public indexBy?: IndexBy,
-                     public joins: any[] = []) {
+  public constructor(
+    public rangeVariableDeclaration: RangeVariableDeclaration,
+    public indexBy?: IndexBy,
+    public joins: any[] = [],
+  ) {
     super();
   }
 

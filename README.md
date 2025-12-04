@@ -73,9 +73,10 @@
 
 
 ### Notice
-ecma class with field declaration not in constructor is not support. es2016 is support but es2022 is not.
-field declaration can use `declare` keyword to declare field in constructor, then the field will not generated in class when enabled es2022
-like this
+When `target` is `es2022` or higher, TypeScript uses the modern ECMAScript class fields semantics by default, so plain field declarations outside the constructor are no longer supported (unlike `es2016`~`es2021`).
+
+**Workaround** – use the `declare` keyword to keep fields only in the constructor:
+
 ```typescript
   @Table({
     tableName: 'user'

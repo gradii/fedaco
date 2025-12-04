@@ -1,6 +1,6 @@
 import { reflector } from '@gradii/annotation';
 import { FedacoColumn } from '../../annotation/column';
-import { GuardsAttributes, mixinGuardsAttributes } from './guards-attributes';
+import { type GuardsAttributes, mixinGuardsAttributes } from './guards-attributes';
 
 jest.mock('@gradii/annotation', () => ({
   reflector: {
@@ -26,12 +26,12 @@ describe('GuardsAttributes Mixin', () => {
 
   it('should initialize _metaFillable from annotations', () => {
     (reflector.propMetadata as jest.Mock).mockReturnValue({
-      name: [{ fillable: true }],
-      email: [{ fillable: true }],
+      name    : [{ fillable: true }],
+      email   : [{ fillable: true }],
       password: [{}], // Not fillable
     });
 
-    (FedacoColumn.isTypeOf as jest.Mock).mockImplementation((obj) => !!obj);
+    (FedacoColumn.isTypeOf as unknown as jest.Mock).mockImplementation((obj) => !!obj);
 
     const instance = new MixedClass();
 
@@ -46,7 +46,7 @@ describe('GuardsAttributes Mixin', () => {
     (reflector.propMetadata as jest.Mock).mockReturnValue({
       name: [{ fillable: true }],
     });
-    (FedacoColumn.isTypeOf as jest.Mock).mockImplementation((obj) => !!obj);
+    (FedacoColumn.isTypeOf as unknown as jest.Mock).mockImplementation((obj) => !!obj);
 
     class Child extends MixedClass {
       constructor() {
@@ -67,10 +67,10 @@ describe('GuardsAttributes Mixin', () => {
 
   it('should allow manual removal of fillable attributes via _unFillable', () => {
     (reflector.propMetadata as jest.Mock).mockReturnValue({
-      name: [{ fillable: true }],
+      name : [{ fillable: true }],
       email: [{ fillable: true }],
     });
-    (FedacoColumn.isTypeOf as jest.Mock).mockImplementation((obj) => !!obj);
+    (FedacoColumn.isTypeOf as unknown as jest.Mock).mockImplementation((obj) => !!obj);
 
     class Child extends MixedClass {
       constructor() {
@@ -94,7 +94,7 @@ describe('GuardsAttributes Mixin', () => {
     (reflector.propMetadata as jest.Mock).mockReturnValue({
       name: [{ fillable: true }],
     });
-    (FedacoColumn.isTypeOf as jest.Mock).mockImplementation((obj) => !!obj);
+    (FedacoColumn.isTypeOf as unknown as jest.Mock).mockImplementation((obj) => !!obj);
 
     class Child extends MixedClass {
       constructor() {
@@ -116,7 +116,7 @@ describe('GuardsAttributes Mixin', () => {
     (reflector.propMetadata as jest.Mock).mockReturnValue({
       annotation_field: [{ fillable: true }],
     });
-    (FedacoColumn.isTypeOf as jest.Mock).mockImplementation((obj) => !!obj);
+    (FedacoColumn.isTypeOf as unknown as jest.Mock).mockImplementation((obj) => !!obj);
 
     class Child extends MixedClass {
       // This defines _fillable on the instance, which is the "manual" list

@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray, isBlank, snakeCase } from '@gradii/nanofn';
+import { isArray, snakeCase } from '@gradii/nanofn';
 import { AssignmentSetClause } from '../../query/ast/assignment-set-clause';
 import { ColumnReferenceExpression } from '../../query/ast/column-reference-expression';
 import { DeleteSpecification } from '../../query/ast/delete-specification';
@@ -20,15 +20,12 @@ import { bindingVariable, createIdentifier } from '../ast-factory';
 import type { GrammarInterface } from '../grammar.interface';
 import type { QueryBuilder } from '../query-builder';
 import { PostgresQueryBuilderVisitor } from '../visitor/postgres-query-builder-visitor';
-import { QueryBuilderVisitor } from '../visitor/query-builder-visitor';
 import { QueryGrammar } from './query-grammar';
 
 export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterface {
   private _tablePrefix = '';
 
-  compileJoins() {
-
-  }
+  compileJoins() {}
 
   protected _createVisitor(queryBuilder: QueryBuilder, ctx: any = {}) {
     return new PostgresQueryBuilderVisitor(queryBuilder._grammar, queryBuilder, ctx);
@@ -43,7 +40,7 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
 
   compileTruncate(query: QueryBuilder, ctx: any = {}): { [sql: string]: any[] } {
     return {
-      [`TRUNCATE ${query._from.accept(this._createVisitor(query, ctx))} restart identity cascade`]: []
+      [`TRUNCATE ${query._from.accept(this._createVisitor(query, ctx))} restart identity cascade`]: [],
     };
   }
 
@@ -70,7 +67,6 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
     return ast.accept(visitor);
   }
 
-
   distinct(distinct: boolean | any[]): string {
     if (isArray(distinct)) {
       return `DISTINCT ON (${this.columnize(distinct)})`;
@@ -85,7 +81,7 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
     return this.compileInsert(builder, values, 'into', ctx) + ' ON conflict do nothing';
   }
 
-  /*Compile an insert and get ID statement into SQL.*/
+  /* Compile an insert and get ID statement into SQL. */
   public compileInsertGetId(query: QueryBuilder, values: any[], sequence = 'id', ctx: any = {}) {
     return `${this.compileInsert(query, values, undefined, ctx)} returning ${this.wrap(sequence)}`;
   }
@@ -108,15 +104,11 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
   }
 
   _prepareUpdateAst(builder: QueryBuilder, values: any) {
-
     if (builder._joins.length > 0) {
       const columnNodes = [];
       for (const [key, value] of Object.entries(values)) {
         const columnNode = SqlParser.createSqlParser(key).parseColumnAlias();
-        columnNodes.push(new AssignmentSetClause(
-          columnNode,
-          bindingVariable(value as any, 'update')
-        ));
+        columnNodes.push(new AssignmentSetClause(columnNode, bindingVariable(value as any, 'update')));
       }
 
       const inBuilder = builder.cloneWithout([]);
@@ -124,34 +116,21 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
       inBuilder.resetBindings();
 
       inBuilder._columns = [
-        new ColumnReferenceExpression(
-          new PathExpression(
-            [
-              builder._from,
-              createIdentifier('ctid')
-            ]
-          )
-        )
+        new ColumnReferenceExpression(new PathExpression([builder._from, createIdentifier('ctid')])),
       ];
 
       const ast = new UpdateSpecification(
         builder._from,
         columnNodes,
         new WhereClause(
-          new ConditionExpression(
-            [
-              new InPredicateExpression(
-                new ColumnReferenceExpression(
-                  new PathExpression(
-                    [new Identifier('ctid')]
-                  )
-                ),
-                [],
-                new NestedExpression('where', inBuilder)
-              )
-            ]
-          )
-        )
+          new ConditionExpression([
+            new InPredicateExpression(
+              new ColumnReferenceExpression(new PathExpression([new Identifier('ctid')])),
+              [],
+              new NestedExpression('where', inBuilder),
+            ),
+          ]),
+        ),
       );
 
       return ast;
@@ -161,38 +140,24 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
   }
 
   protected _prepareDeleteAstWithJoins(builder: QueryBuilder): DeleteSpecification {
-
     if (builder._joins.length > 0) {
       const inBuilder = builder.cloneWithout([]);
       inBuilder.resetBindings();
       inBuilder._columns = [
-        new ColumnReferenceExpression(
-          new PathExpression(
-            [
-              builder._from,
-              createIdentifier('ctid')
-            ]
-          )
-        )
+        new ColumnReferenceExpression(new PathExpression([builder._from, createIdentifier('ctid')])),
       ];
 
       const ast = new DeleteSpecification(
         builder._from,
         new WhereClause(
-          new ConditionExpression(
-            [
-              new InPredicateExpression(
-                new ColumnReferenceExpression(
-                  new PathExpression(
-                    [new Identifier('ctid')]
-                  )
-                ),
-                [],
-                new NestedExpression('where', inBuilder)
-              )
-            ]
-          )
-        )
+          new ConditionExpression([
+            new InPredicateExpression(
+              new ColumnReferenceExpression(new PathExpression([new Identifier('ctid')])),
+              [],
+              new NestedExpression('where', inBuilder),
+            ),
+          ]),
+        ),
       );
 
       return ast;
@@ -205,5 +170,4 @@ export class PostgresQueryGrammar extends QueryGrammar implements GrammarInterfa
     this._tablePrefix = prefix;
     return this;
   }
-
 }

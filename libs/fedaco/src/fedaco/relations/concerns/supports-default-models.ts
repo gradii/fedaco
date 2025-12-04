@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isArray, isFunction, isObject } from '@gradii/nanofn';
+import { isFunction, isObject } from '@gradii/nanofn';
 import type { Constructor } from '../../../helper/constructor';
 import type { Model } from '../../model';
 import type { Relation } from '../relation';
@@ -22,15 +22,15 @@ type SupportsDefaultModelsCtor = Constructor<SupportsDefaultModels>;
 export function mixinSupportsDefaultModels<T extends Constructor<{}>>(base: T): SupportsDefaultModelsCtor & T {
   // @ts-ignore
   return class _Self extends base {
-    /*Indicates if a default model instance should be used.
+    /* Indicates if a default model instance should be used.
 
-    Alternatively, may be a Closure or array.*/
+    Alternatively, may be a Closure or array. */
     _withDefault: ((instance: any, parent: any) => any) | any[] | boolean;
 
-    /*Make a new related instance for the given model.*/
+    /* Make a new related instance for the given model. */
     // protected abstract newRelatedInstanceFor(parent: Model);
 
-    /*Return a new model instance in case the relationship does not exist.*/
+    /* Return a new model instance in case the relationship does not exist. */
     public withDefault(callback: ((instance: any, parent: any) => any) | any[] | boolean = true) {
       this._withDefault = callback;
       return this;
@@ -40,7 +40,7 @@ export function mixinSupportsDefaultModels<T extends Constructor<{}>>(base: T): 
       throw new Error('not implement');
     }
 
-    /*Get the default value for this relation.*/
+    /* Get the default value for this relation. */
     _getDefaultFor(this: Relation & _Self, parent: Model): Model {
       if (!this._withDefault) {
         return null;

@@ -8,7 +8,6 @@ import { SqlNode } from '../sql-node';
 import type { SqlVisitor } from '../sql-visitor';
 import type { Identifier } from './identifier';
 
-
 export class TableName extends SqlNode {
   public get serverIdentifier() {
     return this.ChooseIdentifier(4);
@@ -26,9 +25,7 @@ export class TableName extends SqlNode {
     return this.ChooseIdentifier(1);
   }
 
-  constructor(
-    public identifiers: Identifier[]
-  ) {
+  constructor(public identifiers: Identifier[]) {
     super();
   }
 
@@ -36,7 +33,6 @@ export class TableName extends SqlNode {
     const index = this.identifiers.length - modifier;
     return index < 0 ? undefined : this.identifiers[index];
   }
-
 
   accept(visitor: SqlVisitor) {
     return visitor.visitTableName(this);

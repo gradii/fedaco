@@ -11,7 +11,7 @@ import {
   isIdentifierPart,
   isIdentifierStart,
   parseIntAutoRadix,
-  unescape
+  unescape,
 } from './helper';
 import { KEYWORDS } from './keywords';
 
@@ -22,7 +22,7 @@ export enum SyntaxKind {
   String,
   Operator,
   Number,
-  Error
+  Error,
 }
 
 function newCharacterToken(index: number, end: number, code: number): Token {
@@ -53,26 +53,23 @@ function newErrorToken(index: number, end: number, message: string): Token {
   return new Token(index, end, SyntaxKind.Error, 0, message);
 }
 
-
 export class SqlLexer {
-
   tokenize(text: string): Token[] {
-    const scanner         = new _Scanner(text);
+    const scanner = new _Scanner(text);
     const tokens: Token[] = [];
-    let token             = scanner.scanToken();
+    let token = scanner.scanToken();
     while (token != null) {
       tokens.push(token);
       token = scanner.scanToken();
     }
     return tokens;
   }
-
 }
 
 // tslint:disable-next-line:class-name
 class _Scanner {
   length: number;
-  peek  = 0;
+  peek = 0;
   index = -1;
 
   constructor(public input: string) {
@@ -81,16 +78,16 @@ class _Scanner {
   }
 
   advance() {
-    this.peek = ++this.index >= this.length ?
-      asciiChars.$EOF :
-      this.input.charCodeAt(this.index);
+    this.peek = ++this.index >= this.length ? asciiChars.$EOF : this.input.charCodeAt(this.index);
   }
 
   error(message: string, offset: number): Token {
     const position: number = this.index + offset;
     return newErrorToken(
-      position, this.index,
-      `Lexer Error: ${message} at column ${position} in expression [${this.input}]`);
+      position,
+      this.index,
+      `Lexer Error: ${message} at column ${position} in expression [${this.input}]`,
+    );
   }
 
   scanCharacter(start: number, code: number): Token {
@@ -109,8 +106,13 @@ class _Scanner {
    * @param three third symbol (part of the operator when provided and matches source expression)
    */
   scanComplexOperator(
-    start: number, one: string, twoCode: number, two: string, threeCode?: number,
-    three?: string): Token {
+    start: number,
+    one: string,
+    twoCode: number,
+    two: string,
+    threeCode?: number,
+    three?: string,
+  ): Token {
     this.advance();
     let str: string = one;
     if (this.peek == twoCode) {
@@ -131,14 +133,14 @@ class _Scanner {
       this.advance();
     }
     const str: string = this.input.substring(start, this.index);
-    return KEYWORDS.indexOf(str.toLowerCase()) > -1 ? newKeywordToken(start, this.index,
-      str.toLowerCase()) :
-      newIdentifierToken(start, this.index, str);
+    return KEYWORDS.indexOf(str.toLowerCase()) > -1
+      ? newKeywordToken(start, this.index, str.toLowerCase())
+      : newIdentifierToken(start, this.index, str);
   }
 
   scanNumber(start: number): Token {
-    let simple: boolean = (this.index === start);
-    this.advance();  // Skip initial digit.
+    let simple: boolean = this.index === start;
+    this.advance(); // Skip initial digit.
     while (true) {
       if (asciiChars.isDigit(this.peek)) {
         // Do nothing.
@@ -158,7 +160,7 @@ class _Scanner {
       }
       this.advance();
     }
-    const str: string   = this.input.substring(start, this.index);
+    const str: string = this.input.substring(start, this.index);
     const value: number = simple ? parseIntAutoRadix(str) : parseFloat(str);
     return newNumberToken(start, this.index, value);
   }
@@ -171,10 +173,10 @@ class _Scanner {
   scanString(): Token {
     const start: number = this.index;
     const quote: number = this.peek;
-    this.advance();  // Skip initial quote.
+    this.advance(); // Skip initial quote.
 
-    let buffer  = '';
-    let marker: number  = this.index;
+    let buffer = '';
+    let marker: number = this.index;
     const input: string = this.input;
 
     while (this.peek != quote) {
@@ -182,8 +184,8 @@ class _Scanner {
         buffer += input.substring(marker, this.index);
         this.advance();
         let unescapedCode: number;
-        // Workaround for TS2.1-introduced type strictness
-        this.peek = this.peek;
+        // this.peek = this.peek;
+        // @ts-expect-error Workaround for TS2.1-introduced type strictness
         if (this.peek == asciiChars.U) {
           // 4 character hex code for unicode character.
           const hex: string = input.substring(this.index + 1, this.index + 5);
@@ -209,14 +211,16 @@ class _Scanner {
     }
 
     const last: string = input.substring(marker, this.index);
-    this.advance();  // Skip terminating quote.
+    this.advance(); // Skip terminating quote.
 
     return newStringToken(start, this.index, buffer + last);
   }
 
   scanToken(): Token | null {
-    const input = this.input, length = this.length;
-    let peek    = this.peek, index = this.index;
+    const input = this.input,
+      length = this.length;
+    let peek = this.peek,
+      index = this.index;
 
     // Skip whitespace.
     while (peek <= asciiChars.$SPACE) {
@@ -228,7 +232,7 @@ class _Scanner {
       }
     }
 
-    this.peek  = peek;
+    this.peek = peek;
     this.index = index;
 
     if (index >= length) {
@@ -247,8 +251,9 @@ class _Scanner {
     switch (peek) {
       case asciiChars.$PERIOD:
         this.advance();
-        return asciiChars.isDigit(this.peek) ? this.scanNumber(start) :
-          newCharacterToken(start, this.index, asciiChars.$PERIOD);
+        return asciiChars.isDigit(this.peek)
+          ? this.scanNumber(start)
+          : newCharacterToken(start, this.index, asciiChars.$PERIOD);
       case asciiChars.$LPAREN:
       case asciiChars.$RPAREN:
       case asciiChars.$LBRACE:
@@ -277,8 +282,7 @@ class _Scanner {
         return this.scanComplexOperator(start, String.fromCharCode(peek), asciiChars.$EQ, '=');
       case asciiChars.$BANG:
       case asciiChars.$EQ:
-        return this.scanComplexOperator(
-          start, String.fromCharCode(peek), asciiChars.$EQ, '=', asciiChars.$EQ, '=');
+        return this.scanComplexOperator(start, String.fromCharCode(peek), asciiChars.$EQ, '=', asciiChars.$EQ, '=');
       case asciiChars.$AMPERSAND:
         return this.scanComplexOperator(start, '&', asciiChars.$AMPERSAND, '&');
       case asciiChars.$BAR:
@@ -301,9 +305,8 @@ export class Token {
     public end: number,
     public kind: SyntaxKind,
     public numValue: number,
-    public strValue: string
-  ) {
-  }
+    public strValue: string,
+  ) {}
 
   isCharacter(code: number): boolean {
     return this.kind == SyntaxKind.Character && this.numValue == code;

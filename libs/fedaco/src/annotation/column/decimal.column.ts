@@ -16,8 +16,9 @@ export interface DecimalColumnAnnotation extends ColumnAnnotation {
 
 export const DecimalColumn: FedacoDecorator<DecimalColumnAnnotation> = makePropDecorator(
   'Fedaco:DecimalColumn',
-  (p: DecimalColumnAnnotation = {}): DecimalColumnAnnotation => ({fillable: true, precision: 2, ...p}),
+  (p: DecimalColumnAnnotation = {}): DecimalColumnAnnotation => ({ fillable: true, precision: 2, ...p }),
   FedacoColumn,
   (target: any, name: string, decorator: DecimalColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, name, decorator);
-  });
+  },
+);

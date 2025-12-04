@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn } from '@gradii/fedaco';
+import { PrimaryGeneratedColumn } from '../src/annotation/column/primary-generated.column';
 import { isFunction } from '@gradii/nanofn';
 import { format } from 'date-fns';
 import { Table } from '../src/annotation/table/table';
@@ -22,29 +22,20 @@ import { StubModel } from './model/stub-model';
 
 const _global: any = {};
 
-
 describe('fedaco builder', () => {
   let model: Model, builder: FedacoBuilder;
 
   class Conn implements ConnectionInterface {
-    getQueryGrammar(): any {
-
-    }
+    getQueryGrammar(): any {}
 
     getDatabaseName(): string {
       return 'default-database';
     }
 
-    getPostProcessor(): any {
-
-    }
+    getPostProcessor(): any {}
 
     query(): QueryBuilder {
-      return new QueryBuilder(
-        this,
-        new SqliteQueryGrammar(),
-        new Processor()
-      );
+      return new QueryBuilder(this, new SqliteQueryGrammar(), new Processor());
     }
 
     async select() {
@@ -55,37 +46,29 @@ describe('fedaco builder', () => {
       return false;
     }
 
-    async update() {
-    }
+    async update() {}
 
-    async delete() {
-    }
+    async delete() {}
 
-    async statement() {
-    }
+    async statement() {}
 
-    async affectingStatement() {
-    }
+    async affectingStatement() {}
 
     getName() {
       return '';
     }
 
-    getConfig(name: string): any {
-    }
+    getConfig(name: string): any {}
 
-    getPdo(): any {
-    }
+    getPdo(): any {}
 
     getSchemaBuilder(): SchemaBuilder {
       throw new Error('not implemented');
     }
 
-    recordsHaveBeenModified(): any {
-    }
+    recordsHaveBeenModified(): any {}
 
-    selectFromWriteConnection(sql: string, values: any): any {
-    }
+    selectFromWriteConnection(sql: string, values: any): any {}
 
     table(table: Function | QueryBuilder | string, as?: string): QueryBuilder {
       return undefined;
@@ -114,8 +97,7 @@ describe('fedaco builder', () => {
       return Promise.resolve(undefined);
     }
 
-    setTablePrefix(prefix: string): any {
-    }
+    setTablePrefix(prefix: string): any {}
 
     setTransactionManager(manager: DatabaseTransactionsManager): this {
       return undefined;
@@ -129,16 +111,13 @@ describe('fedaco builder', () => {
       return 0;
     }
 
-    unsetTransactionManager(): void {
-    }
+    unsetTransactionManager(): void {}
   }
 
   function resolveModel(model: Model) {
     // model.
     // (model.constructor as typeof Model)._connectionResolver                    = new ResolveConnection();
-    (model.constructor as typeof Model).resolver = new DatabaseManager(
-      new ConnectionFactory()
-    );
+    (model.constructor as typeof Model).resolver = new DatabaseManager(new ConnectionFactory());
   }
 
   function getModel() {
@@ -165,23 +144,16 @@ describe('fedaco builder', () => {
   }
 
   function mockNewQueryBuilder() {
-    return new QueryBuilder(
-      new Conn(),
-      new MysqlQueryGrammar(),
-      new Processor()
-    );
+    return new QueryBuilder(new Conn(), new MysqlQueryGrammar(), new Processor());
   }
 
   function getBuilder() {
     return new FedacoBuilder(mockNewQueryBuilder());
   }
 
-  function mockConnectionForModel<T extends typeof Model>(
-    modelClazz: any,
-    database: string
-  ) {
-    const grammar    = new SqliteQueryGrammar();
-    const processor  = new Processor();
+  function mockConnectionForModel<T extends typeof Model>(modelClazz: any, database: string) {
+    const grammar = new SqliteQueryGrammar();
+    const processor = new Processor();
     const connection = new Conn(); // m::mock(ConnectionInterface::class, ['getQueryGrammar' => Grammar, 'getPostProcessor' => Processor]);
     jest.spyOn(connection, 'getQueryGrammar').mockReturnValue(grammar);
     jest.spyOn(connection, 'getPostProcessor').mockReturnValue(processor);
@@ -191,20 +163,18 @@ describe('fedaco builder', () => {
     jest.spyOn(connection, 'getDatabaseName').mockReturnValue('database');
 
     const resolver: ConnectionResolverInterface = {
-      getDefaultConnection(): any {
-      },
-      setDefaultConnection(name: string): any {
-      },
+      getDefaultConnection(): any {},
+      setDefaultConnection(name: string): any {},
       connection() {
         return connection;
-      }
+      },
     };
     (modelClazz as typeof Model).setConnectionResolver(resolver);
   }
 
   beforeEach(() => {
-    model          = getModel();
-    builder        = getBuilder();
+    model = getModel();
+    builder = getBuilder();
     // @ts-ignore
     builder._model = model;
   });
@@ -213,11 +183,11 @@ describe('fedaco builder', () => {
     let spySelect, spyFirst, result;
     spySelect = jest.spyOn(builder.getQuery(), 'where');
     // @ts-ignore
-    spyFirst  = jest.spyOn(builder, 'first').mockReturnValue({name: 'baz'});
-    result    = await builder.find('bar', ['column']);
-    expect(spySelect).toBeCalledWith('foo_table.foo', '=', 'bar', 'and');
-    expect(spyFirst).toBeCalledWith(['column']);
-    expect(result).toStrictEqual({name: 'baz'});
+    spyFirst = jest.spyOn(builder, 'first').mockReturnValue({ name: 'baz' });
+    result = await builder.find('bar', ['column']);
+    expect(spySelect).toHaveBeenCalledWith('foo_table.foo', '=', 'bar', 'and');
+    expect(spyFirst).toHaveBeenCalledWith(['column']);
+    expect(result).toStrictEqual({ name: 'baz' });
   });
 
   it('find many method', async () => {
@@ -239,15 +209,15 @@ describe('fedaco builder', () => {
     spy2 = jest.spyOn(builder, 'get').mockReturnValue(Promise.resolve(['baz' as unknown as Model]));
 
     result = await builder.findMany([], ['column']);
-    expect(spy1).toBeCalledTimes(0);
-    expect(spy2).toBeCalledTimes(0);
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
     expect(result).toStrictEqual([]);
   });
 
   it('find or new method model found', async () => {
     let spy1, spy2, spy3, result, expected;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
     builder.setModel(model);
     const modelQuery = builder.getModel().NewQuery();
 
@@ -258,20 +228,20 @@ describe('fedaco builder', () => {
     spy3 = jest.spyOn(builder, 'first').mockReturnValue('baz');
 
     expected = await modelQuery.findOrNew('bar', ['column']);
-    result   = await builder.find('bar', ['column']);
+    result = await builder.find('bar', ['column']);
 
     expect(builder.getModel()['findOrNew']).toBe(builder.getModel()['findOrNew']);
 
-    expect(spy1).toBeCalledWith('foo_table.foo', '=', 'bar', 'and');
-    expect(spy2).toBeCalledTimes(1);
-    expect(spy3).toBeCalledWith(['column']);
+    expect(spy1).toHaveBeenCalledWith('foo_table.foo', '=', 'bar', 'and');
+    expect(spy2).toHaveBeenCalledTimes(1);
+    expect(spy3).toHaveBeenCalledWith(['column']);
     expect(result).toBe(expected);
   });
 
   it('find or new method model not found', async () => {
     let spy1, spy2, spy3, result, findResult;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
     builder.setModel(model);
     const modelQuery = builder.getModel().NewQuery();
 
@@ -279,11 +249,11 @@ describe('fedaco builder', () => {
     spy2 = jest.spyOn(modelQuery, 'findOrNew').mockReturnValue(Promise.resolve(getModel()));
     spy3 = jest.spyOn(builder, 'first').mockReturnValue(undefined);
 
-    result     = await modelQuery.findOrNew('bar', ['column']);
+    result = await modelQuery.findOrNew('bar', ['column']);
     findResult = await builder.find('bar', ['column']);
-    expect(spy1).toBeCalledWith('foo_table.foo', '=', 'bar', 'and');
-    expect(spy2).toBeCalledTimes(1);
-    expect(spy3).toBeCalledWith(['column']);
+    expect(spy1).toHaveBeenCalledWith('foo_table.foo', '=', 'bar', 'and');
+    expect(spy2).toHaveBeenCalledTimes(1);
+    expect(spy3).toHaveBeenCalledWith(['column']);
     expect(findResult).toBe(undefined);
     expect(result instanceof Model).toBe(true);
   });
@@ -291,23 +261,23 @@ describe('fedaco builder', () => {
   it('find or fail method throws model not found exception', async () => {
     let spy1, spy3;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
     builder.setModel(model);
 
     spy1 = jest.spyOn(builder.getQuery(), 'where');
     spy3 = jest.spyOn(builder, 'first').mockReturnValue(undefined);
     await expect(async () => {
       await builder.findOrFail('bar', ['column']);
-    }).rejects.toThrowError('ModelNotFoundException');
+    }).rejects.toThrow('ModelNotFoundException');
 
-    expect(spy1).toBeCalledWith('foo_table.foo', '=', 'bar', 'and');
-    expect(spy3).toBeCalledWith(['column']);
+    expect(spy1).toHaveBeenCalledWith('foo_table.foo', '=', 'bar', 'and');
+    expect(spy3).toHaveBeenCalledWith(['column']);
   });
 
   it('find or fail method with many throws model not found exception', async () => {
     let spy1, spy3;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
     builder.setModel(model);
 
     spy1 = jest.spyOn(builder.getQuery(), 'whereIn').mockReturnValue(undefined);
@@ -316,17 +286,17 @@ describe('fedaco builder', () => {
 
     await expect(async () => {
       await builder.findOrFail([1, 2], ['column']);
-    }).rejects.toThrowError('ModelNotFoundException');
+    }).rejects.toThrow('ModelNotFoundException');
 
-    expect(spy1).toBeCalledWith('foo_table.foo', [1, 2]);
-    expect(spy3).toBeCalledWith(['column']);
-    expect(spy3).lastReturnedWith([1]);
+    expect(spy1).toHaveBeenCalledWith('foo_table.foo', [1, 2]);
+    expect(spy3).toHaveBeenCalledWith(['column']);
+    expect(spy3).toHaveLastReturnedWith([1]);
   });
 
   xit('find or fail method with many using collection throws model not found exception', () => {
     let spy1, spy3;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
     builder.setModel(model);
 
     spy1 = jest.spyOn(builder.getQuery(), 'whereIn').mockReturnValue(undefined);
@@ -335,33 +305,33 @@ describe('fedaco builder', () => {
 
     expect(() => {
       builder.findOrFail([1, 2], ['column']);
-    }).toThrowError('ModelNotFoundException');
+    }).toThrow('ModelNotFoundException');
 
-    expect(spy1).toBeCalledWith('foo_table.foo', [1, 2]);
-    expect(spy3).toBeCalledWith(['column']);
-    expect(spy3).lastReturnedWith([1]);
+    expect(spy1).toHaveBeenCalledWith('foo_table.foo', [1, 2]);
+    expect(spy3).toHaveBeenCalledWith(['column']);
+    expect(spy3).toHaveLastReturnedWith([1]);
   });
 
   it('first or fail method throws model not found exception', async () => {
     let spy1, spy3;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
     builder.setModel(model);
 
     spy1 = jest.spyOn(builder, 'first').mockReturnValue(undefined);
 
     await expect(async () => {
       await builder.firstOrFail(['column']);
-    }).rejects.toThrowError('ModelNotFoundException');
+    }).rejects.toThrow('ModelNotFoundException');
 
-    expect(spy1).toBeCalledWith(['column']);
-    expect(spy1).toReturnWith(undefined);
+    expect(spy1).toHaveBeenCalledWith(['column']);
+    expect(spy1).toHaveReturnedWith(undefined);
   });
 
   it('find with many', async () => {
     let spy1, spy3, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
     builder.setModel(model);
 
     // @ts-ignore
@@ -370,17 +340,17 @@ describe('fedaco builder', () => {
 
     result = await builder.find([1, 2], ['column']);
 
-    expect(spy1).toBeCalledWith(['column']);
-    expect(spy1).toReturnWith('baz');
-    expect(spy3).toBeCalledTimes(1);
-    expect(spy3).toBeCalledWith('foo_table.foo', [1, 2]);
+    expect(spy1).toHaveBeenCalledWith(['column']);
+    expect(spy1).toHaveReturnedWith('baz');
+    expect(spy3).toHaveBeenCalledTimes(1);
+    expect(spy3).toHaveBeenCalledWith('foo_table.foo', [1, 2]);
     expect(result).toBe('baz');
   });
 
   xit('find with many using collection', () => {
     let spy1, spy3, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
     builder.setModel(model);
 
     const ids = [1, 2];
@@ -391,17 +361,17 @@ describe('fedaco builder', () => {
 
     result = builder.find(ids, ['column']);
 
-    expect(spy1).toBeCalledWith(['column']);
-    expect(spy1).toReturnWith('baz');
-    expect(spy3).toBeCalledTimes(1);
-    expect(spy3).toBeCalledWith('foo_table.foo', [1, 2]);
+    expect(spy1).toHaveBeenCalledWith(['column']);
+    expect(spy1).toHaveReturnedWith('baz');
+    expect(spy3).toHaveBeenCalledTimes(1);
+    expect(spy3).toHaveBeenCalledWith('foo_table.foo', [1, 2]);
     expect(result).toBe('baz');
   });
 
   it('first method', async () => {
     let spy1, spy2, spy3, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
     builder.setModel(model);
 
     // @ts-ignore
@@ -411,16 +381,16 @@ describe('fedaco builder', () => {
 
     result = await builder.first();
 
-    expect(spy1).toBeCalledWith(['*']);
+    expect(spy1).toHaveBeenCalledWith(['*']);
     // expect(spy1).toReturnWith('baz');
-    expect(spy2).toBeCalledWith(1);
+    expect(spy2).toHaveBeenCalledWith(1);
     expect(result).toBe('bar');
   });
 
   it('qualify column', () => {
     let spy1, spy2, spy3, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
     builder.setModel(model);
 
     spy1 = jest.spyOn(builder.getQuery(), 'from');
@@ -429,14 +399,14 @@ describe('fedaco builder', () => {
 
     result = builder.qualifyColumn('column');
 
-    expect(spy1).toBeCalledWith('stub');
+    expect(spy1).toHaveBeenCalledWith('stub');
     expect(result).toBe('stub.column');
   });
 
   it('get method loads models and hydrates eager relations', async () => {
     let spy1, spy2, spy3, spy4, results;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
     builder.setModel(model);
 
     // @ts-ignore
@@ -448,10 +418,10 @@ describe('fedaco builder', () => {
 
     results = await builder.get(['foo']);
 
-    expect(spy1).toBeCalledWith(['foo']);
-    expect(spy1).toReturnWith(['bar']);
-    expect(spy2).toReturnWith(builder);
-    expect(spy3).toReturnWith(['bar', 'baz']);
+    expect(spy1).toHaveBeenCalledWith(['foo']);
+    expect(spy1).toHaveReturnedWith(['bar']);
+    expect(spy2).toHaveReturnedWith(builder);
+    expect(spy3).toHaveReturnedWith(['bar', 'baz']);
     expect(results).toEqual(['bar', 'baz']);
   });
 
@@ -745,55 +715,53 @@ describe('fedaco builder', () => {
 
   it('eager load relations load top level relationships', async () => {
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
     builder.setModel(model);
     // var builder = m.mock(Builder + '[eagerLoadRelation]', [this.getMockQueryBuilder()]);
-    const nop1 = () => {
-    };
-    const nop2 = () => {
-    };
+    const nop1 = () => {};
+    const nop2 = () => {};
     builder.setEagerLoads({
-      'foo'    : nop1,
-      'foo.bar': nop2
+      foo      : nop1,
+      'foo.bar': nop2,
     });
     // @ts-ignore
     const spy1 = jest.spyOn(builder, '_eagerLoadRelation').mockReturnValue(['foo']);
 
     const results = await builder.eagerLoadRelations(['models']);
 
-    expect(spy1).toBeCalledWith(['models'], 'foo', nop1);
-    expect(spy1).toReturnWith(['foo']);
+    expect(spy1).toHaveBeenCalledWith(['models'], 'foo', nop1);
+    expect(spy1).toHaveReturnedWith(['foo']);
     expect(results).toEqual(['foo']);
   });
 
   it('relationship eager load process', async () => {
-    let spy1, spy2, spy3, spy4, results, _SERVER = {};
+    let spy1,
+      spy2,
+      spy3,
+      spy4,
+      results,
+      _SERVER = {};
 
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
     builder.setModel(model);
     builder.setEagerLoads({
-      'orders': (query: QueryBuilder) => {
+      orders: (query: QueryBuilder) => {
         _global['__fedaco.constrain'] = query;
-      }
+      },
     });
 
-    const relation = new class {
-      addEagerConstraints() {
-      }
+    const relation = new (class {
+      addEagerConstraints() {}
 
-      initRelation() {
-      }
+      initRelation() {}
 
-      getEager() {
-      }
+      getEager() {}
 
-      match() {
-      }
+      match() {}
 
-      getRelation() {
-      }
-    };
+      getRelation() {}
+    })();
 
     // @ts-ignore
     spy1 = jest.spyOn(builder, 'getRelation').mockReturnValue(relation);
@@ -811,14 +779,14 @@ describe('fedaco builder', () => {
 
     results = await builder.eagerLoadRelations(['models']);
 
-    expect(spy11).toBeCalledWith(['models']);
-    expect(spy12).toBeCalledWith(['models'], 'orders');
+    expect(spy11).toHaveBeenCalledWith(['models']);
+    expect(spy12).toHaveBeenCalledWith(['models'], 'orders');
     // expect(spy12).toReturnWith(['models']);
     // expect(spy13).toReturnWith(['results']);
-    expect(spy14).toBeCalledWith(['models'], ['results'], 'orders');
+    expect(spy14).toHaveBeenCalledWith(['models'], ['results'], 'orders');
     // expect(spy14).toReturnWith(['models.matched']);
-    expect(spy15).toBeCalledWith('orders');
-    expect(spy15).toReturnWith(relation);
+    expect(spy15).toHaveBeenCalledWith('orders');
+    expect(spy15).toHaveReturnedWith(relation);
 
     expect(results).toEqual(['models.matched']);
     expect(relation).toEqual(_global['__fedaco.constrain']);
@@ -828,33 +796,31 @@ describe('fedaco builder', () => {
     let spy1, spy2, spy3;
 
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
     builder.setModel(model);
     builder.setEagerLoads({
       orders                : null,
       'orders.lines'        : null,
-      'orders.lines.details': null
+      'orders.lines.details': null,
     });
 
-    const relation = new class {
-      getQuery(): any {
-      }
-    };
+    const relation = new (class {
+      getQuery(): any {}
+    })();
 
     spy1 = jest.spyOn(model.constructor.prototype, 'NewRelation').mockReturnValue(relation);
     // @ts-ignore
     spy2 = jest.spyOn(builder, '_relationsNestedUnder');
     spy3 = jest.spyOn(relation, 'getQuery').mockReturnValue({
-      with() {
-      }
+      with() {},
     });
 
     builder.getRelation('orders');
 
     expect(spy2).toHaveBeenCalled();
-    expect(spy2).toReturnWith({
-      'lines'        : null,
-      'lines.details': null
+    expect(spy2).toHaveReturnedWith({
+      lines          : null,
+      'lines.details': null,
     });
   });
 
@@ -864,20 +830,18 @@ describe('fedaco builder', () => {
     builder.setModel(getModel());
 
     builder.setEagerLoads({
-      'orders'                    : null,
-      'ordersGroups'              : null,
+      orders                      : null,
+      ordersGroups                : null,
       'ordersGroups.lines'        : null,
-      'ordersGroups.lines.details': null
+      'ordersGroups.lines.details': null,
     });
 
-    const relation   = new class {
-      getQuery(): any {
-      }
-    };
-    const groupQuery = new class {
-      with() {
-      }
-    };
+    const relation = new (class {
+      getQuery(): any {}
+    })();
+    const groupQuery = new (class {
+      with() {}
+    })();
 
     spy1 = jest.spyOn(model.constructor.prototype, 'NewRelation').mockReturnValue(relation);
     // @ts-ignore
@@ -888,10 +852,10 @@ describe('fedaco builder', () => {
     builder.getRelation('orders');
     builder.getRelation('ordersGroups');
 
-    expect(spy3).toBeCalled();
-    expect(spy4).toBeCalledWith({
-      'lines'        : null,
-      'lines.details': null
+    expect(spy3).toHaveBeenCalled();
+    expect(spy4).toHaveBeenCalledWith({
+      lines          : null,
+      'lines.details': null,
     });
   });
 
@@ -929,9 +893,9 @@ describe('fedaco builder', () => {
 
     builder = getBuilder();
     builder.with({
-      'orders': () => {
+      orders: () => {
         return 'foo';
-      }
+      },
     });
     eagers = builder.getEagerLoads();
     expect(eagers['orders']()).toBe('foo');
@@ -940,7 +904,7 @@ describe('fedaco builder', () => {
     builder.with({
       'orders.lines': () => {
         return 'foo';
-      }
+      },
     });
     eagers = builder.getEagerLoads();
     expect(isFunction(eagers['orders'])).toBe(true);
@@ -956,37 +920,33 @@ describe('fedaco builder', () => {
 
     builder = getBuilder();
     // @ts-ignore
-    spy1    = jest.spyOn(builder.getQuery(), 'insert').mockReturnValue('foo');
-    result  = await builder.insert(['bar']);
-    expect(spy1).toBeCalledWith(['bar']);
-    expect(spy1).toReturnWith('foo');
+    spy1 = jest.spyOn(builder.getQuery(), 'insert').mockReturnValue('foo');
+    result = await builder.insert(['bar']);
+    expect(spy1).toHaveBeenCalledWith(['bar']);
+    expect(spy1).toHaveReturnedWith('foo');
     expect(result).toEqual('foo');
-
 
     builder = getBuilder();
-    spy1    = jest.spyOn(builder.getQuery(), 'insertOrIgnore').mockReturnValue('foo');
-    result  = await builder.insertOrIgnore(['bar']);
-    expect(spy1).toBeCalledWith(['bar']);
-    expect(spy1).toReturnWith('foo');
+    spy1 = jest.spyOn(builder.getQuery(), 'insertOrIgnore').mockReturnValue('foo');
+    result = await builder.insertOrIgnore(['bar']);
+    expect(spy1).toHaveBeenCalledWith(['bar']);
+    expect(spy1).toHaveReturnedWith('foo');
     expect(result).toEqual('foo');
-
 
     builder = getBuilder();
     // @ts-ignore
-    spy1    = jest.spyOn(builder.getQuery(), 'insertGetId').mockReturnValue(Promise.resolve('foo'));
-    result  = await builder.insertGetId(['bar']);
-    expect(spy1).toBeCalledWith(['bar']);
+    spy1 = jest.spyOn(builder.getQuery(), 'insertGetId').mockReturnValue(Promise.resolve('foo'));
+    result = await builder.insertGetId(['bar']);
+    expect(spy1).toHaveBeenCalledWith(['bar']);
     // expect(spy1).toReturnWith('foo');
     expect(result).toEqual('foo');
-
 
     builder = getBuilder();
-    spy1    = jest.spyOn(builder.getQuery(), 'insertUsing').mockReturnValue(Promise.resolve('foo'));
-    result  = await builder.insertUsing(['bar'], 'baz');
-    expect(spy1).toBeCalledWith(['bar'], 'baz');
+    spy1 = jest.spyOn(builder.getQuery(), 'insertUsing').mockReturnValue(Promise.resolve('foo'));
+    result = await builder.insertUsing(['bar'], 'baz');
+    expect(spy1).toHaveBeenCalledWith(['bar'], 'baz');
     // expect(spy1).toReturnWith('foo');
     expect(result).toEqual('foo');
-
 
     // builder      = getBuilder();
     // spy1         = jest.spyOn(builder.getQuery(), 'raw');
@@ -995,11 +955,10 @@ describe('fedaco builder', () => {
     // expect(spy1).toReturnWith('foo');
     // expect(result).toBe('foo');
 
-
     builder = getBuilder();
-    spy1    = jest.spyOn(builder.getQuery(), 'getGrammar');
-    result  = await builder.getGrammar();
-    expect(spy1).toBeCalled();
+    spy1 = jest.spyOn(builder.getQuery(), 'getGrammar');
+    result = await builder.getGrammar();
+    expect(spy1).toHaveBeenCalled();
   });
 
   it('query scopes', () => {
@@ -1013,7 +972,7 @@ describe('fedaco builder', () => {
 
     result = builder.whereScope('approved');
 
-    expect(spy2).toBeCalledWith('foo', '=', 'bar', 'and');
+    expect(spy2).toHaveBeenCalledWith('foo', '=', 'bar', 'and');
     expect(builder).toBe(result);
   });
 
@@ -1035,14 +994,14 @@ describe('fedaco builder', () => {
 
   it('nested where', () => {
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
 
     const spy1 = jest.spyOn(builder.getQuery(), 'from');
     const spy2 = jest.spyOn(builder.getQuery(), 'addNestedWhereQuery').mockReturnThis();
     const spy3 = jest.spyOn(model, 'NewQueryWithoutRelationships').mockReturnValue({
       // @ts-ignore
       foo     : jest.fn(),
-      getQuery: jest.fn()
+      getQuery: jest.fn(),
     });
 
     builder.setModel(model);
@@ -1051,16 +1010,17 @@ describe('fedaco builder', () => {
       // @ts-ignore
       query.foo();
     });
-    expect(spy1).toBeCalled();
-    expect(spy2).toBeCalled();
-    expect(spy2).toBeCalledWith(undefined, 'and');
+    expect(spy1).toHaveBeenCalled();
+    expect(spy2).toHaveBeenCalled();
+    expect(spy2).toHaveBeenCalledWith(undefined, 'and');
     expect(result).toBe(builder);
   });
 
   it('real nested where with scopes', () => {
     const model1 = new FedacoBuilderTestNestedStub();
     mockConnectionForModel(FedacoBuilderTestNestedStub, 'SQLite');
-    const query = model1.NewQuery()
+    const query = model1
+      .NewQuery()
       .where('foo', '=', 'bar')
       .where((q: FedacoBuilder) => {
         q.where('baz', '>', 9000);
@@ -1068,54 +1028,55 @@ describe('fedaco builder', () => {
 
     const data = query.toSql();
     expect(data.result).toBe(
-      'SELECT * FROM "nest_table" WHERE "foo" = ? AND ("baz" > ?) AND "nest_table"."deleted_at" IS NULL');
+      'SELECT * FROM "nest_table" WHERE "foo" = ? AND ("baz" > ?) AND "nest_table"."deleted_at" IS NULL'
+    );
     expect(data.bindings).toEqual(['bar', 9000]);
   });
 
   it('real nested where with scopes macro', () => {
     const model1 = new FedacoBuilderTestNestedStub();
     mockConnectionForModel(FedacoBuilderTestNestedStub, 'SQLite');
-    const query = model1.NewQuery()
+    const query = model1
+      .NewQuery()
       .where('foo', '=', 'bar')
       .where((q: FedacoBuilder) => {
-        q.where('baz', '>', 9000).pipe(
-          onlyTrashed()
-        );
-      }).pipe(
-        withTrashed()
-      );
-    const data  = query.toSql();
+        q.where('baz', '>', 9000).pipe(onlyTrashed());
+      })
+      .pipe(withTrashed());
+    const data = query.toSql();
     expect(data.result).toBe(
-      'SELECT * FROM "nest_table" WHERE "foo" = ? AND ("baz" > ? AND "nest_table"."deleted_at" IS NOT NULL)');
+      'SELECT * FROM "nest_table" WHERE "foo" = ? AND ("baz" > ? AND "nest_table"."deleted_at" IS NOT NULL)'
+    );
     expect(data.bindings).toEqual(['bar', 9000]);
   });
 
   it('real nested where with multiple scopes and one dead scope', () => {
     const model1 = new FedacoBuilderTestNestedStub();
     mockConnectionForModel(FedacoBuilderTestNestedStub, 'SQLite');
-    const query = model1.NewQuery()
+    const query = model1
+      .NewQuery()
       .scope('empty')
       .where('foo', '=', 'bar')
       .scope('empty')
       .where((q: FedacoBuilder) => {
         q.scope('empty').where('baz', '>', 9000);
       });
-    const data  = query.toSql();
+    const data = query.toSql();
     expect(data.result).toBe(
-      'SELECT * FROM "nest_table" WHERE "foo" = ? AND ("baz" > ?) AND "nest_table"."deleted_at" IS NULL');
+      'SELECT * FROM "nest_table" WHERE "foo" = ? AND ("baz" > ?) AND "nest_table"."deleted_at" IS NULL'
+    );
     expect(data.bindings).toEqual(['bar', 9000]);
   });
 
   it('real query higher order or where scopes', () => {
     const model1 = new FedacoBuilderTestHigherOrderWhereScopeStub();
     mockConnectionForModel(FedacoBuilderTestHigherOrderWhereScopeStub, 'SQLite');
-    const query = model1.NewQuery()
+    const query = model1
+      .NewQuery()
       .scope('one')
-      .orWhere(
-        (q: FedacoBuilder) => {
-          q.scope('two');
-        }
-      );
+      .orWhere((q: FedacoBuilder) => {
+        q.scope('two');
+      });
 
     const data = query.toSql();
     expect(data.result).toBe('SELECT * FROM "nest_table" WHERE "one" = ? OR ("two" = ?)');
@@ -1125,40 +1086,36 @@ describe('fedaco builder', () => {
   it('real query chained higher order or where scopes', () => {
     const model1 = new FedacoBuilderTestHigherOrderWhereScopeStub();
     mockConnectionForModel(FedacoBuilderTestHigherOrderWhereScopeStub, 'SQLite');
-    const query = model1.NewQuery()
+    const query = model1
+      .NewQuery()
       .scope('one')
-      .orWhere(
-        (q: FedacoBuilder) => {
-          q.scope('two');
-        }
-      )
-      .orWhere(
-        (q: FedacoBuilder) => {
-          q.scope('three');
-        }
-      );
+      .orWhere((q: FedacoBuilder) => {
+        q.scope('two');
+      })
+      .orWhere((q: FedacoBuilder) => {
+        q.scope('three');
+      });
 
     const data = query.toSql();
-    expect(data.result).toBe(
-      'SELECT * FROM "nest_table" WHERE "one" = ? OR ("two" = ?) OR ("three" = ?)');
+    expect(data.result).toBe('SELECT * FROM "nest_table" WHERE "one" = ? OR ("two" = ?) OR ("three" = ?)');
     expect(data.bindings).toEqual(['foo', 'bar', 'baz']);
   });
 
   it('simple where', () => {
     let spy1, result;
     builder = getBuilder();
-    spy1    = jest.spyOn(builder.getQuery(), 'where');
-    result  = builder.where('foo', '=', 'bar');
-    expect(spy1).toBeCalledWith('foo', '=', 'bar', 'and');
+    spy1 = jest.spyOn(builder.getQuery(), 'where');
+    result = builder.where('foo', '=', 'bar');
+    expect(spy1).toHaveBeenCalledWith('foo', '=', 'bar', 'and');
     expect(builder).toBe(result);
   });
 
   it('postgres operators where', () => {
     let spy1, result;
     builder = getBuilder();
-    spy1    = jest.spyOn(builder.getQuery(), 'where');
-    result  = builder.where('foo', '@>', 'bar');
-    expect(spy1).toBeCalledWith('foo', '@>', 'bar', 'and');
+    spy1 = jest.spyOn(builder.getQuery(), 'where');
+    result = builder.where('foo', '@>', 'bar');
+    expect(spy1).toHaveBeenCalledWith('foo', '@>', 'bar', 'and');
     expect(builder).toBe(result);
   });
 
@@ -1166,27 +1123,27 @@ describe('fedaco builder', () => {
     builder = getBuilder();
     builder.onDelete((qb: FedacoBuilder) => {
       return {
-        'foo': qb
+        foo: qb,
       };
     });
 
     const result = await builder.delete();
 
-    expect(result).toEqual({'foo': builder});
+    expect(result).toEqual({ foo: builder });
   });
 
   it('where key method with int', () => {
     let spy1, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
 
     builder.setModel(model);
 
-    spy1          = jest.spyOn(builder.getQuery(), 'where');
+    spy1 = jest.spyOn(builder.getQuery(), 'where');
     const keyName = model.GetQualifiedKeyName();
-    const int     = 1;
+    const int = 1;
     builder.whereKey(int);
-    expect(spy1).toBeCalledWith(keyName, '=', int, 'and');
+    expect(spy1).toHaveBeenCalledWith(keyName, '=', int, 'and');
   });
 
   it('test where key for primary generate key', () => {
@@ -1199,94 +1156,93 @@ describe('fedaco builder', () => {
   it('where key method with array', () => {
     let spy1, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
 
     builder.setModel(model);
 
-    spy1          = jest.spyOn(builder.getQuery(), 'whereIn');
+    spy1 = jest.spyOn(builder.getQuery(), 'whereIn');
     const keyName = model.GetQualifiedKeyName();
-    const array   = [1, 2, 3];
+    const array = [1, 2, 3];
     builder.whereKey(array);
 
-    expect(spy1).toBeCalledWith(keyName, array);
+    expect(spy1).toHaveBeenCalledWith(keyName, array);
   });
 
   xit('where key method with collection', () => {
     let spy1, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
 
     builder.setModel(model);
 
-    spy1             = jest.spyOn(builder.getQuery(), 'whereIn');
-    const keyName    = model.GetQualifiedKeyName();
+    spy1 = jest.spyOn(builder.getQuery(), 'whereIn');
+    const keyName = model.GetQualifiedKeyName();
     const collection = [1, 2, 3];
     builder.whereKey(collection);
 
-    expect(spy1).toBeCalledWith(keyName, collection);
+    expect(spy1).toHaveBeenCalledWith(keyName, collection);
   });
 
   it('where key not method with int', () => {
     let spy1, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
 
     builder.setModel(model);
 
-    spy1          = jest.spyOn(builder.getQuery(), 'where');
+    spy1 = jest.spyOn(builder.getQuery(), 'where');
     const keyName = model.GetQualifiedKeyName();
-    const int     = 1;
+    const int = 1;
     builder.whereKeyNot(int);
 
-    expect(spy1).toBeCalledWith(keyName, '!=', int, 'and');
-
+    expect(spy1).toHaveBeenCalledWith(keyName, '!=', int, 'and');
   });
 
   it('where key not method with array', () => {
     let spy1, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
 
     builder.setModel(model);
 
-    spy1          = jest.spyOn(builder.getQuery(), 'whereNotIn');
+    spy1 = jest.spyOn(builder.getQuery(), 'whereNotIn');
     const keyName = model.GetQualifiedKeyName();
-    const array   = [1, 2, 3];
+    const array = [1, 2, 3];
     builder.whereKeyNot(array);
 
-    expect(spy1).toBeCalledWith(keyName, array);
+    expect(spy1).toHaveBeenCalledWith(keyName, array);
   });
 
   xit('where key not method with collection', () => {
     let spy1, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
 
     builder.setModel(model);
 
-    spy1             = jest.spyOn(builder.getQuery(), 'whereNotIn');
-    const keyName    = model.GetQualifiedKeyName();
+    spy1 = jest.spyOn(builder.getQuery(), 'whereNotIn');
+    const keyName = model.GetQualifiedKeyName();
     const collection = [1, 2, 3];
     builder.whereKeyNot(collection);
 
-    expect(spy1).toBeCalledWith(keyName, collection);
+    expect(spy1).toHaveBeenCalledWith(keyName, collection);
   });
 
   it('where in', () => {
     model = new FedacoBuilderTestNestedStub();
     mockConnectionForModel(FedacoBuilderTestNestedStub, '');
-    const query  = model.NewQuery().withoutGlobalScopes().whereIn('foo',
-      model.NewQuery().select('id'));
+    const query = model.NewQuery().withoutGlobalScopes().whereIn('foo', model.NewQuery().select('id'));
     const result = query.toSql();
 
     expect(result.result).toBe(
-      'SELECT * FROM "nest_table" WHERE "foo" IN (SELECT "id" FROM "nest_table" WHERE "nest_table"."deleted_at" IS NULL)');
+      'SELECT * FROM "nest_table" WHERE "foo" IN (SELECT "id" FROM "nest_table" WHERE "nest_table"."deleted_at" IS NULL)'
+    );
   });
 
   it('latest without column with created at', () => {
     let spy1, spy2, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
 
     builder.setModel(model);
 
@@ -1295,14 +1251,13 @@ describe('fedaco builder', () => {
 
     builder.latest();
 
-    expect(spy2).toBeCalledWith('foo');
-
+    expect(spy2).toHaveBeenCalledWith('foo');
   });
 
   it('latest without column without created at', () => {
     let spy1, spy2, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
 
     builder.setModel(model);
 
@@ -1311,14 +1266,13 @@ describe('fedaco builder', () => {
 
     builder.latest();
 
-    expect(spy2).toBeCalledWith('created_at');
-
+    expect(spy2).toHaveBeenCalledWith('created_at');
   });
 
   it('latest with column', () => {
     let spy1, spy2, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
 
     builder.setModel(model);
 
@@ -1326,13 +1280,13 @@ describe('fedaco builder', () => {
 
     builder.latest('foo');
 
-    expect(spy1).toBeCalledWith('foo');
+    expect(spy1).toHaveBeenCalledWith('foo');
   });
 
   it('oldest without column with created at', () => {
     let spy1, spy2, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
 
     builder.setModel(model);
 
@@ -1341,13 +1295,13 @@ describe('fedaco builder', () => {
 
     builder.oldest();
 
-    expect(spy2).toBeCalledWith('foo');
+    expect(spy2).toHaveBeenCalledWith('foo');
   });
 
   it('oldest without column without created at', () => {
     let spy1, spy2, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
 
     builder.setModel(model);
 
@@ -1356,13 +1310,13 @@ describe('fedaco builder', () => {
 
     builder.oldest();
 
-    expect(spy2).toBeCalledWith('created_at');
+    expect(spy2).toHaveBeenCalledWith('created_at');
   });
 
   it('oldest with column', () => {
     let spy1, spy2, result;
     builder = getBuilder();
-    model   = getModel();
+    model = getModel();
 
     builder.setModel(model);
 
@@ -1370,91 +1324,87 @@ describe('fedaco builder', () => {
 
     builder.oldest('foo');
 
-    expect(spy1).toBeCalledWith('foo');
+    expect(spy1).toHaveBeenCalledWith('foo');
   });
 
   it('update', async () => {
     let spy1, spy2, result;
     builder = getBuilder();
-    model   = new FedacoBuilderTestStub();
+    model = new FedacoBuilderTestStub();
     mockConnectionForModel(FedacoBuilderTestStub, '');
     builder.setModel(model);
 
-    spy1   = jest.spyOn(builder.getConnection(), 'update').mockReturnValue(1);
+    spy1 = jest.spyOn(builder.getConnection(), 'update').mockReturnValue(1);
     //     builder.getConnection().shouldReceive("update").once()._with("update \"table\" set \"foo\" = ?, \"table\".\"updated_at\" = ?", ["bar", now]).andReturn(1)
     result = await builder.update({
-      'foo': 'bar'
+      foo: 'bar',
     });
 
     const now = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
 
     expect(result).toBe(1);
 
-    expect(spy1).toBeCalledWith(
-      'UPDATE `test_tables` SET `foo` = ?, `updated_at` = ?',
-      ['bar', now]);
+    expect(spy1).toHaveBeenCalledWith('UPDATE `test_tables` SET `foo` = ?, `updated_at` = ?', ['bar', now]);
   });
 
   it('update with timestamp value', async () => {
     let spy1, spy2, result;
     builder = getBuilder();
-    model   = new FedacoBuilderTestStub();
+    model = new FedacoBuilderTestStub();
     mockConnectionForModel(FedacoBuilderTestStub, '');
     builder.setModel(model);
 
-    spy1   = jest.spyOn(builder.getConnection(), 'update').mockReturnValue(1);
+    spy1 = jest.spyOn(builder.getConnection(), 'update').mockReturnValue(1);
     //     builder.getConnection().shouldReceive("update").once()._with("update \"table\" set \"foo\" = ?, \"table\".\"updated_at\" = ?", ["bar", now]).andReturn(1)
     result = await builder.update({
-      'foo'       : 'bar',
-      'updated_at': null
+      foo       : 'bar',
+      updated_at: null,
     });
 
     const now = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
 
     expect(result).toBe(1);
 
-    expect(spy1).toBeCalledWith(
-      'UPDATE `test_tables` SET `foo` = ?, `updated_at` = ?',
-      ['bar', null]);
+    expect(spy1).toHaveBeenCalledWith('UPDATE `test_tables` SET `foo` = ?, `updated_at` = ?', ['bar', null]);
   });
 
   it('update without timestamp', async () => {
     let spy1, spy2, result;
     builder = getBuilder();
-    model   = new FedacoBuilderTestStubWithoutTimestamp();
+    model = new FedacoBuilderTestStubWithoutTimestamp();
     mockConnectionForModel(FedacoBuilderTestStubWithoutTimestamp, '');
     builder.setModel(model);
 
-    spy1   = jest.spyOn(builder.getConnection(), 'update').mockReturnValue(1);
+    spy1 = jest.spyOn(builder.getConnection(), 'update').mockReturnValue(1);
     //     builder.getConnection().shouldReceive("update").once()._with("update \"table\" set \"foo\" = ?, \"table\".\"updated_at\" = ?", ["bar", now]).andReturn(1)
     result = await builder.update({
-      'foo': 'bar'
+      foo: 'bar',
     });
 
     expect(result).toBe(1);
 
-    expect(spy1).toBeCalledWith('UPDATE `test_tables` SET `foo` = ?', ['bar']);
+    expect(spy1).toHaveBeenCalledWith('UPDATE `test_tables` SET `foo` = ?', ['bar']);
   });
 
   it('update with alias', async () => {
     let spy1, spy2, result;
     builder = getBuilder();
-    model   = new FedacoBuilderTestStub();
+    model = new FedacoBuilderTestStub();
     mockConnectionForModel(FedacoBuilderTestStub, '');
     builder.setModel(model);
 
-    spy1   = jest.spyOn(builder.getConnection(), 'update').mockReturnValue(1);
+    spy1 = jest.spyOn(builder.getConnection(), 'update').mockReturnValue(1);
     //     builder.getConnection().shouldReceive("update").once()._with("update \"table\" set \"foo\" = ?, \"table\".\"updated_at\" = ?", ["bar", now]).andReturn(1)
     result = await builder.from('test_table as alias').update({
-      'foo': 'bar'
+      foo: 'bar',
     });
 
     expect(result).toBe(1);
 
-    expect(spy1).toBeCalledWith(
+    expect(spy1).toHaveBeenCalledWith(
       'UPDATE `test_table` AS `alias` SET `alias`.`foo` = ?, `alias`.`updated_at` = ?',
-      ['bar', expect.anything()]);
-
+      ['bar', expect.anything()]
+    );
   });
 
   it('with casts method', () => {
@@ -1472,28 +1422,26 @@ describe('fedaco builder', () => {
   });
 });
 
-
 @Table({
   tableName    : 'test_table',
-  noPluralTable: false
+  noPluralTable: false,
 })
-class FedacoBuilderTestStub extends Model {
-}
+class FedacoBuilderTestStub extends Model {}
 
 @Table({
   tableName    : 'test_table',
-  noPluralTable: false
+  noPluralTable: false,
 })
 class FedacoBuilderTestStubWithoutTimestamp extends Model {
   static UPDATED_AT: string = null;
 }
 
 @Table({
-  tableName: 'test_where_key'
+  tableName: 'test_where_key',
 })
 class FedacoBuilderWhereKey extends Model {
   @PrimaryGeneratedColumn({
-    keyType: 'string'
+    keyType: 'string',
   })
   uuid: string;
 }

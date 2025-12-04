@@ -5,8 +5,7 @@
  */
 
 import { makeDecorator } from '@gradii/annotation';
-import { pluralStudly } from '@gradii/nanofn';
-import { snakeCase } from '@gradii/nanofn';
+import { pluralStudly, snakeCase } from '@gradii/nanofn';
 import { FedacoColumn } from '../column';
 
 export interface TableAnnotation {
@@ -65,13 +64,14 @@ export interface InjectableDecorator<T extends TableAnnotation> {
 
   metadataName: string;
 
-  new(options?: T): T;
+  new (options?: T): T;
 }
 
 export const Table: InjectableDecorator<TableAnnotation> = makeDecorator(
   'Fedaco:Table',
   (p?: TableAnnotation): TableAnnotation => ({
-    noPluralTable: true, ...p
+    noPluralTable: true,
+    ...p,
   }),
   FedacoColumn,
   (target: any, decorator: TableAnnotation) => {
@@ -86,7 +86,7 @@ export const Table: InjectableDecorator<TableAnnotation> = makeDecorator(
       configurable: true,
       enumerable  : false,
       writable    : true,
-      value       : tableName
+      value       : tableName,
     });
-  }
+  },
 );

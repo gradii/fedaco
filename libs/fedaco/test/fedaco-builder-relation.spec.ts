@@ -1,13 +1,13 @@
 /* tslint:disable:max-line-length */
-import { DatabaseTransactionsManager } from '../src/database-transactions-manager';
-import { FedacoBuilder } from '../src/fedaco/fedaco-builder';
+import { type DatabaseTransactionsManager } from '../src/database-transactions-manager';
+import { type FedacoBuilder } from '../src/fedaco/fedaco-builder';
 import { Model } from '../src/fedaco/model';
-import { ConnectionResolverInterface } from '../src/interface/connection-resolver-interface';
-import { ConnectionInterface } from '../src/query-builder/connection-interface';
+import { type ConnectionResolverInterface } from '../src/interface/connection-resolver-interface';
+import { type ConnectionInterface } from '../src/query-builder/connection-interface';
 import { MysqlQueryGrammar } from '../src/query-builder/grammar/mysql-query-grammar';
 import { Processor } from '../src/query-builder/processor';
-import { JoinClauseBuilder, QueryBuilder } from '../src/query-builder/query-builder';
-import { SchemaBuilder } from '../src/schema/schema-builder';
+import { type JoinClauseBuilder, QueryBuilder } from '../src/query-builder/query-builder';
+import { type SchemaBuilder } from '../src/schema/schema-builder';
 import {
   FedacoBuilderTestModelCloseRelatedStub, FedacoBuilderTestModelParentStub
 } from './model/fedaco-builder-test-model-parent-stub';

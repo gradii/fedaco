@@ -23,15 +23,21 @@ import type { Token } from './sql-lexer';
 import { EOF, SyntaxKind } from './sql-lexer';
 
 export class _SqlParserAst {
-  index             = 0;
-  private rparensExpected   = 0;
+  index = 0;
+  private rparensExpected = 0;
   private rbracketsExpected = 0;
-  private rbracesExpected   = 0;
+  private rbracesExpected = 0;
 
-  constructor(public input: string, public location: any, public absoluteOffset: number,
-              public tokens: Token[], public inputLength: number, public parseAction: boolean,
-              private errors: any[], private offset: number) {
-  }
+  constructor(
+    public input: string,
+    public location: any,
+    public absoluteOffset: number,
+    public tokens: Token[],
+    public inputLength: number,
+    public parseAction: boolean,
+    private errors: any[],
+    private offset: number,
+  ) {}
 
   get next(): Token {
     return this.peek(0);
@@ -141,9 +147,7 @@ export class _SqlParserAst {
     this.error(`Missing expected operator ${operator}`);
   }
 
-  parseBraceCondition() {
-
-  }
+  parseBraceCondition() {}
 
   // seems like @link {createTableColumn} method
   parseColumnWithoutAlias(defaultTable?: string | FromTable): ColumnReferenceExpression {
@@ -156,10 +160,7 @@ export class _SqlParserAst {
     if (!columnName) {
       throw new Error('columnName error');
     }
-    return new ColumnReferenceExpression(
-      columnName,
-      undefined
-    );
+    return new ColumnReferenceExpression(columnName, undefined);
   }
 
   parseColumnAlias(): ColumnReferenceExpression {
@@ -174,12 +175,11 @@ export class _SqlParserAst {
     let alias;
     if (this.peekKeywordAs()) {
       this.advance();
-      alias = this._parseChainName().map(it => it.name).join('.');
+      alias = this._parseChainName()
+        .map((it) => it.name)
+        .join('.');
     }
-    return new ColumnReferenceExpression(
-      columnName,
-      alias ? createIdentifier(alias) : undefined
-    );
+    return new ColumnReferenceExpression(columnName, alias ? createIdentifier(alias) : undefined);
   }
 
   _parseColumnName(defaultTable?: FromTable): JsonPathExpression | PathExpression | null {
@@ -210,9 +210,7 @@ export class _SqlParserAst {
 
   // begin parse part
 
-  parseEqCondition() {
-
-  }
+  parseEqCondition() {}
 
   parseExpression() {
     if (this.next.isNumber()) {
@@ -228,9 +226,7 @@ export class _SqlParserAst {
     throw new Error('unexpected expression');
   }
 
-  parseGtCondition() {
-
-  }
+  parseGtCondition() {}
 
   parseJoin() {
     const ast = this._parseTableAsName();
@@ -240,11 +236,7 @@ export class _SqlParserAst {
       condition = this.parseWhereCondition();
     }
     if (ast instanceof TableReferenceExpression) {
-      return new JoinExpression(
-        undefined,
-        ast,
-        condition
-      );
+      return new JoinExpression(undefined, ast, condition);
     } else {
       return undefined;
     }
@@ -258,9 +250,7 @@ export class _SqlParserAst {
     return undefined;
   }
 
-  parseLtCondition() {
-
-  }
+  parseLtCondition() {}
 
   parseTableAlias() {
     return this._parseTableAsName();
@@ -272,8 +262,7 @@ export class _SqlParserAst {
   _parseTableAsName(): TableReferenceExpression {
     const tableName = this._parseTableName();
     if (!tableName) {
-      throw new Error(
-        `tableName error. table name can't be keyword like "select", "table", "join" etc`);
+      throw new Error(`tableName error. table name can't be keyword like "select", "table", "join" etc`);
     }
     let alias;
     if (this.peekKeywordAs()) {
@@ -281,10 +270,7 @@ export class _SqlParserAst {
       alias = this.next;
       this.advance();
     }
-    return new TableReferenceExpression(
-      tableName,
-      alias ? createIdentifier(alias.strValue) : undefined
-    );
+    return new TableReferenceExpression(tableName, alias ? createIdentifier(alias.strValue) : undefined);
   }
 
   parseTableColumn() {
@@ -302,7 +288,7 @@ export class _SqlParserAst {
       return [createIdentifier('*')];
     }
     if (this.next.isKeyword()) {
-      //patch for simple keyword token
+      // patch for simple keyword token
       if (this.tokens.length === 1) {
         return [createIdentifier(this.next.strValue)];
       }
@@ -356,11 +342,7 @@ export class _SqlParserAst {
             operator = '->>';
           }
           const name = this.expectIdentifierOrKeywordOrString();
-          return new JsonPathExpression(
-            chainPathExpression,
-            createIdentifier(operator),
-            createIdentifier(name)
-          );
+          return new JsonPathExpression(chainPathExpression, createIdentifier(operator), createIdentifier(name));
         }
       } else {
         return chainPathExpression;
@@ -410,16 +392,9 @@ export class _SqlParserAst {
         const column = this.next;
         this.advance();
         // report error
-        return new PathExpression(
-          [
-            createIdentifier(table.strValue),
-            createIdentifier(column.strValue)
-          ]
-        );
+        return new PathExpression([createIdentifier(table.strValue), createIdentifier(column.strValue)]);
       } else {
-        return new PathExpression(
-          [createIdentifier(table.strValue)]
-        );
+        return new PathExpression([createIdentifier(table.strValue)]);
       }
     }
     return null;
@@ -432,11 +407,7 @@ export class _SqlParserAst {
       if (this.consumeOptionalOperator('=')) {
         const rightExpression = this.parseUnaryTableColumn();
         this.advance();
-        return new JoinOnExpression(
-          tableColumn,
-          '=',
-          rightExpression
-        );
+        return new JoinOnExpression(tableColumn, '=', rightExpression);
       }
     }
     return undefined;
@@ -465,17 +436,18 @@ export class _SqlParserAst {
 
   private skip() {
     let n = this.next;
-    while (this.index < this.tokens.length && !n.isCharacter(asciiChars.$SEMICOLON) &&
-    (this.rparensExpected <= 0 || !n.isCharacter(asciiChars.$RPAREN)) &&
-    (this.rbracesExpected <= 0 || !n.isCharacter(asciiChars.$RBRACE)) &&
-    (this.rbracketsExpected <= 0 || !n.isCharacter(asciiChars.$RBRACKET))) {
+    while (
+      this.index < this.tokens.length &&
+      !n.isCharacter(asciiChars.$SEMICOLON) &&
+      (this.rparensExpected <= 0 || !n.isCharacter(asciiChars.$RPAREN)) &&
+      (this.rbracesExpected <= 0 || !n.isCharacter(asciiChars.$RBRACE)) &&
+      (this.rbracketsExpected <= 0 || !n.isCharacter(asciiChars.$RBRACKET))
+    ) {
       if (this.next.isError()) {
-        this.errors.push(
-          new Error(`this.next.toString()!, this.input, this.locationText(), this.location`));
+        this.errors.push(new Error(`this.next.toString()!, this.input, this.locationText(), this.location`));
       }
       this.advance();
       n = this.next;
     }
   }
-
 }

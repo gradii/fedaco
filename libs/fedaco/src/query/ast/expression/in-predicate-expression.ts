@@ -8,7 +8,6 @@ import type { NestedExpression } from '../fragment/nested-expression';
 import type { SqlVisitor } from '../../sql-visitor';
 import { Expression } from './expression';
 
-
 export class InPredicateExpression extends Expression {
   constructor(
     public expression: Expression,

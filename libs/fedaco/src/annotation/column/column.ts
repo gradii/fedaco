@@ -7,13 +7,14 @@
 import { makePropDecorator } from '@gradii/annotation';
 import { _additionalProcessingGetterSetter } from '../additional-processing';
 import type { FedacoDecorator } from '../annotation.interface';
-import type { ColumnAnnotation} from '../column';
+import type { ColumnAnnotation } from '../column';
 import { FedacoColumn } from '../column';
 
 export const Column: FedacoDecorator<ColumnAnnotation> = makePropDecorator(
   'Fedaco:Column',
-  (p: ColumnAnnotation = {}): ColumnAnnotation => ({fillable: true,...p}),
+  (p: ColumnAnnotation = {}): ColumnAnnotation => ({ fillable: true, ...p }),
   FedacoColumn,
   (target: any, name: string, decorator: ColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, name, decorator);
-  });
+  },
+);

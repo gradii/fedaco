@@ -7,11 +7,10 @@
 import { SqlNode } from '../sql-node';
 import type { SqlVisitor } from '../sql-visitor';
 
-
 export class BindingVariable extends SqlNode {
   constructor(
     public bindingExpression: SqlNode,
-    public type = 'where'
+    public type = 'where',
   ) {
     super();
   }

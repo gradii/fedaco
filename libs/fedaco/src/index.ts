@@ -262,4 +262,4 @@ export * from './database-transaction-record';
 export * from './database-transactions-manager';
 export * from './manages-transactions';
 export * from './query-exception';
-export * from './db'
+export * from './db';

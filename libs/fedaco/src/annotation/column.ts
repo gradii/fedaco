@@ -60,7 +60,6 @@ export interface ColumnAnnotation extends FedacoAnnotation {
   // foreignKey?: string;
 }
 
-
 export class FedacoColumn {
   static isTypeOf(obj: any) {
     return obj instanceof FedacoColumn;

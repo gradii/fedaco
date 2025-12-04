@@ -12,14 +12,10 @@ import { BindingVariable } from '../../query/ast/binding-variable';
 import type { ColumnReferenceExpression } from '../../query/ast/column-reference-expression';
 import type { DeleteSpecification } from '../../query/ast/delete-specification';
 import type { AsExpression } from '../../query/ast/expression/as-expression';
-import type {
-  BetweenPredicateExpression
-} from '../../query/ast/expression/between-predicate-expression';
+import type { BetweenPredicateExpression } from '../../query/ast/expression/between-predicate-expression';
 import type { BinaryExpression } from '../../query/ast/expression/binary-expression';
 import type { CommonValueExpression } from '../../query/ast/expression/common-value-expression';
-import type {
-  ComparisonPredicateExpression
-} from '../../query/ast/expression/comparison-predicate-expression';
+import type { ComparisonPredicateExpression } from '../../query/ast/expression/comparison-predicate-expression';
 import type { ConditionExpression } from '../../query/ast/expression/condition-expression';
 import type { ExistsPredicateExpression } from '../../query/ast/expression/exists-predicate-expression';
 import type { FunctionCallExpression } from '../../query/ast/expression/function-call-expression';
@@ -32,15 +28,11 @@ import type { RawBindingExpression } from '../../query/ast/expression/raw-bindin
 import { RawExpression } from '../../query/ast/expression/raw-expression';
 import type { StringLiteralExpression } from '../../query/ast/expression/string-literal-expression';
 import type { AggregateFunctionCallFragment } from '../../query/ast/fragment/aggregate-function-call-fragment';
-import type {
-  NestedPredicateExpression
-} from '../../query/ast/fragment/expression/nested-predicate-expression';
+import type { NestedPredicateExpression } from '../../query/ast/fragment/expression/nested-predicate-expression';
 import type { JoinFragment } from '../../query/ast/fragment/join-fragment';
 import type { JsonPathColumn } from '../../query/ast/fragment/json-path-column';
 import { NestedExpression } from '../../query/ast/fragment/nested-expression';
-import type {
-  RejectOrderElementExpression
-} from '../../query/ast/fragment/order/reject-order-element-expression';
+import type { RejectOrderElementExpression } from '../../query/ast/fragment/order/reject-order-element-expression';
 import type { UnionFragment } from '../../query/ast/fragment/union-fragment';
 import type { FromClause } from '../../query/ast/from-clause';
 import type { FromTable } from '../../query/ast/from-table';
@@ -81,10 +73,7 @@ import { resolveForwardRef } from '../forward-ref';
 import type { GrammarInterface } from '../grammar.interface';
 import { QueryBuilder } from '../query-builder';
 import type { FedacoBuilder } from '../../fedaco/fedaco-builder';
-import {
-  FedacoBuilderSymbol,
-  RelationSymbol,
-} from '../../symbol/fedaco-symbol';
+import { FedacoBuilderSymbol, RelationSymbol } from '../../symbol/fedaco-symbol';
 import type { Relation } from '../../fedaco/relations/relation';
 
 export class QueryBuilderVisitor implements SqlVisitor {
@@ -100,9 +89,8 @@ export class QueryBuilderVisitor implements SqlVisitor {
      * todo remove queryBuilder. should use binding only
      */
     protected _queryBuilder: QueryBuilder,
-    protected ctx: Record<string, any>
-  ) {
-  }
+    protected ctx: Record<string, any>,
+  ) {}
 
   visit() {
     return 'hello';
@@ -110,13 +98,13 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
   visitAggregateFunctionCallFragment(node: AggregateFunctionCallFragment): string {
     let funcName = node.aggregateFunctionName.accept(this);
-    funcName     = this._grammar.predicateFuncName(funcName);
+    funcName = this._grammar.predicateFuncName(funcName);
     let columns;
     if (isArray(node.distinct)) {
       const list = node.distinct.map((it: SqlNode) => it.accept(this) as unknown as string);
-      columns    = this._grammar.distinctInAggregateFunctionCall(list);
+      columns = this._grammar.distinctInAggregateFunctionCall(list);
     } else {
-      columns = node.aggregateColumns.map(it => it.accept(this)).join(', ');
+      columns = node.aggregateColumns.map((it) => it.accept(this)).join(', ');
       if (node.distinct === true && columns !== '*') {
         columns = 'DISTINCT ' + columns;
       }
@@ -157,8 +145,8 @@ export class QueryBuilderVisitor implements SqlVisitor {
   }
 
   visitBetweenPredicateExpression(node: BetweenPredicateExpression): string {
-    return `${
-      node.expression.accept(this)}${node.not ? ' NOT' : ''
+    return `${node.expression.accept(this)}${
+      node.not ? ' NOT' : ''
     } BETWEEN ${node.leftBetween.accept(this)} AND ${node.rightBetween.accept(this)}`;
   }
 
@@ -170,24 +158,18 @@ export class QueryBuilderVisitor implements SqlVisitor {
   visitBinaryUnionQueryExpression(node: BinaryUnionQueryExpression): string {
     let sql;
     if (node.left instanceof BinaryUnionQueryExpression) {
-      const leftSql = node.left.accept(this)
-      const rightSql = node.right instanceof NestedExpression
-        ? node.right.accept(this)
-        : `(${node.right.accept(this)})`;
+      const leftSql = node.left.accept(this);
+      const rightSql =
+        node.right instanceof NestedExpression ? node.right.accept(this) : `(${node.right.accept(this)})`;
 
       sql = `${leftSql} UNION${node.all ? ' ALL' : ''} ${rightSql}`;
     } else {
-      const leftSql = node.left instanceof NestedExpression
-        ? node.left.accept(this)
-        : `(${node.left.accept(this)})`;
+      const leftSql = node.left instanceof NestedExpression ? node.left.accept(this) : `(${node.left.accept(this)})`;
 
-      const rightSql = node.right instanceof NestedExpression
-        ? node.right.accept(this)
-        : `(${node.right.accept(this)})`;
+      const rightSql =
+        node.right instanceof NestedExpression ? node.right.accept(this) : `(${node.right.accept(this)})`;
 
-      sql = `${leftSql} UNION${node.all ? ' ALL' : ''} ${
-        rightSql
-      }`;
+      sql = `${leftSql} UNION${node.all ? ' ALL' : ''} ${rightSql}`;
     }
 
     sql += this.visitQueryExpression(node);
@@ -203,8 +185,7 @@ export class QueryBuilderVisitor implements SqlVisitor {
   visitBindingVariable(node: BindingVariable): string {
     this._queryBuilder.addBinding(
       node.bindingExpression.accept(this),
-      this.explicitBindingType ??
-      (node.type === 'where' && this.inJoinExpression ? 'join' : node.type)
+      this.explicitBindingType ?? (node.type === 'where' && this.inJoinExpression ? 'join' : node.type),
     );
     // this._queryBuilder.addBinding(node.bindingExpression.dispatch(this), 'where')
     return `?`;
@@ -213,9 +194,7 @@ export class QueryBuilderVisitor implements SqlVisitor {
   visitColumnReferenceExpression(node: ColumnReferenceExpression): string {
     const columnName = resolveIdentifier(node.fieldAliasIdentificationVariable);
     if (columnName) {
-      return `${node.expression.accept(this)} AS ${this._grammar.quoteColumnName(
-        columnName
-      )}`;
+      return `${node.expression.accept(this)} AS ${this._grammar.quoteColumnName(columnName)}`;
     } else {
       return `${node.expression.accept(this)}`;
     }
@@ -246,7 +225,7 @@ export class QueryBuilderVisitor implements SqlVisitor {
    * @param node
    */
   visitConditionExpression(node: ConditionExpression): string {
-    return node.conditionTerms.map(it => it.accept(this)).join(' AND ');
+    return node.conditionTerms.map((it) => it.accept(this)).join(' AND ');
   }
 
   visitConditionTermExpression(node: SqlNode): string {
@@ -263,12 +242,11 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
   visitFromClause(node: FromClause): string {
     if (node.joins.length > 0) {
-      const joins = node.joins.map(it => it.accept(this));
+      const joins = node.joins.map((it) => it.accept(this));
       return `FROM ${node.from.accept(this)} ${joins.join(' ')}`;
     } else {
       return `FROM ${node.from.accept(this)}`;
     }
-
   }
 
   visitFromTable(node: FromTable): string {
@@ -288,19 +266,17 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
   visitFunctionCallExpression(node: FunctionCallExpression): string {
     let funcName = node.name.accept(this);
-    funcName     = this._grammar.predicateFuncName(funcName);
+    funcName = this._grammar.predicateFuncName(funcName);
 
-    return `${funcName}(${
-      node.parameters.map(it => it.accept(this)).join(', ')
-    })`;
+    return `${funcName}(${node.parameters.map((it) => it.accept(this)).join(', ')})`;
   }
 
   visitGroupByClause(node: GroupByClause): string {
-    return `GROUP BY ${node.groups.map(it => it.accept(this)).join(', ')}`;
+    return `GROUP BY ${node.groups.map((it) => it.accept(this)).join(', ')}`;
   }
 
   visitHavingClause(node: HavingClause): string {
-    return `HAVING ${node.expressions.map(it => it.accept(this)).join(',')}`;
+    return `HAVING ${node.expressions.map((it) => it.accept(this)).join(',')}`;
   }
 
   visitIdentifier(node: Identifier): string {
@@ -315,7 +291,7 @@ export class QueryBuilderVisitor implements SqlVisitor {
    * @param node
    */
   visitIdentifyVariableDeclaration(node: IdentifyVariableDeclaration): string {
-    let rst                               = '';
+    let rst = '';
     const visitedRangeVariableDeclaration = node.rangeVariableDeclaration.accept(this);
     rst += visitedRangeVariableDeclaration;
     if (node.indexBy) {
@@ -327,8 +303,7 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
   visitInPredicateExpression(node: InPredicateExpression): string {
     if (node.subQuery) {
-      return `${node.expression.accept(this)}${node.not ? ' NOT' : ''
-      } IN ${node.subQuery.accept(this)}`;
+      return `${node.expression.accept(this)}${node.not ? ' NOT' : ''} IN ${node.subQuery.accept(this)}`;
     }
 
     if (node.values.length === 0) {
@@ -338,13 +313,14 @@ export class QueryBuilderVisitor implements SqlVisitor {
         return `0 = 1`;
       }
     }
-    return `${node.expression.accept(this)}${node.not ? ' NOT' : ''
-    } IN (${node.values.map(it => it.accept(this)).join(', ')})`;
+    return `${node.expression.accept(this)}${
+      node.not ? ' NOT' : ''
+    } IN (${node.values.map((it) => it.accept(this)).join(', ')})`;
   }
 
   visitInsertSpecification(node: InsertSpecification): string {
     let sql = `INSERT ${node.insertOption.toUpperCase()} ${node.target.accept(this)}`;
-    sql += ` (${node.columns.map(it => it.accept(this)).join(', ')})`;
+    sql += ` (${node.columns.map((it) => it.accept(this)).join(', ')})`;
     sql += `${node.insertSource.accept(this)}`;
     return sql;
   }
@@ -365,8 +341,7 @@ export class QueryBuilderVisitor implements SqlVisitor {
       tableName = `${node.name.accept(this)}`;
     }
 
-    const sql = `${node.type.toUpperCase()} JOIN ${tableName}${node.on ? ` ON ${node.on.accept(
-      this)}` : ''}`;
+    const sql = `${node.type.toUpperCase()} JOIN ${tableName}${node.on ? ` ON ${node.on.accept(this)}` : ''}`;
 
     this.inJoinExpression = false;
     return sql;
@@ -377,13 +352,11 @@ export class QueryBuilderVisitor implements SqlVisitor {
   }
 
   visitJoinOnExpression(node: JoinOnExpression): string {
-    return `${node.columnExpression.accept(this)} ${node.operator} ${
-      node.rightExpression.accept(this)
-    }`;
+    return `${node.columnExpression.accept(this)} ${node.operator} ${node.rightExpression.accept(this)}`;
   }
 
   visitJoinedTable(node: JoinedTable): string {
-    return `${node.from.accept(this)} ${node.joinExpressions.map(it => it.accept(this)).join(' ')}`;
+    return `${node.from.accept(this)} ${node.joinExpressions.map((it) => it.accept(this)).join(' ')}`;
   }
 
   visitJsonPathColumn(node: JsonPathColumn): string {
@@ -393,14 +366,9 @@ export class QueryBuilderVisitor implements SqlVisitor {
   visitJsonPathExpression(node: JsonPathExpression): string {
     const pathLeg = node.pathLeg.accept(this);
     if (pathLeg === '->') {
-      return `json_extract(${node.pathExpression.accept(this)}, "$.${node.jsonLiteral.accept(
-        this)}")`;
+      return `json_extract(${node.pathExpression.accept(this)}, "$.${node.jsonLiteral.accept(this)}")`;
     } else if (pathLeg === '->>') {
-      return `json_unquote(json_extract(${
-        node.pathExpression.accept(this)
-      }, "$.${
-        node.jsonLiteral.accept(this)
-      }"))`;
+      return `json_unquote(json_extract(${node.pathExpression.accept(this)}, "$.${node.jsonLiteral.accept(this)}"))`;
     }
     throw new Error('unknown path leg');
     // return `'$.${node.pathExpression.map(it => `"${it.accept(this)}"`).join('.')}'`;
@@ -411,17 +379,17 @@ export class QueryBuilderVisitor implements SqlVisitor {
   }
 
   visitNestedExpression(node: NestedExpression): string {
-
     let sql;
-    if(isString(node.expression)) {
+    if (isString(node.expression)) {
       sql = `(${node.expression})`;
 
       // node.bindings.forEach(it => {
       //   it.accept(this);
       // });
       this._queryBuilder.addBinding(node.bindings, node.type);
-    } if (node.expression instanceof QueryBuilder) {
-      //must reset binding because
+    }
+    if (node.expression instanceof QueryBuilder) {
+      // must reset binding because
       node.expression.resetBindings();
 
       // // must reset to current grammar make sure the same context
@@ -431,14 +399,13 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
       const bindings = node.expression.getBindings();
       this._queryBuilder.addBinding(bindings, node.type);
-    } else if(
+    } else if (
       (node.expression as FedacoBuilder)[FedacoBuilderSymbol] ||
       (node.expression as Relation)[RelationSymbol]
     ) {
-      const {result, bindings} = (node.expression as FedacoBuilder | Relation).toSql(this.ctx);
+      const { result, bindings } = (node.expression as FedacoBuilder | Relation).toSql(this.ctx);
       sql = `(${result})`;
       this._queryBuilder.addBinding(bindings, node.type);
-
     } else if (node.expression instanceof RawExpression) {
       // todo check raw binding. should put it in node type
       sql = `(${node.expression.accept(this)})`;
@@ -453,7 +420,6 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
   visitNestedPredicateExpression(node: NestedPredicateExpression): string {
     if (node.query instanceof QueryBuilder) {
-
       // // must reset to current grammar make sure the same context
       // node.query._grammar = this._grammar;
 
@@ -488,8 +454,9 @@ export class QueryBuilderVisitor implements SqlVisitor {
   }
 
   visitOrderByClause(node: OrderByClause): string {
-    return `ORDER BY ${node.elements.map(it => it.accept(this))
-      .filter(it => !isBlank(it) && it.length > 0)
+    return `ORDER BY ${node.elements
+      .map((it) => it.accept(this))
+      .filter((it) => !isBlank(it) && it.length > 0)
       .join(', ')}`;
   }
 
@@ -513,7 +480,7 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
   visitPathExpression(node: PathExpression): string {
     let schemaName = node.schemaIdentifier ? `${node.schemaIdentifier.accept(this)}` : null;
-    let tableName  = node.tableIdentifier ? `${node.tableIdentifier.accept(this)}` : null;
+    let tableName = node.tableIdentifier ? `${node.tableIdentifier.accept(this)}` : null;
     let columnName = node.columnIdentifier ? `${node.columnIdentifier.accept(this)}` : null;
 
     if (node.schemaIdentifier instanceof Identifier) {
@@ -537,7 +504,7 @@ export class QueryBuilderVisitor implements SqlVisitor {
       }
     }
     // last table no need for simple update(update with not join)
-    if ((this._isVisitUpdateSpecification && !this._queryBuilder._joins.length)) {
+    if (this._isVisitUpdateSpecification && !this._queryBuilder._joins.length) {
       if (!tableAlias) {
         return columnName;
       }
@@ -597,15 +564,14 @@ export class QueryBuilderVisitor implements SqlVisitor {
   visitRangeVariableDeclaration(node: RangeVariableDeclaration): string {
     const quoteTableName = this._grammar.quoteTableName(node.abstractSchemaName);
     if (node.aliasIdentificationVariable) {
-      return `${quoteTableName} AS ${this._grammar.quoteTableName(
-        node.aliasIdentificationVariable)}`;
+      return `${quoteTableName} AS ${this._grammar.quoteTableName(node.aliasIdentificationVariable)}`;
     } else {
       return `${quoteTableName}`;
     }
   }
 
   visitRawBindingExpression(node: RawBindingExpression): string {
-    node.bindings.forEach(it => {
+    node.bindings.forEach((it) => {
       it.accept(this);
     });
     return `${node.raw.accept(this)}`;
@@ -627,11 +593,12 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
   visitSelectClause(node: SelectClause): string {
     if (node.selectExpressions.length > 0) {
-      const selectExpressions = node.selectExpressions.map(expression => {
+      const selectExpressions = node.selectExpressions.map((expression) => {
         return expression.accept(this);
       });
-      return `SELECT${node.distinct ? ` ${
-        this._grammar.distinct(node.distinct)} ` : ' '}${selectExpressions.join(', ')}`;
+      return `SELECT${
+        node.distinct ? ` ${this._grammar.distinct(node.distinct)} ` : ' '
+      }${selectExpressions.join(', ')}`;
     } else {
       return `SELECT${node.distinct ? ` ${this._grammar.distinct(node.distinct)} ` : ' '}*`;
     }
@@ -705,9 +672,7 @@ export class QueryBuilderVisitor implements SqlVisitor {
   visitUpdateSpecification(node: UpdateSpecification): string {
     let sql = `UPDATE ${node.target.accept(this)}`;
 
-    sql += ` SET ${node.setClauses.map(
-      it => it.accept(this)).join(', ')
-    }`;
+    sql += ` SET ${node.setClauses.map((it) => it.accept(this)).join(', ')}`;
     if (node.fromClause) {
       sql += ` ${node.fromClause.accept(this)}`;
     }
@@ -732,9 +697,9 @@ export class QueryBuilderVisitor implements SqlVisitor {
     } else if (node.select) {
       return ` ${node.select.accept(this)}`;
     } else {
-      return ` VALUES ${node.valuesList.map(
-        values => `(${values.map(it => it.accept(this)).join(', ')})`
-      ).join(', ')}`;
+      return ` VALUES ${node.valuesList
+        .map((values) => `(${values.map((it) => it.accept(this)).join(', ')})`)
+        .join(', ')}`;
     }
   }
 
@@ -755,10 +720,15 @@ export class QueryBuilderVisitor implements SqlVisitor {
 
   visitRejectOrderElementExpression(node: RejectOrderElementExpression, ctx?: any): string {
     const parentRejectColumns = ctx && ctx.rejectColumns ? ctx.rejectColumns : [];
-    const rejectColumns       = node.columns.map(it => it.accept(this));
-    return `${node.orderByElements.map(it => it.accept(this, {
-      rejectColumns: uniq([...rejectColumns, ...parentRejectColumns])
-    })).filter(it => !isBlank(it) && it.length > 0).join(', ')}`;
+    const rejectColumns = node.columns.map((it) => it.accept(this));
+    return `${node.orderByElements
+      .map((it) =>
+        it.accept(this, {
+          rejectColumns: uniq([...rejectColumns, ...parentRejectColumns]),
+        }),
+      )
+      .filter((it) => !isBlank(it) && it.length > 0)
+      .join(', ')}`;
   }
 
   visitNotExpression(node: NotExpression): string {
@@ -769,4 +739,3 @@ export class QueryBuilderVisitor implements SqlVisitor {
     throw new Error('not implement');
   }
 }
-

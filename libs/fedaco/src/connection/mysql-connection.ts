@@ -23,7 +23,7 @@ export class MysqlConnection extends Connection {
     return `x'${hex}'`;
   }
 
-  /*Determine if the connected database is a MariaDB database.*/
+  /* Determine if the connected database is a MariaDB database. */
   public async isMaria() {
     if (isBlank(this._isMaria)) {
       try {
@@ -47,12 +47,12 @@ export class MysqlConnection extends Connection {
     return this._version;
   }
 
-  /*Get the default query grammar instance.*/
+  /* Get the default query grammar instance. */
   protected getDefaultQueryGrammar(): MysqlQueryGrammar {
     return this.withTablePrefix(new MysqlQueryGrammar()) as MysqlQueryGrammar;
   }
 
-  /*Get a schema builder instance for the connection.*/
+  /* Get a schema builder instance for the connection. */
   public getSchemaBuilder(): MysqlSchemaBuilder {
     if (isBlank(this.schemaGrammar)) {
       this.useDefaultSchemaGrammar();
@@ -60,17 +60,17 @@ export class MysqlConnection extends Connection {
     return new MysqlSchemaBuilder(this);
   }
 
-  /*Get the default schema grammar instance.*/
+  /* Get the default schema grammar instance. */
   protected getDefaultSchemaGrammar(): SchemaGrammar {
     return this.withTablePrefix(new MysqlSchemaGrammar()) as SchemaGrammar;
   }
 
-  /*Get the schema state for the connection.*/
+  /* Get the schema state for the connection. */
   public getSchemaState(files?: any, processFactory?: Function) {
     return new MySqlSchemaState(this, files, processFactory);
   }
 
-  /*Get the default post processor instance.*/
+  /* Get the default post processor instance. */
   protected getDefaultPostProcessor() {
     return new MysqlProcessor();
   }

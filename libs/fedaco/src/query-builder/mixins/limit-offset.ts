@@ -4,7 +4,6 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank } from '@gradii/nanofn';
 import type { Constructor } from '../../helper/constructor';
 import type { QueryBuilder } from '../../query-builder/query-builder';
 import { RejectOrderElementExpression } from '../../query/ast/fragment/order/reject-order-element-expression';
@@ -21,17 +20,16 @@ export interface QueryBuilderLimitOffset {
 
   forPage(pageNo: number, pageSize: number): this;
 
-  forPageBeforeId(perPage?: number, lastId?: number, column ?: string): this;
+  forPageBeforeId(perPage?: number, lastId?: number, column?: string): this;
 
-  forPageAfterId(perPage?: number, lastId?: number, column ?: string): this;
+  forPageAfterId(perPage?: number, lastId?: number, column?: string): this;
 }
 
 export type QueryBuilderLimitOffsetCtor = Constructor<QueryBuilderLimitOffset>;
 
 export function mixinLimitOffset<T extends Constructor<any>>(base: T): QueryBuilderLimitOffsetCtor & T {
   return class _Self extends base {
-
-    /*Set the "limit" value of the query.*/
+    /* Set the "limit" value of the query. */
     public limit(this: QueryBuilder & _Self, value: number) {
       if (value >= 0) {
         if (this._unions.length > 0) {
@@ -43,12 +41,12 @@ export function mixinLimitOffset<T extends Constructor<any>>(base: T): QueryBuil
       return this;
     }
 
-    /*Alias to set the "offset" value of the query.*/
+    /* Alias to set the "offset" value of the query. */
     public skip(this: QueryBuilder & _Self, value: number) {
       return this.offset(value);
     }
 
-    /*Set the "offset" value of the query.*/
+    /* Set the "offset" value of the query. */
     public offset(this: QueryBuilder & _Self, value: number) {
       value = Math.max(0, value);
       if (this._unions.length > 0) {
@@ -59,7 +57,7 @@ export function mixinLimitOffset<T extends Constructor<any>>(base: T): QueryBuil
       return this;
     }
 
-    /*Alias to set the "limit" value of the query.*/
+    /* Alias to set the "limit" value of the query. */
     public take(this: QueryBuilder & _Self, value: number) {
       return this.limit(value);
     }
@@ -84,14 +82,9 @@ export function mixinLimitOffset<T extends Constructor<any>>(base: T): QueryBuil
       return this.orderBy(column, 'asc').limit(perPage);
     }
 
-    /*Get an array with all orders with a given column removed.*/
+    /* Get an array with all orders with a given column removed. */
     protected _removeExistingOrdersFor(column: string) {
-      return [
-        new RejectOrderElementExpression(
-          [new Identifier(column)],
-          this._orders
-        )
-      ];
+      return [new RejectOrderElementExpression([new Identifier(column)], this._orders)];
     }
   };
 }

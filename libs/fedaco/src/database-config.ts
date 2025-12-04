@@ -12,21 +12,21 @@ import { Model } from './fedaco/model';
 import type { QueryBuilder } from './query-builder/query-builder';
 
 export type ConnectionConfig = {
-  database?: string,
-  name?: string,
-  driver?: string,
-  url?: string,
-  username?: string,
-  password?: string,
-  port?: string | number,
+  database?    : string,
+  name?        : string,
+  driver?      : string,
+  url?         : string,
+  username?    : string,
+  password?    : string,
+  port?        : string | number,
   [key: string]: string | any
 };
 
 export class DatabaseConfig {
   config: {
     database: {
-      fetch?: number,
-      default?: string,
+      fetch?     : number,
+      default?   : string,
       connections: {
         [key: string]: ConnectionConfig
       }
@@ -39,24 +39,24 @@ export class DatabaseConfig {
     }
   };
 
-  /*The database manager instance.*/
+  /* The database manager instance. */
   protected manager: DatabaseManager;
 
   protected static instance: DatabaseConfig;
 
-  /*Create a new database capsule manager.*/
-  public constructor(/*container: Container | null = null*/) {
+  /* Create a new database capsule manager. */
+  public constructor(/* container: Container | null = null */) {
     // this.setupContainer(container || new Container());
     this.setupManager();
   }
 
-  /*Build the database manager instance.*/
+  /* Build the database manager instance. */
   protected setupManager() {
     const factory = new ConnectionFactory();
     this.manager  = new DatabaseManager(factory);
   }
 
-  /*Get a connection instance from the global manager.*/
+  /* Get a connection instance from the global manager. */
   public static connection(connection: string | null = null): Connection {
     return this.instance.getConnection(connection);
   }
@@ -68,7 +68,7 @@ export class DatabaseConfig {
     (this.constructor as typeof DatabaseConfig).instance = this;
   }
 
-  /*Get a fluent query builder instance.*/
+  /* Get a fluent query builder instance. */
   public static table(table: Function | QueryBuilder | string, as: string | null = null,
                       connection: string | null                                  = null) {
     return (this.instance.constructor as typeof DatabaseConfig)
@@ -76,20 +76,20 @@ export class DatabaseConfig {
       .table(table, as);
   }
 
-  /*Get a schema builder instance.*/
+  /* Get a schema builder instance. */
   public static schema(connection: string | null = null) {
     return (this.instance.constructor as typeof DatabaseConfig)
       .connection(connection)
       .getSchemaBuilder();
   }
 
-  /*Get a registered connection instance.*/
+  /* Get a registered connection instance. */
   public getConnection(name: string | null = null): Connection {
     return this.manager.connection(name);
   }
 
-  /*Register a connection with the manager.*/
-  public addConnection(config: any, name: string = 'default') {
+  /* Register a connection with the manager. */
+  public addConnection(config: any, name = 'default') {
     const connections = this.config.database.connections;
 
     // @ts-ignore
@@ -98,7 +98,7 @@ export class DatabaseConfig {
     this.config.database.connections = connections;
   }
 
-  /*Bootstrap Eloquent so it is ready for usage.*/
+  /* Bootstrap Eloquent so it is ready for usage. */
   public bootFedaco() {
     Model.setConnectionResolver(this.manager);
     const events: Dispatcher = {
@@ -124,7 +124,7 @@ export class DatabaseConfig {
   //   return this;
   // }
 
-  /*Get the database manager instance.*/
+  /* Get the database manager instance. */
   public getDatabaseManager() {
     return this.manager;
   }

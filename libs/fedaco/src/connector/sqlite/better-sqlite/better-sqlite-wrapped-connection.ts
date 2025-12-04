@@ -9,9 +9,7 @@ import type { WrappedConnection } from '../../wrapped-connection';
 import { BetterSqliteWrappedStmt } from './better-sqlite-wrapped-stmt';
 
 export class BetterSqliteWrappedConnection implements WrappedConnection {
-
-  constructor(public driver: Database) {
-  }
+  constructor(public driver: Database) {}
 
   async execute(sql: string, bindings?: any[]): Promise<void> {
     await this.driver.prepare(sql).run(bindings ? bindings : []);
@@ -27,19 +25,18 @@ export class BetterSqliteWrappedConnection implements WrappedConnection {
   }
 
   async beginTransaction(): Promise<void> {
-    this.driver.exec('BEGIN TRANSACTION;')
+    this.driver.exec('BEGIN TRANSACTION;');
   }
 
   async commit(): Promise<void> {
-    this.driver.exec('COMMIT;')
+    this.driver.exec('COMMIT;');
   }
 
   async rollBack(): Promise<void> {
-    this.driver.exec('ROLLBACK;')
+    this.driver.exec('ROLLBACK;');
   }
 
-  disconnect(): void {
+  async disconnect(): Promise<void> {
     this.driver.close();
   }
-
 }

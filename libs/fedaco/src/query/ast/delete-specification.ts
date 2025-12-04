@@ -13,7 +13,6 @@ import type { OffsetClause } from './offset-clause';
 import type { OrderByClause } from './order-by-clause';
 import type { WhereClause } from './where-clause';
 
-
 export class DeleteSpecification extends SqlNode {
   public topRow?: number;
 
@@ -28,7 +27,6 @@ export class DeleteSpecification extends SqlNode {
     // public  _topRowFilter: TopRowFilter,
     // public  _outputIntoClause: OutputIntoClause,
     // public  _outputClause: OutputClause,
-
   ) {
     super();
   }

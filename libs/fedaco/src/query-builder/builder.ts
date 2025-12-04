@@ -53,12 +53,12 @@ export abstract class Builder extends mixinJoin(
     )
   )
 ) {
-  /*The database query grammar instance.*/
+  /* The database query grammar instance. */
   _grammar: GrammarInterface;
 
   _unifyBindings: [];
 
-  /*The current query value bindings.*/
+  /* The current query value bindings. */
   _bindings: { [key: string]: any[] } = {
     'select'    : [],
     'updateJoin': [],
@@ -73,39 +73,40 @@ export abstract class Builder extends mixinJoin(
     'unionOrder': [],
     'insert'    : []
   };
-  /*An aggregate function and column to be run.*/
-  _aggregate: AggregateFunctionCallFragment;
-  /*The columns that should be returned.*/
-  _columns: Array<ColumnReferenceExpression | RawBindingExpression | RawExpression> = [];
-  /*Indicates if the query returns distinct results.
 
-  Occasionally contains the columns that should be distinct.*/
+  /* An aggregate function and column to be run. */
+  _aggregate: AggregateFunctionCallFragment;
+  /* The columns that should be returned. */
+  _columns: Array<ColumnReferenceExpression | RawBindingExpression | RawExpression> = [];
+  /* Indicates if the query returns distinct results.
+
+  Occasionally contains the columns that should be distinct. */
   _distinct: boolean | any[] = false;
-  /*The table which the query is targeting.*/
+  /* The table which the query is targeting. */
   _from: FromTable;
-  /*The table joins for the query.*/
+  /* The table joins for the query. */
   _joins: (JoinedTable | JoinExpression | JoinFragment)[] = [];
-  /*The where constraints for the query.*/
+  /* The where constraints for the query. */
   _wheres: any[] = [];
-  /*The groupings for the query.*/
+  /* The groupings for the query. */
   _groups: any[] = [];
-  /*The having constraints for the query.*/
+  /* The having constraints for the query. */
   _havings: any[] = [];
-  /*The orderings for the query.*/
+  /* The orderings for the query. */
   _orders: (OrderByElement | RawBindingExpression | RawExpression)[] = [];
-  /*The maximum number of records to return.*/
+  /* The maximum number of records to return. */
   _limit: number;
-  /*The number of records to skip.*/
+  /* The number of records to skip. */
   _offset: number;
-  /*The query union statements.*/
+  /* The query union statements. */
   _unions: UnionFragment[] = [];
-  /*The maximum number of union records to return.*/
+  /* The maximum number of union records to return. */
   _unionLimit: number;
-  /*The number of union records to skip.*/
+  /* The number of union records to skip. */
   _unionOffset: number;
-  /*The orderings for the union query.*/
+  /* The orderings for the union query. */
   _unionOrders: any[] = [];
-  /*Indicates whether row locking is being used.*/
+  /* Indicates whether row locking is being used. */
   _lock: string | boolean;
   /**
    * The callbacks that should be invoked before the query is executed.

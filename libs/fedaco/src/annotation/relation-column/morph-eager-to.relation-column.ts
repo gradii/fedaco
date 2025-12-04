@@ -13,12 +13,12 @@ import { RelationType } from '../enum-relation';
 import type { RelationColumnAnnotation } from '../relation-column';
 import { FedacoRelationColumn } from '../relation-column';
 
-/*Define a polymorphic, inverse one-to-one or many relationship.*/
+/* Define a polymorphic, inverse one-to-one or many relationship. */
 function morphEagerTo(m: Model, name: string, type: string, id: string, ownerKey: string) {
   return new MorphTo(m.NewQuery().setEagerLoads([]), m, id, ownerKey, type, name);
 }
 
-/*Define a polymorphic, inverse one-to-one or many relationship.*/
+/* Define a polymorphic, inverse one-to-one or many relationship. */
 function morphInstanceTo(m: Model, target: typeof Model, name: string, type: string, id: string, ownerKey: string) {
   const instance = m.newRelatedInstance(target);
   return new MorphTo(instance.newQuery(), m, id, ownerKey ?? instance.getKeyName(), type, name);
@@ -35,7 +35,6 @@ export interface MorphEagerToRelationAnnotation extends RelationColumnAnnotation
   ownerKey?: string;
 }
 
-
 export const MorphEagerToColumn: FedacoDecorator<MorphEagerToRelationAnnotation> = makePropDecorator(
   'Fedaco:MorphToColumn',
   (p: MorphEagerToRelationAnnotation) => ({
@@ -50,10 +49,10 @@ export const MorphEagerToColumn: FedacoDecorator<MorphEagerToRelationAnnotation>
       }
       return r;
     },
-    ...p
+    ...p,
   }),
   FedacoRelationColumn,
   (target: any, name: string, decorator) => {
     _additionalProcessingGetter(target, name, decorator);
-  }
+  },
 );

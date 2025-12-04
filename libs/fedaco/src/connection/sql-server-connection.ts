@@ -14,8 +14,8 @@ import { SqlServerSchemaGrammar } from '../schema/grammar/sql-server-schema-gram
 import type { SchemaBuilder } from '../schema/schema-builder';
 
 export class SqlServerConnection extends Connection {
-  /*Execute a Closure within a transaction.*/
-  public async transaction(callback: (...args: any[]) => Promise<any>, attempts: number = 1) {
+  /* Execute a Closure within a transaction. */
+  public async transaction(callback: (...args: any[]) => Promise<any>, attempts = 1) {
     for (let a = 1; a <= attempts; a++) {
       if (this.getDriverName() === 'sqlsrv') {
         return await super.transaction(callback);
@@ -39,12 +39,12 @@ export class SqlServerConnection extends Connection {
     return `0x${hex}`;
   }
 
-  /*Get the default query grammar instance.*/
+  /* Get the default query grammar instance. */
   protected getDefaultQueryGrammar() {
     return this.withTablePrefix(new SqlserverQueryGrammar());
   }
 
-  /*Get a schema builder instance for the connection.*/
+  /* Get a schema builder instance for the connection. */
   public getSchemaBuilder(): SchemaBuilder {
     if (isBlank(this.schemaGrammar)) {
       this.useDefaultSchemaGrammar();
@@ -52,17 +52,17 @@ export class SqlServerConnection extends Connection {
     return new SqlServerSchemaBuilder(this);
   }
 
-  /*Get the default schema grammar instance.*/
+  /* Get the default schema grammar instance. */
   protected getDefaultSchemaGrammar(): SchemaGrammar {
     return this.withTablePrefix(new SqlServerSchemaGrammar()) as SchemaGrammar;
   }
 
-  /*Get the schema state for the connection.*/
+  /* Get the schema state for the connection. */
   public getSchemaState(files?: any, processFactory?: Function) {
     throw new Error('RuntimeException Schema dumping is not supported when using SQL Server.');
   }
 
-  /*Get the default post processor instance.*/
+  /* Get the default post processor instance. */
   protected getDefaultPostProcessor() {
     return new SqlServerProcessor();
   }

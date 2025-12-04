@@ -7,7 +7,7 @@
 import { SchemaState } from './schema-state';
 
 export class SqliteSchemaState extends SchemaState {
-    // /*Dump the database's schema into a file.*/
+  // /*Dump the database's schema into a file.*/
   // public dump(connection: Connection, path: string) {
   //     _with(process = this.makeProcess(this.baseCommand() + " .schema")).setTimeout(null).mustRun(null, [...this.baseVariables(this.connection.getConfig()), ...[]]);
   //     var migrations = collect(preg_split("/\r\n|\n|\r/", process.getOutput())).filter(line => {

@@ -8,11 +8,10 @@ import type { SqlVisitor } from '../../sql-visitor';
 import type { BindingVariable } from '../binding-variable';
 import { RawExpression } from './raw-expression';
 
-
 export class RawBindingExpression extends RawExpression {
   constructor(
     public raw: RawExpression,
-    public bindings: BindingVariable[]
+    public bindings: BindingVariable[],
   ) {
     super(raw.value);
   }

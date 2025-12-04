@@ -8,9 +8,7 @@ import type { SqlVisitor } from '../../sql-visitor';
 import { Expression } from './expression';
 
 export class ParenthesizedExpression extends Expression {
-  constructor(
-    public expression: Expression
-  ) {
+  constructor(public expression: Expression) {
     super();
   }
 

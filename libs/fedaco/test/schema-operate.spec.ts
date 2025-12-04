@@ -1,6 +1,6 @@
 import { DatabaseConfig } from '../src/database-config';
 import { Model } from '../src/fedaco/model';
-import { SchemaBuilder } from '../src/schema/schema-builder';
+import { type SchemaBuilder } from '../src/schema/schema-builder';
 
 function connection(connectionName = 'default') {
   return Model.getConnectionResolver().connection(connectionName);

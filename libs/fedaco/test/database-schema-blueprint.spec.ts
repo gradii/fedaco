@@ -1,12 +1,11 @@
-import { SchemaBuilder } from '@gradii/fedaco';
-import { MysqlConnection } from '../src/connection/mysql-connection';
-import { Connection } from '../src/connection';
+import { type Connection } from '../src/connection';
 import { Blueprint } from '../src/schema/blueprint';
 import { MariadbSchemaGrammar } from '../src/schema/grammar/mariadb-schema-grammar';
 import { MysqlSchemaGrammar } from '../src/schema/grammar/mysql-schema-grammar';
 import { PostgresSchemaGrammar } from '../src/schema/grammar/postgres-schema-grammar';
 import { SqlServerSchemaGrammar } from '../src/schema/grammar/sql-server-schema-grammar';
 import { SqliteSchemaGrammar } from '../src/schema/grammar/sqlite-schema-grammar';
+import { SchemaBuilder } from '../src/schema/schema-builder';
 
 describe('test database schema blueprint', () => {
   it('index default names', () => {
@@ -121,7 +120,7 @@ describe('test database schema blueprint', () => {
       getServerVersion: () => {
         return '8.0.4';
       },
-      isMaria         : () => {
+      isMaria: () => {
         return false;
       }
     } as unknown as Connection;
@@ -148,7 +147,7 @@ describe('test database schema blueprint', () => {
       getServerVersion: () => {
         return '5.7';
       },
-      isMaria         : () => {
+      isMaria: () => {
         return false;
       },
       getSchemaBuilder: () => {
@@ -208,7 +207,7 @@ describe('test database schema blueprint', () => {
       table.renameColumn('foo', 'bar');
     });
     const connection = {
-      isMaria         : function () {
+      isMaria: function () {
       },
       getServerVersion: function () {
       },

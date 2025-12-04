@@ -9,11 +9,10 @@ import type { SqlVisitor } from '../../../sql-visitor';
 import type { Identifier } from '../../identifier';
 import type { OrderByElement } from '../../order-by-element';
 
-
 export class RejectOrderElementExpression extends SqlNode {
   constructor(
     public columns: Array<SqlNode | Identifier>,
-    public orderByElements: OrderByElement[]
+    public orderByElements: OrderByElement[],
   ) {
     super();
   }

@@ -12,7 +12,9 @@ import type { RelationColumnAnnotation } from './relation-column';
 
 export const RelationUsingColumn: FedacoDecorator<RelationColumnAnnotation> = makePropDecorator(
   'Fedaco:RelationUsingColumn',
-  (p: ColumnAnnotation = {}): ColumnAnnotation => ({...p}), undefined,
+  (p: ColumnAnnotation = {}): ColumnAnnotation => ({ ...p }),
+  undefined,
   (target: any, name: string, columnDefine: ColumnAnnotation) => {
     _additionalProcessingGetter(target, name, columnDefine);
-  });
+  },
+);

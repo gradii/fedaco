@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import type { Client, QueryResult } from 'pg';
+import type { Client } from 'pg';
 import type { WrappedStmt } from '../wrapped-stmt';
 
 export class PostgresWrappedStmt implements WrappedStmt {
@@ -23,17 +23,11 @@ export class PostgresWrappedStmt implements WrappedStmt {
   }
 
   async execute(bindings?: any[]) {
-    await this.driverConnection.query(
-      this.sqlStmt,
-      bindings ?? this._bindingValues,
-    );
+    await this.driverConnection.query(this.sqlStmt, bindings ?? this._bindingValues);
   }
 
   async fetchAll(bindings?: any[]) {
-    const result = await this.driverConnection.query(
-      this.sqlStmt,
-      bindings ?? this._bindingValues,
-    );
+    const result = await this.driverConnection.query(this.sqlStmt, bindings ?? this._bindingValues);
 
     return result['rows'];
   }

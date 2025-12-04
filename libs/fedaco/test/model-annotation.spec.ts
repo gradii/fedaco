@@ -1,22 +1,21 @@
 import { reflector } from '@gradii/annotation';
 import { isFunction } from '@gradii/nanofn';
 import { findLast } from 'ramda';
-import { ColumnAnnotation, FedacoColumn } from '../src/annotation/column';
-import { FedacoRelationColumn, RelationColumnAnnotation } from '../src/annotation/relation-column';
+import { type ColumnAnnotation, FedacoColumn } from '../src/annotation/column';
+import { FedacoRelationColumn, type RelationColumnAnnotation } from '../src/annotation/relation-column';
 import { DatabaseConfig } from '../src/database-config';
 import { Model } from '../src/fedaco/model';
 import { HasMany } from '../src/fedaco/relations/has-many';
-import { SchemaBuilder } from '../src/schema/schema-builder';
-import { BasicModel, } from './model/basic.model';
+import { type SchemaBuilder } from '../src/schema/schema-builder';
+import { BasicModel } from './model/basic.model';
 import { FedacoBuilderTestModelParentStub } from './model/fedaco-builder-test-model-parent-stub';
 import { ArticleModel, HasManyRelationModel, MemberModel } from './model/has-many-relation.model';
 import { HasOneRelationModel } from './model/has-one-relation.model';
 import { RelationModel } from './model/relation.model';
 
-
 function _columnInfo(typeOfClazz: any, key: string) {
   const meta = reflector.propMetadata(typeOfClazz);
-  return findLast(it => {
+  return findLast((it) => {
     return FedacoRelationColumn.isTypeOf(it);
   }, meta[key]) as ColumnAnnotation;
 }
@@ -31,20 +30,19 @@ function schema(connectionName = 'default'): SchemaBuilder {
 
 describe('model annotation', () => {
   async function createSchema() {
-    await schema('default')
-      .create('article_models', table => {
-        table.increments('id');
-        table.string('member_model_id');
-        table.timestamps();
-      });
+    await schema('default').create('article_models', (table) => {
+      table.increments('id');
+      table.string('member_model_id');
+      table.timestamps();
+    });
   }
 
   beforeAll(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      'driver': 'sqlite',
+      driver  : 'sqlite',
       // 'database': files.default
-      'database': ':memory:'
+      database: ':memory:',
     });
     db.bootFedaco();
     db.setAsGlobal();
@@ -68,10 +66,10 @@ describe('model annotation', () => {
 
   it('test basic model', () => {
     const basic = new BasicModel();
-    basic.name  = 'hello';
+    basic.name = 'hello';
 
     const meta = reflector.propMetadata(BasicModel);
-    const a    = findLast(it => FedacoColumn.isTypeOf(it), meta['name']);
+    const a = findLast((it) => FedacoColumn.isTypeOf(it), meta['name']);
   });
 
   it('test relation annoation', () => {
@@ -90,7 +88,7 @@ describe('model annotation', () => {
     const spy1 = jest.spyOn(relationModel, 'GetAttribute').mockReturnValue('foo');
     const data = relationModel.columnFoo;
 
-    expect(spy1).toBeCalled();
+    expect(spy1).toHaveBeenCalled();
     expect(data).toBe('foo');
   });
 
@@ -115,8 +113,6 @@ describe('model annotation', () => {
 
     const meta = reflector.propMetadata(HasOneRelationModel);
     expect(meta).toMatchSnapshot('has one');
-
-
   });
 
   it('test annotation hasMany', () => {
@@ -124,7 +120,6 @@ describe('model annotation', () => {
 
     const meta = reflector.propMetadata(HasManyRelationModel);
     expect(meta).toMatchSnapshot('has many');
-
   });
 
   it('test annotation get hasMany relation', () => {
@@ -133,12 +128,11 @@ describe('model annotation', () => {
     const meta = reflector.propMetadata(MemberModel);
     expect(meta).toMatchSnapshot('has many');
 
-
     const metaColumnInfo: RelationColumnAnnotation = _columnInfo(MemberModel, 'articles');
 
     expect(metaColumnInfo).toMatchObject({
       isRelation: true,
-      type      : 'HasMany'
+      type      : 'HasMany',
     });
 
     expect(isFunction(metaColumnInfo._getRelation)).toBe(true);
@@ -167,7 +161,8 @@ describe('model annotation', () => {
 
     // tmp test
     expect(results[0]._attributes['sql']).toBe(
-      'SELECT * FROM `article_models` WHERE `article_models`.`member_model_id` = ? AND `article_models`.`member_model_id` IS NOT NULL');
+      'SELECT * FROM `article_models` WHERE `article_models`.`member_model_id` = ? AND `article_models`.`member_model_id` IS NOT NULL'
+    );
     expect(results[0]._attributes['bindings']).toEqual([101]);
   });
 
@@ -182,10 +177,10 @@ describe('model annotation', () => {
 
     // todo fixme tmp test hack code in hasRelationship
     expect(results[0]._attributes['sql']).toBe(
-      'SELECT * FROM `article_models` WHERE `article_models`.`member_model_id` = ? AND `article_models`.`member_model_id` IS NOT NULL');
+      'SELECT * FROM `article_models` WHERE `article_models`.`member_model_id` = ? AND `article_models`.`member_model_id` IS NOT NULL'
+    );
     expect(results[0]._attributes['bindings']).toEqual([101]);
   });
 
   // it('test annotation ')
-
 });

@@ -19,60 +19,64 @@ function getRelationArguments() {
 }
 
 describe('test database fedaco belongs to many with default attributes', () => {
-
   it('with pivot value method sets where conditions for fetching', () => {
-    const args     = getRelationArguments();
+    const args = getRelationArguments();
     const relation = new BelongsToMany(
       // @ts-ignore
-      args[0], args[1], args[2],
-      args[3], args[4], args[5],
-      args[6], args[7]
+      args[0],
+      args[1],
+      args[2],
+      args[3],
+      args[4],
+      args[5],
+      args[6],
+      args[7]
     );
     relation.withPivotValue({
-      'is_admin': 1
+      is_admin: 1,
     });
   });
 
   it('with pivot value method sets default arguments for insertion', async () => {
-    const args     = getRelationArguments();
+    const args = getRelationArguments();
     const relation = new BelongsToMany(
       // @ts-ignore
-      args[0], args[1], args[2],
-      args[3], args[4], args[5],
-      args[6], args[7]
+      args[0],
+      args[1],
+      args[2],
+      args[3],
+      args[4],
+      args[5],
+      args[6],
+      args[7]
     );
     relation.withPivotValue({
-      'is_admin': 1
+      is_admin: 1,
     });
-    const query     = {
-      from(): any {
-      },
-      insert(): any {
-      },
-
+    const query = {
+      from(): any {},
+      insert(): any {},
     };
     const mockQuery = {
-      newQuery(): any {
-      }
+      newQuery(): any {},
     };
-    const spy1      = jest.spyOn(query, 'from').mockReturnValue(query);
-    const spy11     = jest.spyOn(query, 'insert');
+    const spy1 = jest.spyOn(query, 'from').mockReturnValue(query);
+    const spy11 = jest.spyOn(query, 'insert');
     // @ts-ignore
-    const spy2      = jest.spyOn(relation.getQuery(), 'getQuery').mockReturnValue(mockQuery);
-    const spy3      = jest.spyOn(mockQuery, 'newQuery').mockReturnValue(query);
+    const spy2 = jest.spyOn(relation.getQuery(), 'getQuery').mockReturnValue(mockQuery);
+    const spy3 = jest.spyOn(mockQuery, 'newQuery').mockReturnValue(query);
     jest.spyOn(query, 'insert').mockReturnValue(true);
     jest.spyOn(relation, 'touchIfTouching').mockReturnValue(Promise.resolve());
 
     await relation.attach(1);
 
-    expect(spy11).toBeCalledWith([
+    expect(spy11).toHaveBeenCalledWith([
       {
-        'club_id' : 1,
-        'user_id' : 1,
-        'is_admin': 1
-      }
+        club_id : 1,
+        user_id : 1,
+        is_admin: 1,
+      },
     ]);
-    expect(spy3).toBeCalled();
+    expect(spy3).toHaveBeenCalled();
   });
-
 });

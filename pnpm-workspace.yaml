@@ -1,0 +1,10 @@
+autoInstallPeers: true
+
+ignoredBuiltDependencies:
+
+onlyBuiltDependencies:
+  - esbuild
+  - nx
+  - better-sqlite3
+  - sqlite3
+  - '@swc/core'

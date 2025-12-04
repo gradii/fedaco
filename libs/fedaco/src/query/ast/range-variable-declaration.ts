@@ -11,10 +11,11 @@ import type { SqlVisitor } from '../sql-visitor';
  * RangeVariableDeclaration ::= AbstractSchemaName ["AS"] AliasIdentificationVariable
  */
 export class RangeVariableDeclaration extends SqlNode {
-
-  public constructor(public abstractSchemaName: string,
-                     public aliasIdentificationVariable?: string,
-                     public isRoot: boolean = true) {
+  public constructor(
+    public abstractSchemaName: string,
+    public aliasIdentificationVariable?: string,
+    public isRoot = true,
+  ) {
     super();
   }
 

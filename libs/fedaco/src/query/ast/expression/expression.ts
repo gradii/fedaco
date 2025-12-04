@@ -6,7 +6,4 @@
 
 import { SqlNode } from '../../sql-node';
 
-
-export abstract class Expression extends SqlNode {
-
-}
+export abstract class Expression extends SqlNode {}

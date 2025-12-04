@@ -13,8 +13,7 @@ export class BetterSqliteWrappedStmt implements WrappedStmt {
   _lastInsertId: number | bigint;
   _affectRows: number;
 
-  constructor(public driverStmt: Statement) {
-  }
+  constructor(public driverStmt: Statement) {}
 
   bindValues(bindings: any[]) {
     this._bindingValues = bindings;
@@ -22,11 +21,10 @@ export class BetterSqliteWrappedStmt implements WrappedStmt {
   }
 
   async execute(bindings?: any[]) {
-    const runResult = this.driverStmt
-      .run(...(bindings ?? this._bindingValues));
+    const runResult = this.driverStmt.run(...(bindings ?? this._bindingValues));
 
     this._lastInsertId = runResult.lastInsertRowid;
-    this._affectRows   = runResult.changes;
+    this._affectRows = runResult.changes;
 
     return true;
   }
@@ -43,8 +41,7 @@ export class BetterSqliteWrappedStmt implements WrappedStmt {
     return this._affectRows;
   }
 
-  close() {
-  }
+  close() {}
 
   bindValue(): this {
     return undefined;

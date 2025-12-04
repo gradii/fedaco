@@ -7,7 +7,7 @@
 import { isArray, isBlank, isBoolean, isFunction, isInteger, isNumber, isPromise } from '@gradii/nanofn';
 import { format } from 'date-fns';
 import type { BaseGrammar } from './base-grammar';
-import { SqliteWrappedConnection } from './connector/sqlite/sqlite-wrapped-connection';
+import { type SqliteWrappedConnection } from './connector/sqlite/sqlite-wrapped-connection';
 import type { WrappedConnection } from './connector/wrapped-connection';
 import type { WrappedStmt } from './connector/wrapped-stmt';
 import { QueryExecuted } from './events/query-executed';
@@ -27,57 +27,55 @@ import { QueryException } from './query-exception';
 import type { SchemaGrammar } from './schema/grammar/schema-grammar';
 import { SchemaBuilder } from './schema/schema-builder';
 
-export class Connection extends mixinManagesTransactions(class {
-}) implements ConnectionInterface {
-  /*The active PDO connection.*/
+export class Connection extends mixinManagesTransactions(class {}) implements ConnectionInterface {
+  /* The active PDO connection. */
   protected pdo: WrappedConnection | Function;
-  /*The active PDO connection used for reads.*/
+  /* The active PDO connection used for reads. */
   protected readPdo: Function;
-  /*The name of the connected database.*/
+  /* The name of the connected database. */
   protected database: string;
 
   protected readWriteType: string;
-  /*The type of the connection.*/
+  /* The type of the connection. */
   protected type: string | null;
-  /*The table prefix for the connection.*/
+  /* The table prefix for the connection. */
   protected tablePrefix = '';
-  /*The database connection configuration options.*/
+  /* The database connection configuration options. */
   protected config: any[] = [];
-  /*The reconnector instance for the connection.*/
+  /* The reconnector instance for the connection. */
   protected reconnector: Function;
-  /*The query grammar implementation.*/
+  /* The query grammar implementation. */
   _queryGrammar: QueryGrammar;
-  /*The schema grammar implementation.*/
+  /* The schema grammar implementation. */
   protected schemaGrammar: SchemaGrammar;
-  /*The query post processor implementation.*/
+  /* The query post processor implementation. */
   protected postProcessor: Processor;
-  /*The event dispatcher instance.*/
+  /* The event dispatcher instance. */
   protected events: Dispatcher;
-  /*The default fetch mode of the connection.*/
+  /* The default fetch mode of the connection. */
   protected fetchMode = -1;
-  /*Indicates if changes have been made to the database.*/
+  /* Indicates if changes have been made to the database. */
   protected recordsModified = false;
-  /*Indicates if the connection should use the "write" PDO connection.*/
+  /* Indicates if the connection should use the "write" PDO connection. */
   protected readOnWriteConnection = false;
-  /*All of the queries run against the connection.*/
+  /* All of the queries run against the connection. */
   protected queryLog: any[] = [];
-  /*Indicates whether queries are being logged.*/
+  /* Indicates whether queries are being logged. */
   protected loggingQueries = false;
-  /*Indicates if the connection is in a "dry run".*/
+  /* Indicates if the connection is in a "dry run". */
   protected _dryRun = false;
-  /*The instance of Doctrine connection.*/
+  /* The instance of Doctrine connection. */
   // protected doctrineConnection: DbalConnection;
-  /*The connection resolvers.*/
+  /* The connection resolvers. */
   protected static resolvers: any = {};
 
-  /*Create a new database connection instance.*/
-  public constructor(pdo: Function, database: string = '', tablePrefix: string = '',
-                     config: any                                               = {}) {
+  /* Create a new database connection instance. */
+  public constructor(pdo: Function, database = '', tablePrefix = '', config: any = {}) {
     super();
-    this.pdo         = pdo;
-    this.database    = database;
+    this.pdo = pdo;
+    this.database = database;
     this.tablePrefix = tablePrefix;
-    this.config      = config;
+    this.config = config;
     this.useDefaultQueryGrammar();
     this.useDefaultPostProcessor();
 
@@ -89,37 +87,37 @@ export class Connection extends mixinManagesTransactions(class {
     }
   }
 
-  /*Set the query grammar to the default implementation.*/
+  /* Set the query grammar to the default implementation. */
   public useDefaultQueryGrammar() {
     this._queryGrammar = this.getDefaultQueryGrammar();
   }
 
-  /*Get the default query grammar instance.*/
+  /* Get the default query grammar instance. */
   protected getDefaultQueryGrammar(): QueryGrammar {
     throw new Error('not implement');
   }
 
-  /*Set the schema grammar to the default implementation.*/
+  /* Set the schema grammar to the default implementation. */
   public useDefaultSchemaGrammar() {
     this.schemaGrammar = this.getDefaultSchemaGrammar();
   }
 
-  /*Get the default schema grammar instance.*/
+  /* Get the default schema grammar instance. */
   protected getDefaultSchemaGrammar(): SchemaGrammar {
     throw new Error('not implement');
   }
 
-  /*Set the query post processor to the default implementation.*/
+  /* Set the query post processor to the default implementation. */
   public useDefaultPostProcessor() {
     this.postProcessor = this.getDefaultPostProcessor();
   }
 
-  /*Get the default post processor instance.*/
+  /* Get the default post processor instance. */
   protected getDefaultPostProcessor() {
     return new Processor();
   }
 
-  /*Get a schema builder instance for the connection.*/
+  /* Get a schema builder instance for the connection. */
   public getSchemaBuilder(): SchemaBuilder {
     if (isBlank(this.schemaGrammar)) {
       this.useDefaultSchemaGrammar();
@@ -127,24 +125,23 @@ export class Connection extends mixinManagesTransactions(class {
     return new SchemaBuilder(this);
   }
 
-  /*Begin a fluent query against a database table.*/
+  /* Begin a fluent query against a database table. */
   public table(table: Function | QueryBuilder | string, as?: string): QueryBuilder {
     return this.query().from(table, as);
   }
 
-  /*Get a new query builder instance.*/
+  /* Get a new query builder instance. */
   public query(): QueryBuilder {
     return new QueryBuilder(this, this.getQueryGrammar(), this.getPostProcessor());
   }
 
-  /*Run a select statement and return a single result.*/
-  public async selectOne(query: string, bindings: any[] = [], useReadPdo: boolean = true) {
+  /* Run a select statement and return a single result. */
+  public async selectOne(query: string, bindings: any[] = [], useReadPdo = true) {
     const records = await this.select(query, bindings, useReadPdo);
     return records.shift();
   }
 
-  public async scalar(query: string, bindings:any[] = [], useReadPdo = true)
-  {
+  public async scalar(query: string, bindings: any[] = [], useReadPdo = true) {
     const record = await this.selectOne(query, bindings, useReadPdo);
 
     if (isBlank(record)) {
@@ -158,13 +155,13 @@ export class Connection extends mixinManagesTransactions(class {
     return record[0];
   }
 
-  /*Run a select statement against the database.*/
+  /* Run a select statement against the database. */
   public async selectFromWriteConnection(query: string, bindings: any[] = []) {
     return this.select(query, bindings, false);
   }
 
-  /*Run a select statement against the database.*/
-  public async select(query: string, bindings: any[] = [], useReadPdo: boolean = true) {
+  /* Run a select statement against the database. */
+  public async select(query: string, bindings: any[] = [], useReadPdo = true) {
     return await this.run(query, bindings, async (q: string, _bindings: any[]) => {
       if (this.dryRun()) {
         return [];
@@ -177,19 +174,19 @@ export class Connection extends mixinManagesTransactions(class {
     });
   }
 
-  /*Configure the PDO prepared statement.*/
+  /* Configure the PDO prepared statement. */
   protected prepared(statement: any) {
     statement.setFetchMode(this.fetchMode);
     this.event(new StatementPrepared(this, statement));
     return statement;
   }
 
-  /*Get the PDO connection to use for a select query.*/
-  protected getPdoForSelect(useReadPdo: boolean = true) {
+  /* Get the PDO connection to use for a select query. */
+  protected getPdoForSelect(useReadPdo = true) {
     return useReadPdo ? this.getReadPdo() : this.getPdo();
   }
 
-  /*Run an insert statement against the database.*/
+  /* Run an insert statement against the database. */
   public async insert(query: string, bindings: any[] = []) {
     return this.statement(query, bindings);
   }
@@ -199,23 +196,23 @@ export class Connection extends mixinManagesTransactions(class {
     return await (await this.getPdo()).lastInsertId();
   }
 
-  /*Run an update statement against the database.*/
+  /* Run an update statement against the database. */
   public update(query: string, bindings: any[] = []) {
     return this.affectingStatement(query, bindings);
   }
 
-  /*Run a delete statement against the database.*/
+  /* Run a delete statement against the database. */
   public delete(query: string, bindings: any[] = []) {
     return this.affectingStatement(query, bindings);
   }
 
-  /*Execute an SQL statement and return the boolean result.*/
+  /* Execute an SQL statement and return the boolean result. */
   public async statement(query: string, bindings: any = []) {
     return await this.run(query, bindings, async (q: string, _bindings: any) => {
       if (this.dryRun()) {
         return true;
       }
-      const pdo: WrappedConnection = (await this.getPdo());
+      const pdo: WrappedConnection = await this.getPdo();
 
       const statement = await pdo.prepare(q);
       statement.bindValues(this.prepareBindings(_bindings));
@@ -224,13 +221,13 @@ export class Connection extends mixinManagesTransactions(class {
     });
   }
 
-  /*Run an SQL statement and get the number of rows affected.*/
+  /* Run an SQL statement and get the number of rows affected. */
   public async affectingStatement(query: string, bindings: any[] = []) {
     return this.run(query, bindings, async (q: string, _bindings: any[]) => {
       if (this.dryRun()) {
         return 0;
       }
-      const pdo       = await this.getPdo();
+      const pdo = await this.getPdo();
       const statement = await pdo.prepare(q);
       this.bindValues(statement, this.prepareBindings(_bindings));
       await statement.execute();
@@ -252,7 +249,7 @@ export class Connection extends mixinManagesTransactions(class {
   //   });
   // }
 
-  /*Execute the given callback in "dry run" mode.*/
+  /* Execute the given callback in "dry run" mode. */
   public pretend(callback: Function) {
     return this.withFreshQueryLog(() => {
       this._dryRun = true;
@@ -262,12 +259,12 @@ export class Connection extends mixinManagesTransactions(class {
     });
   }
 
-  /*Execute the given callback in "dry run" mode.*/
+  /* Execute the given callback in "dry run" mode. */
   protected withFreshQueryLog(callback: Function) {
     const loggingQueries = this.loggingQueries;
     this.enableQueryLog();
-    this.queryLog       = [];
-    const result        = callback();
+    this.queryLog = [];
+    const result = callback();
     this.loggingQueries = loggingQueries;
     return result;
   }
@@ -290,16 +287,16 @@ export class Connection extends mixinManagesTransactions(class {
     // }
   }
 
-  /*Prepare the query bindings for execution.*/
+  /* Prepare the query bindings for execution. */
   public prepareBindings(bindings: any[]) {
-    const rst     = [];
+    const rst = [];
     const grammar = this.getQueryGrammar();
     for (const value of bindings) {
       if (value instanceof Date) {
         // todo should get connection date timezone
         rst.push(format(value, grammar.getDateFormat()));
       } else if (isBoolean(value)) {
-        rst.push( /*cast type int*/ value ? 1 : 0);
+        rst.push(/* cast type int */ value ? 1 : 0);
       } else {
         rst.push(value);
       }
@@ -307,9 +304,9 @@ export class Connection extends mixinManagesTransactions(class {
     return rst;
   }
 
-  /*Run a SQL statement and log its execution context.*/
+  /* Run a SQL statement and log its execution context. */
   protected async run(query: string, bindings: any[], callback: Function) {
-    this._reconnectIfMissingConnection();
+    await this._reconnectIfMissingConnection();
     const start = +new Date();
     let result;
     try {
@@ -321,7 +318,7 @@ export class Connection extends mixinManagesTransactions(class {
     return result;
   }
 
-  /*Run a SQL statement.*/
+  /* Run a SQL statement. */
   protected async runQueryCallback(query: string, bindings: any[], callback: Function) {
     try {
       return await callback(query, bindings);
@@ -330,7 +327,7 @@ export class Connection extends mixinManagesTransactions(class {
     }
   }
 
-  /*Log a query in the connection's query log.*/
+  /* Log a query in the connection's query log. */
   public logQuery(query: string, bindings: any[], time: number | null = null) {
     this.event(new QueryExecuted(query, bindings, time, this));
     if (this.loggingQueries) {
@@ -338,23 +335,26 @@ export class Connection extends mixinManagesTransactions(class {
     }
   }
 
-  /*Get the elapsed time since a given starting point.*/
+  /* Get the elapsed time since a given starting point. */
   protected getElapsedTime(start: number) {
     return Math.round((+new Date() - start) * 1000);
   }
 
-  /*Handle a query exception.*/
-  protected handleQueryException(e: QueryException, query: string, bindings: any[],
-                                 callback: Function) {
+  /* Handle a query exception. */
+  protected handleQueryException(e: QueryException, query: string, bindings: any[], callback: Function) {
     if (this._transactions >= 1) {
       throw e;
     }
     return this.tryAgainIfCausedByLostConnection(e, query, bindings, callback);
   }
 
-  /*Handle a query exception that occurred during query execution.*/
-  protected async tryAgainIfCausedByLostConnection(e: QueryException, query: string, bindings: any[],
-                                                   callback: Function) {
+  /* Handle a query exception that occurred during query execution. */
+  protected async tryAgainIfCausedByLostConnection(
+    e: QueryException,
+    query: string,
+    bindings: any[],
+    callback: Function,
+  ) {
     if (this.causedByLostConnection(e.message)) {
       await this.reconnect();
       return this.runQueryCallback(query, bindings, callback);
@@ -363,16 +363,18 @@ export class Connection extends mixinManagesTransactions(class {
   }
 
   protected causedByLostConnection(message: string): boolean {
-    if ([
-      'lost connection', // pdo
-      'Can\'t add new command when connection is in closed state', // mysql2 driver
-    ].find(it => message.includes(it))) {
+    if (
+      [
+        'lost connection', // pdo
+        "Can't add new command when connection is in closed state", // mysql2 driver
+      ].find((it) => message.includes(it))
+    ) {
       return true;
     }
     return false;
   }
 
-  /*Reconnect to the database.*/
+  /* Reconnect to the database. */
   public async reconnect() {
     if (isFunction(this.reconnector)) {
       // this.doctrineConnection = null;
@@ -381,14 +383,14 @@ export class Connection extends mixinManagesTransactions(class {
     throw new Error('LogicException Lost connection and no reconnector available.');
   }
 
-  /*Reconnect to the database if a PDO connection is missing.*/
-  _reconnectIfMissingConnection() {
+  /* Reconnect to the database if a PDO connection is missing. */
+  async _reconnectIfMissingConnection() {
     if (isBlank(this.pdo)) {
-      this.reconnect();
+      await this.reconnect();
     }
   }
 
-  /*Disconnect from the underlying PDO connection.*/
+  /* Disconnect from the underlying PDO connection. */
   public disconnect() {
     if (this.pdo && !isFunction(this.pdo)) {
       (this.pdo as WrappedConnection).disconnect();
@@ -396,14 +398,14 @@ export class Connection extends mixinManagesTransactions(class {
     this.setPdo(null).setReadPdo(null);
   }
 
-  /*Register a database query listener with the connection.*/
+  /* Register a database query listener with the connection. */
   public listen(callback: Function) {
     // if (this.events !== undefined) {
     //   this.events.listen(QueryExecuted, callback);
     // }
   }
 
-  /*Fire an event for this connection.*/
+  /* Fire an event for this connection. */
   _fireConnectionEvent(event: string) {
     if (!(this.events !== undefined)) {
       return;
@@ -418,14 +420,14 @@ export class Connection extends mixinManagesTransactions(class {
     }
   }
 
-  /*Fire the given event if possible.*/
+  /* Fire the given event if possible. */
   protected event(event: any) {
     if (this.events !== undefined) {
       this.events.dispatch(event);
     }
   }
 
-  /*Get a new raw query expression.*/
+  /* Get a new raw query expression. */
   public raw(value: any) {
     return raw(value);
   }
@@ -466,36 +468,36 @@ export class Connection extends mixinManagesTransactions(class {
     throw new Error('RuntimeException The database connection does not support escaping binary values.');
   }
 
-  /*Determine if the database connection has modified any database records.*/
+  /* Determine if the database connection has modified any database records. */
   public hasModifiedRecords() {
     return this.recordsModified;
   }
 
-  /*Indicate if any records have been modified.*/
-  public recordsHaveBeenModified(value: boolean = true) {
+  /* Indicate if any records have been modified. */
+  public recordsHaveBeenModified(value = true) {
     if (!this.recordsModified) {
       this.recordsModified = value;
     }
   }
 
-  /*Set the record modification state.*/
+  /* Set the record modification state. */
   public setRecordModificationState(value: boolean) {
     this.recordsModified = value;
     return this;
   }
 
-  /*Reset the record modification state.*/
+  /* Reset the record modification state. */
   public forgetRecordModificationState() {
     this.recordsModified = false;
   }
 
-  /*Indicate that the connection should use the write PDO connection for reads.*/
-  public useWriteConnectionWhenReading(value: boolean = true) {
+  /* Indicate that the connection should use the write PDO connection for reads. */
+  public useWriteConnectionWhenReading(value = true) {
     this.readOnWriteConnection = value;
     return this;
   }
 
-  /*Get the current PDO connection.*/
+  /* Get the current PDO connection. */
   public async getPdo(): Promise<WrappedConnection> {
     if (isPromise(this.pdo)) {
       throw new Error('pdo should not be promise');
@@ -507,185 +509,185 @@ export class Connection extends mixinManagesTransactions(class {
     return this.pdo;
   }
 
-  /*Get the current PDO connection parameter without executing any reconnect logic.*/
+  /* Get the current PDO connection parameter without executing any reconnect logic. */
   public getRawPdo() {
     return this.pdo;
   }
 
-  /*Get the current PDO connection used for reading.*/
+  /* Get the current PDO connection used for reading. */
   public getReadPdo() {
     if (this._transactions > 0) {
       return this.getPdo();
     }
-    if (this.readOnWriteConnection || this.recordsModified && this.getConfig('sticky')) {
+    if (this.readOnWriteConnection || (this.recordsModified && this.getConfig('sticky'))) {
       return this.getPdo();
     }
     if (isFunction(this.readPdo)) {
-      return this.readPdo = this.readPdo.call(this);
+      return (this.readPdo = this.readPdo.call(this));
     }
     return this.readPdo || this.getPdo();
   }
 
-  /*Get the current read PDO connection parameter without executing any reconnect logic.*/
+  /* Get the current read PDO connection parameter without executing any reconnect logic. */
   public getRawReadPdo() {
     return this.readPdo;
   }
 
-  /*Set the PDO connection.*/
+  /* Set the PDO connection. */
   public setPdo(pdo?: Function) {
     this._transactions = 0;
-    this.pdo           = pdo;
+    this.pdo = pdo;
     return this;
   }
 
-  /*Set the PDO connection used for reading.*/
+  /* Set the PDO connection used for reading. */
   public setReadPdo(pdo?: Function) {
     this.readPdo = pdo;
     return this;
   }
 
-  /*Set the reconnect instance on the connection.*/
+  /* Set the reconnect instance on the connection. */
   public setReconnector(reconnector: Function) {
     this.reconnector = reconnector;
     return this;
   }
 
-  /*Get the database connection name.*/
+  /* Get the database connection name. */
   public getName() {
     return this.getConfig('name');
   }
 
-  /*Get the database connection full name.*/
+  /* Get the database connection full name. */
   public getNameWithReadWriteType() {
     return this.getName() + (this.readWriteType ? '::' + this.readWriteType : '');
   }
 
-  /*Get an option from the configuration options.*/
+  /* Get an option from the configuration options. */
   public getConfig(option?: string) {
     return get(this.config, option);
   }
 
-  /*Get the PDO driver name.*/
+  /* Get the PDO driver name. */
   public getDriverName() {
     return this.getConfig('driver');
   }
 
-  /*Get the query grammar used by the connection.*/
+  /* Get the query grammar used by the connection. */
   public getQueryGrammar() {
     return this._queryGrammar;
   }
 
-  /*Set the query grammar used by the connection.*/
+  /* Set the query grammar used by the connection. */
   public setQueryGrammar(grammar: QueryGrammar) {
     this._queryGrammar = grammar;
     return this;
   }
 
-  /*Get the schema grammar used by the connection.*/
+  /* Get the schema grammar used by the connection. */
   public getSchemaGrammar() {
     return this.schemaGrammar;
   }
 
-  /*Set the schema grammar used by the connection.*/
+  /* Set the schema grammar used by the connection. */
   public setSchemaGrammar(grammar: SchemaGrammar) {
     this.schemaGrammar = grammar;
     return this;
   }
 
-  /*Get the query post processor used by the connection.*/
+  /* Get the query post processor used by the connection. */
   public getPostProcessor() {
     return this.postProcessor;
   }
 
-  /*Set the query post processor used by the connection.*/
+  /* Set the query post processor used by the connection. */
   public setPostProcessor(processor: Processor) {
     this.postProcessor = processor;
     return this;
   }
 
-  /*Get the event dispatcher used by the connection.*/
+  /* Get the event dispatcher used by the connection. */
   public getEventDispatcher() {
     return this.events;
   }
 
-  /*Set the event dispatcher instance on the connection.*/
+  /* Set the event dispatcher instance on the connection. */
   public setEventDispatcher(events: Dispatcher) {
     this.events = events;
     return this;
   }
 
-  /*Unset the event dispatcher for this connection.*/
+  /* Unset the event dispatcher for this connection. */
   public unsetEventDispatcher() {
     this.events = null;
   }
 
-  /*Determine if the connection is in a "dry run".*/
+  /* Determine if the connection is in a "dry run". */
   public dryRun() {
     return this._dryRun === true;
   }
 
-  /*Get the connection query log.*/
+  /* Get the connection query log. */
   public getQueryLog() {
     return this.queryLog;
   }
 
-  /*Clear the query log.*/
+  /* Clear the query log. */
   public flushQueryLog() {
     this.queryLog = [];
   }
 
-  /*Enable the query log on the connection.*/
+  /* Enable the query log on the connection. */
   public enableQueryLog() {
     this.loggingQueries = true;
   }
 
-  /*Disable the query log on the connection.*/
+  /* Disable the query log on the connection. */
   public disableQueryLog() {
     this.loggingQueries = false;
   }
 
-  /*Determine whether we're logging queries.*/
+  /* Determine whether we're logging queries. */
   public logging() {
     return this.loggingQueries;
   }
 
-  /*Get the name of the connected database.*/
+  /* Get the name of the connected database. */
   public getDatabaseName() {
     return this.database;
   }
 
-  /*Set the name of the connected database.*/
+  /* Set the name of the connected database. */
   public setDatabaseName(database: string) {
     this.database = database;
     return this;
   }
 
-  /*Set the read / write type of the connection.*/
+  /* Set the read / write type of the connection. */
   public setReadWriteType(readWriteType?: string) {
     this.readWriteType = readWriteType;
     return this;
   }
 
-  /*Get the table prefix for the connection.*/
+  /* Get the table prefix for the connection. */
   public getTablePrefix() {
     return this.tablePrefix;
   }
 
-  /*Set the table prefix in use by the connection.*/
+  /* Set the table prefix in use by the connection. */
   public setTablePrefix(prefix: string) {
     this.tablePrefix = prefix;
     this.getQueryGrammar().setTablePrefix(prefix);
     return this;
   }
 
-  /*Set the table prefix and return the grammar.*/
+  /* Set the table prefix and return the grammar. */
   public withTablePrefix<T extends BaseGrammar = BaseGrammar>(grammar: T): T {
     grammar.setTablePrefix(this.tablePrefix);
     return grammar;
   }
 
   public async getServerVersion(): Promise<string> {
-    return await (await this.getPdo()).execute('select version() as version')
+    return await (await this.getPdo()).execute('select version() as version');
   }
 
   causedByConcurrencyError(e: Error) {
@@ -705,17 +707,16 @@ export class Connection extends mixinManagesTransactions(class {
       'Lock wait timeout exceeded; try restarting transaction',
       'WSREP detected deadlock/conflict and aborted the transaction. Try restarting the transaction',
     ];
-    return msgs.find(it => e.message.includes(it));
+    return msgs.find((it) => e.message.includes(it));
   }
 
-  /*Register a connection resolver.*/
+  /* Register a connection resolver. */
   public static resolverFor(driver: string, callback: Function) {
     Connection.resolvers[driver] = callback;
   }
 
-  /*Get the connection resolver for the given driver.*/
+  /* Get the connection resolver for the given driver. */
   public static getResolver(driver: string) {
     return Connection.resolvers[driver] ?? null;
   }
-
 }

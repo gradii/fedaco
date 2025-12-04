@@ -280,9 +280,9 @@ describe('test database fedaco mysql integration', () => {
 
 });
 
-/*Eloquent Models...*/
+/* Eloquent Models... */
 @Table({
-  tableName: 'users',
+  tableName    : 'users',
   morphTypeName: 'user'
 })
 export class EloquentTestUser extends Model {
@@ -319,7 +319,7 @@ export class EloquentTestUser extends Model {
     foreignPivotKey: 'user_id',
     relatedPivotKey: 'friend_id',
     // @ts-ignore
-    onQuery: (q: BelongsToMany) => {
+    onQuery        : (q: BelongsToMany) => {
       q.wherePivot('user_id', 1);
     }
   })
@@ -331,7 +331,7 @@ export class EloquentTestUser extends Model {
     foreignPivotKey: 'user_id',
     relatedPivotKey: 'friend_id',
     // @ts-ignore
-    onQuery: (q: BelongsToMany) => {
+    onQuery        : (q: BelongsToMany) => {
       q.wherePivot('user_id', 2);
     }
   })
@@ -568,7 +568,7 @@ export class EloquentTestItem extends Model {
 }
 
 @Table({
-  tableName: 'with_json',
+  tableName    : 'with_json',
   noPluralTable: false
 })
 export class EloquentTestWithJSON extends Model {

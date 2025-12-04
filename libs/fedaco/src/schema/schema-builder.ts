@@ -10,29 +10,29 @@ import { Blueprint } from './blueprint';
 import type { SchemaGrammar } from './grammar/schema-grammar';
 
 export class SchemaBuilder {
-  /*The database connection instance.*/
+  /* The database connection instance. */
   protected connection: Connection;
-  /*The schema grammar instance.*/
+  /* The schema grammar instance. */
   protected grammar: SchemaGrammar;
-  /*The Blueprint resolver callback.*/
+  /* The Blueprint resolver callback. */
   protected resolver: (...args: any[]) => any;
-  /*The default string length for migrations.*/
+  /* The default string length for migrations. */
   public static _defaultStringLength = 255;
-  /*The default relationship morph key type.*/
+  /* The default relationship morph key type. */
   public static _defaultMorphKeyType = 'int';
 
-  /*Create a new database Schema manager.*/
+  /* Create a new database Schema manager. */
   public constructor(connection: Connection) {
     this.connection = connection;
-    this.grammar    = connection.getSchemaGrammar();
+    this.grammar = connection.getSchemaGrammar();
   }
 
-  /*Set the default string length for migrations.*/
+  /* Set the default string length for migrations. */
   public static defaultStringLength(length: number) {
     this._defaultStringLength = length;
   }
 
-  /*Set the default morph key type for migrations.*/
+  /* Set the default morph key type for migrations. */
   public static defaultMorphKeyType(type: string) {
     if (!['int', 'uuid'].includes(type)) {
       throw new Error(`InvalidArgumentException Morph key type must be 'int' or 'uuid'.`);
@@ -40,22 +40,22 @@ export class SchemaBuilder {
     this._defaultMorphKeyType = type;
   }
 
-  /*Set the default morph key type for migrations to UUIDs.*/
+  /* Set the default morph key type for migrations to UUIDs. */
   public static morphUsingUuids() {
     return this.defaultMorphKeyType('uuid');
   }
 
-  /*Create a database in the schema.*/
+  /* Create a database in the schema. */
   public createDatabase(name: string) {
     throw new Error('LogicException This database driver does not support creating databases.');
   }
 
-  /*Drop a database from the schema if the database exists.*/
+  /* Drop a database from the schema if the database exists. */
   public dropDatabaseIfExists(name: string) {
     throw new Error('LogicException This database driver does not support dropping databases.');
   }
 
-  /*Determine if the given table exists.*/
+  /* Determine if the given table exists. */
   public async hasTable(table: string) {
     table = this.connection.getTablePrefix() + table;
 
@@ -81,9 +81,9 @@ export class SchemaBuilder {
   }
 
   public async getTables(withSize = true) {
-    return this.connection.getPostProcessor().processTables(
-      await this.connection.selectFromWriteConnection(this.grammar.compileTables())
-    );
+    return this.connection
+      .getPostProcessor()
+      .processTables(await this.connection.selectFromWriteConnection(this.grammar.compileTables()));
   }
 
   public async getTableListing() {
@@ -91,25 +91,25 @@ export class SchemaBuilder {
   }
 
   public async getViews(): Promise<any[]> {
-    return this.connection.getPostProcessor().processViews(
-      await this.connection.selectFromWriteConnection(this.grammar.compileViews())
-    );
+    return this.connection
+      .getPostProcessor()
+      .processViews(await this.connection.selectFromWriteConnection(this.grammar.compileViews()));
   }
 
   public getTypes() {
     throw new Error('LogicException This database driver does not support user-defined types.');
   }
 
-  /*Determine if the given table has a given column.*/
+  /* Determine if the given table has a given column. */
   public async hasColumn(table: string, column: string) {
     const result = await this.getColumnListing(table);
-    return result.map(it => it.toLowerCase()).includes(column.toLowerCase());
+    return result.map((it) => it.toLowerCase()).includes(column.toLowerCase());
   }
 
-  /*Determine if the given table has given columns.*/
+  /* Determine if the given table has given columns. */
   public async hasColumns(table: string, columns: any[]) {
-    const result       = await this.getColumnListing(table);
-    const tableColumns = result.map(it => it.toLowerCase());
+    const result = await this.getColumnListing(table);
+    const tableColumns = result.map((it) => it.toLowerCase());
     for (const column of columns) {
       if (!tableColumns.includes(column.toLowerCase())) {
         return false;
@@ -141,7 +141,7 @@ export class SchemaBuilder {
    * @return void
    */
   public async whenTableDoesntHaveColumn(table: string, column: string, callback: (...args: any[]) => any) {
-    if (!await this.hasColumn(table, column)) {
+    if (!(await this.hasColumn(table, column))) {
       this.table(table, (table: Blueprint) => callback(table));
     }
   }
@@ -162,7 +162,7 @@ export class SchemaBuilder {
       }
     }
 
-    throw new Error('InvalidArgumentException There is no column with name \'$column\' on table \'$table\'.');
+    throw new Error("InvalidArgumentException There is no column with name '$column' on table '$table'.");
   }
 
   /**
@@ -174,17 +174,17 @@ export class SchemaBuilder {
 
   public async getColumns(table: string): Promise<any[]> {
     table = this.connection.getTablePrefix() + table;
-    return this.connection.getPostProcessor().processColumns(
-      await this.connection.selectFromWriteConnection(this.grammar.compileColumns(table))
-    );
+    return this.connection
+      .getPostProcessor()
+      .processColumns(await this.connection.selectFromWriteConnection(this.grammar.compileColumns(table)));
   }
 
   public async getIndexes(table: string): Promise<any[]> {
     table = this.connection.getTablePrefix() + table;
 
-    return this.connection.getPostProcessor().processIndexes(
-      await this.connection.selectFromWriteConnection(this.grammar.compileIndexes(table))
-    );
+    return this.connection
+      .getPostProcessor()
+      .processIndexes(await this.connection.selectFromWriteConnection(this.grammar.compileIndexes(table)));
   }
 
   public async getIndexListing(table: string): Promise<any[]> {
@@ -194,12 +194,13 @@ export class SchemaBuilder {
   public async hasIndex(table: string, index: string | string[], type?: string): Promise<boolean> {
     type = isBlank(type) ? type : type.toLowerCase();
     for (const value of await this.getIndexes(table)) {
-      const typeMatches = isBlank(value)
-        || (type === 'primary' && value['primary'])
-        || (type === 'unique' && value['unique'])
-        || type === value['type'];
+      const typeMatches =
+        isBlank(value) ||
+        (type === 'primary' && value['primary']) ||
+        (type === 'unique' && value['unique']) ||
+        type === value['type'];
 
-      if (value['name'] === index || value['column'] === index && typeMatches) {
+      if (value['name'] === index || (value['column'] === index && typeMatches)) {
         return true;
       }
     }
@@ -209,75 +210,81 @@ export class SchemaBuilder {
   public async getForeignKeys(table: string) {
     table = this.connection.getTablePrefix() + table;
 
-    return this.connection.getPostProcessor().processForeignKeys(
-      await this.connection.selectFromWriteConnection(this.grammar.compileForeignKeys(table))
-    );
+    return this.connection
+      .getPostProcessor()
+      .processForeignKeys(await this.connection.selectFromWriteConnection(this.grammar.compileForeignKeys(table)));
   }
 
-  /*Modify a table on the schema.*/
+  /* Modify a table on the schema. */
   public async table(table: string, callback: (bp: Blueprint) => void) {
     await this.build(this.createBlueprint(table, callback));
   }
 
-  /*Create a new table on the schema.*/
+  /* Create a new table on the schema. */
   public async create(table: string, callback: (table: Blueprint) => void) {
-    await this.build(tap(blueprint => {
-      blueprint.create();
-      callback(blueprint);
-    }, this.createBlueprint(table)));
+    await this.build(
+      tap((blueprint) => {
+        blueprint.create();
+        callback(blueprint);
+      }, this.createBlueprint(table)),
+    );
   }
 
-  /*Drop a table from the schema.*/
+  /* Drop a table from the schema. */
   public async drop(table: string) {
-    await this.build(tap(blueprint => {
-      blueprint.drop();
-    }, this.createBlueprint(table)));
+    await this.build(
+      tap((blueprint) => {
+        blueprint.drop();
+      }, this.createBlueprint(table)),
+    );
   }
 
-  /*Drop a table from the schema if it exists.*/
+  /* Drop a table from the schema if it exists. */
   public async dropIfExists(table: string) {
-    await this.build(tap(blueprint => {
-      blueprint.dropIfExists();
-    }, this.createBlueprint(table)));
+    await this.build(
+      tap((blueprint) => {
+        blueprint.dropIfExists();
+      }, this.createBlueprint(table)),
+    );
   }
 
-  /*Drop columns from a table schema.*/
+  /* Drop columns from a table schema. */
   public async dropColumns(table: string, columns: string | any[]) {
     await this.table(table, (blueprint: Blueprint) => {
       blueprint.dropColumn(columns);
     });
   }
 
-  /*Drop all tables from the database.*/
+  /* Drop all tables from the database. */
   public dropAllTables(): Promise<void> {
     throw new Error('LogicException This database driver does not support dropping all tables.');
   }
 
-  /*Drop all views from the database.*/
+  /* Drop all views from the database. */
   public dropAllViews(): Promise<void> {
     throw new Error('LogicException This database driver does not support dropping all views.');
   }
 
-  /*Drop all types from the database.*/
+  /* Drop all types from the database. */
   public dropAllTypes(): Promise<void> {
     throw new Error('LogicException This database driver does not support dropping all types.');
   }
 
-  /*Rename a table on the schema.*/
+  /* Rename a table on the schema. */
   public async rename(from: string, to: string): Promise<void> {
     await this.build(
       tap((blueprint: Blueprint) => {
         blueprint.rename(to);
-      }, this.createBlueprint(from))
+      }, this.createBlueprint(from)),
     );
   }
 
-  /*Enable foreign key constraints.*/
+  /* Enable foreign key constraints. */
   public async enableForeignKeyConstraints() {
     return this.connection.statement(this.grammar.compileEnableForeignKeyConstraints());
   }
 
-  /*Disable foreign key constraints.*/
+  /* Disable foreign key constraints. */
   public async disableForeignKeyConstraints() {
     return this.connection.statement(this.grammar.compileDisableForeignKeyConstraints());
   }
@@ -298,33 +305,32 @@ export class SchemaBuilder {
     }
   }
 
-  /*Execute the blueprint to build / modify the table.*/
+  /* Execute the blueprint to build / modify the table. */
   protected async build(blueprint: Blueprint) {
     await blueprint.build(this.connection, this.grammar);
   }
 
-  /*Create a new command set with a Closure.*/
+  /* Create a new command set with a Closure. */
   protected createBlueprint(table: string, callback: (...args: any[]) => any | null = null) {
-    const prefix = this.connection.getConfig('prefix_indexes') ?
-      this.connection.getConfig('prefix') : '';
+    const prefix = this.connection.getConfig('prefix_indexes') ? this.connection.getConfig('prefix') : '';
     if (this.resolver !== undefined) {
       return this.resolver(table, callback, prefix);
     }
     return new Blueprint(table, callback, prefix);
   }
 
-  /*Get the database connection instance.*/
+  /* Get the database connection instance. */
   public getConnection() {
     return this.connection;
   }
 
-  /*Set the database connection instance.*/
+  /* Set the database connection instance. */
   public setConnection(connection: Connection) {
     this.connection = connection;
     return this;
   }
 
-  /*Set the Schema Blueprint resolver callback.*/
+  /* Set the Schema Blueprint resolver callback. */
   public blueprintResolver(resolver: (...args: any[]) => any) {
     this.resolver = resolver;
   }

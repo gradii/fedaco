@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment,@typescript-eslint/no-empty-function */
+ 
 import { FedacoBuilder } from './../../src/fedaco/fedaco-builder';
 import { Model } from '../../src/fedaco/model';
 import { BelongsTo } from '../../src/fedaco/relations/belongs-to';
@@ -20,16 +20,15 @@ function getRelation(parent?: Model, keyType = 'int') {
 }
 
 describe('test database fedaco belongs to', () => {
-
   it('belongs to with default', async () => {
     const relation = getRelation().withDefault();
 
     jest.spyOn(builder, 'first').mockReturnValueOnce(null);
     const newModel = new EloquentBelongsToModelStub();
-    const spy2     = jest.spyOn(related, 'NewInstance').mockReturnValue(newModel);
+    const spy2 = jest.spyOn(related, 'NewInstance').mockReturnValue(newModel);
 
     expect(await relation.getResults()).toEqual(newModel);
-    expect(spy2).toReturnWith(newModel);
+    expect(spy2).toHaveReturnedWith(newModel);
   });
 
   it('belongs to with dynamic default', async () => {
@@ -47,7 +46,7 @@ describe('test database fedaco belongs to', () => {
 
   it('belongs to with array default', async () => {
     const relation = getRelation().withDefault({
-      'username': 'taylor'
+      username: 'taylor',
     });
 
     jest.spyOn(builder, 'first').mockReturnValueOnce(null);
@@ -69,11 +68,11 @@ describe('test database fedaco belongs to', () => {
     const models = [
       new EloquentBelongsToModelStub(),
       new EloquentBelongsToModelStub(),
-      new AnotherEloquentBelongsToModelStub()
+      new AnotherEloquentBelongsToModelStub(),
     ];
     relation.addEagerConstraints(models);
 
-    expect(spy3).toBeCalledWith('relation.id', ['foreign.value', 'foreign.value.two']);
+    expect(spy3).toHaveBeenCalledWith('relation.id', ['foreign.value', 'foreign.value.two']);
   });
 
   it('ids in eager constraints can be zero', () => {
@@ -82,42 +81,41 @@ describe('test database fedaco belongs to', () => {
     jest.spyOn(relation.getRelated(), 'GetKeyName').mockReturnValue('id');
     jest.spyOn(relation.getRelated(), 'GetKeyType').mockReturnValue('int');
 
-    const spy3   = jest.spyOn(relation.getQuery(), 'whereIntegerInRaw');
+    const spy3 = jest.spyOn(relation.getQuery(), 'whereIntegerInRaw');
     const models = [new EloquentBelongsToModelStub(), new EloquentBelongsToModelStubWithZeroId()];
     relation.addEagerConstraints(models);
-    expect(spy3).toBeCalledWith('relation.id', ['foreign.value', 0]);
+    expect(spy3).toHaveBeenCalledWith('relation.id', ['foreign.value', 0]);
   });
 
   it('relation is properly initialized', () => {
     const relation = getRelation();
-    const model    = new Model();
-    const spy1     = jest.spyOn(model, 'SetRelation');
-    const models   = relation.initRelation([model], 'foo');
+    const model = new Model();
+    const spy1 = jest.spyOn(model, 'SetRelation');
+    const models = relation.initRelation([model], 'foo');
     expect(models).toEqual([model]);
-    expect(spy1).toBeCalledWith('foo', null);
+    expect(spy1).toHaveBeenCalledWith('foo', null);
   });
 
   it('models are properly matched to parents', () => {
     const relation = getRelation();
-    const result1  = {
-      GetAttribute(): any {
-      }
+    const result1 = {
+      GetAttribute(): any {},
     };
     jest.spyOn(result1, 'GetAttribute').mockReturnValue(1);
     const result2 = {
-      GetAttribute(): any {
-      }
+      GetAttribute(): any {},
     };
     jest.spyOn(result2, 'GetAttribute').mockReturnValue(2);
-    const model1      = new EloquentBelongsToModelStub();
+    const model1 = new EloquentBelongsToModelStub();
     model1.foreignKey = 1;
-    const model2      = new EloquentBelongsToModelStub();
+    const model2 = new EloquentBelongsToModelStub();
     model2.foreignKey = 2;
-    const models      = relation.match(
+    const models = relation.match(
       [model1, model2],
       // @ts-ignore
       [result1, result2],
-      'foo');
+      'foo'
+    );
     expect(models[0].GetRelationValue('foo').GetAttribute('id')).toEqual(1);
     expect(models[1].GetRelationValue('foo').GetAttribute('id')).toEqual(2);
   });
@@ -126,7 +124,7 @@ describe('test database fedaco belongs to', () => {
     const parent = new Model();
 
     jest.spyOn(parent, 'GetAttribute').mockReturnValue('foreign.value');
-    const relation  = getRelation(parent);
+    const relation = getRelation(parent);
     const associate = new Model();
     jest.spyOn(associate, 'GetAttribute').mockReturnValue(1);
     const spy1 = jest.spyOn(parent, 'SetAttribute');
@@ -134,8 +132,8 @@ describe('test database fedaco belongs to', () => {
 
     relation.associate(associate);
 
-    expect(spy1).toBeCalledWith('foreignKey', 1);
-    expect(spy2).toBeCalledWith('relation', associate);
+    expect(spy1).toHaveBeenCalledWith('foreignKey', 1);
+    expect(spy2).toHaveBeenCalledWith('relation', associate);
   });
 
   it('dissociate method unsets foreign key on model', () => {
@@ -148,8 +146,8 @@ describe('test database fedaco belongs to', () => {
 
     relation.dissociate();
 
-    expect(spy1).toBeCalledWith('foreignKey', null);
-    expect(spy2).toBeCalledWith('relation', null);
+    expect(spy1).toHaveBeenCalledWith('foreignKey', null);
+    expect(spy2).toHaveBeenCalledWith('relation', null);
   });
 
   it('associate method sets foreign key on model by id', () => {
@@ -163,9 +161,9 @@ describe('test database fedaco belongs to', () => {
 
     relation.associate(1);
 
-    expect(spy1).toBeCalledWith('foreignKey', 1);
-    expect(spy2).toBeCalledWith(relation.getRelationName());
-    expect(spy3).not.toBeCalled();
+    expect(spy1).toHaveBeenCalledWith('foreignKey', 1);
+    expect(spy2).toHaveBeenCalledWith(relation.getRelationName());
+    expect(spy3).not.toHaveBeenCalled();
   });
 
   it('default eager constraints when incrementing', () => {
@@ -178,17 +176,17 @@ describe('test database fedaco belongs to', () => {
     const models = [new MissingEloquentBelongsToModelStub(), new MissingEloquentBelongsToModelStub()];
     relation.addEagerConstraints(models);
 
-    expect(spy1).toBeCalledWith('relation.id', []);
+    expect(spy1).toHaveBeenCalledWith('relation.id', []);
   });
 
   it('default eager constraints when incrementing and non int key type', () => {
     const relation = getRelation(null, 'string');
 
-    const spy1   = jest.spyOn(relation.getQuery(), 'whereIn');
+    const spy1 = jest.spyOn(relation.getQuery(), 'whereIn');
     const models = [new MissingEloquentBelongsToModelStub(), new MissingEloquentBelongsToModelStub()];
     relation.addEagerConstraints(models);
 
-    expect(spy1).toBeCalledWith('relation.id', []);
+    expect(spy1).toHaveBeenCalledWith('relation.id', []);
   });
 
   it('default eager constraints when not incrementing', () => {
@@ -196,13 +194,12 @@ describe('test database fedaco belongs to', () => {
 
     jest.spyOn(relation.getRelated(), 'GetKeyName').mockReturnValue('id');
     jest.spyOn(relation.getRelated(), 'GetKeyType').mockReturnValue('int');
-    const spy1   = jest.spyOn(relation.getQuery(), 'whereIntegerInRaw');
+    const spy1 = jest.spyOn(relation.getQuery(), 'whereIntegerInRaw');
     const models = [new MissingEloquentBelongsToModelStub(), new MissingEloquentBelongsToModelStub()];
     relation.addEagerConstraints(models);
 
-    expect(spy1).toBeCalledWith('relation.id', []);
+    expect(spy1).toHaveBeenCalledWith('relation.id', []);
   });
-
 });
 
 export class EloquentBelongsToModelStub extends Model {

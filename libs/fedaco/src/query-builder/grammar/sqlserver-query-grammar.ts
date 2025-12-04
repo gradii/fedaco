@@ -4,8 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank, isBoolean } from '@gradii/nanofn';
-import { snakeCase } from '@gradii/nanofn';
+import { isBoolean, snakeCase } from '@gradii/nanofn';
 import { DeleteSpecification } from '../../query/ast/delete-specification';
 import { ConditionExpression } from '../../query/ast/expression/condition-expression';
 import { FromClause } from '../../query/ast/from-clause';
@@ -20,9 +19,7 @@ import { QueryGrammar } from './query-grammar';
 export class SqlserverQueryGrammar extends QueryGrammar implements GrammarInterface {
   private _tablePrefix = '';
 
-
   compileSelect(builder: QueryBuilder, ctx: any = {}): string {
-
     const ast = this._prepareSelectAst(builder);
 
     const visitor = new SqlserverQueryBuilderVisitor(builder._grammar, builder, ctx);
@@ -81,8 +78,12 @@ export class SqlserverQueryGrammar extends QueryGrammar implements GrammarInterf
   }
 
   compileInsertGetId(builder: QueryBuilder, values: any, sequence: string, ctx: any = {}): string {
-    return `set nocount on;${super.compileInsertGetId(builder, values,
-      sequence, ctx)};select scope_identity() as ${this.wrap(sequence)}`;
+    return `set nocount on;${super.compileInsertGetId(
+      builder,
+      values,
+      sequence,
+      ctx,
+    )};select scope_identity() as ${this.wrap(sequence)}`;
   }
 
   protected _createVisitor(queryBuilder: QueryBuilder, ctx: any = {}) {
@@ -92,14 +93,11 @@ export class SqlserverQueryGrammar extends QueryGrammar implements GrammarInterf
   protected _prepareDeleteAstWithJoins(builder: QueryBuilder) {
     const ast = new DeleteSpecification(
       builder._from,
-      builder._wheres.length > 0 ? new WhereClause(
-        new ConditionExpression(builder._wheres)
-      ) : undefined
+      builder._wheres.length > 0 ? new WhereClause(new ConditionExpression(builder._wheres)) : undefined,
     );
 
     if (builder._joins.length > 0) {
-      (ast as DeleteSpecification).fromClause = new FromClause(builder._from,
-        builder._joins as JoinedTable[]);
+      (ast as DeleteSpecification).fromClause = new FromClause(builder._from, builder._joins as JoinedTable[]);
     }
 
     if (builder._limit >= 0) {

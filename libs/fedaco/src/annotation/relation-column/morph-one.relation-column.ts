@@ -7,7 +7,7 @@
 import { makePropDecorator } from '@gradii/annotation';
 import type { Model } from '../../fedaco/model';
 import { MorphOne } from '../../fedaco/relations/morph-one';
-import type { ForwardRefFn} from '../../query-builder/forward-ref';
+import type { ForwardRefFn } from '../../query-builder/forward-ref';
 import { resolveForwardRef } from '../../query-builder/forward-ref';
 import { _additionalProcessingGetter } from '../additional-processing';
 import type { FedacoDecorator } from '../annotation.interface';
@@ -32,23 +32,24 @@ export const MorphOneColumn: FedacoDecorator<MorphOneRelationAnnotation> = makeP
       const instance = m._newRelatedInstance(resolveForwardRef(p.related));
 
       const [type, id] = m._getMorphs(p.morphName, p.type, p.id);
-      const localKey   = p.localKey || m.GetKeyName();
-      const r          = new MorphOne(
-        instance.NewQuery(), m,
+      const localKey = p.localKey || m.GetKeyName();
+      const r = new MorphOne(
+        instance.NewQuery(),
+        m,
         `${instance.GetTable()}.${type}`,
         `${instance.GetTable()}.${id}`,
-        localKey);
+        localKey,
+      );
 
       if (p.onQuery) {
         p.onQuery(r);
       }
       return r;
     },
-    ...p
+    ...p,
   }),
   FedacoRelationColumn,
   (target: any, name: string, decorator) => {
     _additionalProcessingGetter(target, name, decorator);
-  }
+  },
 );
-

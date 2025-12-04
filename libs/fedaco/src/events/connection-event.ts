@@ -7,14 +7,14 @@
 import type { Connection } from '../connection';
 
 export class ConnectionEvent {
-  /*The name of the connection.*/
+  /* The name of the connection. */
   public connectionName: string;
-  /*The database connection instance.*/
+  /* The database connection instance. */
   public connection: Connection;
 
-  /*Create a new event instance.*/
+  /* Create a new event instance. */
   public constructor(connection: Connection) {
-    this.connection     = connection;
+    this.connection = connection;
     this.connectionName = connection.getName();
   }
 }

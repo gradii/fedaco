@@ -8,12 +8,12 @@ import * as fs from 'fs';
 import { SchemaBuilder } from '../schema-builder';
 
 export class SqliteSchemaBuilder extends SchemaBuilder {
-  /*Create a database in the schema.*/
+  /* Create a database in the schema. */
   public createDatabase(name: string) {
     fs.writeFileSync(name, '');
   }
 
-  /*Drop a database from the schema if the database exists.*/
+  /* Drop a database from the schema if the database exists. */
   public dropDatabaseIfExists(name: string) {
     return fs.existsSync(name) ? fs.rmSync(name) : true;
   }
@@ -27,15 +27,15 @@ export class SqliteSchemaBuilder extends SchemaBuilder {
   public async getTables(withSize = true) {
     if (withSize) {
       try {
-        withSize = await this.connection.scalar(this.grammar.compileDbstatExists()) as boolean;
+        withSize = (await this.connection.scalar(this.grammar.compileDbstatExists())) as boolean;
       } catch (e) {
         withSize = false;
       }
     }
 
-    return this.connection.getPostProcessor().processTables(
-      await this.connection.selectFromWriteConnection(this.grammar.compileTables(withSize))
-    );
+    return this.connection
+      .getPostProcessor()
+      .processTables(await this.connection.selectFromWriteConnection(this.grammar.compileTables(withSize)));
   }
 
   /**
@@ -47,13 +47,15 @@ export class SqliteSchemaBuilder extends SchemaBuilder {
   public async getColumns(table: string) {
     table = this.connection.getTablePrefix() + table;
 
-    return this.connection.getPostProcessor().processColumns(
-      await this.connection.selectFromWriteConnection(this.grammar.compileColumns(table)),
-      await this.connection.scalar(this.grammar.compileSqlCreateStatement(table))
-    );
+    return this.connection
+      .getPostProcessor()
+      .processColumns(
+        await this.connection.selectFromWriteConnection(this.grammar.compileColumns(table)),
+        await this.connection.scalar(this.grammar.compileSqlCreateStatement(table)),
+      );
   }
 
-  /*Drop all tables from the database.*/
+  /* Drop all tables from the database. */
   public async dropAllTables() {
     if (this.connection.getDatabaseName() !== ':memory:') {
       return this.refreshDatabaseFile();
@@ -64,7 +66,7 @@ export class SqliteSchemaBuilder extends SchemaBuilder {
     await this.connection.select(this.grammar.compileRebuild());
   }
 
-  /*Drop all views from the database.*/
+  /* Drop all views from the database. */
   public async dropAllViews() {
     await this.connection.select(this.grammar.compileEnableWriteableSchema());
     await this.connection.select(this.grammar.compileDropAllViews());
@@ -72,7 +74,7 @@ export class SqliteSchemaBuilder extends SchemaBuilder {
     await this.connection.select(this.grammar.compileRebuild());
   }
 
-  /*Empty the database file.*/
+  /* Empty the database file. */
   public refreshDatabaseFile() {
     fs.writeFileSync(this.connection.getDatabaseName(), '');
   }

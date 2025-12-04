@@ -5,10 +5,10 @@
  */
 
 export class NoPendingMigrations {
-  /*The migration method that was called.*/
+  /* The migration method that was called. */
   public method: string;
 
-  /*Create a new event instance.*/
+  /* Create a new event instance. */
   public constructor(method: string) {
     this.method = method;
   }

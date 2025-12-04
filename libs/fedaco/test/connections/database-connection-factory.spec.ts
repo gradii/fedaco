@@ -23,7 +23,7 @@ describe('test database connection factory', () => {
       'read'  : {
         'database': ':memory:'
       },
-      'write' : {
+      'write': {
         'database': ':memory:'
       }
     }, 'read_write');

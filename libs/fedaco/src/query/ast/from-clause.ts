@@ -18,7 +18,7 @@ import type { JoinedTable } from './joined-table';
 export class FromClause extends SqlNode {
   public constructor(
     public from: FromTable,
-    public joins: JoinedTable[] = []
+    public joins: JoinedTable[] = [],
   ) {
     super();
   }

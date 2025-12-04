@@ -7,13 +7,11 @@
 import type { SqlVisitor } from '../../sql-visitor';
 import { Expression } from './expression';
 
-
 export class BinaryExpression extends Expression {
-
   constructor(
     public left: Expression,
     public operator: 'and' | 'or',
-    public right: Expression
+    public right: Expression,
   ) {
     super();
   }

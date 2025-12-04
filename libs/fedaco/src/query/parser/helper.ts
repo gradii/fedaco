@@ -6,15 +6,17 @@
 
 import * as chars from './ascii-chars';
 
-
 export function isIdentifierStart(code: number): boolean {
-  return (chars.A <= code && code <= chars.Z) || (chars.$A <= code && code <= chars.$Z) ||
-    (code == chars.$_) || (code == chars.$$);
+  return (
+    (chars.A <= code && code <= chars.Z) ||
+    (chars.$A <= code && code <= chars.$Z) ||
+    code == chars.$_ ||
+    code == chars.$$
+  );
 }
 
 export function isIdentifierPart(code: number): boolean {
-  return chars.isAsciiLetter(code) || chars.isDigit(code) || (code == chars.$_) ||
-    (code == chars.$$);
+  return chars.isAsciiLetter(code) || chars.isDigit(code) || code == chars.$_ || code == chars.$$;
 }
 
 export function isExponentStart(code: number): boolean {

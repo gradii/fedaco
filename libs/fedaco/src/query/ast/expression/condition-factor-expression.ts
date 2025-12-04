@@ -7,7 +7,6 @@
 import { SqlNode } from '../../sql-node';
 import type { SqlVisitor } from '../../sql-visitor';
 
-
 export class ConditionFactorExpression extends SqlNode {
   constructor() {
     super();

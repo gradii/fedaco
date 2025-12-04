@@ -10,26 +10,28 @@ import { ColumnDefinition } from './column-definition';
 
 export class ForeignIdColumnDefinition extends ColumnDefinition {
   // public name: string;
-  /*The schema builder blueprint instance.*/
+  /* The schema builder blueprint instance. */
   protected blueprint: Blueprint;
 
-  /*Create a new foreign ID column definition.*/
+  /* Create a new foreign ID column definition. */
   public constructor(blueprint: Blueprint, attributes: any = {}) {
     super(attributes);
     this.blueprint = blueprint;
   }
 
-  /*Create a foreign key constraint on this column referencing the "id" column of the conventionally related table.*/
-  public withConstrained(table: string | null = null, column: string = 'id') {
-    return this.withReferences(column).withOn(table ??
-      plural(
-        this.name.lastIndexOf(`_${column}`) > 0 ?
-          this.name.substring(0, this.name.lastIndexOf(`_${column}`)) : this.name
-      )
+  /* Create a foreign key constraint on this column referencing the "id" column of the conventionally related table. */
+  public withConstrained(table: string | null = null, column = 'id') {
+    return this.withReferences(column).withOn(
+      table ??
+        plural(
+          this.name.lastIndexOf(`_${column}`) > 0
+            ? this.name.substring(0, this.name.lastIndexOf(`_${column}`))
+            : this.name,
+        ),
     );
   }
 
-  /*Specify which column this foreign ID references on another table.*/
+  /* Specify which column this foreign ID references on another table. */
   public withReferences(column: string) {
     return this.blueprint.foreign(this.name).withReferences(column);
   }

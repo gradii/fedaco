@@ -11,16 +11,19 @@ import type { FedacoDecorator } from '../annotation.interface';
 import type { ColumnAnnotation } from '../column';
 import { DatetimeColumn } from './datetime.column';
 
-export type DeletedAtColumnAnnotation = ColumnAnnotation
+export type DeletedAtColumnAnnotation = ColumnAnnotation;
 
 export const DeletedAtColumn: FedacoDecorator<DeletedAtColumnAnnotation> = makePropDecorator(
   'Fedaco:DeletedAtColumn',
-  (p: DeletedAtColumnAnnotation = {
-    hidden: true
-  }): DeletedAtColumnAnnotation => ({fillable: false,...p}),
+  (
+    p: DeletedAtColumnAnnotation = {
+      hidden: true,
+    },
+  ): DeletedAtColumnAnnotation => ({ fillable: false, ...p }),
   DatetimeColumn,
   (target: any, name: string, decorator: DeletedAtColumnAnnotation) => {
     _additionalProcessingGetterSetter(target, name, decorator);
     // @ts-ignore
     (target.constructor as typeof Model).DELETED_AT = name;
-  });
+  },
+);

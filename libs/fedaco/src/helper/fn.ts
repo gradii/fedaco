@@ -6,7 +6,6 @@
 
 import { isFunction } from '@gradii/nanofn';
 
-
 export function value(val: any | Function, ...args: any[]) {
   return isFunction(val) ? val(...args) : val;
 }

@@ -9,43 +9,26 @@ import { _SqlParserAst } from './_sql-parser-ast';
 import { SqlLexer } from './sql-lexer';
 
 export class SqlParser {
-
-  index            = 0;
+  index = 0;
   private _lexer: SqlLexer = new SqlLexer();
 
-  constructor() {
-  }
+  constructor() {}
 
   static createSqlParser(sqlString: string) {
     const _lexer: SqlLexer = new SqlLexer();
-    const tokens           = _lexer.tokenize(sqlString);
-    return new _SqlParserAst(
-      sqlString,
-      undefined,
-      0,
-      tokens,
-      sqlString.length,
-      true,
-      [],
-      0
-    );
+    const tokens = _lexer.tokenize(sqlString);
+    return new _SqlParserAst(sqlString, undefined, 0, tokens, sqlString.length, true, [], 0);
   }
 
-  _parseTable() {
-
-  }
+  _parseTable() {}
 
   advance() {
     this.index++;
   }
 
-  beginParse(target: string) {
+  beginParse(target: string) {}
 
-  }
-
-  parseFrom() {
-
-  }
+  parseFrom() {}
 
   /**
    * join grammar
@@ -54,9 +37,7 @@ export class SqlParser {
    * condition ::= columnReference"."fieldReference "=" columnReference"."fieldReference
    * @param joinStr
    */
-  parseJoin(joinStr: string) {
-
-  }
+  parseJoin(joinStr: string) {}
 
   /**
    * return joined table
@@ -66,17 +47,8 @@ export class SqlParser {
    */
   parseJoinPart(fromClause: string | ForwardRefFn<string>, joinStr: string) {
     const _lexer: SqlLexer = new SqlLexer();
-    const tokens           = _lexer.tokenize(joinStr);
-    const parserAst        = new _SqlParserAst(
-      joinStr,
-      undefined,
-      0,
-      tokens,
-      joinStr.length,
-      true,
-      [],
-      0
-    );
+    const tokens = _lexer.tokenize(joinStr);
+    const parserAst = new _SqlParserAst(joinStr, undefined, 0, tokens, joinStr.length, true, [], 0);
 
     return parserAst.parseJoin();
   }
@@ -84,16 +56,10 @@ export class SqlParser {
   parseOrderBy(orderBy: string) {
     const tokens = this._lexer.tokenize(orderBy);
 
-    console.log(tokens.map(it => it.toString()));
+    console.warn(tokens.map((it) => it.toString()));
   }
 
-  parseSelect() {
+  parseSelect() {}
 
-  }
-
-  parseWhere() {
-
-  }
+  parseWhere() {}
 }
-
-

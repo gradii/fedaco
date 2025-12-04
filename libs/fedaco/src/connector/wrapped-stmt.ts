@@ -5,7 +5,6 @@
  */
 
 export interface WrappedStmt {
-
   bindValues(bindings: any[]): this;
 
   bindValue(): this;

@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { isBlank, snakeCase } from '@gradii/nanofn';
+import { snakeCase } from '@gradii/nanofn';
 import { ColumnReferenceExpression } from '../../query/ast/column-reference-expression';
 import { DeleteSpecification } from '../../query/ast/delete-specification';
 import { ConditionExpression } from '../../query/ast/expression/condition-expression';
@@ -22,9 +22,7 @@ import { QueryGrammar } from './query-grammar';
 export class SqliteQueryGrammar extends QueryGrammar implements GrammarInterface {
   private _tablePrefix = '';
 
-  compileJoins() {
-
-  }
+  compileJoins() {}
 
   protected _createVisitor(queryBuilder: QueryBuilder, ctx: any = {}) {
     return new SqliteQueryBuilderVisitor(queryBuilder._grammar, queryBuilder, ctx);
@@ -34,19 +32,16 @@ export class SqliteQueryGrammar extends QueryGrammar implements GrammarInterface
     return this.compileInsert(builder, values, 'or ignore into', ctx);
   }
 
-  /*Compile a truncate table statement into SQL.*/
+  /* Compile a truncate table statement into SQL. */
   compileTruncate(query: QueryBuilder, ctx: any = {}): { [sql: string]: any[] } {
     const table = query._from.accept(this._createVisitor(query, ctx));
     return {
-      'DELETE FROM sqlite_sequence WHERE name = ?': [
-        this.unQuoteTableName(table)
-      ],
-      ['DELETE FROM ' + `${table}`]               : []
+      'DELETE FROM sqlite_sequence WHERE name = ?': [this.unQuoteTableName(table)],
+      ['DELETE FROM ' + `${table}`]               : [],
     };
   }
 
   compileSelect(builder: QueryBuilder, ctx: any = {}): string {
-
     const ast = this._prepareSelectAst(builder);
 
     const visitor = new SqliteQueryBuilderVisitor(builder._grammar, builder, ctx);
@@ -96,39 +91,27 @@ export class SqliteQueryGrammar extends QueryGrammar implements GrammarInterface
   }
 
   protected _prepareDeleteAstWithJoins(builder: QueryBuilder) {
-
     const inBuilder = builder.cloneWithout([]);
 
     inBuilder.resetBindings();
 
     inBuilder._columns = [
-      new ColumnReferenceExpression(
-        new PathExpression(
-          [
-            builder._from,
-            createIdentifier('rowid')
-          ]
-        )
-      )
+      new ColumnReferenceExpression(new PathExpression([builder._from, createIdentifier('rowid')])),
     ];
-    inBuilder._wheres  = builder._wheres;
+    inBuilder._wheres = builder._wheres;
 
-    const ast = new DeleteSpecification(builder._from,
+    const ast = new DeleteSpecification(
+      builder._from,
       new WhereClause(
-        new ConditionExpression(
-          [
-            new InPredicateExpression(
-              new ColumnReferenceExpression(
-                new PathExpression(
-                  [new Identifier('rowid')]
-                )
-              ),
-              [],
-              new NestedExpression('where', inBuilder)
-            )
-          ]
-        )
-      ));
+        new ConditionExpression([
+          new InPredicateExpression(
+            new ColumnReferenceExpression(new PathExpression([new Identifier('rowid')])),
+            [],
+            new NestedExpression('where', inBuilder),
+          ),
+        ]),
+      ),
+    );
 
     return ast;
   }

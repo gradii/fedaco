@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Column } from '../../src/annotation/column/column';
 import { MorphToColumn } from '../../src/annotation/relation-column/morph-to.relation-column';
 import { FedacoRelationType } from '../../src/fedaco/fedaco-types';
@@ -13,7 +12,7 @@ import { getBuilder } from './relation-testing-helper';
 let builder: FedacoBuilder<Model>;
 
 function getRelation(parent?: Model) {
-  builder       = getBuilder();
+  builder = getBuilder();
   const related = new Model();
   jest.spyOn(related, 'GetKeyName').mockReturnValue('id');
   jest.spyOn(related, 'GetTable').mockReturnValue('relation');
@@ -45,106 +44,107 @@ describe('test database fedaco morph to', () => {
   beforeAll(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      'driver'  : 'sqlite',
-      'database': ':memory:'
+      driver  : 'sqlite',
+      database: ':memory:',
     });
     db.bootFedaco();
     db.setAsGlobal();
   });
 
-  afterAll(async () => {
-  });
+  afterAll(async () => {});
 
   it('lookup dictionary is properly constructed', () => {
     const relation = getRelation();
     // fake model
-    const one      = {
-      'morph_type' : 'morph_type_1',
-      'foreign_key': 'foreign_key_1',
-      GetAttribute : (key: string) => '',
+    const one = {
+      morph_type  : 'morph_type_1',
+      foreign_key : 'foreign_key_1',
+      GetAttribute: (key: string) => '',
     };
     // fake model
-    const two      = {
-      'morph_type' : 'morph_type_1',
-      'foreign_key': 'foreign_key_1',
-      GetAttribute : (key: string) => '',
-    };
+    const two = {
+      morph_type  : 'morph_type_1',
+      foreign_key : 'foreign_key_1',
+      GetAttribute: (key: string) => '',
+    } as unknown as Model;
     // fake model
-    const three    = {
-      'morph_type' : 'morph_type_2',
-      'foreign_key': 'foreign_key_2',
-      GetAttribute : (key: string) => '',
-    };
+    const three = {
+      morph_type  : 'morph_type_2',
+      foreign_key : 'foreign_key_2',
+      GetAttribute: (key: string) => '',
+    } as unknown as Model;
     // @ts-ignore
-    jest.spyOn(one, 'GetAttribute').mockImplementation(key => one[key]);
+    jest.spyOn(one, 'GetAttribute').mockImplementation((key) => one[key]);
     // @ts-ignore
-    jest.spyOn(two, 'GetAttribute').mockImplementation(key => two[key]);
+    jest.spyOn(two, 'GetAttribute').mockImplementation((key) => two[key]);
     // @ts-ignore
-    jest.spyOn(three, 'GetAttribute').mockImplementation(key => three[key]);
+    jest.spyOn(three, 'GetAttribute').mockImplementation((key) => three[key]);
     relation.addEagerConstraints([
-    // @ts-ignore
-      one, two, three
+      // @ts-ignore
+      one,
+      two,
+      three,
     ]);
     const dictionary = relation.getDictionary();
     expect(dictionary).toEqual({
-      'morph_type_1': {
-        'foreign_key_1': [one, two]
+      morph_type_1: {
+        foreign_key_1: [one, two],
       },
-      'morph_type_2': {
-        'foreign_key_2': [three]
-      }
+      morph_type_2: {
+        foreign_key_2: [three],
+      },
     });
   });
 
   it('morph to with default', async () => {
-    const relation       = getRelation().withDefault();
-    const spy1           = jest.spyOn(builder, 'first').mockReturnValue(null);
-    const newModel       = new EloquentMorphToModelStub();
+    const relation = getRelation().withDefault();
+    const spy1 = jest.spyOn(builder, 'first').mockReturnValue(null);
+    const newModel = new EloquentMorphToModelStub();
     newModel._connection = 'default'; // hack for test
     newModel.SyncOriginal();
     const result = await relation.getResults();
     expect(result).toEqual(newModel);
-    expect(spy1).toBeCalled();
+    expect(spy1).toHaveBeenCalled();
   });
 
   it('morph to with dynamic default', async () => {
-    const relation    = getRelation().withDefault(newModel => {
+    const relation = getRelation().withDefault((newModel) => {
       newModel.username = 'taylor';
     });
-    const spy1        = jest.spyOn(builder, 'first').mockReturnValue(null);
-    const newModel    = new EloquentMorphToModelStub();
+    const spy1 = jest.spyOn(builder, 'first').mockReturnValue(null);
+    const newModel = new EloquentMorphToModelStub();
     newModel.username = 'taylor';
-    const result      = await relation.getResults();
+    const result = await relation.getResults();
     result.SyncOriginal();
     newModel.SyncOriginal();
     newModel._connection = 'default'; // hack for test
     expect(result).toEqual(newModel);
     expect(result.username).toBe('taylor');
-    expect(spy1).toBeCalled();
+    expect(spy1).toHaveBeenCalled();
   });
 
   it('morph to with array default', async () => {
-    const relation       = getRelation().withDefault({
-      'username': 'taylor'
+    const relation = getRelation().withDefault({
+      username: 'taylor',
     });
-    const spy1           = jest.spyOn(builder, 'first').mockReturnValue(null);
-    const newModel       = new EloquentMorphToModelStub();
-    newModel.username    = 'taylor';
-    const result         = await relation.getResults();
+    const spy1 = jest.spyOn(builder, 'first').mockReturnValue(null);
+    const newModel = new EloquentMorphToModelStub();
+    newModel.username = 'taylor';
+    const result = await relation.getResults();
     newModel._connection = 'default'; // hack for test
     newModel.SyncOriginal();
     result.SyncOriginal();
     expect(result).toEqual(newModel);
     expect(result.username).toBe('taylor');
-    expect(spy1).toBeCalled();
+    expect(spy1).toHaveBeenCalled();
   });
 
   it('morph to with specified class default', async () => {
-    const parent         = new EloquentMorphToModelStub();
+    const parent = new EloquentMorphToModelStub();
     parent.relation_type = 'EloquentMorphToRelatedStub';
-    const relation       = parent.NewRelation('relation').withDefault();
-    const newModel       = new EloquentMorphToRelatedStub();
-    const result         = await relation.getResults();
+    const relation = parent.NewRelation('relation').withDefault();
+    const newModel = new EloquentMorphToRelatedStub();
+    const result = await relation.getResults();
     newModel.SyncOriginal();
     result.SyncOriginal();
     newModel._connection = 'default'; // hack for test
@@ -152,9 +152,9 @@ describe('test database fedaco morph to', () => {
   });
 
   it('associate method sets foreign key and type on model', async () => {
-    const parent    = new Model();
-    const spy1      = jest.spyOn(parent, 'GetAttribute').mockReturnValue('foreign.value');
-    const relation  = getRelationAssociate(parent);
+    const parent = new Model();
+    const spy1 = jest.spyOn(parent, 'GetAttribute').mockReturnValue('foreign.value');
+    const relation = getRelationAssociate(parent);
     const associate = new Model();
 
     // Model can't define column dynamically. directly spy id value
@@ -166,7 +166,7 @@ describe('test database fedaco morph to', () => {
 
     await relation.associate(associate);
 
-    expect(spy1).toBeCalledWith('foreign_key');
+    expect(spy1).toHaveBeenCalledWith('foreign_key');
     expect(spy2).toHaveBeenNthCalledWith(1, 'foreign_key', 1);
     expect(spy2).toHaveBeenNthCalledWith(2, 'morph_type', 'Model');
 
@@ -174,11 +174,11 @@ describe('test database fedaco morph to', () => {
   });
 
   it('associate method ignores null value', async () => {
-    const parent   = new Model();
-    const spy1     = jest.spyOn(parent, 'GetAttribute').mockReturnValue('foreign.value');
+    const parent = new Model();
+    const spy1 = jest.spyOn(parent, 'GetAttribute').mockReturnValue('foreign.value');
     const relation = getRelationAssociate(parent);
-    const spy2     = jest.spyOn(parent, 'SetAttribute');
-    const spy3     = jest.spyOn(parent, 'SetRelation');
+    const spy2 = jest.spyOn(parent, 'SetAttribute');
+    const spy3 = jest.spyOn(parent, 'SetRelation');
     await relation.associate(null);
     expect(spy2).toHaveBeenNthCalledWith(1, 'foreign_key', null);
     expect(spy2).toHaveBeenNthCalledWith(2, 'morph_type', null);
@@ -186,11 +186,11 @@ describe('test database fedaco morph to', () => {
   });
 
   it('dissociate method deletes unsets key and type on model', async () => {
-    const parent   = new Model();
-    const spy1     = jest.spyOn(parent, 'GetAttribute').mockReturnValue('foreign.value');
+    const parent = new Model();
+    const spy1 = jest.spyOn(parent, 'GetAttribute').mockReturnValue('foreign.value');
     const relation = getRelation(parent);
-    const spy2     = jest.spyOn(parent, 'SetAttribute');
-    const spy3     = jest.spyOn(parent, 'SetRelation');
+    const spy2 = jest.spyOn(parent, 'SetAttribute');
+    const spy3 = jest.spyOn(parent, 'SetRelation');
     await relation.dissociate();
     expect(spy2).toHaveBeenNthCalledWith(1, 'foreign_key', null);
     expect(spy2).toHaveBeenNthCalledWith(2, 'morph_type', null);
@@ -212,8 +212,8 @@ export class EloquentMorphToModelStub extends Model {
 
   @MorphToColumn({
     morphTypeMap: {
-      EloquentMorphToRelatedStub: forwardRef(() => EloquentMorphToRelatedStub)
-    }
+      EloquentMorphToRelatedStub: forwardRef(() => EloquentMorphToRelatedStub),
+    },
   })
   public relation: FedacoRelationType<any>;
 }

@@ -9,12 +9,12 @@ import type { Model } from '../model';
 import { HasOneOrMany } from './has-one-or-many';
 
 export class HasMany extends HasOneOrMany {
-  /*Get the results of the relationship.*/
+  /* Get the results of the relationship. */
   public getResults() {
     return this._query.get();
   }
 
-  /*Initialize the relation on a set of models.*/
+  /* Initialize the relation on a set of models. */
   public initRelation(models: Model[], relation: string) {
     for (const model of models) {
       model.SetRelation(relation, this._related.NewCollection());
@@ -22,7 +22,7 @@ export class HasMany extends HasOneOrMany {
     return models;
   }
 
-  /*Match the eagerly loaded results to their parents.*/
+  /* Match the eagerly loaded results to their parents. */
   public match(models: Model[], results: Collection, relation: string) {
     return this.matchMany(models, results, relation);
   }
