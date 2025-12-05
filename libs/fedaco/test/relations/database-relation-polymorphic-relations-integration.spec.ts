@@ -76,8 +76,8 @@ describe('test database fedaco polymorphic relations integration', () => {
     tag = await EloquentManyToManyPolymorphicTestTag.createQuery().with('posts').where('id', 1).first();
     expect(post.RelationLoaded('tags')).toBeTruthy();
     expect(tag.RelationLoaded('posts')).toBeTruthy();
-    expect(head(post.tags as Model[]).id).toEqual(tag.id);
-    expect(head(tag.posts as Model[]).id).toEqual(post.id);
+    expect(head(post.tags as EloquentManyToManyPolymorphicTestTag[]).id).toEqual(tag.id);
+    expect(head(tag.posts as EloquentManyToManyPolymorphicTestPost[]).id).toEqual(post.id);
   });
 
   it('chunk by id', async () => {

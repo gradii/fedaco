@@ -19,6 +19,7 @@ import type { InteractsWithPivotTable } from './concerns/interacts-with-pivot-ta
 import { mixinInteractsWithPivotTable } from './concerns/interacts-with-pivot-table';
 import { Relation } from './relation';
 import { BelongsToManySymbol } from '../../symbol/fedaco-symbol';
+import { type KeyAbleModel } from '../../types/model-type';
 
 export interface BelongsToMany extends InteractsWithDictionary, InteractsWithPivotTable, Constructor<Relation> {}
 
@@ -109,7 +110,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(mixinInteractsWi
 
   /* Set the where clause for the relation query. */
   _addWhereConstraints() {
-    this._query.where(this.getQualifiedForeignPivotKeyName(), '=', this._parent[this._parentKey]);
+    this._query.where(this.getQualifiedForeignPivotKeyName(), '=', (this._parent as KeyAbleModel)[this._parentKey]);
     return this;
   }
 
@@ -131,7 +132,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(mixinInteractsWi
   public match(models: Model[], results: Collection, relation: string) {
     const dictionary = this._buildDictionary(results);
     for (const model of models) {
-      const key = this._getDictionaryKey(model[this._parentKey]);
+      const key = this._getDictionaryKey((model as KeyAbleModel)[this._parentKey]);
       if (dictionary[key] !== undefined) {
         model.SetRelation(relation, this._related.NewCollection(dictionary[key]));
       }
@@ -336,7 +337,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(mixinInteractsWi
     const result = await this.find(id, columns);
     // var id     = id instanceof Arrayable ? id.toArray() : id;
     if (isArray(id)) {
-      if (result.length === uniq(id).length) {
+      if ((result as Model[]).length === uniq(id).length) {
         return result;
       }
     } else if (!isBlank(result)) {
@@ -386,7 +387,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(mixinInteractsWi
 
   /* Get the results of the relationship. */
   public async getResults() {
-    return !isBlank(this._parent[this._parentKey]) ? await this.get() : this._related.NewCollection();
+    return !isBlank((this._parent as KeyAbleModel)[this._parentKey]) ? await this.get() : this._related.NewCollection();
   }
 
   /* Execute the query as a "select" statement. */
@@ -489,7 +490,7 @@ export class BelongsToMany extends mixinInteractsWithDictionary(mixinInteractsWi
     for (const [key, value] of Object.entries(model.GetAttributes())) {
       if (key.startsWith('pivot_')) {
         values[key.substr(6)] = value;
-        delete model.key;
+        delete (model as KeyAbleModel).key;
       }
     }
     return values;

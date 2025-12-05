@@ -1115,7 +1115,7 @@ describe('test database fedaco integration', () => {
     const user = await FedacoTestUser.createQuery().create({
       email: 'linbolen@gradii.com',
     });
-    const friend = await user.NewRelation('friends').create({
+    const friend = await user.NewRelation('friends').create<FedacoTestUser>({
       email: 'xsilen@gradii.com',
     });
     const user1: FedacoTestUser = await FedacoTestUser.createQuery().first();
@@ -1137,7 +1137,7 @@ describe('test database fedaco integration', () => {
     const user = await FedacoTestUser.createQuery().create({
       email: 'linbolen@gradii.com',
     });
-    const friend = await user.NewRelation('friends').create({
+    const friend = await user.NewRelation('friends').create<FedacoTestUser>({
       email: 'xsilen@gradii.com',
     });
     await (
@@ -1159,7 +1159,7 @@ describe('test database fedaco integration', () => {
     const user = await FedacoTestUser.createQuery().create({
       email: 'linbolen@gradii.com',
     });
-    const friend = await user.NewRelation('friends').create({
+    const friend = await user.NewRelation('friends').create<FedacoTestUser>({
       email: 'xsilen@gradii.com',
     });
     for (const result of (await (await FedacoTestUser.createQuery().first())
@@ -1223,7 +1223,7 @@ describe('test database fedaco integration', () => {
     await user.NewRelation('photos').create({
       name: 'Avatar 2',
     });
-    const post = await user.NewRelation('posts').create({
+    const post: FedacoTestPost = await user.NewRelation('posts').create({
       name: 'First Post',
     });
     await post.NewRelation('photos').create({
@@ -1251,7 +1251,7 @@ describe('test database fedaco integration', () => {
     expect(photos.length).toBe(4);
     expect(await photos[0].imageable).toBeInstanceOf(FedacoTestUser);
     expect(await photos[2].imageable).toBeInstanceOf(FedacoTestPost);
-    expect((await photos[1].imageable).email).toBe('linbolen@gradii.com');
+    expect((await photos[1].imageable as FedacoTestUser).email).toBe('linbolen@gradii.com');
     expect((await photos[3].imageable).name).toBe('First Post');
   });
 
@@ -2416,7 +2416,7 @@ export class FedacoTestPost extends Model {
     related   : forwardRef(() => FedacoTestPost),
     foreignKey: 'parent_id',
   })
-  parentPost: FedacoRelationType<FedacoTestPhoto>;
+  parentPost: FedacoRelationType<FedacoTestPost>;
 
   // public parentPost() {
   //   return this.belongsTo(FedacoTestPost, 'parent_id');
@@ -2452,7 +2452,7 @@ export class FedacoTestPhoto extends Model {
       post          : FedacoTestPost,
     },
   })
-  public imageable: FedacoRelationType<FedacoTestPhoto>;
+  public imageable: FedacoRelationType<FedacoTestUser | FedacoTestPost | FedacoTestPhoto>;
 }
 
 @Table({

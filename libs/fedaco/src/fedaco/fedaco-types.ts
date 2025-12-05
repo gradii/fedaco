@@ -12,6 +12,6 @@ export type FedacoBuilderCallBack = Function | ((builder?: FedacoBuilder | Relat
 
 export type RelationCallBack = (relation: Relation) => any | void;
 
-export type FedacoRelationType<T extends any> = Promise<T> | T;
+export type FedacoRelationType<T extends any> = Promise<T> & T;
 
-export type FedacoRelationListType<T extends any> = Promise<T[]> | T[];
+export type FedacoRelationListType<T extends any> = Promise<T[]> & T[];

@@ -362,14 +362,14 @@ describe('test database fedaco has many', () => {
     model2.id = 2;
     const model3 = new EloquentHasManyModelStub();
     model3.id = 3;
-    const models = relation.match([model1, model2, model3], [result1, result2, result3], 'foo');
+    const models = relation.match([model1, model2, model3], [result1, result2, result3], 'foo') as EloquentHasManyModelStub[];
     await models[0].foo;
     await models[1].foo;
     await models[2].foo;
-    expect(models[0].foo[0].foreign_key).toEqual(1);
+    expect((models[0].foo[0] as any).foreign_key).toEqual(1);
     expect(models[0].foo).toHaveLength(1);
-    expect(models[1].foo[0].foreign_key).toEqual(2);
-    expect(models[1].foo[1].foreign_key).toEqual(2);
+    expect((models[1].foo[0] as any).foreign_key).toEqual(2);
+    expect((models[1].foo[1] as any).foreign_key).toEqual(2);
     expect(models[1].foo).toHaveLength(2);
     expect(models[2].foo).toBeUndefined();
   });
@@ -408,5 +408,5 @@ export class EloquentHasManyModelStub extends Model {
   public id: string | number;
 
   @Column()
-  public foo: string;
+  public foo: EloquentHasManyModelStub[];
 }

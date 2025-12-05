@@ -11,9 +11,10 @@ import type { Builder } from '../../query-builder/builder';
 import type { QueryBuilder } from '../../query-builder/query-builder';
 import type { FedacoBuilder } from '../fedaco-builder';
 import type { Model } from '../model';
-import type { BelongsTo } from '../relations/belongs-to';
+import { BelongsTo } from '../relations/belongs-to';
 import { MorphTo } from '../relations/morph-to';
 import { Relation } from '../relations/relation';
+import { type ForwardRefFn, resolveForwardRef } from '../../query-builder/forward-ref';
 
 export type RelationParam = { [key: string]: (q: FedacoBuilder) => void } | string;
 export type RelationParams = RelationParam[] | RelationParam;
@@ -68,7 +69,21 @@ export interface QueriesRelationships {
 
   orWhereDoesntHave(relation: string, callback?: Function | null): this;
 
-  /* Add a polymorphic relationship count / exists condition to the query. */
+  /**
+   * Add a polymorphic relationship count / exists condition to the query. 
+   * 
+   * currently not handle types = ['*'], must get types first
+   * 
+   * ```
+   * if (types.length === 1 && types[0] === '*') {
+   *   types = await this.model
+   *     .newModelQuery()
+   *     .distinct()
+   *     .pluck((relation as MorphTo).getMorphType());
+   *   types = types.filter();
+   * }
+   * ```
+   */
   hasMorph(
     relation: MorphTo | string,
     types: string[],
@@ -208,7 +223,7 @@ export function mixinQueriesRelationships<T extends Constructor<any>>(base: T): 
       count = 1,
       conjunction = 'and',
       callback?: ((q: FedacoBuilder) => void) | Function,
-    ): this {
+    ): _Self & T {
       if (isString(relation)) {
         if (relation.includes('.')) {
           return this._hasNested(relation, operator, count, conjunction, callback);
@@ -226,6 +241,7 @@ public readonly ${relation};
       if (relation instanceof MorphTo) {
         return this.hasMorph(relation, ['*'], operator, count, conjunction, callback);
       }
+
       const method = this._canUseExistsForExistenceCheck(operator, count)
         ? 'getRelationExistenceQuery'
         : 'getRelationExistenceCountQuery';
@@ -250,7 +266,7 @@ public readonly ${relation};
       count = 1,
       conjunction = 'and',
       callback: Function | null = null,
-    ): this {
+    ): _Self & T {
       const splitRelations = relations.split('.');
       const doesntHave = operator === '<' && count === 1;
       if (doesntHave) {
@@ -266,37 +282,37 @@ public readonly ${relation};
     }
 
     /* Add a relationship count / exists condition to the query with an "or". */
-    public orHas(relation: string, operator = '>=', count = 1): this {
+    public orHas(relation: string, operator = '>=', count = 1): _Self & T {
       return this.has(relation, operator, count, 'or');
     }
 
     /* Add a relationship count / exists condition to the query. */
-    public doesntHave(relation: string, conjunction = 'and', callback: Function | null = null): this {
+    public doesntHave(relation: string, conjunction = 'and', callback: Function | null = null): _Self & T {
       return this.has(relation, '<', 1, conjunction, callback);
     }
 
     /* Add a relationship count / exists condition to the query with an "or". */
-    public orDoesntHave(relation: string): this {
+    public orDoesntHave(relation: string): _Self & T {
       return this.doesntHave(relation, 'or');
     }
 
     /* Add a relationship count / exists condition to the query with where clauses. */
-    public whereHas(relation: Relation | string, callback: Function | null = null, operator = '>=', count = 1): this {
+    public whereHas(relation: Relation | string, callback: Function | null = null, operator = '>=', count = 1): _Self & T {
       return this.has(relation, operator, count, 'and', callback);
     }
 
     /* Add a relationship count / exists condition to the query with where clauses and an "or". */
-    public orWhereHas(relation: Relation | string, callback: Function | null = null, operator = '>=', count = 1): this {
+    public orWhereHas(relation: Relation | string, callback: Function | null = null, operator = '>=', count = 1): _Self & T {
       return this.has(relation, operator, count, 'or', callback);
     }
 
     /* Add a relationship count / exists condition to the query with where clauses. */
-    public whereDoesntHave(relation: string, callback: Function | null = null): this {
+    public whereDoesntHave(relation: string, callback: Function | null = null): _Self & T {
       return this.doesntHave(relation, 'and', callback);
     }
 
     /* Add a relationship count / exists condition to the query with where clauses and an "or". */
-    public orWhereDoesntHave(relation: string, callback: Function | null = null): this {
+    public orWhereDoesntHave(relation: string, callback: Function | null = null): _Self & T {
       return this.doesntHave(relation, 'or', callback);
     }
 
@@ -308,18 +324,27 @@ public readonly ${relation};
       count = 1,
       conjunction = 'and',
       callback: Function | null = null,
-    ): this {
+    ): _Self & T {
       if (isString(relation)) {
         relation = this._getRelationWithoutConstraints(relation) as unknown as MorphTo;
       }
       // types eq ['*']
-      if (types.length === 1 && types[0] === '*') {
-        types = this.model
-          .newModelQuery()
-          .distinct()
-          .pluck((relation as MorphTo).getMorphType())
-          .filter()
-          .all();
+      // if (types.length === 1 && types[0] === '*') {
+      //   types = this.model
+      //     .newModelQuery()
+      //     .distinct()
+      //     .pluck((relation as MorphTo).getMorphType())
+      //     .filter()
+      //     .all();
+      // }
+
+      if (!types.length) {
+        return this.where(
+          raw('0'),
+          operator,
+          count,
+          conjunction,
+        )
       }
 
       const morphedTypes = types.map((type) => {
@@ -340,7 +365,7 @@ public readonly ${relation};
                 };
               }
               q.where(
-                this.qualifyColumn((relation as MorphTo).getMorphType()),
+                (this as unknown as FedacoBuilder & _Self).qualifyColumn((relation as MorphTo).getMorphType()),
                 '=',
                 new type().getMorphClass(),
               ).whereHas(belongsTo, callback, operator, count);
@@ -354,16 +379,25 @@ public readonly ${relation};
     }
 
     /* Get the BelongsTo relationship for a single polymorphic type. */
-    _getBelongsToRelation(relation: MorphTo, type: string): BelongsTo {
+    _getBelongsToRelation(relation: MorphTo, type: typeof Model | ForwardRefFn): BelongsTo {
       const belongsTo: BelongsTo = Relation.noConstraints(() => {
-        return this.model.belongsTo(type, relation.getForeignKeyName(), relation.getOwnerKeyName());
+        const _model = (this as unknown as FedacoBuilder & _Self).getModel();
+        const _r = resolveForwardRef<typeof Model>(type);
+        const ownerKeyName = relation.getOwnerKeyName();
+        const relationName = 'UNKNOWN';
+
+        const instance = _model._newRelatedInstance(_r);
+        const foreignKey = relation.getForeignKeyName() || `${snakeCase(ownerKeyName)}_${instance.GetKeyName()}`;
+        const ownerKey = ownerKeyName || instance.GetKeyName();
+
+        return new BelongsTo(instance.NewQuery(), _model, foreignKey, ownerKey, relationName);
       });
       belongsTo.getQuery().mergeConstraintsFrom(relation.getQuery());
       return belongsTo;
     }
 
     /* Add a polymorphic relationship count / exists condition to the query with an "or". */
-    public orHasMorph(relation: MorphTo | string, types: string[], operator = '>=', count = 1): this {
+    public orHasMorph(relation: MorphTo | string, types: string[], operator = '>=', count = 1): _Self & T {
       return this.hasMorph(relation, types, operator, count, 'or');
     }
 
@@ -373,12 +407,12 @@ public readonly ${relation};
       types: string[],
       conjunction = 'and',
       callback: Function | null = null,
-    ): this {
+    ): _Self & T {
       return this.hasMorph(relation, types, '<', 1, conjunction, callback);
     }
 
     /* Add a polymorphic relationship count / exists condition to the query with an "or". */
-    public orDoesntHaveMorph(relation: MorphTo | string, types: string[]): this {
+    public orDoesntHaveMorph(relation: MorphTo | string, types: string[]): _Self & T {
       return this.doesntHaveMorph(relation, types, 'or');
     }
 
@@ -389,7 +423,7 @@ public readonly ${relation};
       callback: Function | null = null,
       operator = '>=',
       count = 1,
-    ): this {
+    ): _Self & T {
       return this.hasMorph(relation, types, operator, count, 'and', callback);
     }
 
@@ -400,29 +434,28 @@ public readonly ${relation};
       callback: Function | null = null,
       operator = '>=',
       count = 1,
-    ): this {
+    ): _Self & T {
       return this.hasMorph(relation, types, operator, count, 'or', callback);
     }
 
     /* Add a polymorphic relationship count / exists condition to the query with where clauses. */
-    public whereDoesntHaveMorph(relation: MorphTo | string, types: string[], callback: Function | null = null): this {
+    public whereDoesntHaveMorph(relation: MorphTo | string, types: string[], callback: Function | null = null): _Self & T {
       return this.doesntHaveMorph(relation, types, 'and', callback);
     }
 
     /* Add a polymorphic relationship count / exists condition to the query with where clauses and an "or". */
-    public orWhereDoesntHaveMorph(relation: MorphTo | string, types: string[], callback: Function | null = null): this {
+    public orWhereDoesntHaveMorph(relation: MorphTo | string, types: string[], callback: Function | null = null): _Self & T {
       return this.doesntHaveMorph(relation, types, 'or', callback);
     }
 
     /* Add subselect queries to include an aggregate value for a relationship. */
     public withAggregate(
-      this: FedacoBuilder & _Self,
       relations: RelationParams,
       column: string,
       func: string = null,
-    ): FedacoBuilder {
+    ): _Self & T {
       if (isAnyEmpty(relations)) {
-        return this;
+        return this as unknown as _Self & T;
       }
       if (!this.getQuery()._columns.length) {
         this.getQuery().select(createTableColumn(this.getQuery()._from, '*'));
@@ -490,7 +523,7 @@ public readonly ${relation};
           this.selectSub(func ? queryBuilder : queryBuilder.limit(1), alias);
         }
       }
-      return this;
+      return this as unknown as _Self & T;
     }
 
     /* Add subselect queries to count the relations. */
@@ -531,7 +564,7 @@ public readonly ${relation};
       operator: string,
       count: number,
       conjunction: string,
-    ): this {
+    ): _Self & T {
       hasQuery.mergeConstraintsFrom(relation.getQuery());
       return this._canUseExistsForExistenceCheck(operator, count)
         ? this.addWhereExistsQuery(hasQuery.toBase(), conjunction, operator === '<' && count === 1)
@@ -547,7 +580,7 @@ public readonly ${relation};
     }
 
     /* Add a sub-query count clause to this query. */
-    _addWhereCountQuery(query: QueryBuilder, operator = '>=', count = 1, conjunction = 'and'): this {
+    _addWhereCountQuery(query: QueryBuilder, operator = '>=', count = 1, conjunction = 'and'): _Self & T {
       // must call to sql first
       const sql = query.toSql();
       const bindings = query.getBindings();

@@ -83,9 +83,11 @@ export interface QueryBuilderWhereCommon {
 
   whereColumn(first: any[], conjunction?: string): this;
 
-  whereColumn(first: string | Expression, second?: string | number | boolean, conjunction?: string): this;
+  whereColumn(first: string | Expression, second: string | number | boolean, conjunction: string): this;
 
-  whereColumn(first: string | any[], operator?: string, second?: string, conjunction?: string): this;
+  whereColumn(first: Expression, operator: string, second: string | number | boolean | Expression, conjunction?: string): this;
+
+  whereColumn(first: string | any[] | Expression | RawBindingExpression, operator?: string, second?: string, conjunction?: string): this;
 
   whereNested(callback: (query?: QueryBuilder) => void, conjunction?: 'and' | 'or' | string): this;
 

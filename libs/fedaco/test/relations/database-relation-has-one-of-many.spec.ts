@@ -12,6 +12,7 @@ import { mixinSoftDeletes } from '../../src/fedaco/mixins/soft-deletes';
 import { Model } from '../../src/fedaco/model';
 import { forwardRef } from '../../src/query-builder/forward-ref';
 import { SchemaBuilder } from '../../src/schema/schema-builder';
+import { PrimaryColumn } from '../../src/annotation/column/primary.column';
 
 function connection(connectionName = 'default') {
   return Model.getConnectionResolver().connection(connectionName);
@@ -127,14 +128,14 @@ describe('test database fedaco has one of many', () => {
     const latestLogin = await user.NewRelation('logins').create();
     const result = await user.NewRelation('latest_login').getResults();
     expect(result).not.toBeNull();
-    expect(result.id).toEqual(latestLogin.id);
+    expect((result as HasOneOfManyTestLogin).id).toEqual((latestLogin as HasOneOfManyTestLogin).id);
   });
 
   it('it gets correct results using shortcut method', async () => {
     const user = await HasOneOfManyTestUser.createQuery().create();
-    const previousLogin = await user.NewRelation('logins').create();
-    const latestLogin = await user.NewRelation('logins').create();
-    const result = await user.NewRelation('latest_login_with_shortcut').getResults();
+    const previousLogin: HasOneOfManyTestLogin = await user.NewRelation('logins').create();
+    const latestLogin: HasOneOfManyTestLogin = await user.NewRelation('logins').create();
+    const result = await user.NewRelation('latest_login_with_shortcut').getResults() as HasOneOfManyTestLogin;
     expect(result).not.toBeNull();
     expect(result.id).toEqual(latestLogin.id);
   });
@@ -149,7 +150,7 @@ describe('test database fedaco has one of many', () => {
     });
     const result = await user.NewRelation('price_with_shortcut').getResults();
     expect(result).not.toBeNull();
-    expect(result.id).toEqual(price.id);
+    expect((result as HasOneOfManyTestPrice).id).toEqual((price as HasOneOfManyTestPrice).id);
   });
 
   it('key is added to aggregates when missing', async () => {
@@ -162,7 +163,7 @@ describe('test database fedaco has one of many', () => {
     });
     const result = await user.NewRelation('price_without_key_in_aggregates').getResults();
     expect(result).not.toBeNull();
-    expect(result.id).toEqual(price.id);
+    expect((result as HasOneOfManyTestPrice).id).toEqual((price as HasOneOfManyTestPrice).id);
   });
 
   it('it gets with constraints correct results', async () => {
@@ -179,7 +180,7 @@ describe('test database fedaco has one of many', () => {
     const latestLogin = await user.NewRelation('logins').create();
     user = await HasOneOfManyTestUser.createQuery().with('latest_login').first();
     expect(user.RelationLoaded('latest_login')).toBeTruthy();
-    expect((user.latest_login as HasOneOfManyTestLogin).id).toEqual(latestLogin.id);
+    expect((user.latest_login as HasOneOfManyTestLogin).id).toEqual((latestLogin as HasOneOfManyTestPrice).id);
   });
 
   it('has nested', async () => {
@@ -188,13 +189,13 @@ describe('test database fedaco has one of many', () => {
     const latestLogin = await user.NewRelation('logins').create();
     let found = await HasOneOfManyTestUser.createQuery()
       .whereHas('latest_login', (query) => {
-        query.where('logins.id', latestLogin.id);
+        query.where('logins.id', (latestLogin as HasOneOfManyTestPrice).id);
       })
       .exists();
     expect(found).toBeTruthy();
     found = await HasOneOfManyTestUser.createQuery()
       .whereHas('latest_login', (query) => {
-        query.where('logins.id', previousLogin.id);
+        query.where('logins.id', (previousLogin as HasOneOfManyTestPrice).id);
       })
       .exists();
     expect(found).toBeFalsy();
@@ -238,7 +239,7 @@ describe('test database fedaco has one of many', () => {
     const latestLogin = await user.NewRelation('logins').create();
     let latestLogins = await user.NewRelation('latest_login').get();
     expect(latestLogins).toHaveLength(1);
-    expect(head(latestLogins as any[]).id).toEqual(latestLogin.id);
+    expect(head(latestLogins as any[]).id).toEqual((latestLogin as HasOneOfManyTestPrice).id);
     latestLogins = await user.NewRelation('latest_login').whereKey(previousLogin.GetKey()).get();
     expect(latestLogins).toHaveLength(0);
   });
@@ -255,7 +256,7 @@ describe('test database fedaco has one of many', () => {
     const firstLogin = await user.NewRelation('logins').create();
     await user.NewRelation('logins').create();
     user = await HasOneOfManyTestUser.createQuery().first();
-    expect((await user.first_login).id).toEqual(firstLogin.id);
+    expect((await user.first_login).id).toEqual((firstLogin as HasOneOfManyTestPrice).id);
   });
 
   it('join constraints', async () => {
@@ -273,7 +274,7 @@ describe('test database fedaco has one of many', () => {
       state: 'baz',
     });
     user = await HasOneOfManyTestUser.createQuery().first();
-    expect((user.foo_state as HasOneOfManyTestState).id).toEqual(currentForState.id);
+    expect((await user.foo_state as HasOneOfManyTestState).id).toEqual((currentForState as HasOneOfManyTestState).id);
   });
 
   it('multiple aggregates', async () => {
@@ -285,7 +286,8 @@ describe('test database fedaco has one of many', () => {
       published_at: '2021-05-01 00:00:00',
     });
     user = await HasOneOfManyTestUser.createQuery().first();
-    expect((user.price as HasOneOfManyTestPrice).id).toEqual(price.id);
+    expect((await user.price as HasOneOfManyTestPrice).id).not.toBeUndefined();
+    expect((await user.price as HasOneOfManyTestPrice).id).toEqual((price as HasOneOfManyTestPrice).id);
   });
 
   it('eager loading with multiple aggregates', async () => {
@@ -308,9 +310,9 @@ describe('test database fedaco has one of many', () => {
     });
     const users = await HasOneOfManyTestUser.createQuery().with('price').get();
     expect(users[0].price).not.toBeNull();
-    expect((users[0].price as HasOneOfManyTestPrice).id).toEqual(user1Price.id);
+    expect((users[0].price as HasOneOfManyTestPrice).id).toEqual((user1Price as HasOneOfManyTestPrice).id);
     expect(users[1].price).not.toBeNull();
-    expect((users[1].price as HasOneOfManyTestPrice).id).toEqual(user2Price.id);
+    expect((users[1].price as HasOneOfManyTestPrice).id).toEqual((user2Price as HasOneOfManyTestPrice).id);
   });
 
   it('with exists', async () => {
@@ -436,7 +438,7 @@ export class HasOneOfManyTestUser extends Model {
       published_at: 'MAX',
     },
   })
-  public price_without_key_in_aggregates: FedacoRelationListType<HasOneOfManyTestPrice>;
+  public price_without_key_in_aggregates: FedacoRelationType<HasOneOfManyTestPrice>;
 
   @HasOneColumn({
     related   : forwardRef(() => HasOneOfManyTestPrice),
@@ -475,6 +477,9 @@ export class HasOneOfManyTestState extends Model {
   _guarded: any = [];
   _timestamps: any = false;
   _fillable: any = ['type', 'state'];
+
+  @PrimaryColumn()
+  declare id: string | number;
 }
 
 export class HasOneOfManyTestPrice extends Model {
@@ -485,6 +490,9 @@ export class HasOneOfManyTestPrice extends Model {
   // protected casts: any = {
   //   'published_at': 'datetime'
   // };
+
+  @PrimaryGeneratedColumn()
+  id: string | number;
 
   @DatetimeColumn()
   published_at: Date;

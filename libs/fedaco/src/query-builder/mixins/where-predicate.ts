@@ -20,7 +20,7 @@ import type { QueryBuilder } from '../query-builder';
 import type { QueryBuilderWhereCommon } from './where-common';
 
 export interface QueryBuilderWherePredicate {
-  addWhereExistsQuery(query: QueryBuilder, conjunction?: string, not?: boolean): void;
+  addWhereExistsQuery(query: QueryBuilder, conjunction?: string, not?: boolean): this;
 
   orWhereBetween(column: string, values: any[], not?: boolean): this;
 

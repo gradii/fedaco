@@ -34,7 +34,7 @@ export interface GuardsAttributes {
 
   IsFillable(key: string): boolean;
 
-  GetGuarded(): this;
+  GetGuarded(): string[];
 
   Guard(guarded: any[]): this;
 
@@ -56,7 +56,7 @@ export interface GuardsAttributesCtor<M> {
   readonly _metaFillable: string[];
 
   /* Disable all mass assignable restrictions. */
-  unguard(state: boolean): void;
+  unguard(state?: boolean): void;
 
   /* Enable the mass assignment restrictions. */
   reguard(): void;
@@ -70,7 +70,7 @@ export interface GuardsAttributesCtor<M> {
   new(...args: any[]): GuardsAttributes
 };
 
-export function mixinGuardsAttributes<T extends Constructor<any>, M>(base: T): GuardsAttributesCtor<M> & T {
+export function mixinGuardsAttributes<T extends Constructor<{}>, M>(base: T): GuardsAttributesCtor<M> & T {
   return class _Self extends base {
     /* The attributes that are mass assignable. */
     _fillable: string[] = [];

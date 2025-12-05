@@ -84,7 +84,6 @@ const PrimitiveCastTypes: string[] = [
   'timestamp',
 ];
 
-
 export interface HasAttributes {
   /* The model's attributes. */
   _attributes: any;
@@ -93,7 +92,7 @@ export interface HasAttributes {
   /* The changed model attributes. */
   _changes: Record<string, any>;
   /* The attributes that should be cast. */
-  // _casts: { [key: string]: string };
+  _casts: { [key: string]: string };
   /* The attributes that have been cast using custom classes. */
   _classCastCache: any[];
 
@@ -377,8 +376,8 @@ export interface HasAttributesCtor {
   snakeAttributes: boolean;
   encrypter: Encrypter;
 
-  new(...args: any[]): HasAttributes;
-};
+  new (...args: any[]): HasAttributes;
+}
 
 /** Mixin to augment a directive with a `disableRipple` property. */
 export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttributesCtor & T {
@@ -691,7 +690,7 @@ export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttri
         return value;
       }
       if (this.IsEncryptedCastable(key)) {
-        value = this.fromEncryptedString(value);
+        value = this.FromEncryptedString(value);
         castType = castType.split('encrypted:').pop();
       }
       switch (castType) {
@@ -924,10 +923,12 @@ export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttri
       return JSON.parse(value) as any;
     }
 
-    // /*Decrypt the given encrypted string.*/
-    // public fromEncryptedString(value: string) {
-    //   return (HasAttributes.encrypter ?? Crypt.getFacadeRoot()).decrypt(value, false);
-    // }
+    /* Decrypt the given encrypted string. */
+    public FromEncryptedString(value: string) {
+      throw new Error('not implemented encrypted string');
+      // return (HasAttributes.encrypter ?? Crypt.getFacadeRoot()).decrypt(value, false);
+    }
+
     //
     /* Cast the given attribute to an encrypted string. */
     protected CastAttributeAsEncryptedString(key: string, value: any) {

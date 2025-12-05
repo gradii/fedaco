@@ -28,14 +28,46 @@ export interface Dispatcher {
   dispatch(evt: any): void;
 }
 
-export interface HasEvents {}
+export interface HasEvents {
+  _dispatchesEvents: any;
+  _observables: any[];
 
-export interface HasEventsCtor {
+  GetObservableEvents(): any[];
+  SetObservableEvents(observables: any[]): any;
+  AddObservableEvents(observables: any[] | any): void;
+  RemoveObservableEvents(observables: any[] | any): void;
 
-  new(...args: any[]): HasEvents;
+  _registerObserver(clazz: any): void;
+  _fireModelEvent(event: string, halt?: boolean): any;
+  _fireCustomModelEvent(event: string, method: string): any;
+  _filterModelEventResults(result: any): any;
+  _resolveObserverClassName(clazz: object | string): Function;
 }
 
-export function mixinHasEvents<T extends Constructor<any>>(base: T) {
+export interface HasEventsCtor {
+  dispatcher: Dispatcher;
+  observe(classes: object | any[] | string): void;
+  retrieved(callback: Function | string): void;
+  saving(callback: Function | string): void;
+  saved(callback: Function | string): void;
+  updating(callback: Function | string): void;
+  updated(callback: Function | string): void;
+  creating(callback: Function | string): void;
+  created(callback: Function | string): void;
+  replicating(callback: Function | string): void;
+  deleting(callback: Function | string): void;
+  deleted(callback: Function | string): void;
+  flushEventListeners(): void;
+  getEventDispatcher(): Dispatcher;
+  setEventDispatcher(dispatcher: Dispatcher): void;
+  unsetEventDispatcher(): void;
+  withoutEvents(callback: Function): any;
+  // _registerModelEvent(event: string, callback: Function | string): void;
+
+  new (...args: any[]): HasEvents;
+}
+
+export function mixinHasEvents<T extends Constructor<{}>>(base: T): HasEventsCtor & T {
   // @ts-ignore
   return class _Self extends base {
     /* The event map for the model.
@@ -108,14 +140,14 @@ export function mixinHasEvents<T extends Constructor<any>>(base: T) {
     }
 
     /* Remove all of the event listeners for the model. */
-    public static flushEventListeners(this: Model & _Self) {
+    public static flushEventListeners() {
       if (!(/* static */ (this.dispatcher !== undefined))) {
         return;
       }
       // @ts-ignore
       const instance = new this();
-      for (const event of instance.getObservableEvents()) {
-        /* static */ this.dispatcher.forget(`fedaco.${event}: ${this.GetTable()}`);
+      for (const event of instance.GetObservableEvents()) {
+        /* static */ this.dispatcher.forget(`fedaco.${event}: ${(this as unknown as Model).GetTable()}`);
       }
       for (const event of Object.values(instance._dispatchesEvents)) {
         /* static */ this.dispatcher.forget(event as string);
@@ -204,15 +236,13 @@ export function mixinHasEvents<T extends Constructor<any>>(base: T) {
       for (const event of this.GetObservableEvents()) {
         if (event in clazz) {
           /* static */ (<any>this.constructor)._registerModelEvent(event, (...args: any[]) =>
-            clazz.prototype[event].apply(),
+            (clazz.prototype as any)[event].apply(),
           );
         }
       }
     }
 
     /* Fire the given event for the model. */
-
-    /* protected */
     _fireModelEvent(this: Model & _Self, event: string, halt = true) {
       if (!(/* static */ ((<any>this.constructor).dispatcher !== undefined))) {
         return true;

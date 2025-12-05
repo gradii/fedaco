@@ -43,9 +43,11 @@ import { mixinHasTimestamps } from './mixins/has-timestamps';
 import type { HidesAttributes } from './mixins/hides-attributes';
 import { mixinHidesAttributes } from './mixins/hides-attributes';
 import { loadAggregate } from './model-helper';
+import { type KeyAbleModel } from '../types/model-type';
+import { withTrashed } from './scopes/soft-deleting-scope';
+import { type Constructor } from '../helper/constructor';
 // import { BelongsToMany } from './relations/belongs-to-many';
 // import { HasManyThrough } from './relations/has-many-through';
-import type { Scope } from './scope';
 
 /* Begin querying the model on a given connection. */
 export function on(clazz: typeof Model, connection: string | null = null) {
@@ -84,44 +86,6 @@ export interface Model
     HasTimestamps,
     HidesAttributes,
     GuardsAttributes {}
-
-// tslint:disable-next-line:no-namespace
-export declare namespace Model {
-  /* Indicates if all mass assignment is enabled. */
-  export const _unguarded = false;
-  /* The actual columns that exist on the database and can be guarded. */
-  export const _guardableColumns: any[];
-
-  /**
-   * Disable all mass assignable restrictions.
-   * @link {GuardsAttributes.reguard}
-   */
-  export function unguard(state?: boolean): void;
-
-  /**
-   * Enable the mass assignment restrictions.
-   * @link {GuardsAttributes.reguard}
-   */
-  export function reguard(): void;
-
-  /**
-   * Determine if the current state is "unguarded".
-   * @link {GuardsAttributes.isUnguarded}
-   */
-  export function isUnguarded(): boolean;
-
-  /**
-   * Run the given callable while being unguarded.
-   * @link {GuardsAttributes.unguarded}
-   */
-  export function unguarded<R extends Promise<any> | any>(callback: () => R): R;
-
-  export const snakeAttributes: boolean;
-
-  export function addGlobalScope(scope: string, implementation: Scope | ((q: QueryBuilder) => void)): void;
-
-  export function addGlobalScope(scope: string, implementation: Scope | Function): void;
-}
 
 // @NoSuchMethodProxy()
 export class Model extends mixinHasAttributes(
@@ -178,7 +142,12 @@ export class Model extends mixinHasAttributes(
     // this.initializeTraits();
   }
 
-  static initAttributes(attributes: any = {}): Model {
+  static initAttributes<T extends Model>(
+    this: {
+      new (...args: any[]): T;
+    },
+    attributes: Record<string, any> = {},
+  ): T {
     const m = new this();
     m.SyncOriginal();
     m.Fill(attributes);
@@ -187,7 +156,7 @@ export class Model extends mixinHasAttributes(
 
   BootIfNotBooted() {
     if (!(this.constructor as typeof Model).booted.has(this.constructor)) {
-      (this.constructor as typeof Model).booted.set(this.consturctor, true);
+      (this.constructor as typeof Model).booted.set((this as any).consturctor, true);
       this.FireModelEvent('booting', false);
       this.Boot();
       this.FireModelEvent('booted', false);
@@ -331,7 +300,7 @@ export class Model extends mixinHasAttributes(
     column: string,
     func?: string,
   ) {
-    const relationValue = await this[relation];
+    const relationValue = await (this as KeyAbleModel)[relation];
     if (!relationValue) {
       return this;
     }
@@ -383,11 +352,11 @@ export class Model extends mixinHasAttributes(
       // @ts-ignore
       return query[method](column, amount, extra);
     }
-    if (this.isClassDeviable(column)) {
-      this[column] = this.deviateClassCastableAttribute(method, column, amount);
-    } else {
-      this[column] = this[column] + (method === 'increment' ? amount : amount * -1);
-    }
+    // if (this.isClassDeviable(column)) {
+    //   this[column] = this.deviateClassCastableAttribute(method, column, amount);
+    // } else {
+    (this as KeyAbleModel)[column] = (this as KeyAbleModel)[column] + (method === 'increment' ? amount : amount * -1);
+    // }
     this.ForceFill(extra);
     if (this._fireModelEvent('updating') === false) {
       return false;
@@ -537,7 +506,7 @@ export class Model extends mixinHasAttributes(
       await query.insert(attributes);
     }
     this._exists = true;
-    this.wasRecentlyCreated = true;
+    this._wasRecentlyCreated = true;
     this._fireModelEvent('created', false);
     return true;
   }
@@ -670,7 +639,7 @@ export class Model extends mixinHasAttributes(
 
   /* Apply the given named scope if possible. */
   public CallNamedScope(scope: string, ...parameters: any[]) {
-    return this['scope' + upperFirst(scope)].apply(this, parameters);
+    return (this as KeyAbleModel)['scope' + upperFirst(scope)].apply(this, parameters);
   }
 
   /* Convert the model instance to an array. */
@@ -722,14 +691,14 @@ export class Model extends mixinHasAttributes(
   }
 
   /* Clone the model into a new, non-existing instance. */
-  public Replicate(excepts: any[] | null = null) {
+  public Replicate<T extends Model>(this: T, excepts: any[] | null = null): T {
     const defaults = [this.GetKeyName(), this.GetCreatedAtColumn(), this.GetUpdatedAtColumn()];
     const attributes = except(this.GetAttributes(), excepts ? uniq([...excepts, ...defaults]) : defaults);
     return tap(new (this.constructor as typeof Model)(), (instance: Model) => {
       instance.SetRawAttributes(attributes);
       instance.SetRelations(this._relations);
       instance.FireModelEvent('replicating', false);
-    });
+    }) as T;
   }
 
   /* Determine if two models have the same ID and belong to the same table. */
@@ -934,13 +903,16 @@ export class Model extends mixinHasAttributes(
 
   /* Retrieve the model for a bound value. */
   public ResolveRouteBinding(value: any, field: string | null = null) {
-    return this.where(field ?? this.GetRouteKeyName(), value).first();
+    return this.NewQuery()
+      .where(field ?? this.GetRouteKeyName(), value)
+      .first();
   }
 
   /* Retrieve the model for a bound value. */
   public ResolveSoftDeletableRouteBinding(value: any, field: string | null = null) {
-    return this.where(field ?? this.GetRouteKeyName(), value)
-      .withTrashed()
+    return this.NewQuery()
+      .where(field ?? this.GetRouteKeyName(), value)
+      .pipe(withTrashed())
       .first();
   }
 
@@ -957,7 +929,7 @@ export class Model extends mixinHasAttributes(
   /* Retrieve the child model query for a bound value. */
   protected ResolveChildRouteBindingQuery(childType: string, value: any, field: string | null) {
     // todo recovery me
-    const relationship = this[plural(camelCase(childType))]();
+    const relationship = (this as KeyAbleModel)[plural(camelCase(childType))]();
     field = field || relationship.getRelated().getRouteKeyName();
     // if (relationship instanceof HasManyThrough || relationship instanceof BelongsToMany) {
     //   return relationship.where(relationship.getRelated().getTable() + '.' + field, value);
@@ -988,8 +960,8 @@ export class Model extends mixinHasAttributes(
     return this.ToArray();
   }
 
-  public clone() {
-    const cloned = new (this.constructor as typeof Model)();
+  public clone<T extends Model>(this: T): T {
+    const cloned = new (this.constructor as typeof Model)() as T;
 
     cloned.SetTable(this._table);
     cloned._guarded = this._guarded && [...this._guarded];
@@ -1007,7 +979,7 @@ export class Model extends mixinHasAttributes(
   // }
 
   /* Begin querying the model on a given connection. */
-  public static useConnection(connection?: string) {
+  public static useConnection<T extends Model>(this: Constructor<T>, connection?: string): FedacoBuilder<T> {
     const instance = new this();
     instance.SetConnection(connection);
     return instance.NewQuery();

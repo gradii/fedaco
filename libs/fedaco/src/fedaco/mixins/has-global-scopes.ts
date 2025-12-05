@@ -8,11 +8,11 @@ import { isBlank } from '@gradii/nanofn';
 import type { Constructor } from '../../helper/constructor';
 import type { Model } from '../model';
 import type { Scope } from '../scope';
+import type { QueryBuilder } from '../../query-builder/query-builder';
 
 export interface HasGlobalScopes {
   GetGlobalScopes(): { [key: string]: Scope | Function };
 }
-
 
 export interface HasGlobalScopesCtor {
   addGlobalScope(scope: string, implementation: Scope | Function): void;

@@ -8,6 +8,7 @@ import { DatabaseConfig } from './../../src/database-config';
 import { FedacoBuilder } from './../../src/fedaco/fedaco-builder';
 import { SchemaBuilder } from './../../src/schema/schema-builder';
 import { getBuilder } from './relation-testing-helper';
+import { KeyAbleModel } from '../../src/types/model-type';
 
 let builder: FedacoBuilder<Model>;
 
@@ -109,7 +110,7 @@ describe('test database fedaco morph to', () => {
 
   it('morph to with dynamic default', async () => {
     const relation = getRelation().withDefault((newModel) => {
-      newModel.username = 'taylor';
+      (newModel as KeyAbleModel).username = 'taylor';
     });
     const spy1 = jest.spyOn(builder, 'first').mockReturnValue(null);
     const newModel = new EloquentMorphToModelStub();
@@ -119,7 +120,7 @@ describe('test database fedaco morph to', () => {
     newModel.SyncOriginal();
     newModel._connection = 'default'; // hack for test
     expect(result).toEqual(newModel);
-    expect(result.username).toBe('taylor');
+    expect((result as EloquentMorphToModelStub).username).toBe('taylor');
     expect(spy1).toHaveBeenCalled();
   });
 
@@ -135,7 +136,7 @@ describe('test database fedaco morph to', () => {
     newModel.SyncOriginal();
     result.SyncOriginal();
     expect(result).toEqual(newModel);
-    expect(result.username).toBe('taylor');
+    expect((result as EloquentMorphToModelStub).username).toBe('taylor');
     expect(spy1).toHaveBeenCalled();
   });
 
@@ -158,7 +159,7 @@ describe('test database fedaco morph to', () => {
     const associate = new Model();
 
     // Model can't define column dynamically. directly spy id value
-    associate.id = 1;
+    (associate as KeyAbleModel).id = 1;
     // jest.spyOn(associate, 'getAttribute').mockReturnValue(1);
     jest.spyOn(associate, 'GetMorphClass').mockReturnValue('Model');
     const spy2 = jest.spyOn(parent, 'SetAttribute');

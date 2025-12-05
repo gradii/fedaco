@@ -3,6 +3,7 @@ import { Model } from '../../src/fedaco/model';
 import { BelongsTo } from '../../src/fedaco/relations/belongs-to';
 import { Column } from '../../src/annotation/column/column';
 import { getBuilder } from './relation-testing-helper';
+import { KeyAbleModel } from '../../src/types/model-type';
 
 let builder: FedacoBuilder<Model>, related: Model;
 
@@ -32,7 +33,7 @@ describe('test database fedaco belongs to', () => {
 
   it('belongs to with dynamic default', async () => {
     const relation = getRelation().withDefault((newModel: Model) => {
-      newModel.username = 'taylor';
+      (newModel as KeyAbleModel).username = 'taylor';
     });
 
     jest.spyOn(builder, 'first').mockReturnValueOnce(null);

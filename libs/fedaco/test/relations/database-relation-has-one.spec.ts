@@ -4,6 +4,7 @@ import { FedacoBuilder } from '../../src/fedaco/fedaco-builder';
 import { Model } from '../../src/fedaco/model';
 import { HasOne } from '../../src/fedaco/relations/has-one';
 import { getBuilder } from './relation-testing-helper';
+import { KeyAbleModel } from '../../src/types/model-type';
 
 let builder: FedacoBuilder, related: Model;
 
@@ -47,7 +48,7 @@ describe('test database fedaco has one', () => {
 
   it('has one with dynamic default', async () => {
     const relation = getRelation().withDefault((newModel: Model) => {
-      newModel.username = 'taylor';
+      (newModel as KeyAbleModel).username = 'taylor';
     });
     const spy1 = jest.spyOn(builder, 'first').mockReturnValue(null);
     const newModel = new EloquentHasOneModelStub();
@@ -61,7 +62,7 @@ describe('test database fedaco has one', () => {
 
   it('has one with dynamic default use parent model', async () => {
     const relation = getRelation().withDefault((newModel: Model, parentModel: Model) => {
-      newModel.username = parentModel.GetAttribute('username');
+      (newModel as KeyAbleModel).username = parentModel.GetAttribute('username');
     });
     jest.spyOn(builder, 'first').mockReturnValue(null);
     // this.builder.shouldReceive('first').once().andReturnNull();

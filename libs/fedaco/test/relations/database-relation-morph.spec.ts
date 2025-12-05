@@ -2,6 +2,7 @@ import { Model } from '../../src/fedaco/model';
 import { MorphMany } from '../../src/fedaco/relations/morph-many';
 import { MorphOne } from '../../src/fedaco/relations/morph-one';
 import { getBuilder } from './relation-testing-helper';
+import { type KeyAbleModel } from '../../src/types/model-type';
 
 let builder, related;
 
@@ -47,6 +48,7 @@ function getNamespacedRelation(alias: string) {
 }
 
 describe('test database fedaco morph', () => {
+  // todo
   it('morph one eager constraints are properly added', () => {
     const relation = getOneRelation();
 
@@ -60,9 +62,9 @@ describe('test database fedaco morph', () => {
     // relation.getQuery().shouldReceive('where').once()._with('table.morph_type',
     //   get_class(relation.getParent()));
     const model1 = new EloquentMorphResetModelStub();
-    model1.id = 1;
+    (model1 as KeyAbleModel).id = 1;
     const model2 = new EloquentMorphResetModelStub();
-    model2.id = 2;
+    (model2 as KeyAbleModel).id = 2;
     relation.addEagerConstraints([model1, model2]);
   });
 
@@ -79,9 +81,9 @@ describe('test database fedaco morph', () => {
     // relation.getQuery().shouldReceive('where').once()._with('table.morph_type',
     //   get_class(relation.getParent()));
     const model1 = new EloquentMorphResetModelStub();
-    model1.id = 1;
+    (model1 as KeyAbleModel).id = 1;
     const model2 = new EloquentMorphResetModelStub();
-    model2.id = 2;
+    (model2 as KeyAbleModel).id = 2;
     relation.addEagerConstraints([model1, model2]);
   });
 

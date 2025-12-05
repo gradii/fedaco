@@ -66,9 +66,8 @@ export interface HasRelationships {
       Omit<MorphPivot, keyof Model> &
       MorphTo &
       MorphToMany,
-    K extends keyof this,
   >(
-    relation: K,
+    relation: string,
   ): T;
 
   /* Get all the loaded relations for the instance. */
@@ -142,12 +141,13 @@ export function mixinHasRelationships<T extends Constructor<{}>>(base: T): HasRe
     public async TouchOwners(this: Model & _Self): Promise<void> {
       for (const relation of this.GetTouchedRelations()) {
         await this.NewRelation(relation).Touch();
-        await this[relation];
-        if (this[relation] instanceof _Self) {
-          (this[relation] as Model).FireModelEvent('saved', false);
-          await (this[relation] as HasRelationships).TouchOwners();
-        } else if (isArray(this[relation])) {
-          for (const it of this[relation]) {
+        const selfThis = this as Model & {[key: string]: any}
+        await selfThis[relation];
+        if (selfThis[relation] instanceof _Self) {
+          (selfThis[relation] as Model).FireModelEvent('saved', false);
+          await (selfThis[relation] as HasRelationships).TouchOwners();
+        } else if (isArray(selfThis[relation])) {
+          for (const it of selfThis[relation]) {
             await it.TouchOwners();
           }
         }

@@ -1,18 +1,20 @@
-import { DecimalColumn } from '../src/annotation/column/decimal.column';
 import { isAnyEmpty, isBlank, isObject, isString, pluck } from '@gradii/nanofn';
 import { createHash } from 'crypto';
 import { format } from 'date-fns';
 import { ArrayColumn } from '../src/annotation/column/array.column';
 import { BooleanColumn } from '../src/annotation/column/boolean.column';
 import { Column } from '../src/annotation/column/column';
+import { CreatedAtColumn } from '../src/annotation/column/created-at.column';
 import { DateColumn } from '../src/annotation/column/date.column';
 import { DatetimeColumn } from '../src/annotation/column/datetime.column';
+import { DecimalColumn } from '../src/annotation/column/decimal.column';
 import { FloatColumn } from '../src/annotation/column/float.column';
 import { IntegerColumn } from '../src/annotation/column/integer.column';
 import { JsonColumn } from '../src/annotation/column/json.column';
 import { ObjectColumn } from '../src/annotation/column/object.column';
 import { PrimaryColumn } from '../src/annotation/column/primary.column';
 import { TimestampColumn } from '../src/annotation/column/timestamp.column';
+import { UpdatedAtColumn } from '../src/annotation/column/updated-at.column';
 import { HasManyColumn } from '../src/annotation/relation-column/has-many.relation-column';
 import { HasOneColumn } from '../src/annotation/relation-column/has-one.relation-column';
 import { Table } from '../src/annotation/table/table';
@@ -22,13 +24,13 @@ import { FedacoBuilder } from '../src/fedaco/fedaco-builder';
 import type { FedacoRelationListType, FedacoRelationType } from '../src/fedaco/fedaco-types';
 import type { Dispatcher } from '../src/fedaco/mixins/has-events';
 import { Model } from '../src/fedaco/model';
-import { Relation } from '../src/fedaco/relations/relation';
 import type { ConnectionResolverInterface } from '../src/interface/connection-resolver-interface';
 import type { ConnectionInterface } from '../src/query-builder/connection-interface';
 import { MysqlQueryGrammar } from '../src/query-builder/grammar/mysql-query-grammar';
 import { Processor } from '../src/query-builder/processor';
 import { QueryBuilder } from '../src/query-builder/query-builder';
 import type { SchemaBuilder } from '../src/schema/schema-builder';
+import { KeyAbleModel } from '../src/types/model-type';
 import { FedacoModelNamespacedModel } from './model/fedaco-model-namespaced.model';
 
 const global: any = {};
@@ -475,7 +477,7 @@ describe('test database fedaco model', () => {
     const spy2 = jest.spyOn(query, 'update').mockReturnValue(1);
 
     const spy3 = jest.spyOn(model, 'NewModelQuery').mockReturnValue(query);
-    const spy4 = jest.spyOn(model, 'UpdateTimestamps');
+    const spy4 = jest.spyOn(model, 'UpdateTimestamps').mockReturnValue(true);
 
     // const events = new Dispatcher();
     const events: Dispatcher = {
@@ -707,7 +709,7 @@ describe('test database fedaco model', () => {
     const query = getBuilder();
 
     const spy1 = jest.spyOn(model, 'NewModelQuery').mockReturnValue(query);
-    const spy11 = jest.spyOn(model, 'UpdateTimestamps'); /* .mockReturnValue(true); */
+    const spy11 = jest.spyOn(model, 'UpdateTimestamps').mockReturnValue(true);
     const spy12 = jest.spyOn(model, 'FireModelEvent');
     const spy2 = jest.spyOn(query, 'where');
     // @ts-ignore
@@ -877,7 +879,7 @@ describe('test database fedaco model', () => {
     const query = getBuilder();
 
     const spy1 = jest.spyOn(model, 'NewModelQuery').mockReturnValue(query);
-    const spy11 = jest.spyOn(model, 'UpdateTimestamps'); /* .mockReturnValue(true); */
+    const spy11 = jest.spyOn(model, 'UpdateTimestamps').mockReturnValue(true);
     const spy12 = jest.spyOn(model, 'FireModelEvent');
     const spy13 = jest.spyOn(model, 'Refresh'); /* .mockReturnValue(true); */
     const spy2 = jest.spyOn(query, 'where');
@@ -941,7 +943,7 @@ describe('test database fedaco model', () => {
     model.SetIncrementing(false);
 
     const spy1 = jest.spyOn(model, 'NewModelQuery').mockReturnValue(query);
-    const spy11 = jest.spyOn(model, 'UpdateTimestamps'); /* .mockReturnValue(true); */
+    const spy11 = jest.spyOn(model, 'UpdateTimestamps').mockReturnValue(true);
     const spy12 = jest.spyOn(model, 'FireModelEvent');
     const spy13 = jest.spyOn(model, 'Refresh'); /* .mockReturnValue(true); */
     const spy2 = jest.spyOn(query, 'where');
@@ -1059,7 +1061,7 @@ describe('test database fedaco model', () => {
     const query = getBuilder();
 
     const spy1 = jest.spyOn(model, 'NewModelQuery').mockReturnValue(query);
-    const spy11 = jest.spyOn(model, 'UpdateTimestamps'); /* .mockReturnValue(true); */
+    const spy11 = jest.spyOn(model, 'UpdateTimestamps').mockReturnValue(true);
     const spy12 = jest.spyOn(model, 'FireModelEvent');
     const spy13 = jest.spyOn(model, 'Refresh'); /* .mockReturnValue(true); */
     const spy2 = jest.spyOn(query, 'where');
@@ -1095,7 +1097,7 @@ describe('test database fedaco model', () => {
     const query = getBuilder();
 
     const spy1 = jest.spyOn(model, 'NewModelQuery').mockReturnValue(query);
-    const spy11 = jest.spyOn(model, 'UpdateTimestamps'); /* .mockReturnValue(true); */
+    const spy11 = jest.spyOn(model, 'UpdateTimestamps').mockReturnValue(true);
     const spy12 = jest.spyOn(model, 'FireModelEvent');
     const spy13 = jest.spyOn(model, 'Refresh'); /* .mockReturnValue(true); */
     const spy2 = jest.spyOn(query, 'where');
@@ -1132,6 +1134,7 @@ describe('test database fedaco model', () => {
     const query = getBuilder();
 
     const spy1 = jest.spyOn(related1, 'NewModelQuery').mockReturnValue(query);
+    const spy11_1 = jest.spyOn(related1, 'UpdateTimestamps').mockReturnValue(true);
     // @ts-ignore
     const spy3 = jest.spyOn(query, 'insertGetId').mockImplementation((attributes, keyName) => {
       expect(attributes).toEqual({
@@ -1148,6 +1151,7 @@ describe('test database fedaco model', () => {
     const model = new FedacoModelStub();
     const query2 = getBuilder();
     const spy2 = jest.spyOn(model, 'NewModelQuery').mockReturnValue(query2);
+    const spy11 = jest.spyOn(model, 'UpdateTimestamps').mockReturnValue(true);
     // @ts-ignore
     const spy3_3 = jest.spyOn(query2, 'insertGetId').mockImplementation((attributes, keyName) => {
       expect(attributes).toEqual({
@@ -1177,7 +1181,7 @@ describe('test database fedaco model', () => {
     const query = getBuilder();
 
     const spy1 = jest.spyOn(model, 'NewModelQuery').mockReturnValue(query);
-    const spy11 = jest.spyOn(model, 'UpdateTimestamps'); /* .mockReturnValue(true); */
+    const spy11 = jest.spyOn(model, 'UpdateTimestamps').mockReturnValue(true);
     const spy22 = jest.spyOn(query, 'getConnection');
     // @ts-ignore
     const spy3 = jest.spyOn(query, 'insertGetId').mockImplementation((attributes, keyName) => {
@@ -1212,6 +1216,7 @@ describe('test database fedaco model', () => {
     const query0 = getBuilder();
 
     const spy1 = jest.spyOn(related1, 'NewModelQuery').mockReturnValue(query0);
+    const spy11_1 = jest.spyOn(related1, 'UpdateTimestamps').mockReturnValue(true);
     // @ts-ignore
     const spy3 = jest.spyOn(query0, 'insertGetId').mockImplementation((attributes, keyName) => {
       expect(attributes).toEqual({
@@ -1229,6 +1234,7 @@ describe('test database fedaco model', () => {
     const query1 = getBuilder();
 
     const spy1_1 = jest.spyOn(related2, 'NewModelQuery').mockReturnValue(query1);
+    const spy11_11 = jest.spyOn(related2, 'UpdateTimestamps').mockReturnValue(true);
     // @ts-ignore
     const spy3_1 = jest.spyOn(query1, 'insertGetId').mockImplementation((attributes, keyName) => {
       expect(attributes).toEqual({
@@ -1246,6 +1252,7 @@ describe('test database fedaco model', () => {
     const query2 = getBuilder();
 
     const spy1_2 = jest.spyOn(model, 'NewModelQuery').mockReturnValue(query2);
+    const spy11 = jest.spyOn(model, 'UpdateTimestamps').mockReturnValue(true);
     // @ts-ignore
     const spy3_2 = jest.spyOn(query2, 'insertGetId').mockImplementation((attributes, keyName) => {
       expect(attributes).toEqual({
@@ -1718,119 +1725,119 @@ describe('test database fedaco model', () => {
     expect(Model.isUnguarded()).toBeFalsy();
   });
 
-  xit('has one creates proper relation', () => {
-    let model = new FedacoModelStub();
-    resolveModel(model);
-    let relation = model.hasOne(FedacoModelSaveStub);
-    expect(relation.getQualifiedForeignKeyName()).toBe('save_stub.fedaco_model_stub_id');
-    model = new FedacoModelStub();
-    resolveModel(model);
-    relation = model.hasOne(FedacoModelSaveStub, 'foo');
-    expect(relation.getQualifiedForeignKeyName()).toBe('save_stub.foo');
-    expect(relation.getParent()).toEqual(model);
-    expect(relation.getQuery().getModel()).toBeInstanceOf(FedacoModelSaveStub);
-  });
-
-  xit('morph one creates proper relation', () => {
-    const model = new FedacoModelStub();
-    resolveModel(model);
-    const relation = model.morphOne(FedacoModelSaveStub, 'morph');
-    expect(relation.getQualifiedForeignKeyName()).toBe('save_stub.morph_id');
-    expect(relation.getQualifiedMorphType()).toBe('save_stub.morph_type');
-    expect(relation.getMorphClass()).toEqual(FedacoModelStub);
-  });
-
-  xit('correct morph class is returned', () => {
-    Relation.morphMap({
-      alias: 'AnotherModel',
-    });
-    const model = new FedacoModelStub();
-    try {
-      expect(model.GetMorphClass()).toEqual(FedacoModelStub);
-    } finally {
-      Relation.morphMap([], false);
-    }
-  });
-
-  xit('has many creates proper relation', () => {
-    let model = new FedacoModelStub();
-    resolveModel(model);
-    let relation = model.hasMany(FedacoModelSaveStub);
-    expect(relation.getQualifiedForeignKeyName()).toBe('save_stub.fedaco_model_stub_id');
-    model = new FedacoModelStub();
-    resolveModel(model);
-    relation = model.hasMany(FedacoModelSaveStub, 'foo');
-    expect(relation.getQualifiedForeignKeyName()).toBe('save_stub.foo');
-    expect(relation.getParent()).toEqual(model);
-    expect(relation.getQuery().getModel()).toBeInstanceOf(FedacoModelSaveStub);
-  });
-
-  xit('morph many creates proper relation', () => {
-    const model = new FedacoModelStub();
-    resolveModel(model);
-    const relation = model.morphMany(FedacoModelSaveStub, 'morph');
-    expect(relation.getQualifiedForeignKeyName()).toBe('save_stub.morph_id');
-    expect(relation.getQualifiedMorphType()).toBe('save_stub.morph_type');
-    expect(relation.getMorphClass()).toEqual(FedacoModelStub);
-  });
-
-  xit('belongs to creates proper relation', () => {
-    let model = new FedacoModelStub();
-    resolveModel(model);
-    let relation = model.belongsToStub();
-    expect(relation.getForeignKeyName()).toBe('belongs_to_stub_id');
-    expect(relation.getParent()).toEqual(model);
-    expect(relation.getQuery().getModel()).toBeInstanceOf(FedacoModelSaveStub);
-    model = new FedacoModelStub();
-    resolveModel(model);
-    relation = model.belongsToExplicitKeyStub();
-    expect(relation.getForeignKeyName()).toBe('foo');
-  });
-
-  xit('morph to creates proper relation', () => {
-    const model = new FedacoModelStub();
-    resolveModel(model);
-    const relation = model.morphToStub();
-    expect(relation.getForeignKeyName()).toBe('morph_to_stub_id');
-    expect(relation.getMorphType()).toBe('morph_to_stub_type');
-    expect(relation.getRelationName()).toBe('morphToStub');
-    expect(relation.getParent()).toEqual(model);
-    expect(relation.getQuery().getModel()).toBeInstanceOf(FedacoModelSaveStub);
-    const relation2 = model.morphToStubWithKeys();
-    expect(relation2.getForeignKeyName()).toBe('id');
-    expect(relation2.getMorphType()).toBe('type');
-    expect(relation2.getRelationName()).toBe('morphToStubWithKeys');
-    const relation3 = model.morphToStubWithName();
-    expect(relation3.getForeignKeyName()).toBe('some_name_id');
-    expect(relation3.getMorphType()).toBe('some_name_type');
-    expect(relation3.getRelationName()).toBe('someName');
-    const relation4 = model.morphToStubWithNameAndKeys();
-    expect(relation4.getForeignKeyName()).toBe('id');
-    expect(relation4.getMorphType()).toBe('type');
-    expect(relation4.getRelationName()).toBe('someName');
-  });
-
-  xit('belongs to many creates proper relation', () => {
-    let model = new FedacoModelStub();
-    resolveModel(model);
-    let relation = model.belongsToMany(FedacoModelSaveStub);
-    expect(relation.getQualifiedForeignPivotKeyName()).toBe(
-      'fedaco_model_save_stub_fedaco_model_stub.fedaco_model_stub_id',
-    );
-    expect(relation.getQualifiedRelatedPivotKeyName()).toBe(
-      'fedaco_model_save_stub_fedaco_model_stub.fedaco_model_save_stub_id',
-    );
-    expect(relation.getParent()).toEqual(model);
-    expect(relation.getQuery().getModel()).toBeInstanceOf(FedacoModelSaveStub);
-    expect(relation.getRelationName()).toEqual('ddddd');
-    model = new FedacoModelStub();
-    resolveModel(model);
-    relation = model.belongsToMany(FedacoModelSaveStub, 'table', 'foreign', 'other');
-    expect(relation.getQualifiedForeignPivotKeyName()).toBe('table.foreign');
-    expect(relation.getQualifiedRelatedPivotKeyName()).toBe('table.other');
-    expect(relation.getParent()).toEqual(model);
-    expect(relation.getQuery().getModel()).toBeInstanceOf(FedacoModelSaveStub);
-  });
+  // xit('has one creates proper relation', () => {
+  //   let model = new FedacoModelStub();
+  //   resolveModel(model);
+  //   let relation = (model as any).hasOne(FedacoModelSaveStub);
+  //   expect(relation.getQualifiedForeignKeyName()).toBe('save_stub.fedaco_model_stub_id');
+  //   model = new FedacoModelStub();
+  //   resolveModel(model);
+  //   relation = (model as any).hasOne(FedacoModelSaveStub, 'foo');
+  //   expect(relation.getQualifiedForeignKeyName()).toBe('save_stub.foo');
+  //   expect(relation.getParent()).toEqual(model);
+  //   expect(relation.getQuery().getModel()).toBeInstanceOf(FedacoModelSaveStub);
+  // });
+  //
+  // xit('morph one creates proper relation', () => {
+  //   const model = new FedacoModelStub();
+  //   resolveModel(model);
+  //   const relation = (model as any).morphOne(FedacoModelSaveStub, 'morph');
+  //   expect(relation.getQualifiedForeignKeyName()).toBe('save_stub.morph_id');
+  //   expect(relation.getQualifiedMorphType()).toBe('save_stub.morph_type');
+  //   expect(relation.getMorphClass()).toEqual(FedacoModelStub);
+  // });
+  //
+  // xit('correct morph class is returned', () => {
+  //   Relation.morphMap({
+  //     alias: 'AnotherModel',
+  //   });
+  //   const model = new FedacoModelStub();
+  //   try {
+  //     expect(model.GetMorphClass()).toEqual(FedacoModelStub);
+  //   } finally {
+  //     Relation.morphMap([], false);
+  //   }
+  // });
+  //
+  // xit('has many creates proper relation', () => {
+  //   let model = new FedacoModelStub();
+  //   resolveModel(model);
+  //   let relation = (model as any).hasMany(FedacoModelSaveStub);
+  //   expect(relation.getQualifiedForeignKeyName()).toBe('save_stub.fedaco_model_stub_id');
+  //   model = new FedacoModelStub();
+  //   resolveModel(model);
+  //   relation = (model as any).hasMany(FedacoModelSaveStub, 'foo');
+  //   expect(relation.getQualifiedForeignKeyName()).toBe('save_stub.foo');
+  //   expect(relation.getParent()).toEqual(model);
+  //   expect(relation.getQuery().getModel()).toBeInstanceOf(FedacoModelSaveStub);
+  // });
+  //
+  // xit('morph many creates proper relation', () => {
+  //   const model = new FedacoModelStub();
+  //   resolveModel(model);
+  //   const relation = (model as any).morphMany(FedacoModelSaveStub, 'morph');
+  //   expect(relation.getQualifiedForeignKeyName()).toBe('save_stub.morph_id');
+  //   expect(relation.getQualifiedMorphType()).toBe('save_stub.morph_type');
+  //   expect(relation.getMorphClass()).toEqual(FedacoModelStub);
+  // });
+  //
+  // xit('belongs to creates proper relation', () => {
+  //   let model = new FedacoModelStub();
+  //   resolveModel(model);
+  //   let relation = model.belongsToStub();
+  //   expect(relation.getForeignKeyName()).toBe('belongs_to_stub_id');
+  //   expect(relation.getParent()).toEqual(model);
+  //   expect(relation.getQuery().getModel()).toBeInstanceOf(FedacoModelSaveStub);
+  //   model = new FedacoModelStub();
+  //   resolveModel(model);
+  //   relation = model.belongsToExplicitKeyStub();
+  //   expect(relation.getForeignKeyName()).toBe('foo');
+  // });
+  //
+  // xit('morph to creates proper relation', () => {
+  //   const model = new FedacoModelStub();
+  //   resolveModel(model);
+  //   const relation = model.morphToStub();
+  //   expect(relation.getForeignKeyName()).toBe('morph_to_stub_id');
+  //   expect(relation.getMorphType()).toBe('morph_to_stub_type');
+  //   expect(relation.getRelationName()).toBe('morphToStub');
+  //   expect(relation.getParent()).toEqual(model);
+  //   expect(relation.getQuery().getModel()).toBeInstanceOf(FedacoModelSaveStub);
+  //   const relation2 = model.morphToStubWithKeys();
+  //   expect(relation2.getForeignKeyName()).toBe('id');
+  //   expect(relation2.getMorphType()).toBe('type');
+  //   expect(relation2.getRelationName()).toBe('morphToStubWithKeys');
+  //   const relation3 = model.morphToStubWithName();
+  //   expect(relation3.getForeignKeyName()).toBe('some_name_id');
+  //   expect(relation3.getMorphType()).toBe('some_name_type');
+  //   expect(relation3.getRelationName()).toBe('someName');
+  //   const relation4 = model.morphToStubWithNameAndKeys();
+  //   expect(relation4.getForeignKeyName()).toBe('id');
+  //   expect(relation4.getMorphType()).toBe('type');
+  //   expect(relation4.getRelationName()).toBe('someName');
+  // });
+  //
+  // xit('belongs to many creates proper relation', () => {
+  //   let model = new FedacoModelStub();
+  //   resolveModel(model);
+  //   let relation = (model as any).belongsToMany(FedacoModelSaveStub);
+  //   expect(relation.getQualifiedForeignPivotKeyName()).toBe(
+  //     'fedaco_model_save_stub_fedaco_model_stub.fedaco_model_stub_id',
+  //   );
+  //   expect(relation.getQualifiedRelatedPivotKeyName()).toBe(
+  //     'fedaco_model_save_stub_fedaco_model_stub.fedaco_model_save_stub_id',
+  //   );
+  //   expect(relation.getParent()).toEqual(model);
+  //   expect(relation.getQuery().getModel()).toBeInstanceOf(FedacoModelSaveStub);
+  //   expect(relation.getRelationName()).toEqual('ddddd');
+  //   model = new FedacoModelStub();
+  //   resolveModel(model);
+  //   relation = (model as any).belongsToMany(FedacoModelSaveStub, 'table', 'foreign', 'other');
+  //   expect(relation.getQualifiedForeignPivotKeyName()).toBe('table.foreign');
+  //   expect(relation.getQualifiedRelatedPivotKeyName()).toBe('table.other');
+  //   expect(relation.getParent()).toEqual(model);
+  //   expect(relation.getQuery().getModel()).toBeInstanceOf(FedacoModelSaveStub);
+  // });
 
   // xit('relations with varied connections', () => {
   //   let model = new FedacoModelStub();
@@ -1927,12 +1934,12 @@ describe('test database fedaco model', () => {
     clazz.first = 'taylor';
     clazz.last = 'otwell';
 
-    clazz.created_at = clazz.FreshTimestamp();
-    clazz.updated_at = clazz.FreshTimestamp();
+    (clazz as KeyAbleModel).created_at = clazz.FreshTimestamp();
+    (clazz as KeyAbleModel).updated_at = clazz.FreshTimestamp();
     clazz.SetRelation('foo', ['bar']);
     const clone = clazz.Replicate();
     expect(clone.id).toBeUndefined();
-    expect(clone.exists).toBeFalsy();
+    expect(clone._exists).toBeFalsy();
     expect(clone.first).toBe('taylor');
     expect(clone.last).toBe('otwell');
     expect(clone.GetAttributes()).not.toHaveProperty('created_at');
@@ -2108,11 +2115,15 @@ describe('test database fedaco model', () => {
   //     expect(model.getMutatedAttributes()).toEqual(['firstName', 'middleName', 'lastName']);
   //   });
   it('replicate creates a new model instance with same attribute values', () => {
-    const model = new FedacoModelStub();
+    const model = new FedacoTimestampStub();
+    jest.spyOn(model, 'FromDateTime').mockReturnValue('foo date');
+    jest.spyOn(model, 'AsDateTime').mockImplementation((value) => value);
     model.id = 'id';
     model.foo = 'bar';
     model.created_at = new Date();
     model.updated_at = new Date();
+    expect(model.created_at).toBe('foo date');
+    expect(model.updated_at).toBe('foo date');
     const replicated = model.Replicate();
     expect(replicated.id).toBeUndefined();
     expect(replicated.foo).toBe('bar');
@@ -2680,8 +2691,8 @@ export class FedacoModelStub extends Model {
   @HasOneColumn() relationOne: FedacoRelationType<any>;
   @HasManyColumn() relationMany: FedacoRelationListType<any>;
 
-  // @Column() created_at;
-  // @Column() updated_at;
+  // @CreatedAtColumn() created_at: Date | string | number;
+  // @UpdatedAtColumn() updated_at: Date | string | number;
 
   public get password() {
     return '******';
@@ -2696,27 +2707,27 @@ export class FedacoModelStub extends Model {
   }
 
   public belongsToStub() {
-    return this.belongsTo(FedacoModelSaveStub);
+    // return this.belongsTo(FedacoModelSaveStub);
   }
 
   public morphToStub() {
-    return this.morphTo();
+    // return this.morphTo();
   }
 
   public morphToStubWithKeys() {
-    return this.morphTo(null, 'type', 'id');
+    // return this.morphTo(null, 'type', 'id');
   }
 
   public morphToStubWithName() {
-    return this.morphTo('someName');
+    // return this.morphTo('someName');
   }
 
   public morphToStubWithNameAndKeys() {
-    return this.morphTo('someName', 'type', 'id');
+    // return this.morphTo('someName', 'type', 'id');
   }
 
   public belongsToExplicitKeyStub() {
-    return this.belongsTo(FedacoModelSaveStub, 'foo');
+    // return this.belongsTo(FedacoModelSaveStub, 'foo');
   }
 
   public incorrectRelationStub() {
@@ -2732,15 +2743,15 @@ export class FedacoModelStub extends Model {
   }
 
   public scopePublished(builder: FedacoBuilder) {
-    this.scopesCalled.push('published');
+    // this.scopesCalled.push('published');
   }
 
   public scopeCategory(builder: FedacoBuilder, category: any) {
-    this.scopesCalled['category'] = category;
+    // this.scopesCalled['category'] = category;
   }
 
   public scopeFramework(builder: FedacoBuilder, framework: any, version: any) {
-    this.scopesCalled['framework'] = [framework, version];
+    // this.scopesCalled['framework'] = [framework, version];
   }
 }
 
@@ -2773,6 +2784,11 @@ export class FedacoDateModelStub extends FedacoModelStub {
 
   @DateColumn() created_at: Date | string | number;
   @DateColumn() updated_at: Date | string | number;
+}
+
+export class FedacoTimestampStub extends FedacoModelStub {
+  @CreatedAtColumn() created_at: Date | string | number;
+  @UpdatedAtColumn() updated_at: Date | string | number;
 }
 
 export class FedacoModelSaveStub extends Model {
@@ -2864,9 +2880,9 @@ export class FedacoModelWithoutRelationStub extends Model {
   public _with: any = ['foo'];
   _guarded: any = [];
 
-  public getEagerLoads() {
-    return this._eagerLoads;
-  }
+  // public getEagerLoads() {
+  //   return this._eagerLoads;
+  // }
 }
 
 @Table({
@@ -2985,7 +3001,7 @@ export class FedacoModelCastingStub extends Model {
   @DecimalColumn({ precision: 4 }) precisionDecimal: number;
 
   public jsonAttributeValue() {
-    return this.attributes['jsonAttribute'];
+    return this._attributes['jsonAttribute'];
   }
 
   SerializeDate(date: Date) {

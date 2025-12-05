@@ -12,6 +12,7 @@ import type { Model } from '../model';
 import type { InteractsWithDictionary } from './concerns/interacts-with-dictionary';
 import { mixinInteractsWithDictionary } from './concerns/interacts-with-dictionary';
 import { Relation } from './relation';
+import { type SoftDeletes } from '../mixins/soft-deletes';
 
 export interface HasManyThrough extends InteractsWithDictionary, Constructor<Relation> {
   /* The "through" parent model instance. */
@@ -89,7 +90,7 @@ export interface HasManyThrough extends InteractsWithDictionary, Constructor<Rel
   getResults(): Promise<Model | Model[]>;
 
   /* Execute the query as a "select" statement. */
-  get(columns?: any[]): Promise<Model | Model[]>;
+  get(columns?: any[]): Promise<Model[]>;
 
   /* Set the select clause for the relation query. */
   _shouldSelect(columns?: any[]): string[];
@@ -315,7 +316,7 @@ export class HasManyThrough extends mixinInteractsWithDictionary(Relation) {
     const result = await this.find(id, columns);
     // let id     = id instanceof Arrayable ? id.toArray() : id;
     if (isArray(id)) {
-      if (result.length === uniq(id).length) {
+      if ((result as Model[]).length === uniq(id).length) {
         return result;
       }
     } else if (!isBlank(result)) {
@@ -331,7 +332,7 @@ export class HasManyThrough extends mixinInteractsWithDictionary(Relation) {
   }
 
   /* Execute the query as a "select" statement. */
-  public async get(columns: any[] = ['*']): Promise<Model | Model[]> {
+  public async get(columns: any[] = ['*']): Promise<Model[]> {
     const builder = this._prepareQueryBuilder(columns);
     let models = await builder.getModels();
     if (models.length > 0) {
@@ -431,7 +432,7 @@ export class HasManyThrough extends mixinInteractsWithDictionary(Relation) {
     query.from(`${query.getModel().GetTable()} as ${hash}`);
     query.join(this._throughParent.GetTable(), this.getQualifiedParentKeyName(), '=', hash + '.' + this._secondKey);
     if (this.throughParentSoftDeletes()) {
-      query.whereNull(this._throughParent.getQualifiedDeletedAtColumn());
+      query.whereNull((this._throughParent as Model & SoftDeletes).GetQualifiedDeletedAtColumn());
     }
     query.getModel().SetTable(hash);
     return query
@@ -449,7 +450,7 @@ export class HasManyThrough extends mixinInteractsWithDictionary(Relation) {
     const table = `${this._throughParent.GetTable()} as ${hash}`;
     query.join(table, `${hash}.${this._secondLocalKey}`, '=', this.getQualifiedFarKeyName());
     if (this.throughParentSoftDeletes()) {
-      query.whereNull(`${hash}.${this._throughParent.getDeletedAtColumn()}`);
+      query.whereNull(`${hash}.${(this._throughParent as Model & SoftDeletes).GetDeletedAtColumn()}`);
     }
     return query
       .select(columns)

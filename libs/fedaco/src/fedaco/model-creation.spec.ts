@@ -1,4 +1,5 @@
 import { Column } from '../annotation/column/column';
+import { KeyAbleModel } from '../types/model-type';
 import { Model } from './model';
 
 // Mocking the Model's dependencies if necessary, but trying to use real Model logic
@@ -50,7 +51,7 @@ describe('Model Creation and Fillable', () => {
     expect(model['name']).toBe('John');
     expect(model['email']).toBe('john@example.com');
     expect(model['is_admin']).toBeUndefined();
-    expect(model['other']).toBeUndefined();
+    expect((model as KeyAbleModel)['other']).toBeUndefined();
   });
 
   it('should merge manual fillable attributes defined in constructor', () => {
@@ -63,7 +64,7 @@ describe('Model Creation and Fillable', () => {
 
     expect(model['name']).toBe('John');
     expect(model.GetAttribute('manual_field')).toBe('manual');
-    expect(model['other']).toBeUndefined();
+    expect((model as KeyAbleModel)['other']).toBeUndefined();
   });
 
   it('should merge subclass _fillable property with annotations', () => {
@@ -76,7 +77,7 @@ describe('Model Creation and Fillable', () => {
 
     expect(model['name']).toBe('John');
     expect(model.GetAttribute('subclass_field')).toBe('sub');
-    expect(model['other']).toBeUndefined();
+    expect((model as KeyAbleModel)['other']).toBeUndefined();
   });
 
   it('should respect UnFillable', () => {

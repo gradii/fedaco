@@ -34,6 +34,7 @@ import type { Model } from './model';
 import { Relation } from './relations/relation';
 import { Scope } from './scope';
 import { BelongsToManySymbol, FedacoBuilderSymbol } from '../symbol/fedaco-symbol';
+import { type KeyAbleModel } from '../types/model-type';
 
 export interface FedacoBuilder<T extends Model = Model>
   extends
@@ -108,9 +109,9 @@ export interface FedacoBuilder<T extends Model = Model>
    */
   find(id: string | number, columns?: any[]): Promise<T>;
 
-  find(id: any, columns?: any[]): Promise<T>;
-
   find(id: any[], columns?: any[]): Promise<T[]>;
+
+  find(id: any, columns?: any[]): Promise<T>;
 
   /**
    * Find multiple models by their primary keys.
@@ -760,9 +761,11 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     }
     if (isArray(results)) {
       return results.map((value) => {
-        return this._model.NewFromBuilder({
-          [column]: value,
-        })[column];
+        return (
+          this._model.NewFromBuilder({
+            [column]: value,
+          }) as KeyAbleModel
+        )[column];
       });
     } else {
       throw new Error('not implement');

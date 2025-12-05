@@ -13,6 +13,7 @@ import { mixinCanBeOneOfMany } from './concerns/can-be-one-of-many';
 import { mixinComparesRelatedModels } from './concerns/compares-related-models';
 import { mixinSupportsDefaultModels } from './concerns/supports-default-models';
 import { MorphOneOrMany } from './morph-one-or-many';
+import { type KeyAbleModel } from '../../types/model-type';
 
 export class MorphOne extends mixinCanBeOneOfMany(
   mixinComparesRelatedModels(mixinSupportsDefaultModels(MorphOneOrMany)),
@@ -73,7 +74,7 @@ export class MorphOne extends mixinCanBeOneOfMany(
   public newRelatedInstanceFor(parent: Model) {
     return this._related
       .NewInstance()
-      .SetAttribute(this.getForeignKeyName(), parent[this._localKey])
+      .SetAttribute(this.getForeignKeyName(), (parent as KeyAbleModel)[this._localKey])
       .SetAttribute(this.getMorphType(), this._morphClass);
   }
 

@@ -17,6 +17,7 @@ import { mixinInteractsWithDictionary } from './concerns/interacts-with-dictiona
 import type { SupportsDefaultModels } from './concerns/supports-default-models';
 import { mixinSupportsDefaultModels } from './concerns/supports-default-models';
 import { Relation } from './relation';
+import type { KeyAbleModel } from '../../types/model-type';
 
 export interface BelongsTo
   extends ComparesRelatedModels, InteractsWithDictionary, SupportsDefaultModels, Constructor<Relation> {
@@ -184,7 +185,7 @@ export class BelongsTo extends mixinComparesRelatedModels(
 
   /* Get the key value of the child's foreign key. */
   public getParentKey() {
-    return this._child[this._foreignKey];
+    return (this._child as KeyAbleModel)[this._foreignKey];
   }
 
   /* Get the associated key of the relationship. */
@@ -199,7 +200,7 @@ export class BelongsTo extends mixinComparesRelatedModels(
 
   /* Get the value of the model's associated key. */
   _getRelatedKeyFrom(model: Model) {
-    return model[this._ownerKey];
+    return (model as KeyAbleModel)[this._ownerKey];
   }
 
   /* Get the name of the relationship. */

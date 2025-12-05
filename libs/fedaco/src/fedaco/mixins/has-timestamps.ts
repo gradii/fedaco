@@ -53,7 +53,7 @@ export interface HasTimestamps {
 export type HasTimestampsCtor = Constructor<HasTimestamps>;
 
 /** Mixin to augment a directive with a `disableRipple` property. */
-export function mixinHasTimestamps<T extends Constructor<any>>(base: T): HasTimestampsCtor & T {
+export function mixinHasTimestamps<T extends Constructor<{}>>(base: T): HasTimestampsCtor & T {
   // @ts-ignore
   return class _Self extends base {
     /* Indicates if the model should be timestamped. */
@@ -89,13 +89,13 @@ export function mixinHasTimestamps<T extends Constructor<any>>(base: T): HasTime
 
     /* Set the value of the "created at" attribute. */
     public SetCreatedAt(value: any): this {
-      this[this.GetCreatedAtColumn()] = value;
+      (this as any)[this.GetCreatedAtColumn()] = value;
       return this;
     }
 
     /* Set the value of the "updated at" attribute. */
     public SetUpdatedAt(value: any): this {
-      this[this.GetUpdatedAtColumn()] = value;
+      (this as any)[this.GetUpdatedAtColumn()] = value;
       return this;
     }
 

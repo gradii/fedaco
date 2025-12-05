@@ -128,6 +128,7 @@ describe('fedaco builder', () => {
     jest.spyOn(_model, 'GetKeyName').mockReturnValue('foo');
     jest.spyOn(_model, 'GetTable').mockReturnValue('foo_table');
     jest.spyOn(_model, 'GetQualifiedKeyName').mockReturnValue('foo_table.foo');
+    // @ts-ignore
     jest.spyOn(_model, 'NewBaseQueryBuilder').mockReturnValue(mockNewQueryBuilder());
     return _model;
   }
@@ -230,7 +231,7 @@ describe('fedaco builder', () => {
     expected = await modelQuery.findOrNew('bar', ['column']);
     result = await builder.find('bar', ['column']);
 
-    expect(builder.getModel()['findOrNew']).toBe(builder.getModel()['findOrNew']);
+    // expect(builder.getModel()['findOrNew']).toBe(builder.getModel()['findOrNew']);
 
     expect(spy1).toHaveBeenCalledWith('foo_table.foo', '=', 'bar', 'and');
     expect(spy2).toHaveBeenCalledTimes(1);

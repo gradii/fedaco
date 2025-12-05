@@ -35,7 +35,7 @@ export function fromRawAttributes(
   exists = false,
 ) {
   const instance: Model = fromAttributes(clazz, parent, [], table, exists);
-  instance._timestamps = instance.HasTimestampAttributes(attributes);
+  instance._timestamps = (instance as AsPivot).HasTimestampAttributes(attributes);
   instance.SetRawAttributes(attributes, exists);
   return instance;
 }

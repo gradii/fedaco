@@ -18,7 +18,7 @@ export class MorphMany extends MorphOneOrMany {
   /* Initialize the relation on a set of models. */
   public initRelation(models: Model[], relation: string) {
     for (const model of models) {
-      model.setRelation(relation, this._related.NewCollection());
+      model.SetRelation(relation, this._related.NewCollection());
     }
     return models;
   }

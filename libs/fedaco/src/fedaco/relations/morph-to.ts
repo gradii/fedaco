@@ -14,6 +14,7 @@ import type { FedacoBuilder } from '../fedaco-builder';
 import type { Model } from '../model';
 import { BelongsTo } from './belongs-to';
 import { Relation } from './relation';
+import type { KeyAbleModel } from '../../types/model-type';
 
 export class MorphTo extends BelongsTo {
   /* The type of the polymorphic relation. */
@@ -197,7 +198,9 @@ export class MorphTo extends BelongsTo {
   /* Match the results for a given type to their parents. */
   protected matchToMorphParents(type: string, results: Collection) {
     for (const result of results) {
-      const ownerKey = !isBlank(this._ownerKey) ? this._getDictionaryKey(result[this._ownerKey]) : result.GetKey();
+      const ownerKey = !isBlank(this._ownerKey)
+        ? this._getDictionaryKey((result as KeyAbleModel)[this._ownerKey])
+        : result.GetKey();
       if (this._dictionary[type][ownerKey] !== undefined) {
         for (const model of this._dictionary[type][ownerKey]) {
           (model as Model).SetRelation(this._relationName, result);
@@ -212,8 +215,8 @@ export class MorphTo extends BelongsTo {
       foreignKeyValue = null,
       morphClass = null;
     if (model instanceof BaseModel) {
-      foreignKey = this._ownerKey && model[this._ownerKey] ? this._ownerKey : model.GetKeyName();
-      foreignKeyValue = model[foreignKey];
+      foreignKey = this._ownerKey && (model as KeyAbleModel)[this._ownerKey] ? this._ownerKey : model.GetKeyName();
+      foreignKeyValue = (model as KeyAbleModel)[foreignKey];
       morphClass = model.GetMorphClass();
     }
     this._parent.SetAttribute(this._foreignKey, foreignKeyValue);

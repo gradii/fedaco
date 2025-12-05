@@ -2,6 +2,7 @@ autoInstallPeers: true
 
 ignoredBuiltDependencies:
   - '@swc/core'
+
 onlyBuiltDependencies:
   - esbuild
   - nx

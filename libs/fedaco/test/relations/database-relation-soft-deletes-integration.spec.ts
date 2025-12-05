@@ -303,7 +303,7 @@ describe('test database fedaco soft deletes integration', () => {
     await abigail.NewRelation('address').delete();
     abigail = await abigail.Fresh();
     expect(await abigail.address).toBeNull();
-    expect((await abigail.NewRelation('address').getQuery().pipe(withTrashed()).first()).address).toBe(
+    expect((await abigail.NewRelation('address').getQuery().pipe(withTrashed()).first() as SoftDeletesTestAddress).address).toBe(
       'Laravel avenue 43',
     );
     await abigail.NewRelation('address').getQuery().pipe(withTrashed(), restore());
@@ -312,7 +312,7 @@ describe('test database fedaco soft deletes integration', () => {
     await (await abigail.address).Delete();
     abigail = await abigail.Fresh();
     expect(await abigail.address).toBeNull();
-    expect((await abigail.NewRelation('address').getQuery().pipe(withTrashed()).first()).address).toBe(
+    expect((await abigail.NewRelation('address').getQuery().pipe(withTrashed()).first() as SoftDeletesTestAddress).address).toBe(
       'Laravel avenue 43',
     );
     await abigail.NewRelation('address').getQuery().pipe(withTrashed()).forceDelete();
@@ -331,14 +331,14 @@ describe('test database fedaco soft deletes integration', () => {
     await abigail.NewRelation('group').delete();
     abigail = await abigail.Fresh();
     expect(await abigail.group).toBeNull();
-    expect((await abigail.NewRelation('group').getQuery().pipe(withTrashed()).first()).name).toBe('admin');
+    expect((await abigail.NewRelation('group').getQuery().pipe(withTrashed()).first() as SoftDeletesTestGroup).name).toBe('admin');
     abigail.NewRelation('group').getQuery().pipe(withTrashed(), restore());
     abigail = await abigail.Fresh();
     expect((await abigail.group).name).toBe('admin');
     await (await abigail.group).Delete();
     abigail = await abigail.Fresh();
     expect(await abigail.group).toBeNull();
-    expect((await abigail.NewRelation('group').getQuery().pipe(withTrashed()).first()).name).toBe('admin');
+    expect((await abigail.NewRelation('group').getQuery().pipe(withTrashed()).first() as SoftDeletesTestGroup).name).toBe('admin');
     await abigail.NewRelation('group').getQuery().pipe(withTrashed()).forceDelete();
     abigail = await abigail.Fresh();
     expect(await abigail.NewRelation('group').getQuery().pipe(withTrashed()).first()).toBeUndefined();

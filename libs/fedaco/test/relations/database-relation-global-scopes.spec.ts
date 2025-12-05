@@ -112,10 +112,10 @@ export class EloquentClosureGlobalScopesTestModel extends Model {
   _table: any = '_table';
 
   public Boot() {
-    (this.constructor as typeof EloquentClosureGlobalScopesTestModel).addGlobalScope('order_name', (query) => {
+    (this.constructor as typeof EloquentClosureGlobalScopesTestModel).addGlobalScope('order_name', (query: QueryBuilder) => {
       query.orderBy('name');
     });
-    (this.constructor as typeof EloquentClosureGlobalScopesTestModel).addGlobalScope('active_scope', (query) => {
+    (this.constructor as typeof EloquentClosureGlobalScopesTestModel).addGlobalScope('active_scope', (query: QueryBuilder) => {
       query.where('active', 1);
     });
     super.Boot();
@@ -148,10 +148,10 @@ export class EloquentGlobalScopesWithRelationModel extends EloquentClosureGlobal
 
 export class EloquentClosureGlobalScopesWithOrTestModel extends EloquentClosureGlobalScopesTestModel {
   public Boot() {
-    EloquentClosureGlobalScopesWithOrTestModel.addGlobalScope('or_scope', (query) => {
+    EloquentClosureGlobalScopesWithOrTestModel.addGlobalScope('or_scope', (query: QueryBuilder) => {
       query.where('email', 'thirstyzebra@gradii.com').orWhere('email', 'someone@else.com');
     });
-    EloquentClosureGlobalScopesWithOrTestModel.addGlobalScope('email_password', (query) => {
+    EloquentClosureGlobalScopesWithOrTestModel.addGlobalScope('email_password', (query: QueryBuilder) => {
       query.select('email', 'password');
     });
     super.Boot();
