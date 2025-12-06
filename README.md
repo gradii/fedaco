@@ -21,22 +21,22 @@
   })
   class User extends Model {
     @PrimaryColumn
-    id;
+    declare id;
     
     @Column()
-    email;
+    declare email;
   
     @Column()
-    name;
+    declare name;
   
     @Column()
-    age;
+    declare age;
   
     @CreatedAtColumn()
-    created_at;
+    declare created_at;
   
     @UpdateAtColumn()
-    updated_at;
+    declare updated_at;
   }
   ```
 - fetch data
