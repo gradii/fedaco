@@ -20,7 +20,11 @@
         "tsConfig": "libs/fedaco/tsconfig.lib.json",
         "packageJson": "libs/fedaco/package.json",
         "main": "libs/fedaco/src/index.ts",
-        "assets": ["libs/fedaco/*.md"]
+        "assets": [
+          "libs/fedaco/*.md",
+          "libs/fedaco/LICENSE",
+          "README.md"
+        ]
       }
     },
     "nx-release-publish": {
