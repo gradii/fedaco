@@ -154,9 +154,9 @@ export function mixinAsPivot<T extends Constructor<any>>(base: T): AsPivotCtor &
         // todo fixme
         // this.setTable(str_replace('\\', '', Str.snake(Str.singular(class_basename(this)))));
         const metas = reflector.annotations(this.constructor);
-        const meta: TableAnnotation = findLast((it) => {
+        const meta: TableAnnotation = findLast(metas, (it) => {
           return Table.isTypeOf(it);
-        }, metas);
+        });
         if (meta) {
           return singular(meta.tableName);
         } else if (this.constructor === Pivot) {

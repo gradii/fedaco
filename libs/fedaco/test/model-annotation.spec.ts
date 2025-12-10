@@ -14,9 +14,9 @@ import { RelationModel } from './model/relation.model';
 
 function _columnInfo(typeOfClazz: any, key: string) {
   const meta = reflector.propMetadata(typeOfClazz);
-  return findLast((it) => {
-    return FedacoRelationColumn.isTypeOf(it);
-  }, meta[key]) as ColumnAnnotation;
+  return findLast(meta[key], (it) => {
+      return FedacoRelationColumn.isTypeOf(it);
+  }) as ColumnAnnotation;
 }
 
 function connection(connectionName = 'default') {
@@ -68,7 +68,7 @@ describe('model annotation', () => {
     basic.name = 'hello';
 
     const meta = reflector.propMetadata(BasicModel);
-    const a = findLast((it) => FedacoColumn.isTypeOf(it), meta['name']);
+    const a = findLast(meta['name'], (it) => FedacoColumn.isTypeOf(it));
   });
 
   it('test relation annoation', () => {

@@ -833,9 +833,9 @@ export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttri
       const typeOfClazz = this.constructor as typeof Model;
       const meta = reflector.propMetadata(typeOfClazz);
       if (meta[key] && isArray(meta[key])) {
-        return findLast((it) => {
+        return findLast(meta[key], (it) => {
           return Scope.isTypeOf(it);
-        }, meta[key]) as (FedacoDecorator<ColumnAnnotation> & ScopeAnnotation) | undefined;
+        }) as (FedacoDecorator<ColumnAnnotation> & ScopeAnnotation) | undefined;
       }
       return undefined;
     }
@@ -844,9 +844,9 @@ export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttri
       const typeOfClazz = this.constructor as typeof Model;
       const meta = reflector.propMetadata(typeOfClazz);
       if (meta[key] && isArray(meta[key])) {
-        return findLast((it) => {
+        return findLast(meta[key], (it) => {
           return FedacoColumn.isTypeOf(it) || FedacoRelationColumn.isTypeOf(it);
-        }, meta[key]) as (FedacoDecorator<ColumnAnnotation> & ColumnAnnotation) | undefined;
+        }) as (FedacoDecorator<ColumnAnnotation> & ColumnAnnotation) | undefined;
       }
       return undefined;
     }
@@ -1049,9 +1049,9 @@ export function mixinHasAttributes<T extends Constructor<{}>>(base: T): HasAttri
         const metas = reflector.propMetadata(typeOfClazz);
         const casts: any = {};
         for (const [key, meta] of Object.entries(metas)) {
-          const columnMeta = findLast((it) => {
+          const columnMeta = findLast(meta, (it) => {
             return FedacoColumn.isTypeOf(it);
-          }, meta);
+          });
           switch (true) {
             case PrimaryColumn.isTypeOf(columnMeta):
               casts[key] = columnMeta.keyType || 'int';

@@ -30,8 +30,8 @@
   },
   "private": true,
   "dependencies": {
-    "@gradii/annotation": "^3.0.1",
-    "@gradii/nanofn": "^3.0.0",
+    "@gradii/annotation": "^3.0.2",
+    "@gradii/nanofn": "^3.1.0",
     "@nestjs/common": "10.3.8",
     "@nestjs/core": "10.3.8",
     "@nestjs/platform-express": "10.3.8",
@@ -70,7 +70,6 @@
     "@types/jest": "30.0.0",
     "@types/node": "18.19.33",
     "@types/pg": "^8.11.6",
-    "@types/ramda": "^0.28.20",
     "@typescript-eslint/eslint-plugin": "7.9.0",
     "@typescript-eslint/parser": "7.9.0",
     "autoprefixer": "^10.4.0",

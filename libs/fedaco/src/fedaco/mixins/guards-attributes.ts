@@ -260,9 +260,9 @@ export function mixinGuardsAttributes<T extends Constructor<{}>, M>(base: T): Gu
         const meta = reflector.propMetadata(this.constructor);
         for (const key of Object.keys(meta)) {
           if (meta[key] && isArray(meta[key])) {
-            const currentMeta = findLast((it) => {
-              return FedacoColumn.isTypeOf(it);
-            }, meta[key]) as ColumnAnnotation;
+            const currentMeta = findLast(meta[key], (it) => {
+                return FedacoColumn.isTypeOf(it);
+            }) as ColumnAnnotation;
 
             if (currentMeta && currentMeta.fillable) {
               _metaFillable.push(key);
@@ -280,9 +280,9 @@ export function mixinGuardsAttributes<T extends Constructor<{}>, M>(base: T): Gu
         const meta = reflector.propMetadata(this.constructor);
         for (const x of Object.keys(meta)) {
           if (meta[x] && isArray(meta[x])) {
-            const currentMeta = findLast((it) => {
-              return FedacoColumn.isTypeOf(it);
-            }, meta[x]) as ColumnAnnotation;
+            const currentMeta = findLast(meta[x], (it) => {
+                return FedacoColumn.isTypeOf(it);
+            }) as ColumnAnnotation;
 
             if (currentMeta) {
               _guardableColumns.push(x);

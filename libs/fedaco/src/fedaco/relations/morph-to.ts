@@ -168,7 +168,7 @@ export class MorphTo extends BelongsTo {
     const propertyKey = camelCase(this._morphType.replace(/_type$/, ''));
     const metas = reflector.propMetadata(this._child.constructor)[propertyKey];
     if (metas) {
-      const meta = findLast((it) => MorphToColumn.isTypeOf(it), metas);
+      const meta = findLast(metas, (it) => MorphToColumn.isTypeOf(it));
       const morphTypeMap = meta['morphTypeMap'];
       if (morphTypeMap && morphTypeMap[key]) {
         return resolveForwardRef(morphTypeMap[key]);
