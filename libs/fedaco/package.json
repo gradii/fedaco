@@ -9,10 +9,9 @@
   "peerDependencies": {},
   "dependencies": {
     "@gradii/annotation": "^3.0.1",
-    "@gradii/nanofn": "^2.0.3",
+    "@gradii/nanofn": "^3.1.0",
     "date-fns": "^4.1.0",
     "decimal.js": "^10.6.0",
-    "ramda": "^0.30.1",
     "rxjs": "^7.8.1",
     "tslib": "^2.3.0"
   }

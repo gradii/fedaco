@@ -727,9 +727,9 @@ export class Model extends mixinHasAttributes(
   public GetConnectionName() {
     if (isBlank(this._connection)) {
       const metas = reflector.annotations(this.constructor);
-      const meta: TableAnnotation = findLast((it) => {
+      const meta: TableAnnotation = findLast(metas, (it) => {
         return Table.isTypeOf(it);
-      }, metas);
+      });
       if (meta) {
         this._connection = meta.connection;
       } else if ((this.constructor as typeof Model).connectionName) {

@@ -54,9 +54,9 @@ export function mixinHidesAttributes<T extends Constructor<{}>>(base: T): HidesA
     public GetHidden(): any[] {
       if (isBlank(this._hidden)) {
         const metas = reflector.annotations(this.constructor);
-        const meta: TableAnnotation = findLast((it) => {
-          return Table.isTypeOf(it);
-        }, metas);
+        const meta: TableAnnotation = findLast(metas, (it) => {
+            return Table.isTypeOf(it);
+        });
         if (meta && isArray(meta.hidden)) {
           this._hidden = meta.hidden;
         } else {
@@ -76,9 +76,9 @@ export function mixinHidesAttributes<T extends Constructor<{}>>(base: T): HidesA
     public GetVisible(): any[] {
       if (isBlank(this._visible)) {
         const metas = reflector.annotations(this.constructor);
-        const meta: TableAnnotation = findLast((it) => {
-          return Table.isTypeOf(it);
-        }, metas);
+        const meta: TableAnnotation = findLast(metas, (it) => {
+            return Table.isTypeOf(it);
+        });
         if (meta && isArray(meta.visible)) {
           this._visible = meta.visible;
         } else {
