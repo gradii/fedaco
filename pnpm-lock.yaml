@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@gradii/annotation':
-        specifier: ^3.0.1
-        version: 3.0.1
+        specifier: ^3.0.2
+        version: 3.0.2
       '@gradii/nanofn':
         specifier: ^3.1.0
         version: 3.1.0
@@ -1215,8 +1215,8 @@ packages:
   '@gar/promisify@1.1.3':
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
 
-  '@gradii/annotation@3.0.1':
-    resolution: {integrity: sha512-RTl0yEeJyXfJgYzZOtzv82UjBQ3GKT4fv316Tfis4IHsWFCEa/eE5ZuJddK67QKw3k6oCF/J4cI5keczoHKofg==}
+  '@gradii/annotation@3.0.2':
+    resolution: {integrity: sha512-JImGTK1ECvtqUvmkK16SAyZMvn1R1d7J54rKyEfCXN402nft6l3FdvWwCJT5yQtd3WnqilJFmvwInNR86M4CKQ==}
 
   '@gradii/nanofn@3.1.0':
     resolution: {integrity: sha512-zywQWUd4gyF1hQjNcStiMJPwk9SQov+LNkKUc5ojlJbTN86B/r/nMiQW78Fc8xFCQWA/Iwi0ztt0GWEsUXXWRw==}
@@ -8554,7 +8554,7 @@ snapshots:
   '@gar/promisify@1.1.3':
     optional: true
 
-  '@gradii/annotation@3.0.1':
+  '@gradii/annotation@3.0.2':
     dependencies:
       tslib: 2.8.1
 
