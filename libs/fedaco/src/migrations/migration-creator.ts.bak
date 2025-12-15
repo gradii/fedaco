@@ -1,45 +1,47 @@
 import { isBlank } from '@gradii/nanofn';
 import { format } from 'date-fns';
+import {dirname} from 'node:path'
+import { existsSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
 
 export class MigrationCreator {
-  /*The filesystem instance.*/
-  files: Filesystem;
-  /*The custom app stubs directory.*/
+  /* The custom app stubs directory. */
   customStubPath: string;
-  /*The registered post create hooks.*/
+  /* The registered post create hooks. */
   postCreate: any[] = [];
 
-  /*Create a new migration creator instance.*/
-  public constructor(files: Filesystem, customStubPath: string) {
-    this.files          = files;
+  /* Create a new migration creator instance. */
+  public constructor(customStubPath: string) {
     this.customStubPath = customStubPath;
   }
 
-  /*Create a new migration at the given path.*/
+  /* Create a new migration at the given path. */
   public create(name: string, path: string, table: string | null = null, create = false) {
     this.ensureMigrationDoesntAlreadyExist(name, path);
     const stub = this.getStub(table, create);
     path = this.getPath(name, path);
-    this.files.ensureDirectoryExists(dirname(path));
-    this.files.put(path, this.populateStub(stub, table));
+    const directory = dirname(path);
+    if(!existsSync(directory)) {
+      mkdirSync(directory, { recursive: true });
+    }
+    writeFileSync(path, this.populateStub(stub, table));
     this.firePostCreateHooks(table, path);
     return path;
   }
 
-  /*Ensure that a migration with the given name doesn't already exist.*/
+  /* Ensure that a migration with the given name doesn't already exist. */
   protected ensureMigrationDoesntAlreadyExist(name: string, migrationPath: string = null) {
-    if (!empty(migrationPath)) {
-      const migrationFiles = this.files.glob(migrationPath + '/*.php');
-      for (const migrationFile of migrationFiles) {
-        this.files.requireOnce(migrationFile);
+    if (!isBlank(migrationPath)) {
+      const files = readdirSync(migrationPath);
+      const migrationFiles = []
+      for(const file of files) {
+        if(file.endsWith('.mjs') || file.endsWith('.js')) {
+          migrationFiles.push(file);
+        }
       }
-    }
-    if (class_exists(className = this.getClassName(name))) {
-      throw new InvalidArgumentException('"A {$className} class already exists."');
     }
   }
 
-  /*Get the migration stub file.*/
+  /* Get the migration stub file. */
   protected getStub(table: string | null, create: boolean) {
     let stub;
     if (isBlank(table)) {
@@ -55,7 +57,7 @@ export class MigrationCreator {
     return this.files.get(stub);
   }
 
-  /*Populate the place-holders in the migration stub.*/
+  /* Populate the place-holders in the migration stub. */
   protected populateStub(stub: string, table: string | null) {
     if (!isBlank(table)) {
       var stub = str_replace(['DummyTable', '{{ table }}', '{{table}}'], table, stub);
@@ -63,39 +65,35 @@ export class MigrationCreator {
     return stub;
   }
 
-  /*Get the class name of a migration name.*/
-  protected getClassName(name: string) {
-    return Str.studly(name);
-  }
-
-  /*Get the full path to the migration.*/
+  /* Get the full path to the migration. */
   protected getPath(name: string, path: string) {
     return path + '/' + this.getDatePrefix() + '_' + name + '.php';
   }
 
-  /*Fire the registered post create hooks.*/
+  /* Fire the registered post create hooks. */
   protected firePostCreateHooks(table: string | null, path: string) {
     for (const callback of this.postCreate) {
       callback(table, path);
     }
   }
 
-  /*Register a post migration create hook.*/
+  /* Register a post migration create hook. */
   public afterCreate(callback: Function) {
     this.postCreate.push(callback);
   }
 
-  /*Get the date prefix for the migration.*/
+  /* Get the date prefix for the migration. */
   protected getDatePrefix() {
     return format(new Date(), 'yyyy_MM_dd_HHmmss');
   }
 
-  /*Get the path to the stubs.*/
+  /* Get the path to the stubs. */
   public stubPath() {
+    // const relativePath = fileURLToPath(import.meta.url)
     return __DIR__ + '/stubs';
   }
 
-  /*Get the filesystem instance.*/
+  /* Get the filesystem instance. */
   public getFilesystem() {
     return this.files;
   }
