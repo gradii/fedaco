@@ -69,7 +69,7 @@
 - soft delete
 - use relationship to link model
 - relation can set dynamic constrain
-- sqlite and mysql support
+- sqlite, mysql, postgresql support
 
 
 ### Notice
