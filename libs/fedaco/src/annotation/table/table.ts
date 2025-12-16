@@ -37,24 +37,6 @@ export interface TableAnnotation {
   visible?: string[];
 
   connection?: string;
-
-  /**
-   * specify the created_at column when timestamped.
-   * default is created_at
-   */
-  created_at?: string;
-
-  /**
-   * specify the updated_at column when timestamped.
-   * default is updated_at
-   */
-  updated_at?: string;
-
-  /**
-   * specify the deleted_at column when use soft delete.
-   * default is deleted_at
-   */
-  deleted_at?: string;
 }
 
 export interface InjectableDecorator<T extends TableAnnotation> {
@@ -75,11 +57,16 @@ export const Table: InjectableDecorator<TableAnnotation> = makeDecorator(
   }),
   FedacoColumn,
   (target: any, decorator: TableAnnotation) => {
-    let tableName = decorator.tableName || target.name;
-    if (!decorator.noPluralTable) {
-      tableName = pluralStudly(tableName);
+    let tableName = target.name;
+
+    if(decorator.tableName) {
+      tableName = decorator.tableName;
     } else {
-      tableName = snakeCase(tableName);
+      if (!decorator.noPluralTable) {
+        tableName = pluralStudly(tableName);
+      } else {
+        tableName = snakeCase(tableName);
+      }
     }
 
     Object.defineProperty(target.prototype, '_table', {
