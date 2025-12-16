@@ -15,6 +15,7 @@ import {
   isObjectEmpty,
   isString,
   plural,
+  reject,
   snakeCase,
   tap,
   uniq,
@@ -46,6 +47,7 @@ import { loadAggregate } from './model-helper';
 import { type KeyAbleModel } from '../types/model-type';
 import { withTrashed } from './scopes/soft-deleting-scope';
 import { type Constructor } from '../helper/constructor';
+import { AsPivotSymbol } from '../symbol/fedaco-symbol';
 // import { BelongsToMany } from './relations/belongs-to-many';
 // import { HasManyThrough } from './relations/has-many-through';
 
@@ -682,10 +684,19 @@ export class Model extends mixinHasAttributes(
     }
     const result: Model = await this._setKeysForSelectQuery(this.NewQueryWithoutScopes()).firstOrFail();
     this.SetRawAttributes(result._attributes);
-    // this.load(this._relations.reject(relation => {
-    //   return relation instanceof Pivot || is_object(relation) && in_array(AsPivot,
-    //     class_uses_recursive(relation), true);
-    // }).keys().all());
+
+    if (this._relations) {
+      await this.Load(
+        Object.keys(
+          reject(this._relations, (relation) => {
+            if (isArray(relation)) {
+              return false;
+            }
+            return (relation as any)[AsPivotSymbol] as boolean;
+          }),
+        ),
+      );
+    }
     this.SyncOriginal();
     return this;
   }

@@ -1,6 +1,6 @@
 {
   "name": "@gradii/fedaco",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/gradii/fedaco.git"
@@ -9,7 +9,7 @@
   "peerDependencies": {},
   "dependencies": {
     "@gradii/annotation": "^3.0.2",
-    "@gradii/nanofn": "^3.1.0",
+    "@gradii/nanofn": "^3.1.1",
     "date-fns": "^4.1.0",
     "decimal.js": "^10.6.0",
     "rxjs": "^7.8.1",

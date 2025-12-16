@@ -13,6 +13,7 @@ import type { QueryBuilder } from '../../../query-builder/query-builder';
 import type { FedacoBuilder } from '../../fedaco-builder';
 import type { Model } from '../../model';
 import { Pivot } from '../pivot';
+import { AsPivotSymbol } from '../../../symbol/fedaco-symbol';
 
 // tslint:disable-next-line:no-namespace
 export declare namespace AsPivot {
@@ -80,6 +81,8 @@ export interface AsPivot extends Model {
 
   /* Unset all the loaded relations for the instance. */
   UnsetRelations(): this;
+
+  [AsPivotSymbol]: true;
 }
 
 export type AsPivotCtor = Constructor<AsPivot>;
@@ -254,5 +257,7 @@ export function mixinAsPivot<T extends Constructor<any>>(base: T): AsPivotCtor &
       // @ts-ignore
       return this;
     }
+
+    public [AsPivotSymbol] = true;
   };
 }
