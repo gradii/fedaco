@@ -49,12 +49,7 @@
 #### create a user table.
 
   ```typescript
-  const schemaBuilder = Model.getConnectionResolver()
-    .connection(connectionName)
-    .getSchemaBuilder();
-  ;
-  
-  await schemaBuilder().create('users', table => {
+  await schema().create('users', table => {
     table.increments('id');
     table.string('email').withUnique();
     table.string('name');
