@@ -144,12 +144,7 @@ export class Model extends mixinHasAttributes(
     // this.initializeTraits();
   }
 
-  static initAttributes<T extends Model>(
-    this: {
-      new (...args: any[]): T;
-    },
-    attributes: Record<string, any> = {},
-  ): T {
+  static initAttributes<T extends Model>(this: Constructor<T>, attributes: Record<string, any> = {}): T {
     const m = new this();
     m.SyncOriginal();
     m.Fill(attributes);
