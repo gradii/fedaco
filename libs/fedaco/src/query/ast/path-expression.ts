@@ -23,8 +23,8 @@ export class PathExpression extends SqlNode {
     return this.ChooseIdentifier(3) as FromTable;
   }
 
-  public get tableIdentifier(): FromTable | null {
-    return this.ChooseIdentifier(2) as FromTable;
+  public get tableIdentifier(): FromTable | Identifier | null {
+    return this.ChooseIdentifier(2) as FromTable | Identifier;
   }
 
   public get columnIdentifier(): Identifier {
