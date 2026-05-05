@@ -137,7 +137,7 @@ export class IrregularPluralHuman extends Model {
 }
 
 @Table({
-  tableName    : 'irregular_plural_token',
+  tableName    : 'irregular_plural_tokens',
   noPluralTable: false,
 })
 export class IrregularPluralToken extends Model {
@@ -150,7 +150,7 @@ export class IrregularPluralToken extends Model {
 }
 
 @Table({
-  tableName    : 'irregular_plural_motto',
+  tableName    : 'irregular_plural_mottos',
   noPluralTable: false,
 })
 export class IrregularPluralMotto extends Model {

@@ -8,22 +8,23 @@ import { isBlank, tap } from '@gradii/nanofn';
 import type { Constructor } from '../../helper/constructor';
 import type { Model } from '../model';
 import { SoftDeletingScope } from '../scopes/soft-deleting-scope';
+import { type HasGlobalScopesCtor } from './has-global-scopes';
 
 export interface SoftDeletes {
   /* Initialize the soft deleting trait for an instance. */
-  InitializeSoftDeletes(this: Model & this): void;
+  InitializeSoftDeletes(): void;
 
   /* Force a hard delete on a soft deleted model. */
-  ForceDelete(this: Model & this): Promise<boolean>;
+  ForceDelete(): Promise<boolean>;
 
   /* Perform the actual delete query on this model instance. */
-  _performDeleteOnModel(this: Model & this): void;
+  _performDeleteOnModel(): void;
 
   /* Perform the actual delete query on this model instance. */
-  _runSoftDelete(this: Model & this): void;
+  _runSoftDelete(): void;
 
   /* Restore a soft-deleted model instance. */
-  Restore(this: Model & this): Promise<boolean>;
+  Restore(): Promise<boolean>;
 
   /* Determine if the model instance has been soft-deleted. */
   Trashed(): boolean;
@@ -54,14 +55,14 @@ export interface SoftDeletes {
   GetDeletedAtColumn(): string;
 
   /* Get the fully qualified "deleted at" column. */
-  GetQualifiedDeletedAtColumn(this: Model & this): string;
+  GetQualifiedDeletedAtColumn(): string;
 }
 
 type SoftDeletesCtor = Constructor<SoftDeletes>;
 
 export function mixinSoftDeletes<T extends Constructor<{}>>(base: T): SoftDeletesCtor & T {
   // @ts-ignore
-  return class _Self extends base {
+  return class _Self extends base implements SoftDeletes {
     __isTypeofSoftDeletes = true;
 
     /* Indicates if the model is currently force deleting. */
@@ -71,7 +72,7 @@ export function mixinSoftDeletes<T extends Constructor<{}>>(base: T): SoftDelete
 
     /* Boot the soft deleting trait for a model. */
     public Boot() {
-      (this.constructor as any).addGlobalScope('softDeleting', new SoftDeletingScope());
+      (this.constructor as HasGlobalScopesCtor).addGlobalScope('softDeleting', new SoftDeletingScope());
     }
 
     /* Initialize the soft deleting trait for an instance. */
@@ -167,7 +168,7 @@ export function mixinSoftDeletes<T extends Constructor<{}>>(base: T): SoftDelete
 
     /* Get the name of the "deleted at" column. */
     public GetDeletedAtColumn(this: Model & _Self): string {
-      return (this.constructor as any).DELETED_AT || 'deleted_at';
+      return (this.constructor as typeof _Self).DELETED_AT || 'deleted_at';
     }
 
     /* Get the fully qualified "deleted at" column. */

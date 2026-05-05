@@ -13,7 +13,7 @@ import { Relation } from '../../src/fedaco/relations/relation';
 import { forwardRef } from '../../src/query-builder/forward-ref';
 
 @Table({
-  tableName    : 'fedaco_builder_test_model_close_related_stub',
+  tableName    : 'fedaco_builder_test_model_close_related_stubs',
   noPluralTable: false,
 })
 export class FedacoBuilderTestModelCloseRelatedStub extends Model {
@@ -29,13 +29,13 @@ export class FedacoBuilderTestModelCloseRelatedStub extends Model {
 }
 
 @Table({
-  tableName    : 'fedaco_builder_test_model_far_related_stub',
+  tableName    : 'fedaco_builder_test_model_far_related_stubs',
   noPluralTable: false,
 })
 export class FedacoBuilderTestModelFarRelatedStub extends Model {}
 
 @Table({
-  tableName    : 'fedaco_builder_test_model_parent_stub',
+  tableName    : 'fedaco_builder_test_model_parent_stubs',
   noPluralTable: false,
 })
 export class FedacoBuilderTestModelParentStub extends Model {

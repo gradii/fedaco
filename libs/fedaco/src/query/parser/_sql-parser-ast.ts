@@ -274,7 +274,8 @@ export class _SqlParserAst {
   }
 
   parseTableColumn() {
-    if (this.next.isIdentifier()) {
+    const nestToken = this.next;
+    if (nestToken.isIdentifier() || nestToken.isKeyword()) {
       const column = this.next;
       this.advance();
       return column;

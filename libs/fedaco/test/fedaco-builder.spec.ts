@@ -1424,13 +1424,13 @@ describe('fedaco builder', () => {
 });
 
 @Table({
-  tableName    : 'test_table',
+  tableName    : 'test_tables',
   noPluralTable: false,
 })
 class FedacoBuilderTestStub extends Model {}
 
 @Table({
-  tableName    : 'test_table',
+  tableName    : 'test_tables',
   noPluralTable: false,
 })
 class FedacoBuilderTestStubWithoutTimestamp extends Model {

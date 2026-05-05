@@ -1353,7 +1353,7 @@ describe('test database fedaco integration', () => {
   });
 
   it('saving json fields', async () => {
-    const model = await FedacoTestWithJSON.createQuery().create<FedacoTestWithJSON>({
+    const model = await FedacoTestWithJSON.createQuery().create({
       json: {
         x: 0,
       },

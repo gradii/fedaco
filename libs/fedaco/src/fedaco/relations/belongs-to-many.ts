@@ -684,5 +684,5 @@ export class BelongsToMany extends mixinInteractsWithDictionary(mixinInteractsWi
     return column.includes('.') ? column : `${this._table}.${column}`;
   }
 
-  [BelongsToManySymbol] = true;
+  public [BelongsToManySymbol] = true;
 }

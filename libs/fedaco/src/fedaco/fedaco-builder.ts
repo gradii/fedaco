@@ -191,10 +191,10 @@ export interface FedacoBuilder<T extends Model = Model>
   ): Promise<{ items: any[]; pageSize: number; page: number }>;
 
   /* Save a new model and return the instance. */
-  create<T extends Model>(attributes?: Record<string, any>): Promise<T>;
+  create(attributes?: Record<string, any>): Promise<T>;
 
   /* Save a new model and return the instance. Allow mass-assignment. */
-  forceCreate<T extends Model>(attributes: Record<string, any>): Promise<T>;
+  forceCreate(attributes: Record<string, any>): Promise<T>;
 
   /* Update records in the database. */
   update(values: any): Promise<any>;

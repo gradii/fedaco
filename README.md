@@ -49,12 +49,7 @@
 #### create a user table.
 
   ```typescript
-  const schemaBuilder = Model.getConnectionResolver()
-    .connection(connectionName)
-    .getSchemaBuilder();
-  ;
-  
-  await schemaBuilder().create('users', table => {
+  await schema().create('users', table => {
     table.increments('id');
     table.string('email').withUnique();
     table.string('name');
@@ -69,7 +64,7 @@
 - soft delete
 - use relationship to link model
 - relation can set dynamic constrain
-- sqlite and mysql support
+- sqlite, mysql, postgresql support
 
 
 ### Notice

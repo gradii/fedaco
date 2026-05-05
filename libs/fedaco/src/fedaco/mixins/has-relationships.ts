@@ -165,7 +165,7 @@ export function mixinHasRelationships<T extends Constructor<{}>>(base: T): HasRe
      */
     public GetMorphClass(): string {
       const metas = reflector.annotations(this.constructor);
-      const meta: TableAnnotation = findLast((it) => Table.isTypeOf(it), metas);
+      const meta: TableAnnotation = findLast(metas, (it) => Table.isTypeOf(it));
 
       if (meta && isString(meta.morphTypeName)) {
         return meta.morphTypeName;
