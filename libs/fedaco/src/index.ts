@@ -264,4 +264,9 @@ export * from './manages-transactions';
 export * from './query-exception';
 export * from './db';
 
+export * from './migrations/migration';
+export * from './migrations/migration-repository-interface';
+export * from './migrations/database-migration-repository';
+// migrator.ts is still being ported — do not export until it compiles cleanly.
+
 export * from './types/model-type'

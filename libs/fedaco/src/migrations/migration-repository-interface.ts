@@ -6,25 +6,25 @@ export interface MigrationRepositoryInterface {
   getMigrations(steps: number): Promise<any[]>;
 
   /* Get the list of the migrations by batch. */
-  getMigrationsByBatch(batch: number);
+  getMigrationsByBatch(batch: number): Promise<any[]>;
 
   /* Get the last migration batch. */
-  getLast();
+  getLast(): Promise<any[]>;
 
   /* Get the completed migrations with their batch numbers. */
-  getMigrationBatches();
+  getMigrationBatches(): Promise<any>;
 
   /* Log that a migration was run. */
-  log(file: string, batch: number);
+  log(file: string, batch: number): Promise<void>;
 
   /* Remove a migration from the log. */
-  delete(migration: object);
+  delete(migration: object): Promise<void>;
 
   /* Get the next migration batch number. */
-  getNextBatchNumber();
+  getNextBatchNumber(): Promise<number>;
 
   /* Create the migration repository data store. */
-  createRepository();
+  createRepository(): Promise<void> | void;
 
   /* Determine if the migration repository exists. */
   repositoryExists(): Promise<boolean>;
@@ -33,5 +33,5 @@ export interface MigrationRepositoryInterface {
   deleteRepository(): Promise<void>;
 
   /* Set the information source to gather data. */
-  setSource(name: string);
+  setSource(name: string): void;
 }

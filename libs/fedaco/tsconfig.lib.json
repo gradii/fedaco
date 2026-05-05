@@ -7,6 +7,11 @@
     "target": "ES2017",
     "types": ["node"]
   },
-  "exclude": ["jest.config.ts", "**/*.spec.ts", "**/*.test.ts"],
+  "exclude": [
+    "jest.config.ts",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "src/migrations/migrator.ts"
+  ],
   "include": ["src/**/*.ts"]
 }

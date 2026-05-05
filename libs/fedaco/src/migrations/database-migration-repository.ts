@@ -59,7 +59,7 @@ export class DatabaseMigrationRepository implements MigrationRepositoryInterface
 
   /* Remove a migration from the log. */
   public async delete(migration: any) {
-    this.table().where('migration', migration.migration).delete();
+    await this.table().where('migration', migration.migration).delete();
   }
 
   /* Get the next migration batch number. */
@@ -73,9 +73,9 @@ export class DatabaseMigrationRepository implements MigrationRepositoryInterface
   }
 
   /* Create the migration repository data store. */
-  public createRepository() {
+  public async createRepository() {
     const schema = this.getConnection().getSchemaBuilder();
-    schema.create(this._table, table => {
+    await schema.create(this._table, table => {
       table.increments('id');
       table.string('migration');
       table.integer('batch');
@@ -83,7 +83,7 @@ export class DatabaseMigrationRepository implements MigrationRepositoryInterface
   }
 
   /* Determine if the migration repository exists. */
-  public repositoryExists() {
+  public async repositoryExists() {
     const schema = this.getConnection().getSchemaBuilder();
     return schema.hasTable(this._table);
   }
