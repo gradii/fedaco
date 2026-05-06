@@ -60,8 +60,8 @@ export class ConfigurationUrlParser {
       {
         driver  : this.getDriver(url),
         database: this.getDatabase(url),
-        host    : url['host'] ?? null,
-        port    : !isStringEmpty(url['port']) ? +url['port'] : null,
+        host    : url['hostname'] ?? null,
+        port    : !isBlank(url['port']) && url['port'] !== '' ? +url['port'] : null,
         username: url['username'] ?? null,
         password: url['password'] ?? null,
       },
