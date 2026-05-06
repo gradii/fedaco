@@ -1,126 +1,298 @@
-# nest integration
+# Nest Integration
 
+Fedaco ships a first-class NestJS module — [`@gradii/nest-fedaco`](https://github.com/gradii/fedaco/tree/main/libs/nest-fedaco). It boots `DatabaseConfig`, registers every connection you declare, and wires Fedaco's lifecycle into Nest's: `onApplicationShutdown` disconnects every connection (and tears down their pools) for you.
+
+This guide assumes you've already read the [Getting Started guide](/guide/getting-started) and have a working Nest project.
 
 ## Installation
-Easiest way to integrate Fedaco to Nest is via [`@gradii/nest-fedaco` module](https://github.com/gradii/fedaco).
-Simply install it next to Nest, Fedaco and underlying driver:
+
+Install Nest, Fedaco core, the Nest module, and **one driver package per database** you want to talk to. The driver packages bring their own native clients in — you no longer install `better-sqlite3` / `mysql2` / `pg` directly.
 
 ::: code-group
 
-```bash
-$ npm i @gradii/fedaco @gradii/nest-fedaco better-sqlite3
+```sh [npm]
+npm install @gradii/fedaco @gradii/nest-fedaco @gradii/fedaco-sqlite-driver reflect-metadata
 ```
 
 ```sh [yarn]
-$ yarn add @gradii/fedaco @gradii/nest-fedaco better-sqlite3
+yarn add @gradii/fedaco @gradii/nest-fedaco @gradii/fedaco-sqlite-driver reflect-metadata
+```
+
+```sh [pnpm]
+pnpm add @gradii/fedaco @gradii/nest-fedaco @gradii/fedaco-sqlite-driver reflect-metadata
 ```
 
 :::
 
-Fedaco also supports `postgres`, `sqlite`, and `mysql`. See the [official docs](https://gradii.github.io/fedaco/) for all drivers.
+For other databases swap the driver package:
 
-Once the installation process is completed, we can import the `FedacoModule` into the root `AppModule`.
+| Database          | Driver package                      |
+| ----------------- | ----------------------------------- |
+| SQLite (sqlite3)  | `@gradii/fedaco-sqlite-driver`      |
+| SQLite (better-sqlite3) | `@gradii/fedaco-sqlite-driver` (`betterSqliteDriver()` factory) |
+| MySQL / MariaDB   | `@gradii/fedaco-mysql-driver`       |
+| PostgreSQL        | `@gradii/fedaco-postgres-driver`    |
+| SQL Server        | `@gradii/fedaco-sqlserver-driver`   |
 
-if you use sqlite database you need to install `better-sqlite3` or `sqlite3` driver
+You also need `experimentalDecorators` and `emitDecoratorMetadata` enabled in `tsconfig.json`, and `import 'reflect-metadata'` once at app startup. NestJS projects already have this set up.
 
+## Register `FedacoModule`
 
-```typescript
+`FedacoModule.forRoot(connections)` takes an object whose **keys are connection names** and **values are `ConnectionConfig`**. Each entry needs at least a `driver` string and a `factory` callable — Fedaco no longer ships drivers in core, so the factory is the runtime hook into the driver package you installed.
+
+```ts
 import { FedacoModule } from '@gradii/nest-fedaco';
+import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
     FedacoModule.forRoot({
-      'default': {
-        driver  : 'sqlite',
-        database: ':memory:'
-      }
-    })
-  ],
-  controllers: [AppController],
-  providers: [AppService],
-})
-export class AppModule {
-}
-```
-
-The `forRoot()` method accepts the same configuration object as key is connection name and value is Fedaco same of ConnectionConfig. Check [this page](https://gradii.github.io/fedaco/database/getting-started.html) for the complete configuration documentation.
-
-## Multi Connection
-
-multi connction can be defined in `FedacoModule.forRoot` easily. the key is connection name use in `Model` connection, the default model connection name is `default`.
-
-```typescript
-import { FedacoModule } from '@gradii/nest-fedaco';
-
-@Module({
-  imports: [
-    FedacoModule.forRoot({
-      'default': {
-        driver  : 'sqlite',
-        database: ':memory:'
+      default: {
+        driver: 'sqlite',
+        factory: sqliteDriver(),
+        database: ':memory:',
       },
-      'second_connection': {
-        driver: 'pgsql',
-        database: 'nest-postgresql',
-        port: 5432
-      }
-    })
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {
-}
+export class AppModule {}
 ```
 
-```typescript
+What `forRoot` does behind the scenes:
+
+1. Creates a `DatabaseConfig` and calls `addConnection(config, name)` for every entry.
+2. Calls `bootFedaco()` so models can resolve their connections.
+3. Calls `setAsGlobal()` so `db()` and `schema()` (the global helpers) work anywhere.
+4. Hooks into `onApplicationShutdown` — when Nest tears down, every connection is disconnected and any attached pool is destroyed.
+
+::: tip
+The connection key is the *connection name*. Models default to `'default'`; pass any other name in the `@Table({ connection: ... })` annotation or via `Model.useConnection('name')`.
+:::
+
+## Multiple Connections
+
+Add as many entries as you need. Names are arbitrary — pick whatever makes sense for your app.
+
+```ts
+import { FedacoModule } from '@gradii/nest-fedaco';
+import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+import { postgresDriver } from '@gradii/fedaco-postgres-driver';
+
+@Module({
+  imports: [
+    FedacoModule.forRoot({
+      default: {
+        driver: 'sqlite',
+        factory: sqliteDriver(),
+        database: ':memory:',
+      },
+      reporting: {
+        driver: 'pgsql',
+        factory: postgresDriver(),
+        host: 'reporting.internal',
+        port: 5432,
+        database: 'reports',
+        username: 'reader',
+        password: 'reader',
+      },
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+Bind a model to a non-default connection via the `@Table` annotation:
+
+```ts
 import { Column, CreatedAtColumn, Model, PrimaryGeneratedColumn, Table, UpdatedAtColumn } from '@gradii/fedaco';
 
-
 @Table({
-  tableName: 'users',
-  connection: 'second_connection',
+  tableName: 'daily_revenue',
+  connection: 'reporting',
 })
-export class UserModel extends Model {
-  _fillable = ['username'];
+export class DailyRevenue extends Model {
+  @PrimaryGeneratedColumn() declare id: number;
+  @Column() declare day: number;
+  @Column() declare cents: number;
 
-  @PrimaryGeneratedColumn()
-  declare id: string;
-
-  @Column()
-  declare username: string;
-
-  @CreatedAtColumn()
-  declare created_at: Date;
-
-  @UpdatedAtColumn()
-  declare updated_at: Date;
+  @CreatedAtColumn() declare created_at: Date;
+  @UpdatedAtColumn() declare updated_at: Date;
 }
 ```
 
-if want to use difference connection temporarily can use `Model.useConnection('another_connection')`, full document can found [here](https://gradii.github.io/fedaco/model-functions/useConnection.html)
+Or override the connection per call site with `Model.useConnection`:
 
-## Use Query Builder
-Fedaco can use query builder by `db` function. to use following `db` to query it need import `FedacoModule` default connection config first.
-
-```typescript
-const result = await db().query().from('users').select('*').get()
+```ts
+const rows = await User.useConnection('reporting').get();
 ```
 
-## Working With Schema Builder
-Fedaco can easily work with schema using `schema` function. if you want to create a `users` table
-with `id`, `username`, `created_at`, `updated_at` column, can run following script
+See [Multiple Connections](/guide/multiple-connections) for read/write splitting and other multi-connection patterns.
 
-```typescript
-await schema().create('users', table => {
-  table.increments('id');
-  table.string('username');
-  table.timestamps();
-});
+## Connection Pooling
+
+Each connection accepts an optional `pool` block. Fedaco builds a `DefaultConnectionPoolManager` per connection — isolated transactions then pull dedicated connections out of it.
+
+```ts
+FedacoModule.forRoot({
+  default: {
+    driver: 'mysql',
+    factory: mysqlDriver(),
+    host: 'oltp.internal',
+    database: 'app',
+    username: 'app',
+    password: 'secret',
+    pool: {
+      max: 20,
+      acquireTimeout: 30_000,
+      idleTimeout: 30_000,
+    },
+  },
+}),
 ```
-please notice that default table name and column name use snakeCase style.
 
+When Nest calls `onApplicationShutdown`, the module disconnects every connection — that disconnect tears the pool down (rejects pending acquire-waiters, closes idle and active connections). You don't need to do anything special on shutdown.
 
-## Example
+See [Connection Pooling & Isolated Transactions](/guide/connection-pooling) for the full pool API.
 
-some examples of NestJS with Fedaco ORM can be found [here](https://github.com/gradii/fedaco-examples)
+## Using Fedaco From Services
+
+Inside a service, just import the global helpers — `forRoot` already called `setAsGlobal()`:
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { db, schema } from '@gradii/fedaco';
+import { User } from './models/user.model';
+
+@Injectable()
+export class UserService {
+  async findAll() {
+    return User.createQuery().get();
+  }
+
+  async findRaw() {
+    return db().query().from('users').select('*').get();
+  }
+
+  async createSchema() {
+    await schema().create('users', (table) => {
+      table.increments('id');
+      table.string('username');
+      table.timestamps();
+    });
+  }
+}
+```
+
+::: tip
+Default schema and column names use `snake_case`. The schema builder DSL is the same one used outside Nest — see [Getting Started](/guide/getting-started).
+:::
+
+## Transactions
+
+Use `db().transaction(callback)` exactly like outside of Nest:
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { db } from '@gradii/fedaco';
+
+@Injectable()
+export class CheckoutService {
+  async place(orderInput: any) {
+    return db().transaction(async (tx) => {
+      const order = await tx.table('orders').insertGetId(orderInput);
+      await tx.table('users').where('id', orderInput.userId).increment('order_count');
+      return order;
+    });
+  }
+}
+```
+
+For long-running or concurrency-sensitive transactions, opt into `isolated: true` so the transaction takes a dedicated connection from the pool:
+
+```ts
+await db().transaction(
+  async (tx) => {
+    await tx.table('orders').insert(input);
+  },
+  { isolated: true, timeout: 5000, isolationLevel: 'SERIALIZABLE' },
+);
+```
+
+See the [Transactions Guide](/database/transactions) for the full set of options.
+
+## Async Configuration
+
+If your config comes from `ConfigService` (env vars, secrets manager, …), wrap `forRoot` with whatever async-config pattern your app already uses. The simplest is to construct the config at bootstrap time:
+
+```ts
+// main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  await app.listen(3000);
+}
+bootstrap();
+```
+
+```ts
+// app.module.ts
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { FedacoModule } from '@gradii/nest-fedaco';
+import { mysqlDriver } from '@gradii/fedaco-mysql-driver';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    FedacoModule.forRoot(buildFedacoConfig()),
+  ],
+})
+export class AppModule {}
+
+function buildFedacoConfig() {
+  // process.env is already populated by ConfigModule at this point.
+  return {
+    default: {
+      driver: 'mysql',
+      factory: mysqlDriver(),
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT ?? 3306),
+      database: process.env.DB_NAME,
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      pool: { max: Number(process.env.DB_POOL_MAX ?? 10) },
+    },
+  };
+}
+```
+
+## Shutdown
+
+`FedacoCoreModule` implements `OnApplicationShutdown`. To make sure Nest fires it, enable shutdown hooks on the application:
+
+```ts
+// main.ts
+const app = await NestFactory.create(AppModule);
+app.enableShutdownHooks(); // [!code highlight]
+await app.listen(3000);
+```
+
+With shutdown hooks enabled, `SIGINT` / `SIGTERM` will trigger `onApplicationShutdown`, which calls `connection.disconnect()` on each registered connection. That closes the underlying socket *and* destroys the pool if one is attached — no resource leak on graceful exit.
+
+## Examples
+
+A full NestJS + Fedaco example app lives in the examples repo: [https://github.com/gradii/fedaco-examples](https://github.com/gradii/fedaco-examples).
+
+## Further Reading
+
+- [Multiple Connections](/guide/multiple-connections) — read/write split and named connections.
+- [Connection Pooling & Isolated Transactions](/guide/connection-pooling) — pool config, lifecycle, and `isolated: true`.
+- [Transactions Guide](/database/transactions) — full transaction API.
+- [Writing a Custom Driver](/guide/custom-driver) — build a driver for a database Fedaco doesn't ship.

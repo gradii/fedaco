@@ -10,8 +10,11 @@ hero:
       text: Guide
       link: /guide/getting-started
     - theme: alt
+      text: Database Setup
+      link: /database/getting-started
+    - theme: alt
       text: Model Functions
-      link: /model-functions/attach
+      link: /model-functions/createQuery
 
 #features:
 #  - title: Feature A
@@ -21,4 +24,3 @@ hero:
 #  - title: Feature C
 #    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
 ---
-
