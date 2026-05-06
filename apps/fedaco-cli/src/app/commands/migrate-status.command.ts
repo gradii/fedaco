@@ -16,20 +16,20 @@ export class MigrateStatusCommand implements FedacoCommand {
       return 0;
     }
 
-    const path = this.migrator.resolveMigrationsPath(args.flags.path as string);
-    const files = this.migrator.listMigrationFiles(path);
+    const m = this.migrator.getMigrator();
+    const path = (args.flags.path as string) ?? this.migrator.getOptions().migrationsPath;
+    const files: string[] = m.getMigrationFiles(path);
     const ran = new Set<string>(await repo.getRan());
 
     process.stdout.write('Status   | Migration\n');
     process.stdout.write('---------|----------\n');
     for (const f of files) {
-      const name = this.migrator.getMigrationName(f);
+      const name = m.getMigrationName(f);
       const status = ran.has(name) ? 'Ran      ' : 'Pending  ';
       process.stdout.write(`${status}| ${name}\n`);
     }
-
     for (const name of ran) {
-      if (!files.some((f) => this.migrator.getMigrationName(f) === name)) {
+      if (!files.some((f: string) => m.getMigrationName(f) === name)) {
         process.stdout.write(`Missing  | ${name} (no file)\n`);
       }
     }

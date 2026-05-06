@@ -10,26 +10,12 @@ export class MigrateCommand implements FedacoCommand {
   async run(args: ParsedArgs): Promise<number> {
     await this.migrator.ensureRepositoryExists();
 
-    const path = this.migrator.resolveMigrationsPath(args.flags.path as string);
-    const files = this.migrator.listMigrationFiles(path);
-    const ran = await this.migrator.getRepository().getRan();
-    const pending = files.filter(
-      (f) => !ran.includes(this.migrator.getMigrationName(f))
-    );
-
-    if (pending.length === 0) {
-      process.stdout.write('Nothing to migrate.\n');
-      return 0;
-    }
-
-    const pretend = !!args.flags.pretend;
-    const step = !!args.flags.step;
-    let batch = await this.migrator.getRepository().getNextBatchNumber();
-
-    for (const file of pending) {
-      await this.migrator.runUp(file, batch, pretend);
-      if (step) batch++;
-    }
+    const path = (args.flags.path as string) ?? this.migrator.getOptions().migrationsPath;
+    const stepFlag = args.flags.step;
+    await this.migrator.getMigrator().run(path, {
+      pretend: !!args.flags.pretend,
+      step: typeof stepFlag === 'string' ? parseInt(stepFlag, 10) : !!stepFlag,
+    });
     return 0;
   }
 }

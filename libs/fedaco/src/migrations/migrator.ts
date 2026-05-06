@@ -1,353 +1,410 @@
-// import type { Dispatcher } from 'Illuminate/Contracts/Events/Dispatcher';
-// import type { MigrationRepositoryInterface } from 'Illuminate/Database/Migrations/MigrationRepositoryInterface';
-// import type { Filesystem } from 'Illuminate/Filesystem/Filesystem';
-// import type { ConnectionResolverInterface } from 'Illuminate/Database/ConnectionResolverInterface';
-// import type { OutputInterface } from 'Symfony/Component/Console/Output/OutputInterface';
-// import type { Connection } from 'Illuminate/Database/Connection';
-// import type { MigrationEvent } from 'Illuminate/Contracts/Database/Events/MigrationEvent';
-// import { BulletList } from 'Illuminate/Console/View/Components/BulletList';
-// import { Info } from 'Illuminate/Console/View/Components/Info';
-// import { Task } from 'Illuminate/Console/View/Components/Task';
-// import { TwoColumnDetail } from 'Illuminate/Console/View/Components/TwoColumnDetail';
-// import { MigrationEnded } from 'Illuminate/Database/Events/MigrationEnded';
-// import { MigrationsEnded } from 'Illuminate/Database/Events/MigrationsEnded';
-// import { MigrationsStarted } from 'Illuminate/Database/Events/MigrationsStarted';
-// import { MigrationStarted } from 'Illuminate/Database/Events/MigrationStarted';
-// import { NoPendingMigrations } from 'Illuminate/Database/Events/NoPendingMigrations';
-// import { Arr } from 'Illuminate/Support/Arr';
-// import { Collection } from 'Illuminate/Support/Collection';
-// import { Str } from 'Illuminate/Support/Str';
-// import { ReflectionClass } from 'ReflectionClass';
+import { existsSync, readdirSync, statSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { basename, extname, isAbsolute, resolve } from 'node:path';
 
-import { basename } from 'node:path';
-import { type ConnectionResolverInterface } from '../interface/connection-resolver-interface';
-import { type MigrationRepositoryInterface } from './migration-repository-interface';
-import { isBlank, tap, uniq } from '@gradii/nanofn';
-import { wrap } from '../helper/arr';
+import { isBlank, uniq } from '@gradii/nanofn';
+
+import type { Connection } from '../connection';
+import type { ConnectionResolverInterface } from '../interface/connection-resolver-interface';
+import { Migration } from './migration';
+import type { MigrationRepositoryInterface } from './migration-repository-interface';
+
+const dynamicRequire = createRequire(process.cwd() + '/');
+
+export type MigrationOptions = {
+  pretend?: boolean;
+  step?: boolean | number;
+  batch?: number;
+};
+
+export type MigrationLogger = (message: string) => void;
+
+export type MigrationLoader = (file: string) => any;
+
+const MIGRATION_FILE_EXTENSIONS = ['.js', '.cjs', '.mjs', '.ts', '.mts', '.cts'];
+
+let cachedJiti: ((file: string) => any) | null | undefined;
+
+function getJitiLoader(): (file: string) => any {
+  if (cachedJiti === undefined) {
+    try {
+      const createJiti = dynamicRequire('jiti');
+      const factory =
+        typeof createJiti === 'function'
+          ? createJiti
+          : createJiti?.default ?? createJiti?.createJiti;
+      const jiti = factory(process.cwd(), {
+        interopDefault: true,
+        cache: false,
+        requireCache: false,
+      });
+      cachedJiti = (f: string) => jiti(f);
+    } catch {
+      cachedJiti = null;
+    }
+  }
+  if (!cachedJiti) {
+    throw new Error(
+      `fedaco: "jiti" is required to load migrations. Install it: pnpm add jiti`
+    );
+  }
+  return cachedJiti;
+}
+
+const defaultLoader: MigrationLoader = (file) => getJitiLoader()(file);
 
 export class Migrator {
-  /* The migration repository implementation. */
-  repository: MigrationRepositoryInterface;
-  /* The filesystem instance. */
-  // files: Filesystem;
-  /* The connection resolver instance. */
-  resolver: ConnectionResolverInterface;
-  /* The name of the default connection. */
-  _connection: string;
-  /* The paths to all of the migration files. */
-  _paths: any[] = [];
-  /* The paths that have already been required. */
-  requiredPathCache: array<string> = [];
-  /* The output interface implementation. */
-  output: OutputInterface;
+  protected static requiredPathCache = new Map<string, any>();
 
-  /* Create a new migrator instance. */
+  repository: MigrationRepositoryInterface;
+  resolver: ConnectionResolverInterface;
+  _connection = '';
+  _paths: string[] = [];
+
+  protected logger: MigrationLogger = (msg) => process.stdout.write(msg + '\n');
+  protected loader: MigrationLoader = defaultLoader;
+
   public constructor(
     repository: MigrationRepositoryInterface,
-    resolver: ConnectionResolverInterface /* files: Filesystem, */,
-    /* dispatcher: Dispatcher | null = null */
+    resolver: ConnectionResolverInterface
   ) {
-    // this.files      = files;
-    // this.events     = dispatcher;
     this.resolver = resolver;
     this.repository = repository;
   }
 
-  /* Run the pending migrations at a given path. */
-  public async run(paths: any[] | string = [], options: any[] = []) {
+  public setLogger(logger: MigrationLogger | null): this {
+    this.logger = logger ?? (() => undefined);
+    return this;
+  }
+
+  public setLoader(loader: MigrationLoader): this {
+    this.loader = loader ?? defaultLoader;
+    Migrator.requiredPathCache.clear();
+    return this;
+  }
+
+  public async run(
+    paths: string | string[] = [],
+    options: MigrationOptions = {}
+  ): Promise<string[]> {
     const files = this.getMigrationFiles(paths);
-    this.requireFiles((migrations = this.pendingMigrations(files, await this.repository.getRan())));
-    this.runPending(migrations, options);
-    return migrations;
+    const ran = await this.repository.getRan();
+    const pending = this.pendingMigrations(files, ran);
+    await this.runPending(pending, options);
+    return pending;
   }
 
-  /* Get the migration files that have not yet run. */
-  protected pendingMigrations(files: any[], ran: any[]) {
-    return Collection.make(files)
-      .reject((file) => {
-        return in_array(this.getMigrationName(file), ran);
-      })
-      .values()
-      .all();
+  protected pendingMigrations(files: string[], ran: string[]): string[] {
+    const ranSet = new Set(ran);
+    return files.filter((file) => !ranSet.has(this.getMigrationName(file)));
   }
 
-  /* Run an array of migrations. */
-  public runPending(migrations: any[], options: any = {}) {
+  public async runPending(
+    migrations: string[],
+    options: MigrationOptions = {}
+  ): Promise<void> {
     if (migrations.length === 0) {
-      // this.fireMigrationEvent(new NoPendingMigrations('up'));
-      this.write(Info, 'Nothing to migrate');
+      this.write('Nothing to migrate.');
       return;
     }
-    let batch = this.repository.getNextBatchNumber();
-    const pretend = options['pretend'] ?? false;
-    const step = options['step'] ?? false;
-    // this.fireMigrationEvent(new MigrationsStarted('up'));
-    this.write(Info, 'Running migrations.');
+    let batch = await this.repository.getNextBatchNumber();
+    const pretend = options.pretend ?? false;
+    const step = options.step ?? false;
+
+    this.write('Running migrations.');
     for (const file of migrations) {
-      this.runUp(file, batch, pretend);
-      if (step) {
-        batch++;
-      }
+      await this.runUp(file, batch, pretend);
+      if (step) batch++;
     }
-    // this.fireMigrationEvent(new MigrationsEnded('up'))(this.output?.writeln)('');
   }
 
-  /* Run "up" a migration instance. */
-  protected runUp(file: string, batch: number, pretend: boolean) {
+  protected async runUp(
+    file: string,
+    batch: number,
+    pretend: boolean
+  ): Promise<void> {
     const migration = this.resolvePath(file);
     const name = this.getMigrationName(file);
     if (pretend) {
-      return this.pretendToRun(migration, 'up');
+      await this.pretendToRun(migration, 'up');
+      return;
     }
-    this.write(Task, name, () => this.runMigration(migration, 'up'));
-    this.repository.log(name, batch);
+    this.write(`Migrating: ${name}`);
+    await this.runMigration(migration, 'up');
+    await this.repository.log(name, batch);
+    this.write(`Migrated:  ${name}`);
   }
 
-  /* Rollback the last migration operation. */
-  public rollback(paths: any[] | string = [], options: any[] = []) {
-    const migrations = this.getMigrationsForRollback(options);
-    if (migrations.length === 0) {
-      // this.fireMigrationEvent(new NoPendingMigrations('down'));
-      this.write('info', 'Nothing to rollback.');
+  public async rollback(
+    paths: string | string[] = [],
+    options: MigrationOptions = {}
+  ): Promise<string[]> {
+    const records = await this.getMigrationsForRollback(options);
+    if (records.length === 0) {
+      this.write('Nothing to rollback.');
       return [];
     }
-    return tap(this.rollbackMigrations(migrations, paths, options), () => {
-      (this.output?.writeln)('');
-    });
+    return this.rollbackMigrations(records, paths, options);
   }
 
-  /* Get the migrations for a rollback operation. */
-  protected getMigrationsForRollback(options: any[]) {
-    if ((steps = options['step'] ?? 0) > 0) {
-      return this.repository.getMigrations(steps);
-    }
-    if ((batch = options['batch'] ?? 0) > 0) {
-      return this.repository.getMigrationsByBatch(batch);
-    }
+  protected async getMigrationsForRollback(
+    options: MigrationOptions
+  ): Promise<any[]> {
+    const stepOpt = options.step;
+    const steps = typeof stepOpt === 'number' ? stepOpt : 0;
+    if (steps > 0) return this.repository.getMigrations(steps);
+    if ((options.batch ?? 0) > 0)
+      return this.repository.getMigrationsByBatch(options.batch as number);
     return this.repository.getLast();
   }
 
-  /* Rollback the given migrations. */
-  protected rollbackMigrations(migrations: any[], paths: any[] | string, options: any) {
-    const rolledBack = [];
-    // this.requireFiles((files = this.getMigrationFiles(paths)));
-    // this.fireMigrationEvent(new MigrationsStarted('down'));
-    this.write('info', 'Rolling back migrations.');
-    for (const migration of migrations) {
-      const migration = /* cast type object */ migration;
-      if (!(file = Arr.get(files, migration.migration))) {
-        this.write(TwoColumnDetail, migration.migration, '<fg=yellow;options=bold>Migration not found</>');
+  protected async rollbackMigrations(
+    records: any[],
+    paths: string | string[],
+    options: MigrationOptions
+  ): Promise<string[]> {
+    const rolledBack: string[] = [];
+    const filesByName = new Map<string, string>();
+    for (const f of this.getMigrationFiles(paths)) {
+      filesByName.set(this.getMigrationName(f), f);
+    }
+
+    this.write('Rolling back migrations.');
+    for (const record of records) {
+      const file = filesByName.get(record.migration);
+      if (!file) {
+        this.write(`Migration not found: ${record.migration}`);
         continue;
       }
       rolledBack.push(file);
-      this.runDown(file, migration, options['pretend'] ?? false);
+      await this.runDown(file, record, options.pretend ?? false);
     }
-    this.fireMigrationEvent(new MigrationsEnded('down'));
     return rolledBack;
   }
 
-  /* Rolls all of the currently applied migrations back. */
-  public async reset(paths: any[] | string = [], pretend = false) {
-    const migrations = (await this.repository.getRan()).reverse();
-    if (migrations.length === 0) {
-      this.write('info', 'Nothing to rollback.');
+  public async reset(
+    paths: string | string[] = [],
+    pretend = false
+  ): Promise<string[]> {
+    const ran = (await this.repository.getRan()).slice().reverse();
+    if (ran.length === 0) {
+      this.write('Nothing to rollback.');
       return [];
     }
-    return tap(this.resetMigrations(migrations, wrap(paths), pretend), () => {
-      (this.output?.writeln)('');
-    });
+    return this.resetMigrations(ran, this.wrapPaths(paths), pretend);
   }
 
-  /* Reset the given migrations. */
-  protected resetMigrations(migrations: any[], paths: any[], pretend = false) {
-    var migrations = collect(migrations)
-      .map((m) => {
-        return /* cast type object */ {
-          migration: m,
-        };
-      })
-      .all();
-    return this.rollbackMigrations(migrations, paths, compact('pretend'));
+  protected async resetMigrations(
+    names: string[],
+    paths: string[],
+    pretend = false
+  ): Promise<string[]> {
+    const records = names.map((name) => ({ migration: name }));
+    return this.rollbackMigrations(records, paths, { pretend });
   }
 
-  /* Run "down" a migration instance. */
-  protected runDown(file: string, migration: object, pretend: boolean) {
+  protected async runDown(
+    file: string,
+    record: any,
+    pretend: boolean
+  ): Promise<void> {
     const instance = this.resolvePath(file);
     const name = this.getMigrationName(file);
     if (pretend) {
-      return this.pretendToRun(instance, 'down');
+      await this.pretendToRun(instance, 'down');
+      return;
     }
-    this.write(Task, name, () => this.runMigration(instance, 'down'));
-    this.repository.delete(migration);
+    this.write(`Rolling back: ${name}`);
+    await this.runMigration(instance, 'down');
+    await this.repository.delete(record);
+    this.write(`Rolled back:  ${name}`);
   }
 
-  /* Run a migration inside a transaction if the database supports it. */
-  protected runMigration(migration: object, method: string) {
-    const connection = this.resolveConnection(migration.getConnection());
-    const callback = () => {
-      if (method_exists(migration, method)) {
-        // this.fireMigrationEvent(new MigrationStarted(migration, method));
-        this.runMethod(connection, migration, method);
-        // this.fireMigrationEvent(new MigrationEnded(migration, method));
-      }
+  protected async runMigration(
+    migration: Migration | any,
+    method: 'up' | 'down'
+  ): Promise<void> {
+    const connection = this.resolveConnection(migration.getConnection?.() ?? '');
+    const callback = async () => {
+      const fn = (migration as any)[method];
+      if (typeof fn !== 'function') return;
+      await this.runMethod(connection, migration, method);
     };
-    this.getSchemaGrammar(connection).supportsSchemaTransactions() && migration.withinTransaction
-      ? connection.transaction(callback)
-      : callback();
+
+    const grammar = this.getSchemaGrammar(connection);
+    const supportsTx =
+      typeof grammar?.supportsSchemaTransactions === 'function' &&
+      grammar.supportsSchemaTransactions();
+    const withinTx = (migration as any)._withinTransaction !== false;
+
+    if (supportsTx && withinTx && typeof connection.transaction === 'function') {
+      await connection.transaction(callback);
+    } else {
+      await callback();
+    }
   }
 
-  /* Pretend to run the migrations. */
-  protected pretendToRun(migration: object, method: string) {
-    var name = get_class(migration);
-    const reflectionClass = new ReflectionClass(migration);
-    if (reflectionClass.isAnonymous()) {
-      var name = this.getMigrationName(reflectionClass.getFileName());
+  protected async pretendToRun(
+    migration: Migration | any,
+    method: 'up' | 'down'
+  ): Promise<void> {
+    const name = (migration as any)?.constructor?.name ?? '(anonymous)';
+    this.write(`[pretend] ${name}`);
+    const queries = await this.getQueries(migration, method);
+    for (const q of queries) this.write(`  ${q.query ?? q}`);
+  }
+
+  protected async getQueries(
+    migration: Migration | any,
+    method: 'up' | 'down'
+  ): Promise<any[]> {
+    const connection = this.resolveConnection(migration.getConnection?.() ?? '');
+    if (typeof connection.pretend !== 'function') return [];
+    return connection.pretend(async () => {
+      const fn = (migration as any)[method];
+      if (typeof fn !== 'function') return;
+      await this.runMethod(connection, migration, method);
+    });
+  }
+
+  protected async runMethod(
+    connection: Connection,
+    migration: Migration | any,
+    method: 'up' | 'down'
+  ): Promise<void> {
+    const previous = this.resolver.getDefaultConnection();
+    try {
+      this.resolver.setDefaultConnection(connection.getName());
+      await (migration as any)[method]();
+    } finally {
+      this.resolver.setDefaultConnection(previous);
     }
-    this.write(TwoColumnDetail, name);
-    this.write(
-      BulletList,
-      collect(this.getQueries(migration, method)).map((query) => {
-        return query['query'];
-      }),
+  }
+
+  public resolve(file: string): Migration {
+    return this.resolvePath(file);
+  }
+
+  protected resolvePath(path: string): Migration {
+    let mod = Migrator.requiredPathCache.get(path);
+    if (mod === undefined) {
+      mod = this.loader(path);
+      Migrator.requiredPathCache.set(path, mod);
+    }
+    const ctor = (mod && mod.default) || mod;
+    if (typeof ctor === 'function') return new ctor();
+    const instance = Object.create(Migration.prototype) as Migration;
+    return Object.assign(instance, mod);
+  }
+
+  public getMigrationFiles(paths: string | string[]): string[] {
+    const list = this.wrapPaths(paths);
+    const collected: string[] = [];
+    for (const p of list) collected.push(...this.collectFromOne(p));
+    const seen = new Set<string>();
+    const deduped = collected.filter((f) =>
+      seen.has(f) ? false : (seen.add(f), true)
+    );
+    return deduped.sort((a, b) =>
+      this.getMigrationName(a).localeCompare(this.getMigrationName(b))
     );
   }
 
-  /* Get all of the queries that would be run for a migration. */
-  protected getQueries(migration: object, method: string) {
-    const db = this.resolveConnection(migration.getConnection());
-    return db.pretend(() => {
-      if (method_exists(migration, method)) {
-        this.runMethod(db, migration, method);
-      }
-    });
-  }
-
-  /* Run a migration method on the given connection. */
-  protected runMethod(connection: Connection, migration: object, method: string) {
-    const previousConnection = this.resolver.getDefaultConnection();
-    try {
-      this.resolver.setDefaultConnection(connection.getName());
-      migration[method]();
-    } finally {
-      this.resolver.setDefaultConnection(previousConnection);
+  protected collectFromOne(path: string): string[] {
+    if (!path) return [];
+    const abs = isAbsolute(path) ? path : resolve(process.cwd(), path);
+    if (!existsSync(abs)) return [];
+    const stat = statSync(abs);
+    if (stat.isFile()) {
+      return MIGRATION_FILE_EXTENSIONS.includes(extname(abs)) ? [abs] : [];
     }
+    if (!stat.isDirectory()) return [];
+    return readdirSync(abs)
+      .filter(
+        (f) =>
+          MIGRATION_FILE_EXTENSIONS.includes(extname(f)) && !f.endsWith('.d.ts')
+      )
+      .map((f) => resolve(abs, f));
   }
 
-  /* Resolve a migration instance from a file. */
-  public resolve(file: string) {
-    const clazz = this.getMigrationClass(file);
-    return new clazz();
+  public getMigrationName(path: string): string {
+    return basename(path, extname(path));
   }
 
-  /* Resolve a migration instance from a migration path. */
-  protected resolvePath(path: string) {
-    const clazz = this.getMigrationClass(this.getMigrationName(path));
-    if (class_exists(clazz) && realpath(path) == new ReflectionClass(clazz).getFileName()) {
-      return new clazz();
-    }
-    const migration = (Migrator.requiredPathCache[path] ??= this.files.getRequire(path));
-    if (is_object(migration)) {
-      return method_exists(migration, '__construct') ? this.files.getRequire(path) : migration.clone();
-    }
-    return new clazz();
+  public path(path: string): void {
+    this._paths = uniq([...this._paths, path]);
   }
 
-  /* Generate a migration class name based on the migration file name. */
-  protected getMigrationClass(migrationName: string) {
-    return Str.studly(array_slice(explode('_', migrationName), 4).join('_'));
-  }
-
-  /* Get all of the migration files in a given path. */
-  public getMigrationFiles(paths: string | any[]) {
-    return Collection.make(paths)
-      .flatMap((path) => {
-        return str_ends_with(path, '.php') ? [path] : this.files.glob(path + '/*_*.php');
-      })
-      .filter()
-      .values()
-      .keyBy((file) => {
-        return this.getMigrationName(file);
-      })
-      .sortBy((file, key) => {
-        return key;
-      })
-      .all();
-  }
-
-  /* Get the name of the migration. */
-  public getMigrationName(path: string) {
-    return basename(path).replace(/(\.mjs|\.js)$/g, '');
-  }
-
-  /* Register a custom migration path. */
-  public path(path: string) {
-    this._paths = uniq([...this._paths, ...[path]]);
-  }
-
-  /* Get all of the custom migration paths. */
-  public paths() {
+  public paths(): string[] {
     return this._paths;
   }
 
-  /* Get the default connection name. */
-  public getConnection() {
+  public getConnection(): string {
     return this._connection;
   }
 
-  /* Execute the given callback using the given connection as the default connection. */
-  public usingConnection(name: string, callback: callable) {
-    const previousConnection = this.resolver.getDefaultConnection();
+  public async usingConnection<T>(
+    name: string,
+    callback: () => Promise<T> | T
+  ): Promise<T> {
+    const previous = this.resolver.getDefaultConnection();
     this.setConnection(name);
-    return tap(callback(), () => {
-      this.setConnection(previousConnection);
-    });
+    try {
+      return await callback();
+    } finally {
+      this.setConnection(previous);
+    }
   }
 
-  /* Set the default connection name. */
-  public setConnection(name: string) {
-    if (!isBlank(name)) {
-      this.resolver.setDefaultConnection(name);
-    }
+  public setConnection(name: string): void {
+    if (!isBlank(name)) this.resolver.setDefaultConnection(name);
     this.repository.setSource(name);
     this._connection = name;
   }
 
-  /* Resolve the database connection instance. */
-  public resolveConnection(connection: string) {
-    return this.resolver.connection(connection || this._connection);
+  public resolveConnection(connection?: string | null): Connection {
+    return this.resolver.connection(
+      connection || this._connection || undefined
+    ) as Connection;
   }
 
-  /* Get the schema grammar out of a migration connection. */
-  protected getSchemaGrammar(connection: Connection) {
-    if (isBlank((grammar = connection.getSchemaGrammar()))) {
-      connection.useDefaultSchemaGrammar();
-      var grammar = connection.getSchemaGrammar();
+  protected getSchemaGrammar(connection: Connection): any {
+    let grammar = connection.getSchemaGrammar();
+    if (
+      isBlank(grammar) &&
+      typeof (connection as any).useDefaultSchemaGrammar === 'function'
+    ) {
+      (connection as any).useDefaultSchemaGrammar();
+      grammar = connection.getSchemaGrammar();
     }
     return grammar;
   }
 
-  /* Get the migration repository instance. */
-  public getRepository() {
+  public getRepository(): MigrationRepositoryInterface {
     return this.repository;
   }
 
-  /* Determine if the migration repository exists. */
-  public repositoryExists() {
+  public async repositoryExists(): Promise<boolean> {
     return this.repository.repositoryExists();
   }
 
-  /* Determine if any migrations have been run. */
-  public async hasRunAnyMigrations() {
-    return this.repositoryExists() && (await this.repository.getRan()).length > 0;
+  public async hasRunAnyMigrations(): Promise<boolean> {
+    if (!(await this.repositoryExists())) return false;
+    return (await this.repository.getRan()).length > 0;
   }
 
-  /* Delete the migration repository data store. */
-  public async deleteRepository() {
+  public async deleteRepository(): Promise<void> {
     await this.repository.deleteRepository();
   }
 
-  /* Write to the console's output. */
-  protected write(component: string, ...arguments) {
-    console[component](...arguments);
+  protected wrapPaths(paths: string | string[]): string[] {
+    if (Array.isArray(paths)) return paths.length > 0 ? paths : [...this._paths];
+    if (paths === undefined || paths === null || paths === '')
+      return [...this._paths];
+    return [paths];
+  }
+
+  protected write(message: string): void {
+    this.logger(message);
   }
 }

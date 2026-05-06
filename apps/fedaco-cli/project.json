@@ -50,6 +50,19 @@
         }
       }
     },
+    "install-bin": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build", "fedaco:build"],
+      "outputs": ["{workspaceRoot}/dist/libs/fedaco/bin/fedaco.js"],
+      "options": {
+        "parallel": false,
+        "commands": [
+          "mkdir -p dist/libs/fedaco/bin",
+          "cp dist/apps/fedaco-cli/fedaco.js dist/libs/fedaco/bin/fedaco.js",
+          "chmod +x dist/libs/fedaco/bin/fedaco.js"
+        ]
+      }
+    },
     "lint": {
       "executor": "@nx/eslint:lint"
     },

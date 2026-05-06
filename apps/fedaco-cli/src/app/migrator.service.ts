@@ -1,6 +1,4 @@
-import { existsSync, readdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { basename, extname, isAbsolute, resolve } from 'node:path';
 
 import { Inject, Injectable } from '@nestjs/common';
 
@@ -15,19 +13,13 @@ export interface MigratorOptions {
   migrationsTable: string;
 }
 
-export interface MigrationModule {
-  up: () => Promise<void> | void;
-  down: () => Promise<void> | void;
-  default?: any;
-}
-
 @Injectable()
 export class MigratorService {
   private fedaco: any;
   private databaseConfig: any;
   private resolver: any;
   private repository: any;
-  private MigrationCtor: any;
+  private migrator: any;
 
   constructor(
     @Inject(MIGRATOR_OPTIONS) private readonly options: MigratorOptions
@@ -35,7 +27,7 @@ export class MigratorService {
 
   async onInit(): Promise<void> {
     this.fedaco = loadUserFedaco();
-    const { DatabaseConfig, DatabaseMigrationRepository, Migration } = this.fedaco;
+    const { DatabaseConfig, DatabaseMigrationRepository, Migrator } = this.fedaco;
 
     this.databaseConfig = new DatabaseConfig();
     for (const [name, cfg] of Object.entries(this.options.connections)) {
@@ -45,17 +37,21 @@ export class MigratorService {
     this.databaseConfig.setAsGlobal();
 
     this.resolver = this.databaseConfig.getDatabaseManager();
-    this.MigrationCtor = Migration;
     this.repository = new DatabaseMigrationRepository(
       this.resolver,
       this.options.migrationsTable
     );
     this.repository.setSource(this.options.defaultConnection);
+
+    this.migrator = new Migrator(this.repository, this.resolver);
+    this.migrator.setConnection(this.options.defaultConnection);
+    this.migrator.path(this.options.migrationsPath);
+    this.migrator.setLoader((file: string) => loadMigrationFile(file));
   }
 
   async shutdown(): Promise<void> {
     if (!this.databaseConfig) return;
-    const connections = this.resolver.getConnections?.() ?? {};
+    const connections = this.resolver?.getConnections?.() ?? {};
     for (const key of Object.keys(connections)) {
       const c = connections[key];
       if (c && typeof c.disconnect === 'function') {
@@ -68,8 +64,16 @@ export class MigratorService {
     }
   }
 
+  getMigrator(): any {
+    return this.migrator;
+  }
+
   getRepository(): any {
     return this.repository;
+  }
+
+  getOptions(): MigratorOptions {
+    return this.options;
   }
 
   async ensureRepositoryExists(): Promise<void> {
@@ -87,75 +91,43 @@ export class MigratorService {
   getConnection() {
     return this.resolver.connection(this.options.defaultConnection);
   }
-
-  resolveMigrationsPath(override?: string): string {
-    const p = override ?? this.options.migrationsPath;
-    return isAbsolute(p) ? p : resolve(process.cwd(), p);
-  }
-
-  listMigrationFiles(path: string): string[] {
-    if (!existsSync(path) || !statSync(path).isDirectory()) {
-      return [];
-    }
-    return readdirSync(path)
-      .filter((f) => /\.(js|cjs|mjs|ts)$/.test(f))
-      .filter((f) => !f.endsWith('.d.ts'))
-      .map((f) => resolve(path, f))
-      .sort();
-  }
-
-  getMigrationName(file: string): string {
-    return basename(file, extname(file));
-  }
-
-  loadMigration(file: string): any {
-    const mod: MigrationModule = dynamicRequire(file);
-    const ctor = (mod as any).default ?? mod;
-    if (typeof ctor === 'function') {
-      return new (ctor as any)();
-    }
-    const instance = Object.create(this.MigrationCtor.prototype);
-    return Object.assign(instance, mod);
-  }
-
-  async runUp(file: string, batch: number, pretend: boolean): Promise<void> {
-    const name = this.getMigrationName(file);
-    const migration = this.loadMigration(file);
-
-    if (pretend) {
-      process.stdout.write(`[pretend] ${name}: would run up()\n`);
-      return;
-    }
-
-    process.stdout.write(`Migrating: ${name}\n`);
-    await (migration as any).up?.();
-    await this.repository.log(name, batch);
-    process.stdout.write(`Migrated:  ${name}\n`);
-  }
-
-  async runDown(file: string, record: any, pretend: boolean): Promise<void> {
-    const name = this.getMigrationName(file);
-    const migration = this.loadMigration(file);
-
-    if (pretend) {
-      process.stdout.write(`[pretend] ${name}: would run down()\n`);
-      return;
-    }
-
-    process.stdout.write(`Rolling back: ${name}\n`);
-    await (migration as any).down?.();
-    await this.repository.delete(record);
-    process.stdout.write(`Rolled back:  ${name}\n`);
-  }
 }
 
 function loadUserFedaco(): any {
   try {
     return dynamicRequire('@gradii/fedaco');
-  } catch (err) {
+  } catch {
     throw new Error(
       `fedaco: could not resolve "@gradii/fedaco" from ${process.cwd()}.\n` +
         `Install it in your project: pnpm add @gradii/fedaco`
     );
   }
+}
+
+let cachedJiti: ((file: string) => any) | null | undefined;
+
+function loadMigrationFile(file: string): any {
+  if (cachedJiti === undefined) {
+    try {
+      const createJiti = dynamicRequire('jiti');
+      const factory =
+        typeof createJiti === 'function'
+          ? createJiti
+          : createJiti?.default ?? createJiti?.createJiti;
+      const jiti = factory(process.cwd(), {
+        interopDefault: true,
+        cache: false,
+        requireCache: false,
+      });
+      cachedJiti = (f: string) => jiti(f);
+    } catch {
+      cachedJiti = null;
+    }
+  }
+  if (!cachedJiti) {
+    throw new Error(
+      `fedaco: "jiti" is required to load migrations. Install it in your project: pnpm add jiti`
+    );
+  }
+  return cachedJiti(file);
 }
