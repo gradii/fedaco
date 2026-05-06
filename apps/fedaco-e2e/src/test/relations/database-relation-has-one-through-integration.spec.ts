@@ -1,16 +1,17 @@
 import { head } from '@gradii/nanofn';
 import { tap } from 'rxjs/operators';
-import { Column } from '../../src/annotation/column/column';
-import { DeletedAtColumn } from '../../src/annotation/column/deleted-at.column';
-import { BelongsToColumn } from '../../src/annotation/relation-column/belongs-to.relation-column';
-import { HasOneThroughColumn } from '../../src/annotation/relation-column/has-one-through.relation-column';
-import { HasOneColumn } from '../../src/annotation/relation-column/has-one.relation-column';
-import { DatabaseConfig } from '../../src/database-config';
-import { FedacoRelationType } from '../../src/fedaco/fedaco-types';
-import { mixinSoftDeletes } from '../../src/fedaco/mixins/soft-deletes';
-import { Model } from '../../src/fedaco/model';
-import { forwardRef } from '../../src/query-builder/forward-ref';
-import { SchemaBuilder } from '../../src/schema/schema-builder';
+import type { FedacoRelationType, SchemaBuilder } from '@gradii/fedaco';
+import {
+  BelongsToColumn,
+  Column,
+  DatabaseConfig,
+  DeletedAtColumn,
+  forwardRef,
+  HasOneColumn,
+  HasOneThroughColumn,
+  mixinSoftDeletes,
+  Model,
+} from '@gradii/fedaco';
 import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
@@ -50,52 +51,52 @@ async function createSchema() {
 
 async function seedData() {
   const position = await HasOneThroughTestPosition.createQuery().create({
-    id       : 1,
-    name     : 'President',
+    id: 1,
+    name: 'President',
     shortname: 'ps',
   });
   const user = await position.NewRelation('user').create({
-    id            : 1,
-    email         : 'linbolen@gradii.com',
+    id: 1,
+    email: 'linbolen@gradii.com',
     position_short: 'ps',
   });
   await user.NewRelation('contract').create({
     title: 'A title',
-    body : 'A body',
+    body: 'A body',
     email: 'linbolen@gradii.com',
   });
 }
 
 async function seedDataExtended() {
   const position = await HasOneThroughTestPosition.createQuery().create({
-    id       : 2,
-    name     : 'Vice President',
+    id: 2,
+    name: 'Vice President',
     shortname: 'vp',
   });
   const user = await position.NewRelation('user').create({
-    id            : 2,
-    email         : 'example1@gmail.com',
+    id: 2,
+    email: 'example1@gmail.com',
     position_short: 'vp',
   });
   await user.NewRelation('contract').create({
     title: 'Example1 title1',
-    body : 'Example1 body1',
+    body: 'Example1 body1',
     email: 'example1contract1@gmail.com',
   });
 }
 
 async function seedDefaultData() {
   const position = await HasOneThroughDefaultTestPosition.createQuery().create({
-    id  : 1,
+    id: 1,
     name: 'President',
   });
   const user = await position.NewRelation('user').create({
-    id   : 1,
+    id: 1,
     email: 'linbolen@gradii.com',
   });
   await user.NewRelation('contract').create({
     title: 'A title',
-    body : 'A body',
+    body: 'A body',
   });
 }
 
@@ -130,8 +131,8 @@ describe('test database fedaco has one through integration', () => {
   beforeEach(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: ':memory:',
     });
     db.bootFedaco();
@@ -184,13 +185,13 @@ describe('test database fedaco has one through integration', () => {
 
   it('first or fail throws an exception', async () => {
     const position = await HasOneThroughTestPosition.createQuery().create({
-      id       : 1,
-      name     : 'President',
+      id: 1,
+      name: 'President',
       shortname: 'ps',
     });
     await position.NewRelation('user').create({
-      id            : 1,
-      email         : 'linbolen@gradii.com',
+      id: 1,
+      email: 'linbolen@gradii.com',
       position_short: 'ps',
     });
     await expect(async () => {
@@ -200,13 +201,13 @@ describe('test database fedaco has one through integration', () => {
 
   it('find or fail throws an exception', async () => {
     const position = await HasOneThroughTestPosition.createQuery().create({
-      id       : 1,
-      name     : 'President',
+      id: 1,
+      name: 'President',
       shortname: 'ps',
     });
     await position.NewRelation('user').create({
-      id            : 1,
-      email         : 'linbolen@gradii.com',
+      id: 1,
+      email: 'linbolen@gradii.com',
       position_short: 'ps',
     });
     await expect(async () => {
@@ -327,7 +328,7 @@ export class HasOneThroughTestUser extends Model {
   _guarded: any = [];
 
   @HasOneColumn({
-    related   : forwardRef(() => HasOneThroughTestContract),
+    related: forwardRef(() => HasOneThroughTestContract),
     foreignKey: 'user_id',
   })
   public contract: FedacoRelationType<HasOneThroughTestContract>;
@@ -342,7 +343,7 @@ export class HasOneThroughTestContract extends Model {
   title: string;
 
   @BelongsToColumn({
-    related   : HasOneThroughTestUser,
+    related: HasOneThroughTestUser,
     foreignKey: 'user_id',
   })
   public owner: FedacoRelationType<HasOneThroughTestUser>;
@@ -353,15 +354,15 @@ export class HasOneThroughTestPosition extends Model {
   _guarded: any = [];
 
   @HasOneThroughColumn({
-    related  : HasOneThroughTestContract,
-    through  : HasOneThroughTestUser,
-    firstKey : 'position_id',
+    related: HasOneThroughTestContract,
+    through: HasOneThroughTestUser,
+    firstKey: 'position_id',
     secondKey: 'user_id',
   })
   public contract: FedacoRelationType<HasOneThroughTestContract>;
 
   @HasOneColumn({
-    related   : HasOneThroughTestUser,
+    related: HasOneThroughTestUser,
     foreignKey: 'position_id',
   })
   public user: FedacoRelationType<HasOneThroughTestUser>;
@@ -413,17 +414,17 @@ export class HasOneThroughIntermediateTestPosition extends Model {
   _guarded: any = [];
 
   @HasOneThroughColumn({
-    related       : HasOneThroughTestContract,
-    through       : HasOneThroughTestUser,
-    firstKey      : 'position_short',
-    secondKey     : 'email',
-    localKey      : 'shortname',
+    related: HasOneThroughTestContract,
+    through: HasOneThroughTestUser,
+    firstKey: 'position_short',
+    secondKey: 'email',
+    localKey: 'shortname',
     secondLocalKey: 'email',
   })
   public contract: FedacoRelationType<HasOneThroughTestContract>;
 
   @HasOneColumn({
-    related   : HasOneThroughTestUser,
+    related: HasOneThroughTestUser,
     foreignKey: 'position_id',
   })
   public user: FedacoRelationType<HasOneThroughTestUser>;
@@ -434,7 +435,7 @@ export class HasOneThroughSoftDeletesTestUser extends (mixinSoftDeletes<typeof M
   _guarded: any = [];
 
   @HasOneColumn({
-    related   : forwardRef(() => HasOneThroughSoftDeletesTestContract),
+    related: forwardRef(() => HasOneThroughSoftDeletesTestContract),
     foreignKey: 'user_id',
   })
   public contract: FedacoRelationType<HasOneThroughSoftDeletesTestContract>;
@@ -452,7 +453,7 @@ export class HasOneThroughSoftDeletesTestContract extends Model {
   title: string;
 
   @BelongsToColumn({
-    related   : HasOneThroughSoftDeletesTestUser,
+    related: HasOneThroughSoftDeletesTestUser,
     foreignKey: 'user_id',
   })
   public owner: FedacoRelationType<HasOneThroughSoftDeletesTestUser>;
@@ -466,15 +467,15 @@ export class HasOneThroughSoftDeletesTestPosition extends Model {
   shortname: string;
 
   @HasOneThroughColumn({
-    related  : HasOneThroughSoftDeletesTestContract,
-    through  : HasOneThroughTestUser,
-    firstKey : 'position_id',
+    related: HasOneThroughSoftDeletesTestContract,
+    through: HasOneThroughTestUser,
+    firstKey: 'position_id',
     secondKey: 'user_id',
   })
   public contract: FedacoRelationType<HasOneThroughSoftDeletesTestContract>;
 
   @HasOneColumn({
-    related   : HasOneThroughSoftDeletesTestUser,
+    related: HasOneThroughSoftDeletesTestUser,
     foreignKey: 'position_id',
   })
   public user: FedacoRelationType<HasOneThroughSoftDeletesTestUser>;

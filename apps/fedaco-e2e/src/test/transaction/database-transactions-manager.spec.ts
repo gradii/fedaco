@@ -1,4 +1,4 @@
-import { DatabaseTransactionsManager } from '../../src/database-transactions-manager';
+import { DatabaseTransactionsManager } from '@gradii/fedaco';
 
 describe('test database transactions manager', () => {
   it('beginning transactions', () => {

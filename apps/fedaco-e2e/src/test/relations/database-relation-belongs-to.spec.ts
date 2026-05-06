@@ -1,9 +1,6 @@
-import { FedacoBuilder } from './../../src/fedaco/fedaco-builder';
-import { Model } from '../../src/fedaco/model';
-import { BelongsTo } from '../../src/fedaco/relations/belongs-to';
-import { Column } from '../../src/annotation/column/column';
+import type { FedacoBuilder, KeyAbleModel } from '@gradii/fedaco';
+import { BelongsTo, Column, Model } from '@gradii/fedaco';
 import { getBuilder } from './relation-testing-helper';
-import { KeyAbleModel } from '../../src/types/model-type';
 
 let builder: FedacoBuilder<Model>, related: Model;
 

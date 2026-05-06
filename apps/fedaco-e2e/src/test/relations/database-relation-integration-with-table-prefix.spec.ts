@@ -1,7 +1,5 @@
 import { isArray } from '@gradii/nanofn';
-import { DatabaseConfig } from '../../src/database-config';
-import { Model } from '../../src/fedaco/model';
-import { type SchemaBuilder } from '../../src/schema/schema-builder';
+import { DatabaseConfig, Model, type SchemaBuilder } from '@gradii/fedaco';
 import { EloquentTestUser } from '../fedaco-mysql-integration.spec';
 import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
@@ -42,8 +40,8 @@ describe('test database fedaco integration with table prefix', () => {
   beforeEach(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: ':memory:',
     });
     db.bootFedaco();

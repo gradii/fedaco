@@ -4,10 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { Column } from '@gradii/fedaco';
-import { HasManyColumn } from '@gradii/fedaco';
-import { Table } from '@gradii/fedaco';
-import { Model } from '@gradii/fedaco';
+import { Column, HasManyColumn, Model, Table } from '@gradii/fedaco';
 
 @Table({
   tableName: 'article_model',

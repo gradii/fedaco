@@ -27,6 +27,7 @@ jobs:
       matrix:
         node:
           - '20'
+          - '22'
     name: Node ${{ matrix.node }} sample
     steps:
       - name: Checkout
@@ -56,7 +57,12 @@ jobs:
           DB_PASSWORD: "123456"
           DB_DATABASE: 'fedaco_test'
           DB_COLLATION: utf8mb4_unicode_ci
+
+          PG_HOST: 127.0.0.1
           PG_PORT: 5432
+          PG_USER: root
+          PG_PASSWORD: "123456"
+          PG_DATABASE: 'fedaco_test'
         run: |
           pnpm nx run-many -t test
           

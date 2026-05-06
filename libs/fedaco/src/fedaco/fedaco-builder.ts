@@ -32,7 +32,7 @@ import type { QueriesRelationships } from './mixins/queries-relationships';
 import { mixinQueriesRelationships } from './mixins/queries-relationships';
 import type { Model } from './model';
 import { Relation } from './relations/relation';
-import { Scope } from './scope';
+import { BaseScope } from './base-scope';
 import { BelongsToManySymbol, FedacoBuilderSymbol } from '../symbol/fedaco-symbol';
 import { type KeyAbleModel } from '../types/model-type';
 
@@ -48,7 +48,7 @@ export interface FedacoBuilder<T extends Model = Model>
   make(attributes: Record<string, any>): T;
 
   /* Register a new global scope. */
-  withGlobalScope(identifier: string, scope: Scope | FedacoBuilderCallBack): this;
+  withGlobalScope(identifier: string, scope: BaseScope | FedacoBuilderCallBack): this;
 
   /* Remove a registered global scope. */
   withoutGlobalScope(scope: string): this;
@@ -382,7 +382,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   }
 
   /* Register a new global scope. */
-  public withGlobalScope(identifier: string, scope: Scope | FedacoBuilderCallBack): this {
+  public withGlobalScope(identifier: string, scope: BaseScope | FedacoBuilderCallBack): this {
     this._scopes[identifier] = scope;
     if (isObject(scope) && 'extend' in scope) {
       // @ts-ignore
@@ -973,7 +973,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
         if (isFunction(scope)) {
           scope(_builder);
         }
-        if (scope instanceof Scope) {
+        if (scope instanceof BaseScope) {
           scope.apply(_builder, this.getModel());
         }
       });

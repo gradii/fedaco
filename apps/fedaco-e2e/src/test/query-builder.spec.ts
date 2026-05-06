@@ -1,17 +1,17 @@
 /* tslint:disable:max-line-length */
-import { type DatabaseTransactionsManager } from '@gradii/fedaco';
-import { raw } from '@gradii/fedaco';
-import { type ConnectionInterface } from '@gradii/fedaco';
-import { MysqlQueryGrammar } from '@gradii/fedaco-mysql-driver';
-import { PostgresQueryGrammar } from '@gradii/fedaco-postgres-driver';
+import {
+  type ConnectionInterface,
+  type DatabaseTransactionsManager,
+  type JoinClauseBuilder,
+  Processor,
+  QueryBuilder,
+  raw,
+  type SchemaBuilder
+} from '@gradii/fedaco';
+import { MysqlProcessor, MysqlQueryGrammar } from '@gradii/fedaco-mysql-driver';
+import { PostgresProcessor, PostgresQueryGrammar } from '@gradii/fedaco-postgres-driver';
 import { SqliteQueryGrammar } from '@gradii/fedaco-sqlite-driver';
-import { SqlserverQueryGrammar } from '@gradii/fedaco-sqlserver-driver';
-import { Processor } from '@gradii/fedaco';
-import { MysqlProcessor } from '@gradii/fedaco-mysql-driver';
-import { PostgresProcessor } from '@gradii/fedaco-postgres-driver';
-import { SqlServerProcessor } from '@gradii/fedaco-sqlserver-driver';
-import { type JoinClauseBuilder, QueryBuilder } from '@gradii/fedaco';
-import { type SchemaBuilder } from '@gradii/fedaco';
+import { SqlServerProcessor, SqlserverQueryGrammar } from '@gradii/fedaco-sqlserver-driver';
 
 /**
  * this.assertSame\((.+?), (.+?)\)$
@@ -1402,7 +1402,7 @@ describe('database query builder test', () => {
       return [
         {
           category: 'rock',
-          total   : 5,
+          total: 5,
         },
       ];
     });
@@ -1424,7 +1424,7 @@ describe('database query builder test', () => {
     expect(result).toStrictEqual([
       {
         category: 'rock',
-        total   : 5,
+        total: 5,
       },
     ]);
 
@@ -1433,7 +1433,7 @@ describe('database query builder test', () => {
       return [
         {
           category: 'rock',
-          total   : 5,
+          total: 5,
         },
       ];
     });
@@ -1453,7 +1453,7 @@ describe('database query builder test', () => {
     expect(result).toStrictEqual([
       {
         category: 'rock',
-        total   : 5,
+        total: 5,
       },
     ]);
   });
@@ -2251,11 +2251,11 @@ describe('database query builder test', () => {
     spySelect = jest.spyOn(builder._connection, 'select').mockReturnValue(
       Promise.resolve([
         {
-          id : 1,
+          id: 1,
           foo: 'bar',
         },
         {
-          id : 10,
+          id: 10,
           foo: 'baz',
         },
       ]),
@@ -2264,11 +2264,11 @@ describe('database query builder test', () => {
       expect(query).toBe(builder);
       expect(results).toStrictEqual([
         {
-          id : 1,
+          id: 1,
           foo: 'bar',
         },
         {
-          id : 10,
+          id: 10,
           foo: 'baz',
         },
       ]);
@@ -2806,7 +2806,7 @@ describe('database query builder test', () => {
     result = await builder.from('users').insertGetId(
       {
         email: 'foo',
-        bar  : raw('bar'),
+        bar: raw('bar'),
       },
       'id',
     );
@@ -2885,7 +2885,7 @@ describe('database query builder test', () => {
 
     result = await builder.from('users').where('id', '=', 1).update({
       email: 'foo',
-      name : 'bar',
+      name: 'bar',
     });
     expect(spyUpdate).toHaveBeenCalledWith('UPDATE `users` SET `email` = ?, `name` = ? WHERE `id` = ?', [
       'foo',
@@ -2897,7 +2897,7 @@ describe('database query builder test', () => {
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
     result = await builder.from('users').where('id', '=', 1).orderBy('foo', 'desc').limit(5).update({
       email: 'foo',
-      name : 'bar',
+      name: 'bar',
     });
     expect(spyUpdate).toHaveBeenCalledWith(
       'UPDATE `users` SET `email` = ?, `name` = ? WHERE `id` = ? ORDER BY `foo` DESC LIMIT 5',
@@ -2917,7 +2917,7 @@ describe('database query builder test', () => {
       .where('users.id', '=', 1)
       .update({
         email: 'foo',
-        name : 'bar',
+        name: 'bar',
       });
     expect(spyUpdate).toHaveBeenCalledWith(
       'UPDATE `users` INNER JOIN `orders` ON `users`.`id` = `orders`.`user_id` SET `users`.`email` = ?, `users`.`name` = ? WHERE `users`.`id` = ?',
@@ -2935,7 +2935,7 @@ describe('database query builder test', () => {
       })
       .update({
         email: 'foo',
-        name : 'bar',
+        name: 'bar',
       });
     expect(spyUpdate).toHaveBeenCalledWith(
       'UPDATE `users` INNER JOIN `orders` ON `users`.`id` = `orders`.`user_id` AND `users`.`id` = ? SET `users`.`email` = ?, `users`.`name` = ?',
@@ -2954,7 +2954,7 @@ describe('database query builder test', () => {
       .where('users.id', '=', 1)
       .update({
         email: 'foo',
-        name : 'bar',
+        name: 'bar',
       });
     expect(spyUpdate).toHaveBeenCalledWith(
       'UPDATE [users] SET [users].[email] = ?, [users].[name] = ? FROM [users] INNER JOIN [orders] ON [users].[id] = [orders].[user_id] WHERE [users].[id] = ?',
@@ -2971,7 +2971,7 @@ describe('database query builder test', () => {
       })
       .update({
         email: 'foo',
-        name : 'bar',
+        name: 'bar',
       });
     expect(spyUpdate).toHaveBeenCalledWith(
       'UPDATE [users] SET [users].[email] = ?, [users].[name] = ? FROM [users] INNER JOIN [orders] ON [users].[id] = [orders].[user_id] AND [users].[id] = ?',
@@ -2990,7 +2990,7 @@ describe('database query builder test', () => {
       .where('users.id', '=', 1)
       .update({
         email: 'foo',
-        name : 'bar',
+        name: 'bar',
       });
     expect(spyUpdate).toHaveBeenCalledWith(
       'UPDATE `users` INNER JOIN `orders` ON `users`.`id` = `orders`.`user_id` SET `users`.`email` = ?, `users`.`name` = ? WHERE `users`.`id` = ?',
@@ -3007,7 +3007,7 @@ describe('database query builder test', () => {
       })
       .update({
         email: 'foo',
-        name : 'bar',
+        name: 'bar',
       });
     expect(spyUpdate).toHaveBeenCalledWith(
       'UPDATE `users` INNER JOIN `orders` ON `users`.`id` = `orders`.`user_id` AND `users`.`id` = ? SET `users`.`email` = ?, `users`.`name` = ?',
@@ -3022,7 +3022,7 @@ describe('database query builder test', () => {
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
     result = await builder.from('users').where('users.id', '>', 1).limit(3).oldest('id').update({
       email: 'foo',
-      name : 'bar',
+      name: 'bar',
     });
     expect(spyUpdate).toHaveBeenCalledWith(
       'UPDATE "users" SET "email" = ?, "name" = ? WHERE "rowid" IN (SELECT "users"."rowid" FROM "users" WHERE "users"."id" > ? ORDER BY "id" ASC limit 3)',
@@ -3038,7 +3038,7 @@ describe('database query builder test', () => {
       .where('users.id', '=', 1)
       .update({
         email: 'foo',
-        name : 'bar',
+        name: 'bar',
       });
     expect(spyUpdate).toHaveBeenCalledWith(
       'UPDATE "users" SET "email" = ?, "name" = ? WHERE "rowid" IN (SELECT "users"."rowid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" WHERE "users"."id" = ?)',
@@ -3055,7 +3055,7 @@ describe('database query builder test', () => {
       })
       .update({
         email: 'foo',
-        name : 'bar',
+        name: 'bar',
       });
     expect(spyUpdate).toHaveBeenCalledWith(
       'UPDATE "users" SET "email" = ?, "name" = ? WHERE "rowid" IN (SELECT "users"."rowid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" AND "users"."id" = ?)',
@@ -3067,7 +3067,7 @@ describe('database query builder test', () => {
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
     result = await builder.from('users as u').join('orders as o', 'u.id', '=', 'o.user_id').update({
       email: 'foo',
-      name : 'bar',
+      name: 'bar',
     });
     expect(spyUpdate).toHaveBeenCalledWith(
       'update "users" as "u" set "email" = ?, "name" = ? where "rowid" in (select "u"."rowid" from "users" as "u" inner join "orders" as "o" on "u"."id" = "o"."user_id")',
@@ -3086,7 +3086,7 @@ describe('database query builder test', () => {
       .where('u.id', '=', 1)
       .update({
         email: 'foo',
-        name : 'bar',
+        name: 'bar',
       });
     expect(spyUpdate).toHaveBeenCalledWith(
       'UPDATE [u] SET [u].[email] = ?, [u].[name] = ? FROM [users] AS [u] INNER JOIN [orders] ON [u].[id] = [orders].[user_id] WHERE [u].[id] = ?',
@@ -3101,7 +3101,7 @@ describe('database query builder test', () => {
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
     result = await builder.from('users').where('id', '=', 1).update({
       'users.email': 'foo',
-      name         : 'bar',
+      name: 'bar',
     });
     expect(spyUpdate).toHaveBeenCalledWith('UPDATE "users" SET "email" = $1, "name" = $2 WHERE "id" = $3', [
       'foo',
@@ -3114,7 +3114,7 @@ describe('database query builder test', () => {
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
     result = await builder.from('users').where('id', '=', 1).selectRaw('?', ['ignore']).update({
       'users.email': 'foo',
-      name         : 'bar',
+      name: 'bar',
     });
     expect(spyUpdate).toHaveBeenCalledWith('UPDATE "users" SET "email" = $1, "name" = $2 WHERE "id" = $3', [
       'foo',
@@ -3127,7 +3127,7 @@ describe('database query builder test', () => {
     spyUpdate = jest.spyOn(builder._connection, 'update').mockReturnValue(Promise.resolve(1));
     result = await builder.from('users.users').where('id', '=', 1).selectRaw('?', ['ignore']).update({
       'users.users.email': 'foo',
-      name               : 'bar',
+      name: 'bar',
     });
     expect(spyUpdate).toHaveBeenCalledWith('UPDATE "users"."users" SET "email" = $1, "name" = $2 WHERE "id" = $3', [
       'foo',
@@ -3147,7 +3147,7 @@ describe('database query builder test', () => {
       .where('users.id', '=', 1)
       .update({
         email: 'foo',
-        name : 'bar',
+        name: 'bar',
       });
     expect(spyUpdate).toHaveBeenCalledWith(
       'UPDATE "users" SET "email" = $1, "name" = $2 WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" WHERE "users"."id" = $3)',
@@ -3164,7 +3164,7 @@ describe('database query builder test', () => {
       })
       .update({
         email: 'foo',
-        name : 'bar',
+        name: 'bar',
       });
     expect(spyUpdate).toHaveBeenCalledWith(
       'UPDATE "users" SET "email" = $1, "name" = $2 WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" AND "users"."id" = $3)',
@@ -3182,7 +3182,7 @@ describe('database query builder test', () => {
       .where('name', 'baz')
       .update({
         email: 'foo',
-        name : 'bar',
+        name: 'bar',
       });
     expect(spyUpdate).toHaveBeenCalledWith(
       'UPDATE "users" SET "email" = $1, "name" = $2 WHERE "ctid" IN (SELECT "users"."ctid" FROM "users" INNER JOIN "orders" ON "users"."id" = "orders"."user_id" AND "users"."id" = $3 WHERE "name" = $4)',
@@ -3200,7 +3200,7 @@ describe('database query builder test', () => {
       .where('id', '=', 1)
       .update({
         email: raw('foo'),
-        name : 'bar',
+        name: 'bar',
       });
     expect(spyUpdate).toHaveBeenCalledWith('UPDATE `users` SET `email` = foo, `name` = ? WHERE `id` = ?', ['bar', 1]);
     expect(result).toBe(1);
@@ -3506,7 +3506,7 @@ describe('database query builder test', () => {
     builder.from('usersx');
     expect(sqlite.compileTruncate(builder)).toStrictEqual({
       'DELETE FROM sqlite_sequence WHERE name = ?': ['usersx'],
-      'DELETE FROM "usersx"'                      : [],
+      'DELETE FROM "usersx"': [],
     });
   });
 

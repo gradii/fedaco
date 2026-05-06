@@ -1,5 +1,5 @@
-import { Connector } from '../../src/connector/connector';
-// import { MysqlConnector } from '../../src/connector/mysql/mysql-connector';
+import { Connector } from '@gradii/fedaco';
+// import { MysqlConnector } from '@gradii/fedaco';
 //
 describe('test database connector', () => {
   it('option resolution', () => {

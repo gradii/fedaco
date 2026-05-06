@@ -1,8 +1,5 @@
 import { format } from 'date-fns';
-import { Column } from '../../src/annotation/column/column';
-import { Model } from '../../src/fedaco/model';
-import { HasOne } from '../../src/fedaco/relations/has-one';
-import { Relation } from '../../src/fedaco/relations/relation';
+import { Column, HasOne, Model, Relation } from '@gradii/fedaco';
 import { getBuilder } from './relation-testing-helper';
 
 describe('test database fedaco relation', () => {

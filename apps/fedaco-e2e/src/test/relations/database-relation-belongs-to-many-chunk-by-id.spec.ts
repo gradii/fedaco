@@ -1,14 +1,7 @@
 import { head } from '@gradii/nanofn';
 import { tap } from 'rxjs/operators';
-import { Column } from '../../src/annotation/column/column';
-import { PrimaryColumn } from '../../src/annotation/column/primary.column';
-import { BelongsToManyColumn } from '../../src/annotation/relation-column/belongs-to-many.relation-column';
-import { Table } from '../../src/annotation/table/table';
-import { DatabaseConfig } from '../../src/database-config';
-import { FedacoRelationListType } from '../../src/fedaco/fedaco-types';
-import { Model } from '../../src/fedaco/model';
-import { forwardRef } from '../../src/query-builder/forward-ref';
-import { SchemaBuilder } from '../../src/schema/schema-builder';
+import type { FedacoRelationListType, SchemaBuilder } from '@gradii/fedaco';
+import { BelongsToManyColumn, Column, DatabaseConfig, forwardRef, Model, PrimaryColumn, Table } from '@gradii/fedaco';
 import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
@@ -40,20 +33,20 @@ async function createSchema() {
 
 async function seedData() {
   const user = await BelongsToManyChunkByIdTestTestUser.createQuery().create({
-    id   : 1,
+    id: 1,
     email: 'linbolen@gradii.com',
   });
   await BelongsToManyChunkByIdTestTestArticle.createQuery().insert([
     {
-      aid  : 1,
+      aid: 1,
       title: 'Another title',
     },
     {
-      aid  : 2,
+      aid: 2,
       title: 'Another title',
     },
     {
-      aid  : 3,
+      aid: 3,
       title: 'Another title',
     },
   ]);
@@ -64,9 +57,9 @@ describe('test database fedaco belongs to many chunk by id', () => {
   beforeAll(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      driver                 : 'sqlite',
-      factory : sqliteDriver(),
-      database               : ':memory:',
+      driver: 'sqlite',
+      factory: sqliteDriver(),
+      database: ':memory:',
       foreign_key_constraints: false,
     });
     db.bootFedaco();
@@ -114,8 +107,8 @@ export class BelongsToManyChunkByIdTestTestUser extends Model {
   id: string | number;
 
   @BelongsToManyColumn({
-    related        : forwardRef(() => BelongsToManyChunkByIdTestTestArticle),
-    table          : 'article_user',
+    related: forwardRef(() => BelongsToManyChunkByIdTestTestArticle),
+    table: 'article_user',
     foreignPivotKey: 'user_id',
     relatedPivotKey: 'article_id',
   })

@@ -1,14 +1,6 @@
-import { Column } from '../../src/annotation/column/column';
-import { MorphToColumn } from '../../src/annotation/relation-column/morph-to.relation-column';
-import { FedacoRelationType } from '../../src/fedaco/fedaco-types';
-import { Model } from '../../src/fedaco/model';
-import { MorphTo } from '../../src/fedaco/relations/morph-to';
-import { forwardRef } from '../../src/query-builder/forward-ref';
-import { DatabaseConfig } from './../../src/database-config';
-import { FedacoBuilder } from './../../src/fedaco/fedaco-builder';
-import { SchemaBuilder } from './../../src/schema/schema-builder';
+import type { FedacoBuilder, FedacoRelationType, KeyAbleModel, SchemaBuilder } from '@gradii/fedaco';
+import { Column, DatabaseConfig, forwardRef, Model, MorphTo, MorphToColumn } from '@gradii/fedaco';
 import { getBuilder } from './relation-testing-helper';
-import { KeyAbleModel } from '../../src/types/model-type';
 import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 let builder: FedacoBuilder<Model>;
@@ -46,8 +38,8 @@ describe('test database fedaco morph to', () => {
   beforeAll(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: ':memory:',
     });
     db.bootFedaco();
@@ -60,20 +52,20 @@ describe('test database fedaco morph to', () => {
     const relation = getRelation();
     // fake model
     const one = {
-      morph_type  : 'morph_type_1',
-      foreign_key : 'foreign_key_1',
+      morph_type: 'morph_type_1',
+      foreign_key: 'foreign_key_1',
       GetAttribute: (key: string) => '',
     };
     // fake model
     const two = {
-      morph_type  : 'morph_type_1',
-      foreign_key : 'foreign_key_1',
+      morph_type: 'morph_type_1',
+      foreign_key: 'foreign_key_1',
       GetAttribute: (key: string) => '',
     } as unknown as Model;
     // fake model
     const three = {
-      morph_type  : 'morph_type_2',
-      foreign_key : 'foreign_key_2',
+      morph_type: 'morph_type_2',
+      foreign_key: 'foreign_key_2',
       GetAttribute: (key: string) => '',
     } as unknown as Model;
     // @ts-ignore

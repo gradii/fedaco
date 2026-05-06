@@ -1,9 +1,6 @@
-import { QueryBuilder } from './../../src/query-builder/query-builder';
-import { FedacoBuilder } from '../../src/fedaco/fedaco-builder';
-import { Model } from '../../src/fedaco/model';
-import { MorphToMany } from '../../src/fedaco/relations/morph-to-many';
+import type { FedacoBuilder, QueryBuilder } from '@gradii/fedaco';
+import { Model, MorphToMany, PrimaryColumn } from '@gradii/fedaco';
 import { getBuilder } from './relation-testing-helper';
-import { PrimaryColumn } from '../../src/annotation/column/primary.column';
 
 function getRelationArguments() {
   const parent = new Model();
@@ -73,7 +70,7 @@ describe('test database fedaco morph to many', () => {
     );
     const query: QueryBuilder = {
       // @ts-ignore
-      from  : () => {},
+      from: () => {},
       // @ts-ignore
       insert: () => {},
     };
@@ -98,10 +95,10 @@ describe('test database fedaco morph to many', () => {
     expect(spy1).toHaveBeenCalledWith('taggables');
     expect(spy2).toHaveBeenCalledWith([
       {
-        taggable_id  : 1,
+        taggable_id: 1,
         taggable_type: relation.getParent().constructor.name,
-        tag_id       : 2,
-        foo          : 'bar',
+        tag_id: 2,
+        foo: 'bar',
       },
     ]);
   });
@@ -122,15 +119,15 @@ describe('test database fedaco morph to many', () => {
 
     const query: QueryBuilder = {
       // @ts-ignore
-      from   : () => {},
+      from: () => {},
       // @ts-ignore
-      where  : () => {},
+      where: () => {},
       // @ts-ignore
       whereIn: () => {},
       // @ts-ignore
-      delete : () => {},
+      delete: () => {},
       // @ts-ignore
-      insert : () => {},
+      insert: () => {},
     };
 
     const query2: QueryBuilder = {
@@ -174,15 +171,15 @@ describe('test database fedaco morph to many', () => {
 
     const query: QueryBuilder = {
       // @ts-ignore
-      from   : () => {},
+      from: () => {},
       // @ts-ignore
-      where  : () => {},
+      where: () => {},
       // @ts-ignore
       whereIn: () => {},
       // @ts-ignore
-      delete : () => {},
+      delete: () => {},
       // @ts-ignore
-      insert : () => {},
+      insert: () => {},
     };
 
     const query2: QueryBuilder = {

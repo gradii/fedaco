@@ -1,13 +1,14 @@
-import { FedacoRelationListType } from './../../src/fedaco/fedaco-types';
-import { MorphToManyColumn } from '../../src/annotation/relation-column/morph-to-many.relation-column';
-import { MorphedByManyColumn } from '../../src/annotation/relation-column/morphed-by-many.relation-column';
-import { DatabaseConfig } from '../../src/database-config';
-import { Model } from '../../src/fedaco/model';
-import { forwardRef } from '../../src/query-builder/forward-ref';
-import { SchemaBuilder } from '../../src/schema/schema-builder';
+import type { FedacoRelationListType, SchemaBuilder } from '@gradii/fedaco';
+import {
+  DatabaseConfig,
+  forwardRef,
+  Model,
+  MorphedByManyColumn,
+  MorphToManyColumn,
+  PrimaryColumn,
+} from '@gradii/fedaco';
 import { head } from '@gradii/nanofn';
 import { tap } from 'rxjs/operators';
-import { PrimaryColumn } from '../../src/annotation/column/primary.column';
 import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
@@ -44,8 +45,8 @@ describe('test database fedaco polymorphic relations integration', () => {
   beforeEach(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: ':memory:',
     });
     db.bootFedaco();
@@ -115,8 +116,8 @@ export class EloquentManyToManyPolymorphicTestPost extends Model {
   id: number;
 
   @MorphToManyColumn({
-    related        : forwardRef(() => EloquentManyToManyPolymorphicTestTag),
-    name           : 'taggable',
+    related: forwardRef(() => EloquentManyToManyPolymorphicTestTag),
+    name: 'taggable',
     relatedPivotKey: 'fedaco_many_to_many_polymorphic_test_tag_id',
   })
   public tags: FedacoRelationListType<EloquentManyToManyPolymorphicTestTag>;
@@ -130,8 +131,8 @@ export class EloquentManyToManyPolymorphicTestImage extends Model {
   id: number;
 
   @MorphToManyColumn({
-    related        : forwardRef(() => EloquentManyToManyPolymorphicTestTag),
-    name           : 'taggable',
+    related: forwardRef(() => EloquentManyToManyPolymorphicTestTag),
+    name: 'taggable',
     relatedPivotKey: 'fedaco_many_to_many_polymorphic_test_tag_id',
   })
   public tags: FedacoRelationListType<EloquentManyToManyPolymorphicTestTag>;
@@ -145,15 +146,15 @@ export class EloquentManyToManyPolymorphicTestTag extends Model {
   id: number;
 
   @MorphedByManyColumn({
-    related        : EloquentManyToManyPolymorphicTestPost,
-    name           : 'taggable',
+    related: EloquentManyToManyPolymorphicTestPost,
+    name: 'taggable',
     foreignPivotKey: 'fedaco_many_to_many_polymorphic_test_tag_id',
   })
   public posts: FedacoRelationListType<EloquentManyToManyPolymorphicTestPost>;
 
   @MorphedByManyColumn({
-    related        : EloquentManyToManyPolymorphicTestImage,
-    name           : 'taggable',
+    related: EloquentManyToManyPolymorphicTestImage,
+    name: 'taggable',
     foreignPivotKey: 'fedaco_many_to_many_polymorphic_test_tag_id',
   })
   public images: FedacoRelationListType<EloquentManyToManyPolymorphicTestImage>;

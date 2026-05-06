@@ -1,11 +1,5 @@
-import { PrimaryColumn } from '../../src/annotation/column/primary.column';
-import { BelongsToManyColumn } from '../../src/annotation/relation-column/belongs-to-many.relation-column';
-import { DatabaseConfig } from '../../src/database-config';
-import { Model } from '../../src/fedaco/model';
-import { forwardRef } from '../../src/query-builder/forward-ref';
-import type { SchemaBuilder } from '../../src/schema/schema-builder';
-import { Table } from './../../src/annotation/table/table';
-import type { FedacoRelationListType } from './../../src/fedaco/fedaco-types';
+import type { FedacoRelationListType, SchemaBuilder } from '@gradii/fedaco';
+import { BelongsToManyColumn, DatabaseConfig, forwardRef, Model, PrimaryColumn, Table } from '@gradii/fedaco';
 import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
@@ -38,20 +32,20 @@ async function createSchema() {
 
 async function seedData() {
   await BelongsToManySyncTestTestUser.createQuery().create({
-    id   : 1,
+    id: 1,
     email: 'linbolen@gradii.com',
   });
   await BelongsToManySyncTestTestArticle.createQuery().insert([
     {
-      id   : '7b7306ae-5a02-46fa-a84c-9538f45c7dd4',
+      id: '7b7306ae-5a02-46fa-a84c-9538f45c7dd4',
       title: 'uuid title',
     },
     {
-      id   : /* cast type string */ 10000000 + 1,
+      id: /* cast type string */ 10000000 + 1,
       title: 'Another title',
     },
     {
-      id   : '1',
+      id: '1',
       title: 'Another title',
     },
   ]);
@@ -61,9 +55,9 @@ describe('test database fedaco belongs to many sync return value type', () => {
   beforeAll(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      driver                 : 'sqlite',
-      factory : sqliteDriver(),
-      database               : ':memory:',
+      driver: 'sqlite',
+      factory: sqliteDriver(),
+      database: ':memory:',
       foreign_key_constraints: false,
     });
     db.bootFedaco();
@@ -98,8 +92,8 @@ export class BelongsToManySyncTestTestUser extends Model {
   public timestamps: any = false;
 
   @BelongsToManyColumn({
-    related        : forwardRef(() => BelongsToManySyncTestTestArticle),
-    table          : 'article_user',
+    related: forwardRef(() => BelongsToManySyncTestTestArticle),
+    table: 'article_user',
     foreignPivotKey: 'user_id',
     relatedPivotKey: 'article_id',
   })

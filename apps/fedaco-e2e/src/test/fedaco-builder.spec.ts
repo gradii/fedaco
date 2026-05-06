@@ -1,20 +1,25 @@
-import { PrimaryGeneratedColumn } from '@gradii/fedaco';
+import type {
+  ConnectionInterface,
+  ConnectionResolverInterface,
+  DatabaseTransactionsManager,
+  SchemaBuilder,
+} from '@gradii/fedaco';
+import {
+  ConnectionFactory,
+  DatabaseManager,
+  FedacoBuilder,
+  Model,
+  onlyTrashed,
+  PrimaryGeneratedColumn,
+  Processor,
+  QueryBuilder,
+  Table,
+  withTrashed,
+} from '@gradii/fedaco';
 import { isFunction } from '@gradii/nanofn';
 import { format } from 'date-fns';
-import { Table } from '@gradii/fedaco';
-import { ConnectionFactory } from '@gradii/fedaco';
-import { DatabaseManager } from '@gradii/fedaco';
-import { DatabaseTransactionsManager } from '@gradii/fedaco';
-import { FedacoBuilder } from '@gradii/fedaco';
-import { Model } from '@gradii/fedaco';
-import { onlyTrashed, withTrashed } from '@gradii/fedaco';
-import { ConnectionResolverInterface } from '@gradii/fedaco';
-import { ConnectionInterface } from '@gradii/fedaco';
 import { MysqlQueryGrammar } from '@gradii/fedaco-mysql-driver';
 import { SqliteQueryGrammar } from '@gradii/fedaco-sqlite-driver';
-import { Processor } from '@gradii/fedaco';
-import { QueryBuilder } from '@gradii/fedaco';
-import { SchemaBuilder } from '@gradii/fedaco';
 import { FedacoBuilderTestHigherOrderWhereScopeStub } from './model/fedaco-builder-test-higher-order-where-scope-stub';
 import { FedacoBuilderTestNestedStub } from './model/fedaco-builder-test-nested-stub';
 import { FedacoBuilderTestScopeStub } from './model/fedaco-builder-test-scope-stub';
@@ -722,7 +727,7 @@ describe('fedaco builder', () => {
     const nop1 = () => {};
     const nop2 = () => {};
     builder.setEagerLoads({
-      foo      : nop1,
+      foo: nop1,
       'foo.bar': nop2,
     });
     // @ts-ignore
@@ -800,8 +805,8 @@ describe('fedaco builder', () => {
     model = getModel();
     builder.setModel(model);
     builder.setEagerLoads({
-      orders                : null,
-      'orders.lines'        : null,
+      orders: null,
+      'orders.lines': null,
       'orders.lines.details': null,
     });
 
@@ -820,7 +825,7 @@ describe('fedaco builder', () => {
 
     expect(spy2).toHaveBeenCalled();
     expect(spy2).toHaveReturnedWith({
-      lines          : null,
+      lines: null,
       'lines.details': null,
     });
   });
@@ -831,9 +836,9 @@ describe('fedaco builder', () => {
     builder.setModel(getModel());
 
     builder.setEagerLoads({
-      orders                      : null,
-      ordersGroups                : null,
-      'ordersGroups.lines'        : null,
+      orders: null,
+      ordersGroups: null,
+      'ordersGroups.lines': null,
       'ordersGroups.lines.details': null,
     });
 
@@ -855,7 +860,7 @@ describe('fedaco builder', () => {
 
     expect(spy3).toHaveBeenCalled();
     expect(spy4).toHaveBeenCalledWith({
-      lines          : null,
+      lines: null,
       'lines.details': null,
     });
   });
@@ -1001,7 +1006,7 @@ describe('fedaco builder', () => {
     const spy2 = jest.spyOn(builder.getQuery(), 'addNestedWhereQuery').mockReturnThis();
     const spy3 = jest.spyOn(model, 'NewQueryWithoutRelationships').mockReturnValue({
       // @ts-ignore
-      foo     : jest.fn(),
+      foo: jest.fn(),
       getQuery: jest.fn(),
     });
 
@@ -1358,7 +1363,7 @@ describe('fedaco builder', () => {
     spy1 = jest.spyOn(builder.getConnection(), 'update').mockReturnValue(1);
     //     builder.getConnection().shouldReceive("update").once()._with("update \"table\" set \"foo\" = ?, \"table\".\"updated_at\" = ?", ["bar", now]).andReturn(1)
     result = await builder.update({
-      foo       : 'bar',
+      foo: 'bar',
       updated_at: null,
     });
 
@@ -1424,13 +1429,13 @@ describe('fedaco builder', () => {
 });
 
 @Table({
-  tableName    : 'test_tables',
+  tableName: 'test_tables',
   noPluralTable: false,
 })
 class FedacoBuilderTestStub extends Model {}
 
 @Table({
-  tableName    : 'test_tables',
+  tableName: 'test_tables',
   noPluralTable: false,
 })
 class FedacoBuilderTestStubWithoutTimestamp extends Model {

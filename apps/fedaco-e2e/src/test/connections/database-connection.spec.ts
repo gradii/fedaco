@@ -1,7 +1,7 @@
 // import { isNumber } from '@gradii/nanofn';
-// import { TransactionBeginning } from '../../src/events/transaction-beginning';
-// import { TransactionCommitted } from '../../src/events/transaction-committed';
-// import { TransactionRolledBack } from '../../src/events/transaction-rolled-back';
+// import { TransactionBeginning } from '@gradii/fedaco';
+// import { TransactionCommitted } from '@gradii/fedaco';
+// import { TransactionRolledBack } from '@gradii/fedaco';
 //
 function getMockConnection() {
 

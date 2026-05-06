@@ -1,6 +1,5 @@
-import { BetterSqliteWrappedConnection } from '../../src/connector/sqlite/better-sqlite/better-sqlite-wrapped-connection';
-import { DatabaseConfig } from '../../src/database-config';
-import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+import { DatabaseConfig } from '@gradii/fedaco';
+import { BetterSqliteWrappedConnection, sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 import { mysqlDriver } from '@gradii/fedaco-mysql-driver';
 
 let db: DatabaseConfig;
@@ -11,8 +10,8 @@ describe('test database connection factory', () => {
   beforeEach(() => {
     db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: ':memory:',
     });
     db.addConnection(
@@ -24,8 +23,8 @@ describe('test database connection factory', () => {
     db.addConnection(
       {
         driver: 'sqlite',
-      factory : sqliteDriver(),
-        read  : {
+        factory: sqliteDriver(),
+        read: {
           database: ':memory:',
         },
         write: {
@@ -49,32 +48,32 @@ describe('test database connection factory', () => {
   it('connection from url has proper config', () => {
     db.addConnection(
       {
-        url           : 'mysql://root:pass@db/local?strict=true',
-        unix_socket   : '',
-        charset       : 'utf8mb4',
-        collation     : 'utf8mb4_unicode_ci',
-        prefix        : '',
+        url: 'mysql://root:pass@db/local?strict=true',
+        unix_socket: '',
+        charset: 'utf8mb4',
+        collation: 'utf8mb4_unicode_ci',
+        prefix: '',
         prefix_indexes: true,
-        strict        : false,
-        engine        : null,
+        strict: false,
+        engine: null,
       },
       'url-config',
     );
     expect(db.getConnection('url-config').getConfig()).toEqual({
-      name          : 'url-config',
-      driver        : 'mysql',
+      name: 'url-config',
+      driver: 'mysql',
       factory: mysqlDriver(),
-      database      : 'local',
-      host          : 'db',
-      username      : 'root',
-      password      : 'pass',
-      unix_socket   : '',
-      charset       : 'utf8mb4',
-      collation     : 'utf8mb4_unicode_ci',
-      prefix        : '',
+      database: 'local',
+      host: 'db',
+      username: 'root',
+      password: 'pass',
+      unix_socket: '',
+      charset: 'utf8mb4',
+      collation: 'utf8mb4_unicode_ci',
+      prefix: '',
       prefix_indexes: true,
-      strict        : true,
-      engine        : null,
+      strict: true,
+      engine: null,
     });
   });
 

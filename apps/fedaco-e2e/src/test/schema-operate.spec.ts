@@ -1,6 +1,4 @@
-import { DatabaseConfig } from '@gradii/fedaco';
-import { Model } from '@gradii/fedaco';
-import { type SchemaBuilder } from '@gradii/fedaco';
+import { DatabaseConfig, Model, type SchemaBuilder } from '@gradii/fedaco';
 import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
@@ -30,8 +28,8 @@ describe('schema operate', () => {
   beforeEach(async () => {
     db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: ':memory:',
     });
     db.bootFedaco();

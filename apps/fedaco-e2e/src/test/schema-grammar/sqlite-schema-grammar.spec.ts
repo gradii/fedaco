@@ -1,17 +1,17 @@
 // noinspection DuplicatedCode
-import { Connection } from '../../src/connection';
-import { type WrappedConnection } from '../../src/connector/wrapped-connection';
-import { DatabaseConfig } from '../../src/database-config';
-import { type ConnectionInterface } from '../../src/query-builder/connection-interface';
-import { type QueryGrammar } from '../../src/query-builder/grammar/query-grammar';
-import { SqliteQueryGrammar } from '../../src/query-builder/grammar/sqlite-query-grammar';
-import { Processor } from '../../src/query-builder/processor';
-import { QueryBuilder } from '../../src/query-builder/query-builder';
-import { Blueprint } from '../../src/schema/blueprint';
-import { ForeignIdColumnDefinition } from '../../src/schema/foreign-id-column-definition';
-import { SqliteSchemaGrammar } from '../../src/schema/grammar/sqlite-schema-grammar';
-import { type SchemaBuilder } from '../../src/schema/schema-builder';
-import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+import {
+  Blueprint,
+  Connection,
+  type ConnectionInterface,
+  DatabaseConfig,
+  ForeignIdColumnDefinition,
+  Processor,
+  QueryBuilder,
+  type QueryGrammar,
+  type SchemaBuilder,
+  type WrappedConnection
+} from '@gradii/fedaco';
+import { sqliteDriver, SqliteQueryGrammar, SqliteSchemaGrammar } from '@gradii/fedaco-sqlite-driver';
 
 jest.setTimeout(100000);
 
@@ -150,10 +150,10 @@ describe('test database sqlite schema grammar', () => {
   it('drop column', async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: ':memory:',
-      prefix  : 'prefix_',
+      prefix: 'prefix_',
     });
     db.setAsGlobal();
     const schema = db.getConnection().getSchemaBuilder();
@@ -188,10 +188,10 @@ describe('test database sqlite schema grammar', () => {
     // }
     const db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: ':memory:',
-      prefix  : 'prefix_',
+      prefix: 'prefix_',
     });
     db.setAsGlobal();
     const schema = db.getConnection().getSchemaBuilder();

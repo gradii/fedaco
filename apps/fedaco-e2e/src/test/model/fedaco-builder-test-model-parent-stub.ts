@@ -4,16 +4,11 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { BelongsToManyColumn } from '@gradii/fedaco';
-import { BelongsToColumn } from '@gradii/fedaco';
-import { HasManyColumn } from '@gradii/fedaco';
-import { Table } from '@gradii/fedaco';
-import { Model } from '@gradii/fedaco';
-import { Relation } from '@gradii/fedaco';
-import { forwardRef } from '@gradii/fedaco';
+import type { Relation } from '@gradii/fedaco';
+import { BelongsToColumn, BelongsToManyColumn, forwardRef, HasManyColumn, Model, Table } from '@gradii/fedaco';
 
 @Table({
-  tableName    : 'fedaco_builder_test_model_close_related_stubs',
+  tableName: 'fedaco_builder_test_model_close_related_stubs',
   noPluralTable: false,
 })
 export class FedacoBuilderTestModelCloseRelatedStub extends Model {
@@ -29,13 +24,13 @@ export class FedacoBuilderTestModelCloseRelatedStub extends Model {
 }
 
 @Table({
-  tableName    : 'fedaco_builder_test_model_far_related_stubs',
+  tableName: 'fedaco_builder_test_model_far_related_stubs',
   noPluralTable: false,
 })
 export class FedacoBuilderTestModelFarRelatedStub extends Model {}
 
 @Table({
-  tableName    : 'fedaco_builder_test_model_parent_stubs',
+  tableName: 'fedaco_builder_test_model_parent_stubs',
   noPluralTable: false,
 })
 export class FedacoBuilderTestModelParentStub extends Model {
@@ -45,23 +40,23 @@ export class FedacoBuilderTestModelParentStub extends Model {
   readonly foo: any;
 
   @BelongsToColumn({
-    related   : FedacoBuilderTestModelCloseRelatedStub,
+    related: FedacoBuilderTestModelCloseRelatedStub,
     foreignKey: 'foo_id',
   })
   public address: any;
 
   @BelongsToColumn({
-    related   : FedacoBuilderTestModelCloseRelatedStub,
+    related: FedacoBuilderTestModelCloseRelatedStub,
     foreignKey: 'foo_id',
-    onQuery   : (r: Relation) => {
+    onQuery: (r: Relation) => {
       r.where('active', true);
     },
   })
   public activeFoo: any;
 
   @BelongsToManyColumn({
-    related        : FedacoBuilderTestModelCloseRelatedStub,
-    table          : 'user_role',
+    related: FedacoBuilderTestModelCloseRelatedStub,
+    table: 'user_role',
     foreignPivotKey: 'self_id',
     relatedPivotKey: 'related_id',
   })

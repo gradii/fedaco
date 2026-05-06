@@ -1,9 +1,6 @@
 import { format } from 'date-fns';
-import { CreatedAtColumn } from '../../src/annotation/column/created-at.column';
-import { UpdatedAtColumn } from '../../src/annotation/column/updated-at.column';
-import { DatabaseConfig } from '../../src/database-config';
-import { Model } from '../../src/fedaco/model';
-import { SchemaBuilder } from '../../src/schema/schema-builder';
+import type { SchemaBuilder } from '@gradii/fedaco';
+import { CreatedAtColumn, DatabaseConfig, Model, UpdatedAtColumn } from '@gradii/fedaco';
 import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
@@ -36,8 +33,8 @@ describe('test database fedaco timestamps', () => {
   beforeEach(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: ':memory:',
     });
     db.bootFedaco();

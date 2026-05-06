@@ -1,17 +1,18 @@
-import { PrimaryColumn } from './../../src/annotation/column/primary.column';
+import type { FedacoRelationListType, FedacoRelationType, SchemaBuilder } from '@gradii/fedaco';
+import {
+  BelongsToColumn,
+  Column,
+  DatabaseConfig,
+  DeletedAtColumn,
+  forwardRef,
+  HasManyColumn,
+  HasManyThroughColumn,
+  mixinSoftDeletes,
+  Model,
+  PrimaryColumn,
+} from '@gradii/fedaco';
 import { head } from '@gradii/nanofn';
 import { tap } from 'rxjs/operators';
-import { Column } from '../../src/annotation/column/column';
-import { DeletedAtColumn } from '../../src/annotation/column/deleted-at.column';
-import { BelongsToColumn } from '../../src/annotation/relation-column/belongs-to.relation-column';
-import { HasManyThroughColumn } from '../../src/annotation/relation-column/has-many-through.relation-column';
-import { HasManyColumn } from '../../src/annotation/relation-column/has-many.relation-column';
-import { DatabaseConfig } from '../../src/database-config';
-import { FedacoRelationListType, FedacoRelationType } from '../../src/fedaco/fedaco-types';
-import { mixinSoftDeletes } from '../../src/fedaco/mixins/soft-deletes';
-import { Model } from '../../src/fedaco/model';
-import { forwardRef } from '../../src/query-builder/forward-ref';
-import { SchemaBuilder } from '../../src/schema/schema-builder';
 import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
@@ -51,25 +52,25 @@ async function createSchema() {
 
 async function seedData() {
   const country = await HasManyThroughTestCountry.createQuery().create({
-    id       : 1,
-    name     : 'United States of America',
+    id: 1,
+    name: 'United States of America',
     shortname: 'us',
   });
 
   const user = await country.NewRelation('users').create({
-    id           : 1,
-    email        : 'linbolen@gradii.com',
+    id: 1,
+    email: 'linbolen@gradii.com',
     country_short: 'us',
   });
   const post = await user.NewRelation('posts').createMany([
     {
       title: 'A title',
-      body : 'A body',
+      body: 'A body',
       email: 'linbolen@gradii.com',
     },
     {
       title: 'Another title',
-      body : 'Another body',
+      body: 'Another body',
       email: 'linbolen@gradii.com',
     },
   ]);
@@ -77,63 +78,63 @@ async function seedData() {
 
 async function seedDataExtended() {
   const country = await HasManyThroughTestCountry.createQuery().create({
-    id       : 2,
-    name     : 'United Kingdom',
+    id: 2,
+    name: 'United Kingdom',
     shortname: 'uk',
   });
 
   const user = await country.NewRelation('users').create({
-    id           : 2,
-    email        : 'example1@gmail.com',
+    id: 2,
+    email: 'example1@gmail.com',
     country_short: 'uk',
   });
 
   await user.NewRelation('posts').createMany([
     {
       title: 'Example1 title1',
-      body : 'Example1 body1',
+      body: 'Example1 body1',
       email: 'example1post1@gmail.com',
     },
     {
       title: 'Example1 title2',
-      body : 'Example1 body2',
+      body: 'Example1 body2',
       email: 'example1post2@gmail.com',
     },
   ]);
 
   const user1 = await country.NewRelation('users').create({
-    id           : 3,
-    email        : 'example2@gmail.com',
+    id: 3,
+    email: 'example2@gmail.com',
     country_short: 'uk',
   });
 
   await user1.NewRelation('posts').createMany([
     {
       title: 'Example2 title1',
-      body : 'Example2 body1',
+      body: 'Example2 body1',
       email: 'example2post1@gmail.com',
     },
     {
       title: 'Example2 title2',
-      body : 'Example2 body2',
+      body: 'Example2 body2',
       email: 'example2post2@gmail.com',
     },
   ]);
 
   const user2 = await country.NewRelation('users').create({
-    id           : 4,
-    email        : 'example3@gmail.com',
+    id: 4,
+    email: 'example3@gmail.com',
     country_short: 'uk',
   });
   await user2.NewRelation('posts').createMany([
     {
       title: 'Example3 title1',
-      body : 'Example3 body1',
+      body: 'Example3 body1',
       email: 'example3post1@gmail.com',
     },
     {
       title: 'Example3 title2',
-      body : 'Example3 body2',
+      body: 'Example3 body2',
       email: 'example3post2@gmail.com',
     },
   ]);
@@ -141,21 +142,21 @@ async function seedDataExtended() {
 
 async function seedDefaultData() {
   const r = await HasManyThroughDefaultTestCountry.createQuery().create({
-    id  : 1,
+    id: 1,
     name: 'United States of America',
   });
   const u = await r.NewRelation('users').create({
-    id   : 1,
+    id: 1,
     email: 'linbolen@gradii.com',
   });
   await u.NewRelation('posts').createMany([
     {
       title: 'A title',
-      body : 'A body',
+      body: 'A body',
     },
     {
       title: 'Another title',
-      body : 'Another body',
+      body: 'Another body',
     },
   ]);
 }
@@ -191,8 +192,8 @@ describe('test database fedaco has many through integration', () => {
   beforeEach(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: ':memory:',
       // 'database': 'tmp/integration-has-many-through.sqlite'
     });
@@ -259,26 +260,26 @@ describe('test database fedaco has many through integration', () => {
 
   it('find method', async () => {
     const country = await HasManyThroughTestCountry.createQuery().create({
-      id       : 1,
-      name     : 'United States of America',
+      id: 1,
+      name: 'United States of America',
       shortname: 'us',
     });
     const user = await country.NewRelation('users').create({
-      id           : 1,
-      email        : 'linbolen@gradii.com',
+      id: 1,
+      email: 'linbolen@gradii.com',
       country_short: 'us',
     });
     await user.NewRelation('posts').createMany([
       {
-        id   : 1,
+        id: 1,
         title: 'A title',
-        body : 'A body',
+        body: 'A body',
         email: 'linbolen@gradii.com',
       },
       {
-        id   : 2,
+        id: 2,
         title: 'Another title',
-        body : 'Another body',
+        body: 'Another body',
         email: 'linbolen@gradii.com',
       },
     ]);
@@ -292,26 +293,26 @@ describe('test database fedaco has many through integration', () => {
 
   it('find many method', async () => {
     const country = await HasManyThroughTestCountry.createQuery().create({
-      id       : 1,
-      name     : 'United States of America',
+      id: 1,
+      name: 'United States of America',
       shortname: 'us',
     });
     const user = await country.NewRelation('users').create({
-      id           : 1,
-      email        : 'linbolen@gradii.com',
+      id: 1,
+      email: 'linbolen@gradii.com',
       country_short: 'us',
     });
     await user.NewRelation('posts').createMany([
       {
-        id   : 1,
+        id: 1,
         title: 'A title',
-        body : 'A body',
+        body: 'A body',
         email: 'linbolen@gradii.com',
       },
       {
-        id   : 2,
+        id: 2,
         title: 'Another title',
-        body : 'Another body',
+        body: 'Another body',
         email: 'linbolen@gradii.com',
       },
     ]);
@@ -322,13 +323,13 @@ describe('test database fedaco has many through integration', () => {
 
   it('first or fail throws an exception', async () => {
     const country = await HasManyThroughTestCountry.createQuery().create({
-      id       : 1,
-      name     : 'United States of America',
+      id: 1,
+      name: 'United States of America',
       shortname: 'us',
     });
     await country.NewRelation('users').create({
-      id           : 1,
-      email        : 'linbolen@gradii.com',
+      id: 1,
+      email: 'linbolen@gradii.com',
       country_short: 'us',
     });
     await expect(async () => {
@@ -338,13 +339,13 @@ describe('test database fedaco has many through integration', () => {
 
   it('find or fail throws an exception', async () => {
     const country = await HasManyThroughTestCountry.createQuery().create({
-      id       : 1,
-      name     : 'United States of America',
+      id: 1,
+      name: 'United States of America',
       shortname: 'us',
     });
     await country.NewRelation('users').create({
-      id           : 1,
-      email        : 'linbolen@gradii.com',
+      id: 1,
+      email: 'linbolen@gradii.com',
       country_short: 'us',
     });
     const user = await HasManyThroughTestCountry.createQuery().first();
@@ -355,19 +356,19 @@ describe('test database fedaco has many through integration', () => {
 
   it('find or fail with many throws an exception', async () => {
     const country = await HasManyThroughTestCountry.createQuery().create({
-      id       : 1,
-      name     : 'United States of America',
+      id: 1,
+      name: 'United States of America',
       shortname: 'us',
     });
     const user = await country.NewRelation('users').create({
-      id           : 1,
-      email        : 'linbolen@gradii.com',
+      id: 1,
+      email: 'linbolen@gradii.com',
       country_short: 'us',
     });
     const post = await user.NewRelation('posts').create({
-      id   : 1,
+      id: 1,
       title: 'A title',
-      body : 'A body',
+      body: 'A body',
       email: 'linbolen@gradii.com',
     });
 
@@ -515,7 +516,7 @@ export class HasManyThroughTestUser extends Model {
   _guarded: any = [];
 
   @HasManyColumn({
-    related   : forwardRef(() => HasManyThroughTestPost),
+    related: forwardRef(() => HasManyThroughTestPost),
     foreignKey: 'user_id',
   })
   public posts: FedacoRelationListType<HasManyThroughTestPost>;
@@ -533,7 +534,7 @@ export class HasManyThroughTestPost extends Model {
   title: string;
 
   @BelongsToColumn({
-    related   : HasManyThroughTestUser,
+    related: HasManyThroughTestUser,
     foreignKey: 'user_id',
   })
   public owner: FedacoRelationType<HasManyThroughTestUser>;
@@ -544,15 +545,15 @@ export class HasManyThroughTestCountry extends Model {
   _guarded: any = [];
 
   @HasManyThroughColumn({
-    related  : HasManyThroughTestPost,
-    through  : HasManyThroughTestUser,
-    firstKey : 'country_id',
+    related: HasManyThroughTestPost,
+    through: HasManyThroughTestUser,
+    firstKey: 'country_id',
     secondKey: 'user_id',
   })
   public posts: FedacoRelationListType<HasManyThroughTestPost>;
 
   @HasManyColumn({
-    related   : HasManyThroughTestUser,
+    related: HasManyThroughTestUser,
     foreignKey: 'country_id',
   })
   public users: FedacoRelationListType<HasManyThroughTestUser>;
@@ -604,17 +605,17 @@ export class HasManyThroughIntermediateTestCountry extends Model {
   _guarded: any = [];
 
   @HasManyThroughColumn({
-    related       : HasManyThroughTestPost,
-    through       : HasManyThroughTestUser,
-    firstKey      : 'country_short',
-    secondKey     : 'email',
-    localKey      : 'shortname',
+    related: HasManyThroughTestPost,
+    through: HasManyThroughTestUser,
+    firstKey: 'country_short',
+    secondKey: 'email',
+    localKey: 'shortname',
     secondLocalKey: 'email',
   })
   public posts: FedacoRelationListType<HasManyThroughTestPost>;
 
   @HasManyColumn({
-    related   : HasManyThroughTestUser,
+    related: HasManyThroughTestUser,
     foreignKey: 'country_id',
   })
   public users: FedacoRelationListType<HasManyThroughTestUser>;
@@ -625,7 +626,7 @@ export class HasManyThroughSoftDeletesTestUser extends (mixinSoftDeletes<any>(Mo
   _guarded: any = [];
 
   @HasManyColumn({
-    related   : forwardRef(() => HasManyThroughSoftDeletesTestPost),
+    related: forwardRef(() => HasManyThroughSoftDeletesTestPost),
     foreignKey: 'user_id',
   })
   public posts: FedacoRelationListType<HasManyThroughSoftDeletesTestPost>;
@@ -643,7 +644,7 @@ export class HasManyThroughSoftDeletesTestPost extends Model {
   title: string;
 
   @BelongsToColumn({
-    related   : HasManyThroughSoftDeletesTestUser,
+    related: HasManyThroughSoftDeletesTestUser,
     foreignKey: 'user_id',
   })
   public owner: FedacoRelationType<HasManyThroughSoftDeletesTestUser>;
@@ -657,15 +658,15 @@ export class HasManyThroughSoftDeletesTestCountry extends Model {
   shortname: string;
 
   @HasManyThroughColumn({
-    related  : HasManyThroughSoftDeletesTestPost,
-    through  : HasManyThroughTestUser,
-    firstKey : 'country_id',
+    related: HasManyThroughSoftDeletesTestPost,
+    through: HasManyThroughTestUser,
+    firstKey: 'country_id',
     secondKey: 'user_id',
   })
   public posts: FedacoRelationListType<HasManyThroughSoftDeletesTestPost>;
 
   @HasManyColumn({
-    related   : HasManyThroughSoftDeletesTestUser,
+    related: HasManyThroughSoftDeletesTestUser,
     foreignKey: 'country_id',
   })
   public users: FedacoRelationListType<HasManyThroughSoftDeletesTestUser>;

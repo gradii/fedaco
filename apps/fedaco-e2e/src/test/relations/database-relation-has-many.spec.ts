@@ -1,8 +1,6 @@
 import { isArray } from '@gradii/nanofn';
-import { Column } from '../../src/annotation/column/column';
-import { Model } from '../../src/fedaco/model';
-import { HasMany } from '../../src/fedaco/relations/has-many';
-import { Relation } from '../../src/fedaco/relations/relation';
+import type { Relation } from '@gradii/fedaco';
+import { Column, HasMany, Model } from '@gradii/fedaco';
 import { getBuilder } from './relation-testing-helper';
 
 let builder, related;
@@ -362,7 +360,11 @@ describe('test database fedaco has many', () => {
     model2.id = 2;
     const model3 = new EloquentHasManyModelStub();
     model3.id = 3;
-    const models = relation.match([model1, model2, model3], [result1, result2, result3], 'foo') as EloquentHasManyModelStub[];
+    const models = relation.match(
+      [model1, model2, model3],
+      [result1, result2, result3],
+      'foo',
+    ) as EloquentHasManyModelStub[];
     await models[0].foo;
     await models[1].foo;
     await models[2].foo;

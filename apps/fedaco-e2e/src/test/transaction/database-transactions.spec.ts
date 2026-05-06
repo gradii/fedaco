@@ -1,7 +1,4 @@
-import { DatabaseConfig } from '../../src/database-config';
-import { DatabaseTransactionsManager } from '../../src/database-transactions-manager';
-import { Model } from '../../src/fedaco/model';
-import { type SchemaBuilder } from '../../src/schema/schema-builder';
+import { DatabaseConfig, DatabaseTransactionsManager, Model, type SchemaBuilder } from '@gradii/fedaco';
 import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
@@ -26,14 +23,14 @@ describe('test database transactions', () => {
   beforeEach(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: ':memory:',
     });
     db.addConnection(
       {
-        driver  : 'sqlite',
-      factory : sqliteDriver(),
+        driver: 'sqlite',
+        factory: sqliteDriver(),
         database: ':memory:',
       },
       'second_connection',
@@ -49,7 +46,7 @@ describe('test database transactions', () => {
     const spy2 = jest.spyOn(transactionManager, 'commit');
     await connection().setTransactionManager(transactionManager);
     await connection().table('users').insert({
-      name : 'zain',
+      name: 'zain',
       value: 1,
     });
     await connection().transaction(async () => {
@@ -73,7 +70,7 @@ describe('test database transactions', () => {
     const spy2 = jest.spyOn(transactionManager, 'commit');
     await connection().setTransactionManager(transactionManager);
     await connection().table('users').insert({
-      name : 'zain',
+      name: 'zain',
       value: 1,
     });
     await connection().beginTransaction();
@@ -96,7 +93,7 @@ describe('test database transactions', () => {
     const spy2 = jest.spyOn(transactionManager, 'commit');
     connection().setTransactionManager(transactionManager);
     await connection().table('users').insert({
-      name : 'zain',
+      name: 'zain',
       value: 1,
     });
     await connection().transaction(async () => {
@@ -132,7 +129,7 @@ describe('test database transactions', () => {
     connection().setTransactionManager(transactionManager);
     connection('second_connection').setTransactionManager(transactionManager);
     await connection().table('users').insert({
-      name : 'zain',
+      name: 'zain',
       value: 1,
     });
     await connection().transaction(async () => {
@@ -185,7 +182,7 @@ describe('test database transactions', () => {
 
     connection().setTransactionManager(transactionManager);
     await connection().table('users').insert({
-      name : 'zain',
+      name: 'zain',
       value: 1,
     });
     try {
@@ -200,7 +197,9 @@ describe('test database transactions', () => {
           });
         throw new Error();
       });
-    } catch (e) {}
+    } catch (e) {
+      /* empty */
+    }
 
     expect(spy1).toHaveBeenCalledWith('default', 1);
     expect(spy2).toHaveBeenCalledWith('default', 0);
@@ -217,7 +216,7 @@ describe('test database transactions', () => {
 
     connection().setTransactionManager(transactionManager);
     await connection().table('users').insert({
-      name : 'zain',
+      name: 'zain',
       value: 1,
     });
     await connection().beginTransaction();
@@ -246,7 +245,7 @@ describe('test database transactions', () => {
 
     connection().setTransactionManager(transactionManager);
     await connection().table('users').insert({
-      name : 'zain',
+      name: 'zain',
       value: 1,
     });
     try {
@@ -271,7 +270,9 @@ describe('test database transactions', () => {
           throw new Error();
         });
       });
-    } catch (e) {}
+    } catch (e) {
+      /* empty */
+    }
 
     expect(spy1).toHaveBeenNthCalledWith(1, 'default', 1);
     expect(spy1).toHaveBeenNthCalledWith(2, 'default', 2);

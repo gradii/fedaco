@@ -1,8 +1,5 @@
-import { Model } from '../../src/fedaco/model';
-import { MorphMany } from '../../src/fedaco/relations/morph-many';
-import { MorphOne } from '../../src/fedaco/relations/morph-one';
+import { type KeyAbleModel, Model, MorphMany, MorphOne } from '@gradii/fedaco';
 import { getBuilder } from './relation-testing-helper';
-import { type KeyAbleModel } from '../../src/types/model-type';
 
 let builder, related;
 

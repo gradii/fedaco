@@ -1,7 +1,4 @@
-import { Column } from '../../src/annotation/column/column';
-import { JsonColumn } from '../../src/annotation/column/json.column';
-import { Model } from '../../src/fedaco/model';
-import { Pivot } from '../../src/fedaco/relations/pivot';
+import { Column, JsonColumn, Model, Pivot } from '@gradii/fedaco';
 
 describe('test database fedaco pivot', () => {
   it('properties are set correctly', () => {
@@ -14,14 +11,14 @@ describe('test database fedaco pivot', () => {
     const pivot = Pivot.fromAttributes(
       parent,
       {
-        foo       : 'bar',
+        foo: 'bar',
         created_at: '2015-09-12',
       },
       'table',
       true,
     );
     expect(pivot.GetAttributes()).toEqual({
-      foo       : 'bar',
+      foo: 'bar',
       created_at: '2015-09-12',
     });
     expect(pivot.GetConnectionName()).toBe('connection');
@@ -82,7 +79,7 @@ describe('test database fedaco pivot', () => {
     const pivot = Pivot.fromAttributes(
       parent,
       {
-        foo  : 'bar',
+        foo: 'bar',
         shimy: 'shake',
       },
       'table',
@@ -97,7 +94,7 @@ describe('test database fedaco pivot', () => {
     const pivot = Pivot.fromAttributes(
       parent,
       {
-        foo  : 'bar',
+        foo: 'bar',
         shimy: 'shake',
       },
       'table',
@@ -116,7 +113,7 @@ describe('test database fedaco pivot', () => {
     let pivot = DatabaseEloquentPivotTestDateStub.fromAttributes(
       parent,
       {
-        foo       : 'bar',
+        foo: 'bar',
         created_at: 'foo',
       },
       'table',
@@ -140,7 +137,7 @@ describe('test database fedaco pivot', () => {
     const pivot = Pivot.fromRawAttributes(
       parent,
       {
-        foo       : 'bar',
+        foo: 'bar',
         created_at: 'foo',
       },
       'table',
@@ -185,7 +182,7 @@ describe('test database fedaco pivot', () => {
       .mockImplementationOnce((arg: any): any => {
         expect(arg).toEqual({
           foreign: 'foreign.value',
-          other  : 'other.value',
+          other: 'other.value',
         });
         return query;
       })

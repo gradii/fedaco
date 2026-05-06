@@ -1,30 +1,35 @@
-import { isArray, isNumber, head } from '@gradii/nanofn';
+import { head, isArray, isNumber } from '@gradii/nanofn';
 import { format, formatISO, isSameDay, parse, startOfSecond, subDays } from 'date-fns';
 import { finalize, tap } from 'rxjs/operators';
-import { ArrayColumn } from '@gradii/fedaco';
-import { Column } from '@gradii/fedaco';
-import { CreatedAtColumn } from '@gradii/fedaco';
-import { DatetimeColumn } from '@gradii/fedaco';
-import { PrimaryColumn } from '@gradii/fedaco';
-import { UpdatedAtColumn } from '@gradii/fedaco';
-import { BelongsToManyColumn } from '@gradii/fedaco';
-import { BelongsToColumn } from '@gradii/fedaco';
-import { HasManyColumn } from '@gradii/fedaco';
-import { HasOneColumn } from '@gradii/fedaco';
-import { MorphManyColumn } from '@gradii/fedaco';
-import { MorphToColumn } from '@gradii/fedaco';
-import { Table } from '@gradii/fedaco';
-import { DatabaseConfig } from '@gradii/fedaco';
-import { FedacoBuilder } from '@gradii/fedaco';
-import { FedacoRelationListType, FedacoRelationType } from '@gradii/fedaco';
-import { Model } from '@gradii/fedaco';
-import { BelongsToMany } from '@gradii/fedaco';
-import { HasMany } from '@gradii/fedaco';
-import { Pivot } from '@gradii/fedaco';
-import { Relation } from '@gradii/fedaco';
-import { forwardRef } from '@gradii/fedaco';
-import { JoinClauseBuilder } from '@gradii/fedaco';
-import { SchemaBuilder } from '@gradii/fedaco';
+import type {
+  BelongsToMany,
+  FedacoRelationListType,
+  FedacoRelationType,
+  HasMany,
+  JoinClauseBuilder,
+  SchemaBuilder,
+} from '@gradii/fedaco';
+import {
+  ArrayColumn,
+  BelongsToColumn,
+  BelongsToManyColumn,
+  Column,
+  CreatedAtColumn,
+  DatabaseConfig,
+  DatetimeColumn,
+  FedacoBuilder,
+  forwardRef,
+  HasManyColumn,
+  HasOneColumn,
+  Model,
+  MorphManyColumn,
+  MorphToColumn,
+  Pivot,
+  PrimaryColumn,
+  Relation,
+  Table,
+  UpdatedAtColumn,
+} from '@gradii/fedaco';
 import { Post } from './fixtures/post.model';
 import { User } from './fixtures/user.model';
 
@@ -146,7 +151,7 @@ describe('test database fedaco integration', () => {
   const random = Math.random().toString(36).substring(7);
   const files = {
     default: `tmp/integration-${random}.sqlite`,
-    second : `tmp/integration-second-${random}.sqlite`,
+    second: `tmp/integration-second-${random}.sqlite`,
   };
 
   beforeEach(async () => {
@@ -160,15 +165,15 @@ describe('test database fedaco integration', () => {
 
     db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: files.default,
       // 'database': ':memory:'
     });
     db.addConnection(
       {
-        driver  : 'sqlite',
-      factory : sqliteDriver(),
+        driver: 'sqlite',
+        factory: sqliteDriver(),
         database: files.second,
         // 'database': ':memory:'
       },
@@ -222,7 +227,7 @@ describe('test database fedaco integration', () => {
 
   it('basic create model', async () => {
     const model = await new FedacoTestUser().NewQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
 
@@ -235,12 +240,12 @@ describe('test database fedaco integration', () => {
     const factory = new FedacoTestUser();
 
     await factory.NewQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
 
     await factory.NewQuery().create({
-      id   : 2,
+      id: 2,
       email: 'xsilen@gradii.com',
     });
 
@@ -284,11 +289,11 @@ describe('test database fedaco integration', () => {
 
   it('basic model collection retrieval', async () => {
     await FedacoTestUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     await FedacoTestUser.createQuery().create({
-      id   : 2,
+      id: 2,
       email: 'xsilen@gradii.com',
     });
     const models = await new FedacoTestUser().NewQuery().oldest('id').get();
@@ -302,15 +307,15 @@ describe('test database fedaco integration', () => {
 
   it('paginated model collection retrieval', async () => {
     await new FedacoTestUser().NewQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     await new FedacoTestUser().NewQuery().create({
-      id   : 2,
+      id: 2,
       email: 'xsilen@gradii.com',
     });
     await new FedacoTestUser().NewQuery().create({
-      id   : 3,
+      id: 3,
       email: 'foo@gmail.com',
     });
     // Paginator.currentPageResolver(() => {
@@ -353,19 +358,19 @@ describe('test database fedaco integration', () => {
 
   it('count for pagination with grouping', async () => {
     await FedacoTestUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     await FedacoTestUser.createQuery().create({
-      id   : 2,
+      id: 2,
       email: 'xsilen@gradii.com',
     });
     await FedacoTestUser.createQuery().create({
-      id   : 3,
+      id: 3,
       email: 'foo@gmail.com',
     });
     await FedacoTestUser.createQuery().create({
-      id   : 4,
+      id: 4,
       email: 'foo@gmail.com',
     });
     const query = FedacoTestUser.createQuery().groupBy('email').getQuery();
@@ -374,29 +379,29 @@ describe('test database fedaco integration', () => {
 
   it('count for pagination with grouping and sub selects', async () => {
     const user1 = await FedacoTestUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     await FedacoTestUser.createQuery().create({
-      id   : 2,
+      id: 2,
       email: 'xsilen@gradii.com',
     });
     await FedacoTestUser.createQuery().create({
-      id   : 3,
+      id: 3,
       email: 'foo@gmail.com',
     });
     await FedacoTestUser.createQuery().create({
-      id   : 4,
+      id: 4,
       email: 'foo@gmail.com',
     });
     const friendsRelation = user1.NewRelation('friends') as BelongsToMany;
     await friendsRelation.create({
-      id   : 5,
+      id: 5,
       email: 'friend@gmail.com',
     });
     const query = await FedacoTestUser.createQuery()
       .select({
-        0            : 'id',
+        0: 'id',
         friends_count: await FedacoTestFriendPivot.createQuery().whereColumn('friend_id', 'user_id').count(),
       })
       .groupBy('email')
@@ -487,12 +492,12 @@ describe('test database fedaco integration', () => {
 
   it('check and create methods on multi connections', async () => {
     await FedacoTestUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     await FedacoTestUser.useConnection('second_connection').find(
       FedacoTestUser.useConnection('second_connection').insert({
-        id   : 2,
+        id: 2,
         email: 'tony.stark@gradii.com',
       }),
     );
@@ -626,11 +631,11 @@ describe('test database fedaco integration', () => {
 
   it('pluck', async () => {
     await FedacoTestUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     await FedacoTestUser.createQuery().create({
-      id   : 2,
+      id: 2,
       email: 'xsilen@gradii.com',
     });
     const simple = await FedacoTestUser.createQuery().oldest('id').pluck('users.email');
@@ -644,19 +649,19 @@ describe('test database fedaco integration', () => {
 
   it('pluck with join', async () => {
     const user1 = await FedacoTestUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     const user2 = await FedacoTestUser.createQuery().create({
-      id   : 2,
+      id: 2,
       email: 'xsilen@gradii.com',
     });
     await (user2.NewRelation('posts') as HasMany).create({
-      id  : 1,
+      id: 1,
       name: 'First post',
     });
     await (user1.NewRelation('posts') as HasMany).create({
-      id  : 2,
+      id: 2,
       name: 'Second post',
     });
     const query = FedacoTestUser.createQuery().join('posts', 'users.id', '=', 'posts.user_id');
@@ -669,18 +674,18 @@ describe('test database fedaco integration', () => {
       1: 'Second post',
     });
     expect(await query.pluck('posts.name', 'users.email AS user_email')).toEqual({
-      'xsilen@gradii.com'  : 'First post',
+      'xsilen@gradii.com': 'First post',
       'linbolen@gradii.com': 'Second post',
     });
   });
 
   it('pluck with column name containing a space', async () => {
     await FedacoTestUserWithSpaceInColumnName.createQuery().create({
-      id           : 1,
+      id: 1,
       email_address: 'linbolen@gradii.com',
     });
     await FedacoTestUserWithSpaceInColumnName.createQuery().create({
-      id           : 2,
+      id: 2,
       email_address: 'xsilen@gradii.com',
     });
     const simple = await FedacoTestUserWithSpaceInColumnName.createQuery()
@@ -696,11 +701,11 @@ describe('test database fedaco integration', () => {
 
   it('find or fail', async () => {
     await FedacoTestUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     await FedacoTestUser.createQuery().create({
-      id   : 2,
+      id: 2,
       email: 'xsilen@gradii.com',
     });
     const single = await FedacoTestUser.createQuery().findOrFail(1);
@@ -720,7 +725,7 @@ describe('test database fedaco integration', () => {
 
   it('find or fail with multiple ids throws model not found exception', async () => {
     await FedacoTestUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     await expect(async () => {
@@ -875,11 +880,11 @@ describe('test database fedaco integration', () => {
 
   it('has on self referencing belongs to many relationship with where pivot', async () => {
     const user = await FedacoTestUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     await user.NewRelation('friends').create({
-      id   : 2,
+      id: 2,
       email: 'xsilen@gradii.com',
     });
     const results = await FedacoTestUser.createQuery().has('friendsOne').get();
@@ -889,15 +894,15 @@ describe('test database fedaco integration', () => {
 
   it('has on nested self referencing belongs to many relationship with where pivot', async () => {
     const user = await FedacoTestUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     const friend = await user.NewRelation('friends').create({
-      id   : 2,
+      id: 2,
       email: 'xsilen@gradii.com',
     });
     await friend.NewRelation('friends').create({
-      id   : 3,
+      id: 3,
       email: 'foo@gmail.com',
     });
     const results = await FedacoTestUser.createQuery().has('friendsOne.friendsTwo').get();
@@ -907,13 +912,13 @@ describe('test database fedaco integration', () => {
 
   it('has on self referencing belongs to relationship', async () => {
     const parentPost = await FedacoTestPost.createQuery().create({
-      name   : 'Parent Post',
+      name: 'Parent Post',
       user_id: 1,
     });
     await FedacoTestPost.createQuery().create({
-      name     : 'Child Post',
+      name: 'Child Post',
       parent_id: parentPost.id,
-      user_id  : 2,
+      user_id: 2,
     });
     const results = await FedacoTestPost.createQuery().has('parentPost').get();
     expect(results.length).toBe(1);
@@ -922,14 +927,14 @@ describe('test database fedaco integration', () => {
 
   it('aggregated values of datetime field', async () => {
     await FedacoTestUser.createQuery().create({
-      id        : 1,
-      email     : 'test1@test.test',
+      id: 1,
+      email: 'test1@test.test',
       created_at: '2021-08-10 09:21:00',
       updated_at: new Date(),
     });
     await FedacoTestUser.createQuery().create({
-      id        : 2,
-      email     : 'test2@test.test',
+      id: 2,
+      email: 'test2@test.test',
       created_at: '2021-08-01 12:00:00',
       updated_at: new Date(),
     });
@@ -939,13 +944,13 @@ describe('test database fedaco integration', () => {
 
   it('where has on self referencing belongs to relationship', async () => {
     const parentPost = await FedacoTestPost.createQuery().create({
-      name   : 'Parent Post',
+      name: 'Parent Post',
       user_id: 1,
     });
     await FedacoTestPost.createQuery().create({
-      name     : 'Child Post',
+      name: 'Child Post',
       parent_id: parentPost.id,
-      user_id  : 2,
+      user_id: 2,
     });
     const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
       .whereHas('parentPost', (query: FedacoBuilder) => {
@@ -958,18 +963,18 @@ describe('test database fedaco integration', () => {
 
   it('has on nested self referencing belongs to relationship', async () => {
     const grandParentPost = await FedacoTestPost.createQuery().create({
-      name   : 'Grandparent Post',
+      name: 'Grandparent Post',
       user_id: 1,
     });
     const parentPost = await FedacoTestPost.createQuery().create({
-      name     : 'Parent Post',
+      name: 'Parent Post',
       parent_id: grandParentPost.id,
-      user_id  : 2,
+      user_id: 2,
     });
     await FedacoTestPost.createQuery().create({
-      name     : 'Child Post',
+      name: 'Child Post',
       parent_id: parentPost.id,
-      user_id  : 3,
+      user_id: 3,
     });
     // @ts-ignore
     const results: FedacoTestPost[] = await FedacoTestPost.createQuery().has('parentPost.parentPost').get();
@@ -979,18 +984,18 @@ describe('test database fedaco integration', () => {
 
   it('where has on nested self referencing belongs to relationship', async () => {
     const grandParentPost = await FedacoTestPost.createQuery().create({
-      name   : 'Grandparent Post',
+      name: 'Grandparent Post',
       user_id: 1,
     });
     const parentPost = await FedacoTestPost.createQuery().create({
-      name     : 'Parent Post',
+      name: 'Parent Post',
       parent_id: grandParentPost.id,
-      user_id  : 2,
+      user_id: 2,
     });
     await FedacoTestPost.createQuery().create({
-      name     : 'Child Post',
+      name: 'Child Post',
       parent_id: parentPost.id,
-      user_id  : 3,
+      user_id: 3,
     });
     // @ts-ignore
     const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
@@ -1004,13 +1009,13 @@ describe('test database fedaco integration', () => {
 
   it('has on self referencing has many relationship', async () => {
     const parentPost = await FedacoTestPost.createQuery().create({
-      name   : 'Parent Post',
+      name: 'Parent Post',
       user_id: 1,
     });
     await FedacoTestPost.createQuery().create({
-      name     : 'Child Post',
+      name: 'Child Post',
       parent_id: parentPost.id,
-      user_id  : 2,
+      user_id: 2,
     });
     // @ts-ignore
     const results: FedacoTestPost[] = await FedacoTestPost.createQuery().has('childPosts').get();
@@ -1020,13 +1025,13 @@ describe('test database fedaco integration', () => {
 
   it('where has on self referencing has many relationship', async () => {
     const parentPost = await FedacoTestPost.createQuery().create({
-      name   : 'Parent Post',
+      name: 'Parent Post',
       user_id: 1,
     });
     await FedacoTestPost.createQuery().create({
-      name     : 'Child Post',
+      name: 'Child Post',
       parent_id: parentPost.id,
-      user_id  : 2,
+      user_id: 2,
     });
     // @ts-ignore
     const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
@@ -1040,18 +1045,18 @@ describe('test database fedaco integration', () => {
 
   it('has on nested self referencing has many relationship', async () => {
     const grandParentPost = await FedacoTestPost.createQuery().create({
-      name   : 'Grandparent Post',
+      name: 'Grandparent Post',
       user_id: 1,
     });
     const parentPost = await FedacoTestPost.createQuery().create({
-      name     : 'Parent Post',
+      name: 'Parent Post',
       parent_id: grandParentPost.id,
-      user_id  : 2,
+      user_id: 2,
     });
     await FedacoTestPost.createQuery().create({
-      name     : 'Child Post',
+      name: 'Child Post',
       parent_id: parentPost.id,
-      user_id  : 3,
+      user_id: 3,
     });
     // @ts-ignore
     const results: FedacoTestPost[] = await FedacoTestPost.createQuery().has('childPosts.childPosts').get();
@@ -1061,18 +1066,18 @@ describe('test database fedaco integration', () => {
 
   it('where has on nested self referencing has many relationship', async () => {
     const grandParentPost = await FedacoTestPost.createQuery().create({
-      name   : 'Grandparent Post',
+      name: 'Grandparent Post',
       user_id: 1,
     });
     const parentPost = await FedacoTestPost.createQuery().create({
-      name     : 'Parent Post',
+      name: 'Parent Post',
       parent_id: grandParentPost.id,
-      user_id  : 2,
+      user_id: 2,
     });
     await FedacoTestPost.createQuery().create({
-      name     : 'Child Post',
+      name: 'Child Post',
       parent_id: parentPost.id,
-      user_id  : 3,
+      user_id: 3,
     });
     // @ts-ignore
     const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
@@ -1087,7 +1092,7 @@ describe('test database fedaco integration', () => {
 
   it('has with non where bindings', async () => {
     const user = await FedacoTestUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     await (
@@ -1198,7 +1203,7 @@ describe('test database fedaco integration', () => {
       name: 'First Post',
     });
     await post.NewRelation('childPosts').create({
-      name   : 'Child Post',
+      name: 'Child Post',
       user_id: user.id,
     });
     user = await FedacoTestUser.createQuery().with('posts.childPosts').where('email', 'linbolen@gradii.com').first();
@@ -1254,7 +1259,7 @@ describe('test database fedaco integration', () => {
     expect(photos.length).toBe(4);
     expect(await photos[0].imageable).toBeInstanceOf(FedacoTestUser);
     expect(await photos[2].imageable).toBeInstanceOf(FedacoTestPost);
-    expect((await photos[1].imageable as FedacoTestUser).email).toBe('linbolen@gradii.com');
+    expect(((await photos[1].imageable) as FedacoTestUser).email).toBe('linbolen@gradii.com');
     expect((await photos[3].imageable).name).toBe('First Post');
   });
 
@@ -1346,8 +1351,8 @@ describe('test database fedaco integration', () => {
   it('save or fail', async () => {
     const date = '1970-01-01';
     const post = FedacoTestPost.initAttributes({
-      user_id   : 1,
-      name      : 'Post',
+      user_id: 1,
+      name: 'Post',
       created_at: date,
       updated_at: date,
     });
@@ -1389,16 +1394,16 @@ describe('test database fedaco integration', () => {
   it('save or fail with duplicated entry', async () => {
     const date = '1970-01-01';
     await FedacoTestPost.createQuery().create({
-      id        : 1,
-      user_id   : 1,
-      name      : 'Post',
+      id: 1,
+      user_id: 1,
+      name: 'Post',
       created_at: date,
       updated_at: date,
     });
     const post = FedacoTestPost.initAttributes({
-      id        : 1,
-      user_id   : 1,
-      name      : 'Post',
+      id: 1,
+      user_id: 1,
+      name: 'Post',
       created_at: date,
       updated_at: date,
     });
@@ -1412,14 +1417,14 @@ describe('test database fedaco integration', () => {
     const date = '1970-01-01';
     const result = await FedacoTestPost.createQuery().insert([
       {
-        user_id   : 1,
-        name      : 'Post',
+        user_id: 1,
+        name: 'Post',
         created_at: date,
         updated_at: date,
       },
       {
-        user_id   : 2,
-        name      : 'Post',
+        user_id: 2,
+        name: 'Post',
         created_at: date,
         updated_at: date,
       },
@@ -1432,14 +1437,14 @@ describe('test database fedaco integration', () => {
     const date = '1970-01-01';
     const result = await FedacoTestPost.createQuery().insert([
       {
-        user_id   : 1,
-        name      : 'Post',
+        user_id: 1,
+        name: 'Post',
         created_at: date,
         updated_at: date,
       },
       {
-        user_id   : 1,
-        name      : 'Post',
+        user_id: 1,
+        name: 'Post',
         created_at: date,
         updated_at: date,
       },
@@ -1551,7 +1556,7 @@ describe('test database fedaco integration', () => {
 
   it('model ignored by global scope can be refreshed', async () => {
     const user = await FedacoTestUserWithOmittingGlobalScope.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     expect(await user.Fresh()).not.toBeNull();
@@ -1568,11 +1573,11 @@ describe('test database fedaco integration', () => {
 
   it('for page before id correctly paginates', async () => {
     await FedacoTestUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     await FedacoTestUser.createQuery().create({
-      id   : 2,
+      id: 2,
       email: 'xsilen@gradii.com',
     });
     let results = await FedacoTestUser.createQuery().forPageBeforeId(15, 2);
@@ -1585,11 +1590,11 @@ describe('test database fedaco integration', () => {
 
   it('for page after id correctly paginates', async () => {
     await FedacoTestUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     await FedacoTestUser.createQuery().create({
-      id   : 2,
+      id: 2,
       email: 'xsilen@gradii.com',
     });
     let results = await FedacoTestUser.createQuery().forPageAfterId(15, 1);
@@ -1606,9 +1611,9 @@ describe('test database fedaco integration', () => {
       id: 1,
     });
     await FedacoTestOrder.createQuery().create({
-      id       : 1,
+      id: 1,
       item_type: 'FedacoTestItem',
-      item_id  : 1,
+      item_id: 1,
     });
     try {
       const order = await FedacoTestOrder.createQuery().first();
@@ -1621,26 +1626,26 @@ describe('test database fedaco integration', () => {
 
   it('eager loaded morph to relations on another database connection', async () => {
     await FedacoTestPost.createQuery().create({
-      id     : 1,
-      name   : 'Default Connection Post',
+      id: 1,
+      name: 'Default Connection Post',
       user_id: 1,
     });
     await FedacoTestPhoto.createQuery().create({
-      id            : 1,
+      id: 1,
       imageable_type: 'post',
-      imageable_id  : 1,
-      name          : 'Photo',
+      imageable_id: 1,
+      name: 'Photo',
     });
     await FedacoTestPost.useConnection('second_connection').create({
-      id     : 1,
-      name   : 'Second Connection Post',
+      id: 1,
+      name: 'Second Connection Post',
       user_id: 1,
     });
     await FedacoTestPhoto.useConnection('second_connection').create({
-      id            : 1,
+      id: 1,
       imageable_type: 'post',
-      imageable_id  : 1,
-      name          : 'Photo',
+      imageable_id: 1,
+      name: 'Photo',
     });
     const defaultConnectionPost = (await FedacoTestPhoto.createQuery().with('imageable').first())
       .imageable as FedacoTestPhoto;
@@ -1652,35 +1657,35 @@ describe('test database fedaco integration', () => {
 
   it('belongs to many custom pivot', async () => {
     const john = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-      id   : 1,
-      name : 'John Doe',
+      id: 1,
+      name: 'John Doe',
       email: 'johndoe@example.com',
     });
     const jane = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-      id   : 2,
-      name : 'Jane Doe',
+      id: 2,
+      name: 'Jane Doe',
       email: 'janedoe@example.com',
     });
     const jack = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-      id   : 3,
-      name : 'Jack Doe',
+      id: 3,
+      name: 'Jack Doe',
       email: 'jackdoe@example.com',
     });
     const jule = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-      id   : 4,
-      name : 'Jule Doe',
+      id: 4,
+      name: 'Jule Doe',
       email: 'juledoe@example.com',
     });
     await FedacoTestFriendLevel.createQuery().create({
-      id   : 1,
+      id: 1,
       level: 'acquaintance',
     });
     await FedacoTestFriendLevel.createQuery().create({
-      id   : 2,
+      id: 2,
       level: 'friend',
     });
     await FedacoTestFriendLevel.createQuery().create({
-      id   : 3,
+      id: 3,
       level: 'bff',
     });
     await john.NewRelation('friends').attach(jane, {
@@ -1707,7 +1712,7 @@ describe('test database fedaco integration', () => {
 
   it('is after retrieving the same model', async () => {
     const saved = await FedacoTestUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     const retrieved = await FedacoTestUser.createQuery().find(1);
@@ -1720,18 +1725,18 @@ describe('test database fedaco integration', () => {
     const nowWithFractionsSerialized = JSON.parse(JSON.stringify(now));
     // Carbon.setTestNow(now);
     const storedUser1 = await FedacoTestUser.createQuery().create({
-      id      : 1,
-      email   : 'linbolen@gradii.com',
+      id: 1,
+      email: 'linbolen@gradii.com',
       birthday: now,
     });
     await storedUser1.NewQuery().update({
       email: 'dev@mathieutu.ovh',
-      name : 'Mathieu TUDISCO',
+      name: 'Mathieu TUDISCO',
     });
     const freshStoredUser1 = await storedUser1.Fresh();
     const storedUser2 = await FedacoTestUser.createQuery().create({
-      id      : 2,
-      email   : 'linbolen@gradii.com',
+      id: 2,
+      email: 'linbolen@gradii.com',
       birthday: now,
     });
     await storedUser2.NewQuery().update({
@@ -1739,46 +1744,46 @@ describe('test database fedaco integration', () => {
     });
     const freshStoredUser2 = await storedUser2.Fresh();
     const notStoredUser = FedacoTestUser.initAttributes({
-      id      : 3,
-      email   : 'linbolen@gradii.com',
+      id: 3,
+      email: 'linbolen@gradii.com',
       birthday: now,
     });
     const freshNotStoredUser = await notStoredUser.Fresh();
     expect(JSON.parse(JSON.stringify(storedUser1.ToArray()))).toEqual({
-      id        : 1,
-      email     : 'linbolen@gradii.com',
-      birthday  : formatISO(new Date(nowWithFractionsSerialized)),
+      id: 1,
+      email: 'linbolen@gradii.com',
+      birthday: formatISO(new Date(nowWithFractionsSerialized)),
       created_at: nowSerialized,
       updated_at: nowSerialized,
     });
     expect(JSON.parse(JSON.stringify(freshStoredUser1.ToArray()))).toEqual({
-      id        : 1,
-      name      : 'Mathieu TUDISCO',
-      email     : 'dev@mathieutu.ovh',
-      birthday  : formatISO(new Date(nowWithFractionsSerialized)),
+      id: 1,
+      name: 'Mathieu TUDISCO',
+      email: 'dev@mathieutu.ovh',
+      birthday: formatISO(new Date(nowWithFractionsSerialized)),
       created_at: nowSerialized,
       updated_at: nowSerialized,
     });
     expect(storedUser1).toBeInstanceOf(FedacoTestUser);
     expect(JSON.parse(JSON.stringify(storedUser2.ToArray()))).toEqual({
-      id        : 2,
-      email     : 'linbolen@gradii.com',
-      birthday  : formatISO(new Date(nowWithFractionsSerialized)),
+      id: 2,
+      email: 'linbolen@gradii.com',
+      birthday: formatISO(new Date(nowWithFractionsSerialized)),
       created_at: nowSerialized,
       updated_at: nowSerialized,
     });
     expect(JSON.parse(JSON.stringify(freshStoredUser2.ToArray()))).toEqual({
-      id        : 2,
-      name      : null,
-      email     : 'dev@mathieutu.ovh',
-      birthday  : formatISO(new Date(nowWithFractionsSerialized)),
+      id: 2,
+      name: null,
+      email: 'dev@mathieutu.ovh',
+      birthday: formatISO(new Date(nowWithFractionsSerialized)),
       created_at: nowSerialized,
       updated_at: nowSerialized,
     });
     expect(storedUser2).toBeInstanceOf(FedacoTestUser);
     expect(JSON.parse(JSON.stringify(notStoredUser.ToArray()))).toEqual({
-      id      : 3,
-      email   : 'linbolen@gradii.com',
+      id: 3,
+      email: 'linbolen@gradii.com',
       birthday: formatISO(new Date(nowWithFractionsSerialized)),
     });
     expect(freshNotStoredUser).toBeUndefined();
@@ -1864,11 +1869,11 @@ describe('test database fedaco integration', () => {
   it('updating child model touches parent', async () => {
     const before = new Date();
     const user = await FedacoTouchingUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     const post = await FedacoTouchingPost.createQuery().create({
-      name   : 'Parent Post',
+      name: 'Parent Post',
       user_id: 1,
     });
     expect(isSameDay(before, user.updated_at)).toBeTruthy();
@@ -1902,12 +1907,12 @@ describe('test database fedaco integration', () => {
   it('multi level touching works', async () => {
     const before = new Date();
     const user = await FedacoTouchingUser.createQuery().create({
-      id   : 1,
+      id: 1,
       email: 'linbolen@gradii.com',
     });
     const post = await FedacoTouchingPost.createQuery().create({
-      id     : 1,
-      name   : 'Parent Post',
+      id: 1,
+      name: 'Parent Post',
       user_id: 1,
     });
     expect(isSameDay(before, user.updated_at)).toBeTruthy();
@@ -2202,7 +2207,7 @@ describe('test database fedaco integration', () => {
 
 /* Fedaco Models... */
 @Table({
-  tableName    : 'users',
+  tableName: 'users',
   morphTypeName: 'user',
 })
 export class FedacoTestUser extends Model {
@@ -2229,59 +2234,59 @@ export class FedacoTestUser extends Model {
   updated_at: Date;
 
   @BelongsToManyColumn({
-    related        : FedacoTestUser,
-    table          : 'friends',
+    related: FedacoTestUser,
+    table: 'friends',
     foreignPivotKey: 'user_id',
     relatedPivotKey: 'friend_id',
   })
   friends: FedacoRelationListType<FedacoTestUser>;
 
   @BelongsToManyColumn({
-    related        : FedacoTestUser,
-    table          : 'friends',
+    related: FedacoTestUser,
+    table: 'friends',
     foreignPivotKey: 'user_id',
     relatedPivotKey: 'friend_id',
     // @ts-ignore
-    onQuery        : (q: BelongsToMany) => {
+    onQuery: (q: BelongsToMany) => {
       q.wherePivot('user_id', 1);
     },
   })
   friendsOne: FedacoRelationListType<FedacoTestUser>;
 
   @BelongsToManyColumn({
-    related        : FedacoTestUser,
-    table          : 'friends',
+    related: FedacoTestUser,
+    table: 'friends',
     foreignPivotKey: 'user_id',
     relatedPivotKey: 'friend_id',
     // @ts-ignore
-    onQuery        : (q: BelongsToMany) => {
+    onQuery: (q: BelongsToMany) => {
       q.wherePivot('user_id', 2);
     },
   })
   friendsTwo: FedacoRelationListType<FedacoTestUser>;
 
   @HasManyColumn({
-    related   : forwardRef(() => FedacoTestPost),
+    related: forwardRef(() => FedacoTestPost),
     foreignKey: 'user_id',
   })
   public posts: FedacoRelationListType<FedacoTestPost>;
 
   @HasOneColumn({
-    related   : forwardRef(() => FedacoTestPost),
+    related: forwardRef(() => FedacoTestPost),
     foreignKey: 'user_id',
   })
   public post: FedacoRelationType<FedacoTestPost>;
 
   @MorphManyColumn({
-    related  : forwardRef(() => FedacoTestPhoto),
+    related: forwardRef(() => FedacoTestPhoto),
     morphName: 'imageable',
   })
   public photos: FedacoRelationListType<FedacoTestPhoto>;
 
   @HasOneColumn({
-    related   : forwardRef(() => FedacoTestPost),
+    related: forwardRef(() => FedacoTestPost),
     foreignKey: 'user_id',
-    onQuery   : (q: FedacoBuilder) => {
+    onQuery: (q: FedacoBuilder) => {
       q.join('photo', (join: JoinClauseBuilder) => {
         join.on('photo.imageable_id', 'post.id');
         join.where('photo.imageable_type', 'FedacoTestPost');
@@ -2296,11 +2301,11 @@ export class FedacoTestUser extends Model {
 })
 export class FedacoTestUserWithCustomFriendPivot extends FedacoTestUser {
   @BelongsToManyColumn({
-    related        : FedacoTestUser,
-    table          : 'friends',
+    related: FedacoTestUser,
+    table: 'friends',
     foreignPivotKey: 'user_id',
     relatedPivotKey: 'friend_id',
-    onQuery        : (q: BelongsToMany) => {
+    onQuery: (q: BelongsToMany) => {
       q.using(FedacoTestFriendPivot).withPivot('user_id', 'friend_id', 'friend_level_id');
     },
   })
@@ -2369,7 +2374,7 @@ export class FedacoTestUserWithOmittingGlobalScope extends FedacoTestUser {
 //   }
 // }
 @Table({
-  tableName    : 'posts',
+  tableName: 'posts',
   morphTypeName: 'post',
 })
 export class FedacoTestPost extends Model {
@@ -2386,13 +2391,13 @@ export class FedacoTestPost extends Model {
   // user_id; no need to define this since BelongsToColumn dynamic add foreign user_id
 
   @BelongsToColumn({
-    related   : FedacoTestUser,
+    related: FedacoTestUser,
     foreignKey: 'user_id',
   })
   public user: FedacoRelationType<FedacoTestUser>;
 
   @MorphManyColumn({
-    related  : forwardRef(() => FedacoTestPhoto),
+    related: forwardRef(() => FedacoTestPhoto),
     morphName: 'imageable',
   })
   photos: FedacoRelationListType<FedacoTestPhoto>;
@@ -2405,7 +2410,7 @@ export class FedacoTestPost extends Model {
   // parent_id; no need to define this since BelongsToColumn dynamic add foreign user_id
 
   @HasManyColumn({
-    related   : forwardRef(() => FedacoTestPost),
+    related: forwardRef(() => FedacoTestPost),
     foreignKey: 'parent_id',
   })
   childPosts: Promise<any[]>;
@@ -2416,7 +2421,7 @@ export class FedacoTestPost extends Model {
   //
 
   @BelongsToColumn({
-    related   : forwardRef(() => FedacoTestPost),
+    related: forwardRef(() => FedacoTestPost),
     foreignKey: 'parent_id',
   })
   parentPost: FedacoRelationType<FedacoTestPost>;
@@ -2451,8 +2456,8 @@ export class FedacoTestPhoto extends Model {
     morphTypeMap: {
       FedacoTestUser: FedacoTestUser,
       FedacoTestPost: FedacoTestPost,
-      user          : FedacoTestUser,
-      post          : FedacoTestPost,
+      user: FedacoTestUser,
+      post: FedacoTestPost,
     },
   })
   public imageable: FedacoRelationType<FedacoTestUser | FedacoTestPost | FedacoTestPhoto>;
@@ -2541,7 +2546,7 @@ export class FedacoTestFriendPivot extends Pivot {
   public friend: FedacoRelationType<FedacoTestItem>;
 
   @BelongsToColumn({
-    related   : FedacoTestFriendLevel,
+    related: FedacoTestFriendLevel,
     foreignKey: 'friend_level_id',
   })
   public level: FedacoRelationType<FedacoTestItem>;
@@ -2568,7 +2573,7 @@ export class FedacoTouchingPost extends Model {
   _touches: any = ['user'];
 
   @BelongsToColumn({
-    related   : FedacoTouchingUser,
+    related: FedacoTouchingUser,
     foreignKey: 'user_id',
   })
   public user: FedacoRelationType<any>;
@@ -2588,7 +2593,7 @@ export class FedacoTouchingComment extends Model {
   _touches: any = ['post'];
 
   @BelongsToColumn({
-    related   : FedacoTouchingPost,
+    related: FedacoTouchingPost,
     foreignKey: 'post_id',
   })
   public post: FedacoRelationType<FedacoTouchingPost>;

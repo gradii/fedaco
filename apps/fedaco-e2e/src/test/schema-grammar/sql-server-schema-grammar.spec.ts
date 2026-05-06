@@ -1,15 +1,16 @@
 /* tslint:disable:max-line-length */
-import { Connection } from '../../src/connection';
-import { type WrappedConnection } from '../../src/connector/wrapped-connection';
-import { type ConnectionInterface } from '../../src/query-builder/connection-interface';
-import { type QueryGrammar } from '../../src/query-builder/grammar/query-grammar';
-import { SqlserverQueryGrammar } from '../../src/query-builder/grammar/sqlserver-query-grammar';
-import { Processor } from '../../src/query-builder/processor';
-import { QueryBuilder } from '../../src/query-builder/query-builder';
-import { Blueprint } from '../../src/schema/blueprint';
-import { ForeignIdColumnDefinition } from '../../src/schema/foreign-id-column-definition';
-import { SqlServerSchemaGrammar } from '../../src/schema/grammar/sql-server-schema-grammar';
-import { type SchemaBuilder } from '../../src/schema/schema-builder';
+import {
+  Blueprint,
+  Connection,
+  type ConnectionInterface,
+  ForeignIdColumnDefinition,
+  Processor,
+  QueryBuilder,
+  type QueryGrammar,
+  type SchemaBuilder,
+  type WrappedConnection
+} from '@gradii/fedaco';
+import { SqlserverQueryGrammar, SqlServerSchemaGrammar } from '@gradii/fedaco-sqlserver-driver'; // noinspection DuplicatedCode
 
 // noinspection DuplicatedCode
 class Conn extends Connection implements ConnectionInterface {

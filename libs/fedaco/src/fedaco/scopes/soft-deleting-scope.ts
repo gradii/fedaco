@@ -6,7 +6,7 @@
 import type { FedacoBuilder } from '../fedaco-builder';
 import type { SoftDeletes } from '../mixins/soft-deletes';
 import type { Model } from '../model';
-import { Scope } from '../scope';
+import { BaseScope } from '../base-scope';
 
 export function restore() {
   return (builder: FedacoBuilder<Model & SoftDeletes>) => {
@@ -44,7 +44,7 @@ export function onlyTrashed() {
 
 // import { Builder } from 'Illuminate/Database/Eloquent/Builder';
 // import { Model } from 'Illuminate/Database/Eloquent/Model';
-export class SoftDeletingScope extends Scope {
+export class SoftDeletingScope extends BaseScope {
   /* All of the extensions to be added to the builder. */
   protected extensions: string[] = ['Restore', 'WithTrashed', 'WithoutTrashed', 'OnlyTrashed'];
 

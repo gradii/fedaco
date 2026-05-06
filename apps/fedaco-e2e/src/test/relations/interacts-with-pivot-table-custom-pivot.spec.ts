@@ -1,13 +1,14 @@
-import { Column } from '../../src/annotation/column/column';
-import { PrimaryColumn } from '../../src/annotation/column/primary.column';
-import { BelongsToManyColumn } from '../../src/annotation/relation-column/belongs-to-many.relation-column';
-import { DatabaseConfig } from '../../src/database-config';
-import { Model } from '../../src/fedaco/model';
-import { Pivot } from '../../src/fedaco/relations/pivot';
-import { forwardRef } from '../../src/query-builder/forward-ref';
-import type { SchemaBuilder } from '../../src/schema/schema-builder';
-import { Table } from './../../src/annotation/table/table';
-import type { FedacoRelationListType } from './../../src/fedaco/fedaco-types';
+import type { FedacoRelationListType, SchemaBuilder } from '@gradii/fedaco';
+import {
+  BelongsToManyColumn,
+  Column,
+  DatabaseConfig,
+  forwardRef,
+  Model,
+  Pivot,
+  PrimaryColumn,
+  Table,
+} from '@gradii/fedaco';
 import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
@@ -41,8 +42,8 @@ describe('interacts with pivot table with custom pivot', () => {
   beforeAll(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: ':memory:',
     });
     db.bootFedaco();
@@ -89,11 +90,11 @@ class User extends Model {
   email: string;
 
   @BelongsToManyColumn({
-    related        : forwardRef(() => Role),
-    table          : 'role_user',
+    related: forwardRef(() => Role),
+    table: 'role_user',
     foreignPivotKey: 'user_id',
     relatedPivotKey: 'role_id',
-    onQuery        : (q: any) => {
+    onQuery: (q: any) => {
       q.using(RoleUserPivot);
       q.withPivot('extra_field');
     },

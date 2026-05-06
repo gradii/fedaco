@@ -7,12 +7,12 @@
 import type { FedacoBuilder } from './fedaco-builder';
 import type { Model } from './model';
 
-export interface Scope {
+export interface BaseScope {
   /* Apply the scope to a given Eloquent query builder. */
   apply(builder: FedacoBuilder, model: Model): any;
 }
 
-export abstract class Scope {
+export abstract class BaseScope {
   apply(builder: FedacoBuilder, model: Model) {
     throw new Error('not implement yet');
   }

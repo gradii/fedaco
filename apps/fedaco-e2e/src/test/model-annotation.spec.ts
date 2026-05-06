@@ -1,11 +1,15 @@
 import { reflector } from '@gradii/annotation';
 import { findLast, isFunction } from '@gradii/nanofn';
-import { type ColumnAnnotation, FedacoColumn } from '@gradii/fedaco';
-import { FedacoRelationColumn, type RelationColumnAnnotation } from '@gradii/fedaco';
-import { DatabaseConfig } from '@gradii/fedaco';
-import { Model } from '@gradii/fedaco';
-import { HasMany } from '@gradii/fedaco';
-import { type SchemaBuilder } from '@gradii/fedaco';
+import {
+  type ColumnAnnotation,
+  DatabaseConfig,
+  FedacoColumn,
+  FedacoRelationColumn,
+  HasMany,
+  Model,
+  type RelationColumnAnnotation,
+  type SchemaBuilder,
+} from '@gradii/fedaco';
 import { BasicModel } from './model/basic.model';
 import { FedacoBuilderTestModelParentStub } from './model/fedaco-builder-test-model-parent-stub';
 import { ArticleModel, HasManyRelationModel, MemberModel } from './model/has-many-relation.model';
@@ -16,7 +20,7 @@ import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 function _columnInfo(typeOfClazz: any, key: string) {
   const meta = reflector.propMetadata(typeOfClazz);
   return findLast(meta[key], (it) => {
-      return FedacoRelationColumn.isTypeOf(it);
+    return FedacoRelationColumn.isTypeOf(it);
   }) as ColumnAnnotation;
 }
 
@@ -40,8 +44,8 @@ describe('model annotation', () => {
   beforeAll(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       // 'database': files.default
       database: ':memory:',
     });
@@ -133,7 +137,7 @@ describe('model annotation', () => {
 
     expect(metaColumnInfo).toMatchObject({
       isRelation: true,
-      type      : 'HasMany',
+      type: 'HasMany',
     });
 
     expect(isFunction(metaColumnInfo._getRelation)).toBe(true);

@@ -1,10 +1,6 @@
-import { Column } from '../../src/annotation/column/column';
-import { PrimaryColumn } from '../../src/annotation/column/primary.column';
-import { FedacoBuilder } from '../../src/fedaco/fedaco-builder';
-import { Model } from '../../src/fedaco/model';
-import { HasOne } from '../../src/fedaco/relations/has-one';
+import type { FedacoBuilder, KeyAbleModel } from '@gradii/fedaco';
+import { Column, HasOne, Model, PrimaryColumn } from '@gradii/fedaco';
 import { getBuilder } from './relation-testing-helper';
-import { KeyAbleModel } from '../../src/types/model-type';
 
 let builder: FedacoBuilder, related: Model;
 

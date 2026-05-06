@@ -1,20 +1,13 @@
-import { Table } from './../../src/annotation/table/table';
-import { FedacoBuilder } from './../../src/fedaco/fedaco-builder';
-import { FedacoRelationListType } from './../../src/fedaco/fedaco-types';
-import { QueryBuilder } from './../../src/query-builder/query-builder';
-import { HasManyColumn } from '../../src/annotation/relation-column/has-many.relation-column';
-import { DatabaseConfig } from '../../src/database-config';
-import { Model } from '../../src/fedaco/model';
-import { Scope } from '../../src/fedaco/scope';
-import { forwardRef } from '../../src/query-builder/forward-ref';
+import type { FedacoBuilder, FedacoRelationListType, QueryBuilder } from '@gradii/fedaco';
+import { BaseScope, DatabaseConfig, forwardRef, HasManyColumn, Model, Table } from '@gradii/fedaco';
 import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 describe('test database fedaco global scopes', () => {
   beforeEach(() => {
     const db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: ':memory:',
     });
     db.bootFedaco();
@@ -37,7 +30,7 @@ describe('test database fedaco global scopes', () => {
     const model = new EloquentClosureGlobalScopesTestModel();
     const query = model.NewQuery();
     expect(query.toSql()).toEqual({
-      result  : 'SELECT * FROM "_table" WHERE "active" = ? ORDER BY "name" ASC',
+      result: 'SELECT * FROM "_table" WHERE "active" = ? ORDER BY "name" ASC',
       bindings: [1],
     });
   });
@@ -50,7 +43,7 @@ describe('test database fedaco global scopes', () => {
     const model = new EloquentClosureGlobalScopesTestModel();
     const query = model.NewQuery();
     expect(query.toSql()).toEqual({
-      result  : 'SELECT * FROM "_table" WHERE "active" = ? ORDER BY "name" ASC',
+      result: 'SELECT * FROM "_table" WHERE "active" = ? ORDER BY "name" ASC',
       bindings: [1],
     });
     query.withoutGlobalScope('active_scope');
@@ -85,7 +78,7 @@ describe('test database fedaco global scopes', () => {
       .orWhere('bar', 'bar')
       .callNamedScope('approved');
     expect(query.toSql()).toEqual({
-      result  : 'SELECT * FROM "_table" WHERE "foo" = ? OR "bar" = ? AND "approved" = ? OR "should_approve" = ?',
+      result: 'SELECT * FROM "_table" WHERE "foo" = ? OR "bar" = ? AND "approved" = ? OR "should_approve" = ?',
       bindings: ['foo', 'bar', 1, 0],
     });
   });
@@ -96,7 +89,7 @@ describe('test database fedaco global scopes', () => {
       .orWhere('bar', 'bar')
       .callNamedScope('orApproved');
     expect(query.toSql()).toEqual({
-      result  : 'SELECT * FROM "_table" WHERE "foo" = ? OR "bar" = ? OR "approved" = ? OR "should_approve" = ?',
+      result: 'SELECT * FROM "_table" WHERE "foo" = ? OR "bar" = ? OR "approved" = ? OR "should_approve" = ?',
       bindings: ['foo', 'bar', 1, 0],
     });
   });
@@ -114,12 +107,18 @@ export class EloquentClosureGlobalScopesTestModel extends Model {
   _table: any = '_table';
 
   public Boot() {
-    (this.constructor as typeof EloquentClosureGlobalScopesTestModel).addGlobalScope('order_name', (query: QueryBuilder) => {
-      query.orderBy('name');
-    });
-    (this.constructor as typeof EloquentClosureGlobalScopesTestModel).addGlobalScope('active_scope', (query: QueryBuilder) => {
-      query.where('active', 1);
-    });
+    (this.constructor as typeof EloquentClosureGlobalScopesTestModel).addGlobalScope(
+      'order_name',
+      (query: QueryBuilder) => {
+        query.orderBy('name');
+      },
+    );
+    (this.constructor as typeof EloquentClosureGlobalScopesTestModel).addGlobalScope(
+      'active_scope',
+      (query: QueryBuilder) => {
+        query.where('active', 1);
+      },
+    );
     super.Boot();
   }
 
@@ -139,9 +138,9 @@ export class EloquentGlobalScopesWithRelationModel extends EloquentClosureGlobal
   _table: any = 'table2';
 
   @HasManyColumn({
-    related   : forwardRef(() => EloquentGlobalScopesTestModel),
+    related: forwardRef(() => EloquentGlobalScopesTestModel),
     foreignKey: 'related_id',
-    onQuery   : (q) => {
+    onQuery: (q) => {
       q.where('foo', 'bar');
     },
   })
@@ -172,7 +171,7 @@ export class EloquentGlobalScopesTestModel extends Model {
   }
 }
 
-export class ActiveScope extends Scope {
+export class ActiveScope extends BaseScope {
   public apply(builder: FedacoBuilder, model: Model) {
     return builder.where('active', 1);
   }

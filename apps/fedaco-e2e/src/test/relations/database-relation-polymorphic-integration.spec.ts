@@ -1,12 +1,13 @@
-import { FedacoRelationListType, FedacoRelationType } from './../../src/fedaco/fedaco-types';
-import { BelongsToColumn } from '../../src/annotation/relation-column/belongs-to.relation-column';
-import { MorphManyColumn } from '../../src/annotation/relation-column/morph-many.relation-column';
-import { MorphToColumn } from '../../src/annotation/relation-column/morph-to.relation-column';
-import { DatabaseConfig } from '../../src/database-config';
-import { Model } from '../../src/fedaco/model';
-import { forwardRef } from '../../src/query-builder/forward-ref';
-import { SchemaBuilder } from '../../src/schema/schema-builder';
-import { HasManyColumn } from '../../src/annotation/relation-column/has-many.relation-column';
+import type { FedacoRelationListType, FedacoRelationType, SchemaBuilder } from '@gradii/fedaco';
+import {
+  BelongsToColumn,
+  DatabaseConfig,
+  forwardRef,
+  HasManyColumn,
+  Model,
+  MorphManyColumn,
+  MorphToColumn,
+} from '@gradii/fedaco';
 import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
@@ -19,15 +20,15 @@ function schema(connectionName = 'default'): SchemaBuilder {
 
 async function seedData() {
   const taylor = await TestUser.createQuery().create({
-    id   : 1,
+    id: 1,
     email: 'linbolen@gradii.com',
   });
   const post = await taylor.NewRelation('posts').create({
     title: 'A title',
-    body : 'A body',
+    body: 'A body',
   });
   const comment = await post.NewRelation('comments').create({
-    body   : 'A comment body',
+    body: 'A comment body',
     user_id: 1,
   });
   await comment.NewRelation('likes').create([]);
@@ -66,8 +67,8 @@ describe('test database fedaco polymorphic integration', () => {
   beforeEach(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: ':memory:',
     });
     db.bootFedaco();
@@ -132,7 +133,7 @@ describe('test database fedaco polymorphic integration', () => {
       (await TestLike.createQuery().with('likeable.owner').get()).map((it) =>
         it.LoadMorphCount('likeable', {
           TestComment: ['likes'],
-          TestPost   : 'comments',
+          TestPost: 'comments',
         }),
       ),
     );
@@ -154,7 +155,7 @@ export class TestUser extends Model {
   _guarded: any = [];
 
   @HasManyColumn({
-    related   : forwardRef(() => TestPost),
+    related: forwardRef(() => TestPost),
     foreignKey: 'user_id',
   })
   public posts: FedacoRelationListType<any>;
@@ -166,19 +167,19 @@ export class TestPost extends Model {
   _guarded: any = [];
 
   @MorphManyColumn({
-    related  : forwardRef(() => TestComment),
+    related: forwardRef(() => TestComment),
     morphName: 'commentable',
   })
   public comments: FedacoRelationListType<TestComment>;
 
   @BelongsToColumn({
-    related   : TestUser,
+    related: TestUser,
     foreignKey: 'user_id',
   })
   public owner: FedacoRelationType<TestUser>;
 
   @MorphManyColumn({
-    related  : forwardRef(() => TestLike),
+    related: forwardRef(() => TestLike),
     morphName: 'likeable',
   })
   public likes: FedacoRelationListType<TestLike>;
@@ -191,7 +192,7 @@ export class TestComment extends Model {
   _with: any = ['commentable'];
 
   @BelongsToColumn({
-    related   : TestUser,
+    related: TestUser,
     foreignKey: 'user_id',
   })
   public owner: FedacoRelationType<TestUser>;
@@ -204,7 +205,7 @@ export class TestComment extends Model {
   public commentable: FedacoRelationType<any>;
 
   @MorphManyColumn({
-    related  : forwardRef(() => TestLike),
+    related: forwardRef(() => TestLike),
     morphName: 'likeable',
   })
   public likes: FedacoRelationListType<any>;
@@ -231,7 +232,7 @@ export class TestLikeWithSingleWith extends Model {
   @MorphToColumn({
     morphTypeMap: {
       TestComment: TestComment,
-      TestPost   : TestPost,
+      TestPost: TestPost,
     },
   })
   public likeable: FedacoRelationType<any>;
@@ -245,7 +246,7 @@ export class TestLikeWithNestedWith extends Model {
   @MorphToColumn({
     morphTypeMap: {
       TestComment: TestComment,
-      TestPost   : TestPost,
+      TestPost: TestPost,
     },
   })
   public likeable: FedacoRelationType<any>;

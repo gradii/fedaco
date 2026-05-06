@@ -1,17 +1,18 @@
 import { formatISO } from 'date-fns';
-import { Column } from '../../src/annotation/column/column';
-import { CreatedAtColumn } from '../../src/annotation/column/created-at.column';
-import { PrimaryColumn } from '../../src/annotation/column/primary.column';
-import { UpdatedAtColumn } from '../../src/annotation/column/updated-at.column';
-import { BelongsToManyColumn } from '../../src/annotation/relation-column/belongs-to-many.relation-column';
-import { MorphToManyColumn } from '../../src/annotation/relation-column/morph-to-many.relation-column';
-import { MorphedByManyColumn } from '../../src/annotation/relation-column/morphed-by-many.relation-column';
-import { Table } from '../../src/annotation/table/table';
-import { DatabaseConfig } from '../../src/database-config';
-import { Model } from '../../src/fedaco/model';
-import { forwardRef } from '../../src/query-builder/forward-ref';
-import { SchemaBuilder } from '../../src/schema/schema-builder';
-import { FedacoRelationListType, FedacoRelationType } from './../../src/fedaco/fedaco-types';
+import type { FedacoRelationListType, FedacoRelationType, SchemaBuilder } from '@gradii/fedaco';
+import {
+  BelongsToManyColumn,
+  Column,
+  CreatedAtColumn,
+  DatabaseConfig,
+  forwardRef,
+  Model,
+  MorphedByManyColumn,
+  MorphToManyColumn,
+  PrimaryColumn,
+  Table,
+  UpdatedAtColumn,
+} from '@gradii/fedaco';
 import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
@@ -53,8 +54,8 @@ describe('test database fedaco irregular plural', () => {
   beforeEach(async () => {
     const db = new DatabaseConfig();
     db.addConnection({
-      driver  : 'sqlite',
-      factory : sqliteDriver(),
+      driver: 'sqlite',
+      factory: sqliteDriver(),
       database: ':memory:',
     });
     db.bootFedaco();
@@ -118,8 +119,8 @@ export class IrregularPluralHuman extends Model {
   id: number;
 
   @BelongsToManyColumn({
-    related        : forwardRef(() => IrregularPluralToken),
-    table          : 'irregular_plural_human_irregular_plural_token',
+    related: forwardRef(() => IrregularPluralToken),
+    table: 'irregular_plural_human_irregular_plural_token',
     foreignPivotKey: 'irregular_plural_token_id',
     relatedPivotKey: 'irregular_plural_human_id',
   })
@@ -127,7 +128,7 @@ export class IrregularPluralHuman extends Model {
 
   @MorphToManyColumn({
     related: forwardRef(() => IrregularPluralMotto),
-    name   : 'cool_motto',
+    name: 'cool_motto',
   })
   public mottoes: FedacoRelationListType<IrregularPluralMotto>;
 
@@ -139,7 +140,7 @@ export class IrregularPluralHuman extends Model {
 }
 
 @Table({
-  tableName    : 'irregular_plural_tokens',
+  tableName: 'irregular_plural_tokens',
   noPluralTable: false,
 })
 export class IrregularPluralToken extends Model {
@@ -152,7 +153,7 @@ export class IrregularPluralToken extends Model {
 }
 
 @Table({
-  tableName    : 'irregular_plural_mottos',
+  tableName: 'irregular_plural_mottos',
   noPluralTable: false,
 })
 export class IrregularPluralMotto extends Model {
@@ -164,7 +165,7 @@ export class IrregularPluralMotto extends Model {
 
   @MorphedByManyColumn({
     related: IrregularPluralHuman,
-    name   : 'cool_motto',
+    name: 'cool_motto',
   })
   public irregularPluralHumans: FedacoRelationType<IrregularPluralHuman>;
 }

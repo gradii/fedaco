@@ -1,7 +1,7 @@
 import { Column, CreatedAtColumn, Model, PrimaryGeneratedColumn, Table, UpdatedAtColumn } from '@gradii/fedaco';
 
 @Table({
-  tableName : 'users',
+  tableName: 'users',
   connection: 'default',
 })
 export class PostgresqlUserModel extends Model {

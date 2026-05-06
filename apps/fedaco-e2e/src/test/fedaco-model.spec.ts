@@ -1,36 +1,41 @@
 import { isAnyEmpty, isBlank, isObject, isString, pluck } from '@gradii/nanofn';
 import { createHash } from 'crypto';
 import { format } from 'date-fns';
-import { ArrayColumn } from '@gradii/fedaco';
-import { BooleanColumn } from '@gradii/fedaco';
-import { Column } from '@gradii/fedaco';
-import { CreatedAtColumn } from '@gradii/fedaco';
-import { DateColumn } from '@gradii/fedaco';
-import { DatetimeColumn } from '@gradii/fedaco';
-import { DecimalColumn } from '@gradii/fedaco';
-import { FloatColumn } from '@gradii/fedaco';
-import { IntegerColumn } from '@gradii/fedaco';
-import { JsonColumn } from '@gradii/fedaco';
-import { ObjectColumn } from '@gradii/fedaco';
-import { PrimaryColumn } from '@gradii/fedaco';
-import { TimestampColumn } from '@gradii/fedaco';
-import { UpdatedAtColumn } from '@gradii/fedaco';
-import { HasManyColumn } from '@gradii/fedaco';
-import { HasOneColumn } from '@gradii/fedaco';
-import { Table } from '@gradii/fedaco';
-import type { Connection } from '@gradii/fedaco';
-import type { DatabaseTransactionsManager } from '@gradii/fedaco';
-import { FedacoBuilder } from '@gradii/fedaco';
-import type { FedacoRelationListType, FedacoRelationType } from '@gradii/fedaco';
-import type { Dispatcher } from '@gradii/fedaco';
-import { Model } from '@gradii/fedaco';
-import type { ConnectionResolverInterface } from '@gradii/fedaco';
-import type { ConnectionInterface } from '@gradii/fedaco';
+import type {
+  Connection,
+  ConnectionInterface,
+  ConnectionResolverInterface,
+  DatabaseTransactionsManager,
+  Dispatcher,
+  FedacoRelationListType,
+  FedacoRelationType,
+  KeyAbleModel,
+  SchemaBuilder,
+} from '@gradii/fedaco';
+import {
+  ArrayColumn,
+  BooleanColumn,
+  Column,
+  CreatedAtColumn,
+  DateColumn,
+  DatetimeColumn,
+  DecimalColumn,
+  FedacoBuilder,
+  FloatColumn,
+  HasManyColumn,
+  HasOneColumn,
+  IntegerColumn,
+  JsonColumn,
+  Model,
+  ObjectColumn,
+  PrimaryColumn,
+  Processor,
+  QueryBuilder,
+  Table,
+  TimestampColumn,
+  UpdatedAtColumn,
+} from '@gradii/fedaco';
 import { MysqlQueryGrammar } from '@gradii/fedaco-mysql-driver';
-import { Processor } from '@gradii/fedaco';
-import { QueryBuilder } from '@gradii/fedaco';
-import type { SchemaBuilder } from '@gradii/fedaco';
-import { KeyAbleModel } from '@gradii/fedaco';
 import { FedacoModelNamespacedModel } from './model/fedaco-model-namespaced.model';
 
 const global: any = {};
@@ -275,7 +280,7 @@ describe('test database fedaco model', () => {
   it('dirty on casted objects', () => {
     const model = new FedacoModelCastingStub();
     model.SetRawAttributes({
-      objectAttribute    : '["one","two","three"]',
+      objectAttribute: '["one","two","three"]',
       collectionAttribute: '["one","two","three"]',
     });
     model.SyncOriginal();
@@ -364,11 +369,11 @@ describe('test database fedaco model', () => {
     });
     expect(model.Only('first_name', 'last_name')).toEqual({
       first_name: 'taylor',
-      last_name : 'otwell',
+      last_name: 'otwell',
     });
     expect(model.Only(['first_name', 'last_name'])).toEqual({
       first_name: 'taylor',
-      last_name : 'otwell',
+      last_name: 'otwell',
     });
   });
 
@@ -742,7 +747,7 @@ describe('test database fedaco model', () => {
     // expect(spy12).toReturnWith(true);
     expect(spy2).toHaveBeenCalledWith('id', '=', 1);
     expect(spy3).toHaveBeenCalledWith({
-      id : 2,
+      id: 2,
       foo: 'bar',
     });
     expect(spy3).toHaveReturnedWith(1);
@@ -1426,8 +1431,8 @@ describe('test database fedaco model', () => {
   it('hidden', () => {
     const model = FedacoModelStub.initAttributes({
       name: 'foo',
-      age : 'bar',
-      id  : 'baz',
+      age: 'bar',
+      id: 'baz',
     });
     model.SetHidden(['age', 'id']);
     const array = model.ToArray();
@@ -1438,8 +1443,8 @@ describe('test database fedaco model', () => {
   it('visible', () => {
     const model = FedacoModelStub.initAttributes({
       name: 'foo',
-      age : 'bar',
-      id  : 'baz',
+      age: 'bar',
+      id: 'baz',
     });
     model.SetVisible(['name', 'id']);
     const array = model.ToArray();
@@ -1450,8 +1455,8 @@ describe('test database fedaco model', () => {
   it('dynamic hidden', () => {
     const model = FedacoModelDynamicHiddenStub.initAttributes({
       name: 'foo',
-      age : 'bar',
-      id  : 'baz',
+      age: 'bar',
+      id: 'baz',
     });
     const array = model.ToArray();
     expect(array).toHaveProperty('name');
@@ -1461,8 +1466,8 @@ describe('test database fedaco model', () => {
   it('with hidden', () => {
     const model = FedacoModelStub.initAttributes({
       name: 'foo',
-      age : 'bar',
-      id  : 'baz',
+      age: 'bar',
+      id: 'baz',
     });
     model.SetHidden(['age', 'id']);
     model.MakeVisible('age');
@@ -1474,10 +1479,10 @@ describe('test database fedaco model', () => {
 
   it('make hidden', () => {
     const model = FedacoModelStub.initAttributes({
-      name   : 'foo',
-      age    : 'bar',
+      name: 'foo',
+      age: 'bar',
       address: 'foobar',
-      id     : 'baz',
+      id: 'baz',
     });
     let array = model.ToArray();
     expect(array).toHaveProperty('name');
@@ -1499,8 +1504,8 @@ describe('test database fedaco model', () => {
   it('dynamic visible', () => {
     const model = FedacoModelDynamicVisibleStub.initAttributes({
       name: 'foo',
-      age : 'bar',
-      id  : 'baz',
+      age: 'bar',
+      id: 'baz',
     });
     const array = model.ToArray();
     expect(array).toHaveProperty('name');
@@ -1510,8 +1515,8 @@ describe('test database fedaco model', () => {
   it('make visible if', () => {
     const model = FedacoModelStub.initAttributes({
       name: 'foo',
-      age : 'bar',
-      id  : 'baz',
+      age: 'bar',
+      id: 'baz',
     });
     model.SetHidden(['age', 'id']);
     model.MakeVisibleIf(true, 'age');
@@ -1537,10 +1542,10 @@ describe('test database fedaco model', () => {
 
   it('make hidden if', () => {
     const model = FedacoModelStub.initAttributes({
-      name   : 'foo',
-      age    : 'bar',
+      name: 'foo',
+      age: 'bar',
       address: 'foobar',
-      id     : 'baz',
+      id: 'baz',
     });
     let array = model.ToArray();
     expect(array).toHaveProperty('name');
@@ -1577,7 +1582,7 @@ describe('test database fedaco model', () => {
     model.Fillable(['name', 'age']);
     model.Fill({
       name: 'foo',
-      age : 'bar',
+      age: 'bar',
     });
     expect(model.name).toBe('foo');
     expect(model.age).toBe('bar');
@@ -1599,15 +1604,15 @@ describe('test database fedaco model', () => {
     let model: Model = new FedacoModelStub();
     model.Fillable(['meta->name', 'meta->price', 'meta->size->width']);
     model.Fill({
-      'meta->name'       : 'foo',
-      'meta->price'      : 'bar',
+      'meta->name': 'foo',
+      'meta->price': 'bar',
       'meta->size->width': 'baz',
     });
     expect(model.ToArray()).toEqual({
       meta: JSON.stringify({
-        name : 'foo',
+        name: 'foo',
         price: 'bar',
-        size : {
+        size: {
           width: 'baz',
         },
       }),
@@ -1619,15 +1624,15 @@ describe('test database fedaco model', () => {
     });
     model.Fillable(['meta->name', 'meta->price', 'meta->size->width']);
     model.Fill({
-      'meta->name'       : 'foo',
-      'meta->price'      : 'bar',
+      'meta->name': 'foo',
+      'meta->price': 'bar',
       'meta->size->width': 'baz',
     });
     expect(model.ToArray()).toEqual({
       meta: JSON.stringify({
-        name : 'foo',
+        name: 'foo',
         price: 'bar',
-        size : {
+        size: {
           width: 'baz',
         },
       }),
@@ -1640,7 +1645,7 @@ describe('test database fedaco model', () => {
     model.Guard(['*']);
     model.Fill({
       name: 'foo',
-      age : 'bar',
+      age: 'bar',
     });
     expect(model.name).toBe('foo');
     expect(model.age).toBe('bar');
@@ -1660,8 +1665,8 @@ describe('test database fedaco model', () => {
     model.Guard(['name', 'age']);
     model.Fill({
       name: 'foo',
-      age : 'bar',
-      foo : 'bar',
+      age: 'bar',
+      foo: 'bar',
     });
     expect(model.name !== undefined).toBeFalsy();
     expect(model.age !== undefined).toBeFalsy();
@@ -1674,8 +1679,8 @@ describe('test database fedaco model', () => {
     model.Fillable(['age', 'foo']);
     model.Fill({
       name: 'foo',
-      age : 'bar',
-      foo : 'bar',
+      age: 'bar',
+      foo: 'bar',
     });
     expect(model.name !== undefined).toBeFalsy();
     expect(model.age).toBe('bar');
@@ -1687,8 +1692,8 @@ describe('test database fedaco model', () => {
     model.Guard(['*']);
     expect(() => {
       model.Fill({
-        name : 'foo',
-        age  : 'bar',
+        name: 'foo',
+        age: 'bar',
         votes: 'baz',
       });
     }).toThrow('MassAssignmentException');
@@ -2595,7 +2600,7 @@ describe('test database fedaco model', () => {
 //
 
 @Table({
-  tableName    : 'stub',
+  tableName: 'stub',
   noPluralTable: true,
 })
 export class FedacoModelGlobalGuardedStub extends Model {
@@ -2623,7 +2628,7 @@ export class FedacoModelGlobalGuardedStub extends Model {
 }
 
 @Table({
-  tableName    : 'stub',
+  tableName: 'stub',
   noPluralTable: true,
 })
 export class FedacoModelStub extends Model {
