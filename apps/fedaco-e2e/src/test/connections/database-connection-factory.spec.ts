@@ -17,6 +17,7 @@ describe('test database connection factory', () => {
     db.addConnection(
       {
         url: 'sqlite:///:memory:',
+        factory: sqliteDriver(),
       },
       'url',
     );
@@ -46,9 +47,11 @@ describe('test database connection factory', () => {
   });
 
   it('connection from url has proper config', () => {
+    const factory = mysqlDriver();
     db.addConnection(
       {
         url: 'mysql://root:pass@db/local?strict=true',
+        factory: factory,
         unix_socket: '',
         charset: 'utf8mb4',
         collation: 'utf8mb4_unicode_ci',
@@ -62,7 +65,7 @@ describe('test database connection factory', () => {
     expect(db.getConnection('url-config').getConfig()).toEqual({
       name: 'url-config',
       driver: 'mysql',
-      factory: mysqlDriver(),
+      factory: factory,
       database: 'local',
       host: 'db',
       username: 'root',
@@ -97,6 +100,7 @@ describe('test database connection factory', () => {
     db.addConnection(
       {
         url: 'sqlite:///:memory:?foreign_key_constraints=true',
+        factory: sqliteDriver(),
       },
       'constraints_set',
     );
