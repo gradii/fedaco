@@ -569,8 +569,14 @@ export class Model extends mixinHasAttributes(
   }
 
   /* Begin querying the model. */
-  public static createQuery<T extends typeof Model>(this: T): FedacoBuilder<InstanceType<T>> {
-    return (new this() as InstanceType<T>).NewQuery<InstanceType<T>>();
+  public static createQuery<T extends typeof Model>(this: T): FedacoBuilder<InstanceType<T>>;
+  public static createQuery<T extends typeof Model>(this: T, connection: Connection): FedacoBuilder<InstanceType<T>>;
+  public static createQuery<T extends typeof Model>(this: T, connection?: Connection): FedacoBuilder<InstanceType<T>> {
+    const query = (new this() as InstanceType<T>).NewQuery<InstanceType<T>>();
+    if (connection) {
+      query.withConnection(connection);
+    }
+    return query;
   }
 
   /* Get a new query builder for the model's table. */

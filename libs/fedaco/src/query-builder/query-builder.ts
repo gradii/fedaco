@@ -391,6 +391,11 @@ export class QueryBuilder extends Builder {
     return this._connection;
   }
 
+  withConnection(connection: ConnectionInterface) {
+    this._connection = connection;
+    return this;
+  }
+
   /* Insert new records into the table using a subquery. */
   public async insertUsing(columns: any[], query: ((q: QueryBuilder) => void) | QueryBuilder | string) {
     this.applyBeforeQueryCallbacks();

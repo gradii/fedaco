@@ -13,6 +13,7 @@ import type {
 import { connectWithHosts } from '@gradii/fedaco';
 import { PostgresConnection } from './connection/postgres-connection';
 import { PostgresConnector } from './connector/postgres-connector';
+import { PostgresPoolManager } from './connector/postgres-pool-manager';
 
 export function postgresDriver(driverConfig?: ConnectionConfig): DatabaseDriver {
   return {
@@ -34,5 +35,6 @@ export function postgresDriver(driverConfig?: ConnectionConfig): DatabaseDriver 
         mergedConfig,
       );
     },
+    createPoolManager: (config, poolConfig) => new PostgresPoolManager(config, poolConfig),
   };
 }

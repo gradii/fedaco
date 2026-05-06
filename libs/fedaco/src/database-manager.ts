@@ -100,17 +100,25 @@ export class DatabaseManager implements ConnectionResolverInterface {
   }
 
   /* Disconnect from the given database and remove from local cache. */
-  public purge(name: string | null = null) {
-    // var name = name || this.getDefaultConnection();
-    // this.disconnect(name);
-    // delete this.connections[name];
+  public async purge(name: string | null = null): Promise<void> {
+    name = name || this.getDefaultConnection();
+    await this.disconnect(name);
+    delete this.connections[name];
   }
 
-  /* Disconnect from the given database. */
-  public disconnect(name: string | null = null) {
-    // if (this.connections[name = name || this.getDefaultConnection()] !== undefined) {
-    //     this.connections[name].disconnect();
-    // }
+  /* Disconnect from the given database, or all of them when no name is
+     given. Awaits the underlying disconnect so pool managers fully close
+     before the caller continues. */
+  public async disconnect(name: string | null = null): Promise<void> {
+    if (name === null) {
+      const targets = Object.values(this.connections) as Connection[];
+      await Promise.all(targets.map((c) => c.disconnect()));
+      return;
+    }
+    const conn = this.connections[name] as Connection | undefined;
+    if (conn) {
+      await conn.disconnect();
+    }
   }
 
   /* Reconnect to the given database. */

@@ -115,6 +115,8 @@ export * from './connector/driver-stmt';
 export * from './connector/connector-interface';
 export * from './connector/connect-with-hosts';
 export * from './connector/connection-factory';
+export * from './connector/connection-pool-manager';
+export * from './transaction-options';
 export * from './database-manager';
 export * from './events/query-executed';
 export * from './events/connection-event';

@@ -16,6 +16,7 @@ import {
   pascalCase,
   pluck,
 } from '@gradii/nanofn';
+import type { Connection } from '../connection';
 import { wrap } from '../helper/arr';
 import type { Constructor } from '../helper/constructor';
 import type { BuildQueries, BuildQueriesCtor } from '../query-builder/mixins/build-query';
@@ -58,6 +59,9 @@ export interface FedacoBuilder<T extends Model = Model>
 
   /* Get an array of global scopes that were removed from the query. */
   removedScopes(): any[];
+
+  /* Set the connection for this query builder instance. */
+  withConnection(connection: Connection): this;
 
   /**
    * Add a where clause on the primary key to the query.
@@ -1157,6 +1161,12 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   /* Set the underlying query builder instance. */
   public setQuery(query: QueryBuilder): this {
     this._query = query;
+    return this;
+  }
+
+  /* Set the connection for this query builder instance. */
+  public withConnection(connection: Connection): this {
+    this._query.withConnection(connection);
     return this;
   }
 

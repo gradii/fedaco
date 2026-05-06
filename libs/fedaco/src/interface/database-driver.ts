@@ -5,6 +5,7 @@
  */
 
 import type { Connection } from '../connection';
+import type { ConnectionPoolConfig, ConnectionPoolManager } from '../connector/connection-pool-manager';
 import type { DriverConnection } from '../connector/driver-connection';
 
 /**
@@ -56,6 +57,16 @@ export interface DatabaseDriver {
     prefix: string,
     config: any,
   ): Connection;
+
+  /**
+   * Optional pool-manager factory. When `ConnectionConfig.pool` is set, the
+   * connection-factory invokes this once per connection to obtain a pool
+   * manager for isolated transactions.
+   *
+   * Drivers that don't support pooling (e.g. SQLite) should omit this.
+   * Isolated transactions on those drivers throw a clear error.
+   */
+  createPoolManager?(config: any, poolConfig: ConnectionPoolConfig): ConnectionPoolManager;
 }
 
 /**

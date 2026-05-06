@@ -5,6 +5,7 @@
  */
 import type { Connection } from './connection';
 import { ConnectionFactory } from './connector/connection-factory';
+import type { ConnectionPoolConfig } from './connector/connection-pool-manager';
 import { DatabaseManager } from './database-manager';
 import type { Dispatcher } from './fedaco/mixins/has-events';
 import { NullDispatcher } from './fedaco/mixins/has-events';
@@ -30,6 +31,18 @@ export type ConnectionConfig = {
   username?    : string;
   password?    : string;
   port?        : string | number;
+  /**
+   * Connection pool configuration for isolated transactions.
+   * When specified, enables connection pooling for this connection.
+   *
+   * @example
+   *   db.addConnection({
+   *     driver: 'mysql',
+   *     factory: mysqlDriver(),
+   *     pool: { min: 2, max: 10 }
+   *   });
+   */
+  pool?        : ConnectionPoolConfig;
   [key: string]: string | any;
 };
 

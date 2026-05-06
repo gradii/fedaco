@@ -7,6 +7,7 @@
 import { isArray, isBlank, isBoolean, isFunction, isInteger, isNumber, isPromise } from '@gradii/nanofn';
 import { format } from 'date-fns';
 import type { BaseGrammar } from './base-grammar';
+import type { ConnectionPoolManager } from './connector/connection-pool-manager';
 import type { DriverConnection } from './connector/driver-connection';
 import type { DriverStmt } from './connector/driver-stmt';
 import { QueryExecuted } from './events/query-executed';
@@ -64,6 +65,13 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   protected loggingQueries = false;
   /* Indicates if the connection is in a "dry run". */
   protected _dryRun = false;
+  /**
+   * Pool manager backing isolated transactions. Populated by the
+   * connection-factory when `ConnectionConfig.pool` is set and the driver
+   * supplies `createPoolManager`. When absent, isolated transactions fall
+   * back to opening a one-shot PDO via `driver.createConnector`.
+   */
+  protected _poolManager?: ConnectionPoolManager;
   /* The instance of Doctrine connection. */
   // protected doctrineConnection: DbalConnection;
 
@@ -393,12 +401,39 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
     }
   }
 
-  /* Disconnect from the underlying PDO connection. */
-  public disconnect() {
+  /* Disconnect from the underlying PDO connection and tear down the pool. */
+  public async disconnect(): Promise<void> {
     if (this.pdo && !isFunction(this.pdo)) {
-      (this.pdo as DriverConnection).disconnect();
+      try {
+        await (this.pdo as DriverConnection).disconnect();
+      } catch {
+        /* ignore — best-effort close */
+      }
     }
     this.setPdo(null).setReadPdo(null);
+
+    // Tear down the pool last so in-flight isolated transactions have a
+    // chance to release their connections before the pool is destroyed.
+    if (this._poolManager) {
+      try {
+        await this._poolManager.destroy();
+      } catch {
+        /* ignore */
+      }
+      this._poolManager = undefined;
+    }
+  }
+
+  /* Get the connection pool manager, if one was configured. */
+  public getPoolManager(): ConnectionPoolManager | undefined {
+    return this._poolManager;
+  }
+
+  /* Attach a connection pool manager. Called by the connection-factory when
+     pool config is provided; not intended for application code. */
+  public setPoolManager(poolManager: ConnectionPoolManager | undefined): this {
+    this._poolManager = poolManager;
+    return this;
   }
 
   /* Register a database query listener with the connection. */

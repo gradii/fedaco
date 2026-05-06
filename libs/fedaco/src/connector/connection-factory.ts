@@ -33,7 +33,29 @@ export class ConnectionFactory {
   /* Create a single database connection instance. */
   protected createSingleConnection(config: any): Connection {
     const pdo = this.createPdoResolver(config);
-    return this.createConnection(config['driver'], pdo, config['database'], config['prefix'], config);
+    const connection = this.createConnection(config['driver'], pdo, config['database'], config['prefix'], config);
+
+    // Initialize pool if configured
+    if (config.pool) {
+      this._initializePool(connection, config);
+    }
+
+    return connection;
+  }
+
+  /* Initialize connection pool for the connection. */
+  private _initializePool(connection: Connection, config: any): void {
+    const driver = resolveDatabaseDriver(config['factory'], config);
+
+    if (typeof driver.createPoolManager !== 'function') {
+      // Driver doesn't support pooling — silently no-op so that pool config
+      // on a non-pooling driver doesn't break startup. Isolated transactions
+      // will fall back to opening a one-shot PDO via createConnector.
+      return;
+    }
+
+    const poolManager = driver.createPoolManager(config, config.pool);
+    connection.setPoolManager(poolManager);
   }
 
   /* Create a read / write database connection instance. */
