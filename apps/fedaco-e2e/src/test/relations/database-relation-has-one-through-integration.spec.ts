@@ -12,7 +12,7 @@ import {
   mixinSoftDeletes,
   Model,
 } from '@gradii/fedaco';
-import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+import { betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
   return Model.getConnectionResolver().connection(connectionName);
@@ -132,7 +132,7 @@ describe('test database fedaco has one through integration', () => {
     const db = new DatabaseConfig();
     db.addConnection({
       driver: 'sqlite',
-      factory: sqliteDriver(),
+      factory: betterSqliteDriver(),
       database: ':memory:',
     });
     db.bootFedaco();

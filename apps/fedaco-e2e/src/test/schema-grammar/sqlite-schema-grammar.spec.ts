@@ -11,7 +11,7 @@ import {
   type SchemaBuilder,
   type DriverConnection
 } from '@gradii/fedaco';
-import { sqliteDriver, SqliteQueryGrammar, SqliteSchemaGrammar } from '@gradii/fedaco-sqlite-driver';
+import { betterSqliteDriver, SqliteQueryGrammar, SqliteSchemaGrammar } from '@gradii/fedaco-sqlite-driver';
 
 jest.setTimeout(100000);
 
@@ -151,7 +151,7 @@ describe('test database sqlite schema grammar', () => {
     const db = new DatabaseConfig();
     db.addConnection({
       driver: 'sqlite',
-      factory: sqliteDriver(),
+      factory: betterSqliteDriver(),
       database: ':memory:',
       prefix: 'prefix_',
     });
@@ -189,7 +189,7 @@ describe('test database sqlite schema grammar', () => {
     const db = new DatabaseConfig();
     db.addConnection({
       driver: 'sqlite',
-      factory: sqliteDriver(),
+      factory: betterSqliteDriver(),
       database: ':memory:',
       prefix: 'prefix_',
     });

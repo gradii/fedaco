@@ -1,5 +1,5 @@
 import { DatabaseConfig } from '@gradii/fedaco';
-import { BetterSqliteDriverConnection, sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+import { BetterSqliteDriverConnection, betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
 import { mysqlDriver } from '@gradii/fedaco-mysql-driver';
 
 let db: DatabaseConfig;
@@ -11,20 +11,20 @@ describe('test database connection factory', () => {
     db = new DatabaseConfig();
     db.addConnection({
       driver: 'sqlite',
-      factory: sqliteDriver(),
+      factory: betterSqliteDriver(),
       database: ':memory:',
     });
     db.addConnection(
       {
         url: 'sqlite:///:memory:',
-        factory: sqliteDriver(),
+        factory: betterSqliteDriver(),
       },
       'url',
     );
     db.addConnection(
       {
         driver: 'sqlite',
-        factory: sqliteDriver(),
+        factory: betterSqliteDriver(),
         read: {
           database: ':memory:',
         },
@@ -100,7 +100,7 @@ describe('test database connection factory', () => {
     db.addConnection(
       {
         url: 'sqlite:///:memory:?foreign_key_constraints=true',
-        factory: sqliteDriver(),
+        factory: betterSqliteDriver(),
       },
       'constraints_set',
     );

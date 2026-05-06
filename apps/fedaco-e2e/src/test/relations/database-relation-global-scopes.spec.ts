@@ -1,13 +1,13 @@
 import type { FedacoBuilder, FedacoRelationListType, QueryBuilder } from '@gradii/fedaco';
 import { BaseScope, DatabaseConfig, forwardRef, HasManyColumn, Model, Table } from '@gradii/fedaco';
-import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+import { betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 describe('test database fedaco global scopes', () => {
   beforeEach(() => {
     const db = new DatabaseConfig();
     db.addConnection({
       driver: 'sqlite',
-      factory: sqliteDriver(),
+      factory: betterSqliteDriver(),
       database: ':memory:',
     });
     db.bootFedaco();

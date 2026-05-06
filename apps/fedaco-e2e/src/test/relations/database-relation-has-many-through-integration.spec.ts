@@ -13,7 +13,7 @@ import {
 } from '@gradii/fedaco';
 import { head } from '@gradii/nanofn';
 import { tap } from 'rxjs/operators';
-import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+import { betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
   return Model.getConnectionResolver().connection(connectionName);
@@ -193,7 +193,7 @@ describe('test database fedaco has many through integration', () => {
     const db = new DatabaseConfig();
     db.addConnection({
       driver: 'sqlite',
-      factory: sqliteDriver(),
+      factory: betterSqliteDriver(),
       database: ':memory:',
       // 'database': 'tmp/integration-has-many-through.sqlite'
     });

@@ -1,6 +1,6 @@
 import type { FedacoRelationListType, SchemaBuilder } from '@gradii/fedaco';
 import { BelongsToManyColumn, DatabaseConfig, forwardRef, Model, PrimaryColumn, Table } from '@gradii/fedaco';
-import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+import { betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
   return Model.getConnectionResolver().connection(connectionName);
@@ -56,7 +56,7 @@ describe('test database fedaco belongs to many sync return value type', () => {
     const db = new DatabaseConfig();
     db.addConnection({
       driver: 'sqlite',
-      factory: sqliteDriver(),
+      factory: betterSqliteDriver(),
       database: ':memory:',
       foreign_key_constraints: false,
     });

@@ -19,7 +19,7 @@ import {
 } from '@gradii/fedaco';
 import { head } from '@gradii/nanofn';
 import { format } from 'date-fns';
-import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+import { betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
   return Model.getConnectionResolver().connection(connectionName);
@@ -88,7 +88,7 @@ describe('test database fedaco soft deletes integration', () => {
     const db = new DatabaseConfig();
     db.addConnection({
       driver: 'sqlite',
-      factory: sqliteDriver(),
+      factory: betterSqliteDriver(),
       database: ':memory:',
     });
     db.bootFedaco();

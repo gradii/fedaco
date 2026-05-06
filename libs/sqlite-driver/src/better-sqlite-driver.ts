@@ -7,14 +7,14 @@
 import type { ConnectionConfig, DatabaseDriver, DriverConnection, DriverConnectionResolver } from '@gradii/fedaco';
 import { connectWithHosts } from '@gradii/fedaco';
 import { SqliteConnection } from './connection/sqlite-connection';
-import { SqliteConnector } from './connector/sqlite/sqlite-connector';
 import { isPresent } from '@gradii/nanofn';
+import { BetterSqliteConnector } from './connector/better-sqlite/better-sqlite-connector';
 
-export function sqliteDriver(driverConfig?: ConnectionConfig): DatabaseDriver {
+export function betterSqliteDriver(driverConfig?: ConnectionConfig): DatabaseDriver {
   return {
     name: driverConfig?.driver ?? 'sqlite',
     createConnector: async (config: any): Promise<DriverConnection> => {
-      const conn = await connectWithHosts(config, new SqliteConnector());
+      const conn = await connectWithHosts(config, new BetterSqliteConnector());
 
       if (isPresent(config['foreign_key_constraints'])) {
         if (config['foreign_key_constraints']) {

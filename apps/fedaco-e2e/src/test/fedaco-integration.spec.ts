@@ -34,7 +34,7 @@ import { Post } from './fixtures/post.model';
 import { User } from './fixtures/user.model';
 
 import * as fs from 'fs';
-import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+import { betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
   return Model.getConnectionResolver().connection(connectionName);
@@ -166,14 +166,14 @@ describe('test database fedaco integration', () => {
     db = new DatabaseConfig();
     db.addConnection({
       driver: 'sqlite',
-      factory: sqliteDriver(),
+      factory: betterSqliteDriver(),
       database: files.default,
       // 'database': ':memory:'
     });
     db.addConnection(
       {
         driver: 'sqlite',
-        factory: sqliteDriver(),
+        factory: betterSqliteDriver(),
         database: files.second,
         // 'database': ':memory:'
       },

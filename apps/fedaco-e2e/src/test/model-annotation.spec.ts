@@ -15,7 +15,7 @@ import { FedacoBuilderTestModelParentStub } from './model/fedaco-builder-test-mo
 import { ArticleModel, HasManyRelationModel, MemberModel } from './model/has-many-relation.model';
 import { HasOneRelationModel } from './model/has-one-relation.model';
 import { RelationModel } from './model/relation.model';
-import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+import { betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function _columnInfo(typeOfClazz: any, key: string) {
   const meta = reflector.propMetadata(typeOfClazz);
@@ -45,7 +45,7 @@ describe('model annotation', () => {
     const db = new DatabaseConfig();
     db.addConnection({
       driver: 'sqlite',
-      factory: sqliteDriver(),
+      factory: betterSqliteDriver(),
       // 'database': files.default
       database: ':memory:',
     });

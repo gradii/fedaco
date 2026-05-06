@@ -1,7 +1,7 @@
 import type { FedacoBuilder, FedacoRelationType, KeyAbleModel, SchemaBuilder } from '@gradii/fedaco';
 import { Column, DatabaseConfig, forwardRef, Model, MorphTo, MorphToColumn } from '@gradii/fedaco';
 import { getBuilder } from './relation-testing-helper';
-import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+import { betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 let builder: FedacoBuilder<Model>;
 
@@ -39,7 +39,7 @@ describe('test database fedaco morph to', () => {
     const db = new DatabaseConfig();
     db.addConnection({
       driver: 'sqlite',
-      factory: sqliteDriver(),
+      factory: betterSqliteDriver(),
       database: ':memory:',
     });
     db.bootFedaco();

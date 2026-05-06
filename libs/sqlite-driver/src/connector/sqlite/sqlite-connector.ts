@@ -5,7 +5,6 @@
  */
 
 import { Connector, type ConnectorInterface, type DriverConnection } from '@gradii/fedaco';
-import { BetterSqliteDriverConnection } from './better-sqlite/better-sqlite-driver-connection';
 import { SqliteDriverConnection } from './sqlite-driver-connection';
 
 export class SqliteConnector extends Connector implements ConnectorInterface {
@@ -29,24 +28,18 @@ export class SqliteConnector extends Connector implements ConnectorInterface {
     const [username, password] = [config['username'] ?? null, config['password'] ?? null];
 
     try {
-      const BetterSqlite3 = await import('better-sqlite3');
-      // @ts-ignore
-      return new BetterSqliteDriverConnection(new (BetterSqlite3?.default || BetterSqlite3)(database, options));
-    } catch (e) {
-      try {
-        const sqlite3 = await import('sqlite3');
-        return new Promise((ok, fail) => {
-          // @ts-ignore
-          const db = new (sqlite3.Database || sqlite3?.default.Database)(database, (err) => {
-            if (err) {
-              return fail(err);
-            }
-            ok(new SqliteDriverConnection(db));
-          });
+      const sqlite3 = await import('sqlite3');
+      return new Promise((ok, fail) => {
+        // @ts-expect-error should use default or directly
+        const db = new (sqlite3.Database || sqlite3.default.Database)(database, (err) => {
+          if (err) {
+            return fail(err);
+          }
+          ok(new SqliteDriverConnection(db));
         });
-      } catch (e) {
-        return this.tryAgainIfCausedByLostConnection(e, database, username, password, options);
-      }
+      });
+    } catch (e) {
+      return this.tryAgainIfCausedByLostConnection(e, database, username, password, options);
     }
   }
 }

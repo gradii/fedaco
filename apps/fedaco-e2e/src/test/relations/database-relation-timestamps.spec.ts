@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import type { SchemaBuilder } from '@gradii/fedaco';
 import { CreatedAtColumn, DatabaseConfig, Model, UpdatedAtColumn } from '@gradii/fedaco';
-import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+import { betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 function connection(connectionName = 'default') {
   return Model.getConnectionResolver().connection(connectionName);
@@ -34,7 +34,7 @@ describe('test database fedaco timestamps', () => {
     const db = new DatabaseConfig();
     db.addConnection({
       driver: 'sqlite',
-      factory: sqliteDriver(),
+      factory: betterSqliteDriver(),
       database: ':memory:',
     });
     db.bootFedaco();

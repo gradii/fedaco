@@ -63,5 +63,10 @@
   },
   "parallel": 1,
   "useInferencePlugins": false,
-  "defaultBase": "master"
+  "defaultBase": "master",
+  "release": {
+    "version": {
+      "preVersionCommand": "pnpm dlx nx run-many -t build"
+    }
+  }
 }
