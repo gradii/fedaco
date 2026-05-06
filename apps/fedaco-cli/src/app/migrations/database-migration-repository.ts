@@ -1,4 +1,5 @@
-import type { ConnectionResolverInterface } from '../interface/connection-resolver-interface';
+import type { ConnectionResolverInterface } from '@gradii/fedaco';
+
 import type { MigrationRepositoryInterface } from './migration-repository-interface';
 
 export class DatabaseMigrationRepository implements MigrationRepositoryInterface {

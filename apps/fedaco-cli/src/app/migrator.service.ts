@@ -1,9 +1,10 @@
 import { createRequire } from 'node:module';
 
 import { Inject, Injectable } from '@nestjs/common';
-import * as fedaco from '@gradii/fedaco';
+import { DatabaseConfig } from '@gradii/fedaco';
 
 import { MIGRATOR_OPTIONS } from './fedaco-cli.constants';
+import { DatabaseMigrationRepository, Migrator } from './migrations';
 
 const dynamicRequire = createRequire(process.cwd() + '/');
 
@@ -27,8 +28,7 @@ export class MigratorService {
   ) {}
 
   async onInit(): Promise<void> {
-    this.fedaco = loadUserFedaco();
-    const { DatabaseConfig, DatabaseMigrationRepository, Migrator } = this.fedaco;
+    this.fedaco = { DatabaseConfig, DatabaseMigrationRepository, Migrator };
 
     this.databaseConfig = new DatabaseConfig();
     for (const [name, cfg] of Object.entries(this.options.connections)) {
@@ -92,10 +92,6 @@ export class MigratorService {
   getConnection() {
     return this.resolver.connection(this.options.defaultConnection);
   }
-}
-
-function loadUserFedaco(): any {
-  return fedaco;
 }
 
 let cachedJiti: ((file: string) => any) | null | undefined;

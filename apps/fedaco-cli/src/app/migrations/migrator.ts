@@ -4,8 +4,8 @@ import { basename, extname, isAbsolute, resolve } from 'node:path';
 
 import { isBlank, uniq } from '@gradii/nanofn';
 
-import type { Connection } from '../connection';
-import type { ConnectionResolverInterface } from '../interface/connection-resolver-interface';
+import type { Connection, ConnectionResolverInterface } from '@gradii/fedaco';
+
 import { Migration } from './migration';
 import type { MigrationRepositoryInterface } from './migration-repository-interface';
 

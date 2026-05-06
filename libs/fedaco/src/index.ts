@@ -264,9 +264,4 @@ export * from './manages-transactions';
 export * from './query-exception';
 export * from './db';
 
-export * from './migrations/migration';
-export * from './migrations/migration-repository-interface';
-export * from './migrations/database-migration-repository';
-export * from './migrations/migrator';
-
 export * from './types/model-type'
