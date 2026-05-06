@@ -1,0 +1,256 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license
+ */
+
+import { isString } from '@gradii/nanofn';
+import {
+  AsExpression,
+  type BinaryUnionQueryExpression,
+  ColumnReferenceExpression,
+  createIdentifier,
+  type DeleteSpecification,
+  FunctionCallExpression,
+  type GrammarInterface,
+  JsonPathExpression,
+  type LockClause,
+  NestedExpression,
+  type OffsetClause,
+  type QueryBuilder,
+  QueryBuilderVisitor,
+  type QueryExpression,
+  type QuerySpecification,
+  type SelectClause,
+  type UpdateSpecification,
+} from '@gradii/fedaco';
+
+export class SqlserverQueryBuilderVisitor extends QueryBuilderVisitor {
+  private _limitToTop: number;
+
+  constructor(
+    _grammar: GrammarInterface,
+    /**
+     * @deprecated
+     * todo remove queryBuilder. should use binding only
+     */
+    _queryBuilder: QueryBuilder,
+    ctx: Record<string, any>,
+  ) {
+    super(_grammar, _queryBuilder, ctx);
+  }
+
+  visitQuerySpecification(node: QuerySpecification): string {
+    if (node.limitClause) {
+      this._limitToTop = node.limitClause.value;
+    }
+
+    let sql = `${node.selectClause.accept(this)}`;
+
+    if (node.fromClause) {
+      sql += ` ${node.fromClause.accept(this)}`;
+    }
+
+    if (node.lockClause) {
+      sql += ` ${node.lockClause.accept(this)}`;
+    }
+
+    if (node.whereClause) {
+      sql += ` ${node.whereClause.accept(this)}`;
+    }
+
+    if (node.groupByClause) {
+      sql += ` ${node.groupByClause.accept(this)}`;
+    }
+
+    if (node.havingClause) {
+      sql += ` ${node.havingClause.accept(this)}`;
+    }
+
+    sql += this.visitQueryExpression(node);
+
+    this._limitToTop = undefined;
+    return sql;
+  }
+
+  visitQueryExpression(node: QueryExpression) {
+    let sql = '';
+    if (node.orderByClause) {
+      sql += ` ${node.orderByClause.accept(this)}`;
+    }
+
+    // use top n
+    // if (node.limitClause) {
+    //   sql += ` ${node.limitClause.accept(this)}`;
+    // }
+
+    if (node.offsetClause) {
+      sql += ` ${node.offsetClause.accept(this)}`;
+    }
+
+    return sql;
+  }
+
+  visitSelectClause(node: SelectClause): string {
+    let topSql = '';
+    if (this._limitToTop !== undefined) {
+      topSql = `top ${this._limitToTop} `;
+    }
+
+    if (node.selectExpressions.length > 0) {
+      const selectExpressions = node.selectExpressions.map((expression) => {
+        return expression.accept(this);
+      });
+      return `SELECT${node.distinct ? ` ${this._grammar.distinct(node.distinct)} ` : ' '}${topSql}${selectExpressions.join(
+        ', ',
+      )}`;
+    } else {
+      return `SELECT${node.distinct ? ` ${this._grammar.distinct(node.distinct)} ` : ' '}${topSql}*`;
+    }
+  }
+
+  visitOffsetClause(node: OffsetClause): string {
+    return `OFFSET ${node.offset} rows`;
+  }
+
+  visitDeleteSpecification(node: DeleteSpecification): string {
+    let sql;
+
+    if (this._queryBuilder._joins.length > 0) {
+      sql = `DELETE ${node.target
+        .accept(this)
+        .split(/\s+as\s+/i)
+        .pop()}`;
+    } else {
+      if (node.topRow > 0) {
+        // language=SQL format=false
+        sql = `DELETE top (${node.topRow}) FROM ${node.target.accept(this)}`;
+      } else {
+        // language=SQL format=false
+        sql = `DELETE FROM ${node.target.accept(this)}`;
+      }
+    }
+
+    if (node.fromClause) {
+      sql += ` ${node.fromClause.accept(this)}`;
+    }
+
+    if (node.whereClause) {
+      sql += ` ${node.whereClause.accept(this)}`;
+    }
+
+    if (this._queryBuilder._joins.length === 0) {
+      if (node.orderByClause) {
+        sql += ` ${node.orderByClause.accept(this)}`;
+      }
+      if (node.offsetClause) {
+        sql += ` ${node.offsetClause.accept(this)}`;
+      }
+      if (node.limitClause) {
+        sql += ` ${node.limitClause.accept(this)}`;
+      }
+    }
+
+    return sql;
+  }
+
+  visitBinaryUnionQueryExpression(node: BinaryUnionQueryExpression): string {
+    const leftSql = node.left instanceof NestedExpression ? node.left.accept(this) : `(${node.left.accept(this)})`;
+    const rightSql = node.right instanceof NestedExpression ? node.right.accept(this) : `(${node.right.accept(this)})`;
+
+    // language=SQL format=false
+    let sql = `SELECT * FROM ${leftSql} AS [temp_table] UNION${node.all ? ' ALL' : ''} SELECT * FROM ${
+      rightSql
+    } AS [temp_table]`;
+
+    sql += this.visitQueryExpression(node);
+
+    return sql;
+  }
+
+  visitFunctionCallExpression(node: FunctionCallExpression): string {
+    let funcName = node.name.accept(this);
+    funcName = this._grammar.predicateFuncName(funcName);
+    if (['date', 'time'].includes(funcName)) {
+      if (node.parameters.length === 1) {
+        node = new FunctionCallExpression(createIdentifier('cast'), [
+          new AsExpression(node.parameters[0], createIdentifier(funcName)),
+        ]);
+      }
+    }
+
+    if (['json_contains'].includes(funcName)) {
+      const latestParam = node.parameters[node.parameters.length - 1];
+      const restParams = node.parameters.slice(0, node.parameters.length - 1);
+      if (
+        restParams.length === 1 &&
+        !(restParams[0] instanceof ColumnReferenceExpression && restParams[0].expression instanceof JsonPathExpression)
+      ) {
+        return `${latestParam.accept(this)} in (select [value] from openjson(${restParams
+          .map((it) => it.accept(this))
+          .join(', ')}))`;
+      }
+      return `${latestParam.accept(this)} in (select [value] from ${restParams
+        .map((it) => it.accept(this))
+        .join(', ')})`;
+    }
+
+    if (['json_length'].includes(funcName)) {
+      return `(select count(*) from openjson(${node.parameters
+        .map((it) => it.accept(this))
+        .join(', ')
+        .replace(/^openjson\((.+)\)$/, '$1')}))`;
+    }
+
+    return super.visitFunctionCallExpression(node);
+  }
+
+  visitJsonPathExpression(node: JsonPathExpression): string {
+    const pathLeg = node.pathLeg.accept(this);
+    if (pathLeg === '->') {
+      return `openjson(${node.pathExpression.accept(this)}, "$.${node.jsonLiteral.accept(this)}")`;
+    }
+    throw new Error('unknown path leg');
+    // return `'$.${node.pathExpression.map(it => `"${it.accept(this)}"`).join('.')}'`;
+  }
+
+  visitUpdateSpecification(node: UpdateSpecification): string {
+    let sql = `UPDATE ${node.target
+      .accept(this)
+      .split(/\s+as\s+/gi)
+      .pop()}`;
+
+    sql += ` SET ${node.setClauses.map((it) => it.accept(this)).join(', ')}`;
+
+    if (node.fromClause) {
+      sql += ` ${node.fromClause.accept(this)}`;
+    }
+
+    if (node.whereClause) {
+      sql += ` ${node.whereClause.accept(this)}`;
+    }
+
+    if (node.orderByClause) {
+      sql += ` ${node.orderByClause.accept(this)}`;
+    }
+    if (node.offsetClause) {
+      sql += ` ${node.offsetClause.accept(this)}`;
+    }
+    if (node.limitClause) {
+      sql += ` ${node.limitClause.accept(this)}`;
+    }
+    return sql;
+  }
+
+  visitLockClause(node: LockClause): string {
+    if (node.value === true) {
+      return `with(rowlock,updlock,holdlock)`;
+    } else if (node.value === false) {
+      return 'with(rowlock,holdlock)';
+    } else if (isString(node.value)) {
+      return node.value;
+    }
+
+    throw new Error('unexpected lock clause');
+  }
+}

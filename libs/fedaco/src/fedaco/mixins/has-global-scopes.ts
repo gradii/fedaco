@@ -7,16 +7,16 @@
 import { isBlank } from '@gradii/nanofn';
 import type { Constructor } from '../../helper/constructor';
 import type { Model } from '../model';
-import type { Scope } from '../scope';
+import type { BaseScope } from '../base-scope';
 import type { QueryBuilder } from '../../query-builder/query-builder';
 
 export interface HasGlobalScopes {
-  GetGlobalScopes(): { [key: string]: Scope | Function };
+  GetGlobalScopes(): { [key: string]: BaseScope | Function };
 }
 
 export interface HasGlobalScopesCtor {
-  addGlobalScope(scope: string, implementation: Scope | Function): void;
-  addGlobalScope(scope: string, implementation: Scope | ((q: QueryBuilder) => void)): void;
+  addGlobalScope(scope: string, implementation: BaseScope | Function): void;
+  addGlobalScope(scope: string, implementation: BaseScope | ((q: QueryBuilder) => void)): void;
 
   new(...args: any[]): HasGlobalScopes
 }

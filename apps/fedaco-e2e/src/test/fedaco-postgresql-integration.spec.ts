@@ -1,0 +1,41 @@
+import { DatabaseConfig, schema } from '@gradii/fedaco';
+import { PostgresqlUserModel } from './fixtures/postgresql.user.model';
+import { postgresDriver } from '@gradii/fedaco-postgres-driver';
+
+describe('fedaco postgresql integration', () => {
+  beforeAll(async () => {
+    const db = new DatabaseConfig();
+    db.addConnection({
+      driver: 'pgsql',
+      factory: postgresDriver(),
+      host: process.env.PG_HOST || '127.0.0.1',
+      port: process.env.PG_PORT || 5432,
+      database: process.env.PG_DATABASE || 'fedaco_test',
+      username: process.env.PG_USER || '',
+      password: process.env.PG_PASSWORD || '',
+      timezone: '+08:00',
+    });
+    db.bootFedaco();
+    db.setAsGlobal();
+  });
+
+  afterAll(() => {});
+
+  test('test init table', async () => {
+    if (!(await schema().hasTable('users'))) {
+      await schema().create('users', (table) => {
+        table.increments('id');
+        table.string('username');
+        table.timestamps();
+      });
+    }
+  });
+
+  test('add user', async () => {
+    const it = await PostgresqlUserModel.createQuery().create({
+      username: 'Checking Account',
+    });
+
+    expect(it.id).toBeGreaterThan(0);
+  });
+});

@@ -1,6 +1,7 @@
 import { Command, CommandRunner, Option } from 'nest-commander';
 
-import { MigratorService } from '../migrator.service';
+import type { MigratorService } from '../migrator.service';
+import { Inject } from '@nestjs/common';
 
 interface StatusOptions {
   path?: string;
@@ -11,7 +12,7 @@ interface StatusOptions {
   description: 'Show the status of each migration',
 })
 export class MigrateStatusCommand extends CommandRunner {
-  constructor(private readonly migrator: MigratorService) {
+  constructor(@Inject() private readonly migrator: MigratorService) {
     super();
   }
 

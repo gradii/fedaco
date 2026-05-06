@@ -1,0 +1,32 @@
+{
+  "name": "mysql-driver",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/mysql-driver/src",
+  "projectType": "library",
+  "release": {
+    "version": {
+      "currentVersionResolver": "git-tag",
+      "preserveLocalDependencyProtocols": false,
+      "manifestRootsToUpdate": ["dist/{projectRoot}"]
+    }
+  },
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/mysql-driver",
+        "tsConfig": "libs/mysql-driver/tsconfig.lib.json",
+        "packageJson": "libs/mysql-driver/package.json",
+        "main": "libs/mysql-driver/src/index.ts",
+        "assets": ["libs/mysql-driver/*.md"]
+      }
+    },
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "dist/{projectRoot}"
+      }
+    }
+  }
+}

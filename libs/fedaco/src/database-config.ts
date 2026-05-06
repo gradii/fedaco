@@ -9,12 +9,23 @@ import { DatabaseManager } from './database-manager';
 import type { Dispatcher } from './fedaco/mixins/has-events';
 import { NullDispatcher } from './fedaco/mixins/has-events';
 import { Model } from './fedaco/model';
+import type { DatabaseDriverFactory } from './interface/database-driver';
 import type { QueryBuilder } from './query-builder/query-builder';
 
 export type ConnectionConfig = {
   database?    : string;
   name?        : string;
   driver?      : string;
+  /**
+   * Per-connection driver factory provided by a driver lib. Accepts either
+   * the driver object directly or a function `(config) => DatabaseDriver`.
+   * Required at runtime — fedaco no longer ships any driver classes itself.
+   *
+   * @example
+   *   import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+   *   db.addConnection({ driver: 'sqlite', factory: sqliteDriver, database: ':memory:' });
+   */
+  factory?     : DatabaseDriverFactory;
   url?         : string;
   username?    : string;
   password?    : string;

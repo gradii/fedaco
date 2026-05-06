@@ -7,9 +7,8 @@
 import { isArray, isBlank, isBoolean, isFunction, isInteger, isNumber, isPromise } from '@gradii/nanofn';
 import { format } from 'date-fns';
 import type { BaseGrammar } from './base-grammar';
-import { type SqliteWrappedConnection } from './connector/sqlite/sqlite-wrapped-connection';
-import type { WrappedConnection } from './connector/wrapped-connection';
-import type { WrappedStmt } from './connector/wrapped-stmt';
+import type { DriverConnection } from './connector/driver-connection';
+import type { DriverStmt } from './connector/driver-stmt';
 import { QueryExecuted } from './events/query-executed';
 import { StatementPrepared } from './events/statement-prepared';
 import { TransactionBeginning } from './events/transaction-beginning';
@@ -17,6 +16,7 @@ import { TransactionCommitted } from './events/transaction-committed';
 import { TransactionRolledBack } from './events/transaction-rolled-back';
 import type { Dispatcher } from './fedaco/mixins/has-events';
 import { get } from './helper/obj';
+import type { DriverConnectionResolver } from './interface/database-driver';
 import { mixinManagesTransactions } from './manages-transactions';
 import { raw } from './query-builder/ast-factory';
 import type { ConnectionInterface } from './query-builder/connection-interface';
@@ -29,9 +29,9 @@ import { SchemaBuilder } from './schema/schema-builder';
 
 export class Connection extends mixinManagesTransactions(class {}) implements ConnectionInterface {
   /* The active PDO connection. */
-  protected pdo: WrappedConnection | Function;
+  protected pdo: DriverConnection | DriverConnectionResolver;
   /* The active PDO connection used for reads. */
-  protected readPdo: Function;
+  protected readPdo: DriverConnection | DriverConnectionResolver;
   /* The name of the connected database. */
   protected database: string;
 
@@ -66,11 +66,14 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   protected _dryRun = false;
   /* The instance of Doctrine connection. */
   // protected doctrineConnection: DbalConnection;
-  /* The connection resolvers. */
-  protected static resolvers: any = {};
 
   /* Create a new database connection instance. */
-  public constructor(pdo: Function, database = '', tablePrefix = '', config: any = {}) {
+  public constructor(
+    pdo: DriverConnection | DriverConnectionResolver,
+    database = '',
+    tablePrefix = '',
+    config: any = {},
+  ) {
     super();
     this.pdo = pdo;
     this.database = database;
@@ -166,7 +169,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
       if (this.dryRun()) {
         return [];
       }
-      const pdo: SqliteWrappedConnection = await this.getPdoForSelect(useReadPdo);
+      const pdo: DriverConnection = await this.getPdoForSelect(useReadPdo);
 
       const statement = await pdo.prepare(q);
       this.bindValues(statement, this.prepareBindings(_bindings));
@@ -182,7 +185,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   }
 
   /* Get the PDO connection to use for a select query. */
-  protected getPdoForSelect(useReadPdo = true) {
+  protected getPdoForSelect(useReadPdo = true): Promise<DriverConnection> {
     return useReadPdo ? this.getReadPdo() : this.getPdo();
   }
 
@@ -212,7 +215,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
       if (this.dryRun()) {
         return true;
       }
-      const pdo: WrappedConnection = await this.getPdo();
+      const pdo: DriverConnection = await this.getPdo();
 
       const statement = await pdo.prepare(q);
       statement.bindValues(this.prepareBindings(_bindings));
@@ -274,7 +277,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
    * @param statement
    * @param bindings
    */
-  public bindValues(statement: WrappedStmt, bindings: any[]) {
+  public bindValues(statement: DriverStmt, bindings: any[]) {
     // throw new Error('should deprecated');
     if (isArray(bindings)) {
       statement.bindValues(bindings);
@@ -393,7 +396,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   /* Disconnect from the underlying PDO connection. */
   public disconnect() {
     if (this.pdo && !isFunction(this.pdo)) {
-      (this.pdo as WrappedConnection).disconnect();
+      (this.pdo as DriverConnection).disconnect();
     }
     this.setPdo(null).setReadPdo(null);
   }
@@ -498,24 +501,24 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   }
 
   /* Get the current PDO connection. */
-  public async getPdo(): Promise<WrappedConnection> {
+  public async getPdo(): Promise<DriverConnection> {
     if (isPromise(this.pdo)) {
       throw new Error('pdo should not be promise');
     }
     if (isFunction(this.pdo)) {
       this.pdo = await this.pdo.call(this);
-      return this.pdo as WrappedConnection;
+      return this.pdo as DriverConnection;
     }
     return this.pdo;
   }
 
   /* Get the current PDO connection parameter without executing any reconnect logic. */
-  public getRawPdo() {
+  public getRawPdo(): DriverConnection | DriverConnectionResolver {
     return this.pdo;
   }
 
   /* Get the current PDO connection used for reading. */
-  public getReadPdo() {
+  public async getReadPdo(): Promise<DriverConnection> {
     if (this._transactions > 0) {
       return this.getPdo();
     }
@@ -523,7 +526,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
       return this.getPdo();
     }
     if (isFunction(this.readPdo)) {
-      return (this.readPdo = this.readPdo.call(this));
+      return (this.readPdo = await this.readPdo.call(this));
     }
     return this.readPdo || this.getPdo();
   }
@@ -534,14 +537,14 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   }
 
   /* Set the PDO connection. */
-  public setPdo(pdo?: Function) {
+  public setPdo(pdo?: DriverConnection | DriverConnectionResolver) {
     this._transactions = 0;
     this.pdo = pdo;
     return this;
   }
 
   /* Set the PDO connection used for reading. */
-  public setReadPdo(pdo?: Function) {
+  public setReadPdo(pdo?: DriverConnectionResolver) {
     this.readPdo = pdo;
     return this;
   }
@@ -708,15 +711,5 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
       'WSREP detected deadlock/conflict and aborted the transaction. Try restarting the transaction',
     ];
     return msgs.find((it) => e.message.includes(it));
-  }
-
-  /* Register a connection resolver. */
-  public static resolverFor(driver: string, callback: Function) {
-    Connection.resolvers[driver] = callback;
-  }
-
-  /* Get the connection resolver for the given driver. */
-  public static getResolver(driver: string) {
-    return Connection.resolvers[driver] ?? null;
   }
 }

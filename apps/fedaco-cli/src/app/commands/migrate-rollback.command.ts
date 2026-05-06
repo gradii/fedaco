@@ -1,6 +1,7 @@
 import { Command, CommandRunner, Option } from 'nest-commander';
 
-import { MigratorService } from '../migrator.service';
+import type { MigratorService } from '../migrator.service';
+import { Inject } from '@nestjs/common';
 
 interface RollbackOptions {
   path?: string;
@@ -14,7 +15,7 @@ interface RollbackOptions {
   description: 'Rollback the last database migration',
 })
 export class MigrateRollbackCommand extends CommandRunner {
-  constructor(private readonly migrator: MigratorService) {
+  constructor(@Inject() private readonly migrator: MigratorService) {
     super();
   }
 

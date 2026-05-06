@@ -5,28 +5,13 @@
  */
 
 import { has } from '@gradii/nanofn';
-import { Connection } from '../connection';
-import { MysqlConnection } from '../connection/mysql-connection';
-import { PostgresConnection } from '../connection/postgres-connection';
-import { SqlServerConnection } from '../connection/sql-server-connection';
-import { SqliteConnection } from '../connection/sqlite-connection';
-import { wrap } from '../helper/arr';
-import { MysqlConnector } from './mysql/mysql-connector';
-import { PostgresConnector } from './postgres/postgres-connector';
-import { SqliteConnector } from './sqlite/sqlite-connector';
-import { SqlServerConnector } from './sqlserver/sql-server-connector';
+import type { Connection } from '../connection';
+import { resolveDatabaseDriver } from '../interface/database-driver';
+import type { DriverConnectionResolver } from '../interface/database-driver';
 
 export class ConnectionFactory {
-  /* The IoC container instance. */
-  // protected container: Container;
-
-  // /*Create a new connection factory instance.*/
-  // public constructor(container: Container) {
-  //   this.container = container;
-  // }
-
   /* Establish a PDO connection based on the configuration. */
-  public make(config: any, name: string | null = null) {
+  public make(config: any, name: string | null = null): Connection {
     config = this.parseConfig(config, name);
     if (config['read'] !== undefined) {
       return this.createReadWriteConnection(config);
@@ -46,18 +31,18 @@ export class ConnectionFactory {
   }
 
   /* Create a single database connection instance. */
-  protected createSingleConnection(config: any) {
+  protected createSingleConnection(config: any): Connection {
     const pdo = this.createPdoResolver(config);
     return this.createConnection(config['driver'], pdo, config['database'], config['prefix'], config);
   }
 
   /* Create a read / write database connection instance. */
-  protected createReadWriteConnection(config: any[]) {
+  protected createReadWriteConnection(config: any[]): Connection {
     const connection = this.createSingleConnection(this.getWriteConfig(config));
     return connection.setReadPdo(this.createReadPdo(config));
   }
 
-  /* Create a new PDO instance for reading. */
+  /* Create a new PDO resolver for reading. */
   protected createReadPdo(config: any[]) {
     return this.createPdoResolver(this.getReadConfig(config));
   }
@@ -87,82 +72,27 @@ export class ConnectionFactory {
     return config;
   }
 
-  /* Create a new Closure that resolves to a PDO instance. */
-  protected createPdoResolver(config: any) {
-    return 'host' in config ? this.createPdoResolverWithHosts(config) : this.createPdoResolverWithoutHosts(config);
-  }
-
-  /* Create a new Closure that resolves to a PDO instance with a specific host or an array of hosts. */
-  protected createPdoResolverWithHosts(config: any) {
-    return () => {
-      const hosts = this.parseHosts(config).sort(() => 0.5 - Math.random());
-      for (const [key, host] of Object.entries(hosts)) {
-        config['host'] = host;
-        try {
-          return this.createConnector(config).connect(config);
-        } catch (e) {
-          continue;
-        }
-      }
-      throw new Error('connect fail');
-    };
-  }
-
-  /* Parse the hosts configuration item into an array. */
-  protected parseHosts(config: any) {
-    const hosts = wrap(config['host']);
-    if (!hosts.length) {
-      throw new Error('InvalidArgumentException Database hosts array is empty.');
-    }
-    return hosts;
-  }
-
-  /* Create a new Closure that resolves to a PDO instance where there is no configured host. */
-  protected createPdoResolverWithoutHosts(config: any[]) {
+  /**
+   * Create a lazy DriverConnection resolver. Cluster vs single-host
+   * fallback is the driver's responsibility — the factory simply asks the
+   * driver to open a connection on demand.
+   */
+  protected createPdoResolver(config: any): DriverConnectionResolver {
     return async () => {
-      return this.createConnector(config).connect(config);
+      const driver = resolveDatabaseDriver(config['factory'], config);
+      return await driver.createConnector(config);
     };
-  }
-
-  /* Create a connector instance based on the configuration. */
-  public createConnector(config: any) {
-    if (!(config['driver'] !== undefined)) {
-      throw new Error('InvalidArgumentException A driver must be specified.');
-    }
-    // if (this.container.bound(key = '"db.connector.{Config[\'driver\']}"')) {
-    //   return this.container.make(key);
-    // }
-    switch (config['driver']) {
-      case 'mysql':
-        return new MysqlConnector();
-      case 'pgsql':
-        return new PostgresConnector();
-      case 'sqlite':
-        return new SqliteConnector();
-      case 'sqlsrv':
-        return new SqlServerConnector();
-    }
-    throw new Error(`InvalidArgumentException Unsupported driver [${config['driver']}].`);
   }
 
   /* Create a new connection instance. */
-  protected createConnection(driver: string, connection: Function, database: string, prefix = '', config: any[] = []) {
-    const resolver = Connection.getResolver(driver);
-    if (resolver) {
-      return resolver(connection, database, prefix, config);
+  protected createConnection(driver: string, connection: DriverConnectionResolver, database: string, prefix = '', config: any = {}): Connection {
+    if (!config['factory']) {
+      throw new Error(
+        `InvalidArgumentException No driver factory provided for driver [${driver}]. ` +
+        `Pass a "factory" produced by a driver lib (e.g. sqliteDriver() from @gradii/fedaco-sqlite-driver) on the connection config.`,
+      );
     }
-    switch (driver) {
-      case 'mysql':
-        return new MysqlConnection(connection, database, prefix, config);
-      case 'mariadb':
-        return new MysqlConnection(connection, database, prefix, config);
-      case 'pgsql':
-        return new PostgresConnection(connection, database, prefix, config);
-      case 'sqlite':
-        return new SqliteConnection(connection, database, prefix, config);
-      case 'sqlsrv':
-        return new SqlServerConnection(connection, database, prefix, config);
-    }
-    throw new Error(`InvalidArgumentException "Unsupported driver [${driver}]."`);
+    const resolvedDriver = resolveDatabaseDriver(config['factory'], config);
+    return resolvedDriver.createConnection(connection, database, prefix, config);
   }
 }

@@ -1,6 +1,7 @@
 import { Command, CommandRunner, Option } from 'nest-commander';
 
-import { MigratorService } from '../migrator.service';
+import type { MigratorService } from '../migrator.service';
+import { Inject } from '@nestjs/common';
 
 interface ResetOptions {
   path?: string;
@@ -12,7 +13,7 @@ interface ResetOptions {
   description: 'Rollback all database migrations',
 })
 export class MigrateResetCommand extends CommandRunner {
-  constructor(private readonly migrator: MigratorService) {
+  constructor(@Inject() private readonly migrator: MigratorService) {
     super();
   }
 

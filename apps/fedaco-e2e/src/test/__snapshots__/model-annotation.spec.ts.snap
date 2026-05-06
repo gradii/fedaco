@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`model annotation test annotation get hasMany relation: has many 1`] = `
+Object {
+  "articles": Array [
+    FedacoRelationColumn {
+      "_getRelation": [Function],
+      "isRelation": true,
+      "related": [Function],
+      "type": "HasMany",
+    },
+  ],
+  "id": Array [
+    FedacoColumn {
+      "fillable": true,
+    },
+  ],
+}
+`;
+
+exports[`model annotation test annotation hasMany: has many 1`] = `
+Object {
+  "columnFoo": Array [
+    FedacoRelationColumn {
+      "_getRelation": [Function],
+      "isRelation": true,
+      "related": [Function],
+      "type": "HasMany",
+    },
+  ],
+}
+`;
+
+exports[`model annotation test annotation hasOne: has one 1`] = `
+Object {
+  "columnFoo": Array [
+    FedacoRelationColumn {
+      "_getRelation": [Function],
+      "isRelation": true,
+      "type": "HasOne",
+    },
+  ],
+}
+`;
+
+exports[`model annotation test relation annoation: meta 1`] = `
+Object {
+  "columnFoo": Array [
+    FedacoRelationColumn {
+      "_getRelation": [Function],
+      "isRelation": true,
+      "type": "HasOne",
+    },
+  ],
+}
+`;

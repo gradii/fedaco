@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import type { TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 
 describe('AppController', () => {
   let app: TestingModule;
@@ -9,14 +9,21 @@ describe('AppController', () => {
   beforeAll(async () => {
     app = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
+      providers: [],
     }).compile();
   });
 
-  describe('getData', () => {
-    it('should return "Hello API"', () => {
+  describe('AppController', () => {
+    it('should be defined', () => {
       const appController = app.get<AppController>(AppController);
-      expect(appController.getData()).toEqual({ message: 'Hello API' });
+      expect(appController).toBeDefined();
+    });
+
+    it('should expose initTable, addUser, and listUsers methods', () => {
+      const appController = app.get<AppController>(AppController);
+      expect(typeof appController.initTable).toBe('function');
+      expect(typeof appController.addUser).toBe('function');
+      expect(typeof appController.listUsers).toBe('function');
     });
   });
 });

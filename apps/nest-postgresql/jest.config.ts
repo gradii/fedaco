@@ -1,4 +1,4 @@
-/* eslint-disable */
+ 
 export default {
   displayName: 'nest-postgresql',
   preset: '../../jest.preset.js',
