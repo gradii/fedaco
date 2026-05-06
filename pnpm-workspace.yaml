@@ -1,9 +1,7 @@
 autoInstallPeers: true
 
 ignoredBuiltDependencies:
-  - '@parcel/watcher'
-  - '@swc/core'
-  - unrs-resolver
+
 
 onlyBuiltDependencies:
   - '@nestjs/core'
@@ -11,3 +9,6 @@ onlyBuiltDependencies:
   - esbuild
   - nx
   - sqlite3
+  - '@parcel/watcher'
+  - '@swc/core'
+  - unrs-resolver
