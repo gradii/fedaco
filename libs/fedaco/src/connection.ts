@@ -16,6 +16,7 @@ import { TransactionCommitted } from './events/transaction-committed';
 import { TransactionRolledBack } from './events/transaction-rolled-back';
 import type { Dispatcher } from './fedaco/mixins/has-events';
 import { get } from './helper/obj';
+import type { WrappedConnectionResolver } from './interface/database-driver';
 import { mixinManagesTransactions } from './manages-transactions';
 import { raw } from './query-builder/ast-factory';
 import type { ConnectionInterface } from './query-builder/connection-interface';
@@ -28,9 +29,9 @@ import { SchemaBuilder } from './schema/schema-builder';
 
 export class Connection extends mixinManagesTransactions(class {}) implements ConnectionInterface {
   /* The active PDO connection. */
-  protected pdo: WrappedConnection | Function;
+  protected pdo: WrappedConnection | WrappedConnectionResolver;
   /* The active PDO connection used for reads. */
-  protected readPdo: Function;
+  protected readPdo: WrappedConnection | WrappedConnectionResolver;
   /* The name of the connected database. */
   protected database: string;
 
@@ -67,7 +68,12 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   // protected doctrineConnection: DbalConnection;
 
   /* Create a new database connection instance. */
-  public constructor(pdo: Function, database = '', tablePrefix = '', config: any = {}) {
+  public constructor(
+    pdo: WrappedConnection | WrappedConnectionResolver,
+    database = '',
+    tablePrefix = '',
+    config: any = {},
+  ) {
     super();
     this.pdo = pdo;
     this.database = database;
@@ -179,7 +185,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   }
 
   /* Get the PDO connection to use for a select query. */
-  protected getPdoForSelect(useReadPdo = true) {
+  protected getPdoForSelect(useReadPdo = true): Promise<WrappedConnection> {
     return useReadPdo ? this.getReadPdo() : this.getPdo();
   }
 
@@ -507,12 +513,12 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   }
 
   /* Get the current PDO connection parameter without executing any reconnect logic. */
-  public getRawPdo() {
+  public getRawPdo(): WrappedConnection | WrappedConnectionResolver {
     return this.pdo;
   }
 
   /* Get the current PDO connection used for reading. */
-  public getReadPdo() {
+  public async getReadPdo(): Promise<WrappedConnection> {
     if (this._transactions > 0) {
       return this.getPdo();
     }
@@ -520,7 +526,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
       return this.getPdo();
     }
     if (isFunction(this.readPdo)) {
-      return (this.readPdo = this.readPdo.call(this));
+      return (this.readPdo = await this.readPdo.call(this));
     }
     return this.readPdo || this.getPdo();
   }
@@ -531,14 +537,14 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   }
 
   /* Set the PDO connection. */
-  public setPdo(pdo?: Function) {
+  public setPdo(pdo?: WrappedConnection | WrappedConnectionResolver) {
     this._transactions = 0;
     this.pdo = pdo;
     return this;
   }
 
   /* Set the PDO connection used for reading. */
-  public setReadPdo(pdo?: Function) {
+  public setReadPdo(pdo?: WrappedConnectionResolver) {
     this.readPdo = pdo;
     return this;
   }

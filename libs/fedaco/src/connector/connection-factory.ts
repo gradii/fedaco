@@ -6,9 +6,8 @@
 
 import { has } from '@gradii/nanofn';
 import type { Connection } from '../connection';
-import { wrap } from '../helper/arr';
 import { resolveDatabaseDriver } from '../interface/database-driver';
-import type { ConnectorInterface } from './connector-interface';
+import type { WrappedConnectionResolver } from '../interface/database-driver';
 
 export class ConnectionFactory {
   /* Establish a PDO connection based on the configuration. */
@@ -43,7 +42,7 @@ export class ConnectionFactory {
     return connection.setReadPdo(this.createReadPdo(config));
   }
 
-  /* Create a new PDO instance for reading. */
+  /* Create a new PDO resolver for reading. */
   protected createReadPdo(config: any[]) {
     return this.createPdoResolver(this.getReadConfig(config));
   }
@@ -73,68 +72,20 @@ export class ConnectionFactory {
     return config;
   }
 
-  /* Create a new Closure that resolves to a PDO instance. */
-  protected createPdoResolver(config: any) {
-    return 'host' in config ? this.createPdoResolverWithHosts(config) : this.createPdoResolverWithoutHosts(config);
-  }
-
-  /* Create a new Closure that resolves to a PDO instance with a specific host or an array of hosts. */
-  protected createPdoResolverWithHosts(config: any) {
-    return async () => {
-      const hosts = this.parseHosts(config).sort(() => 0.5 - Math.random());
-      for (const [key, host] of Object.entries(hosts)) {
-        config['host'] = host;
-        try {
-          const connector = await this.createConnector(config);
-          return connector.connect(config);
-        } catch (e) {
-          continue;
-        }
-      }
-      throw new Error('connect fail');
-    };
-  }
-
-  /* Parse the hosts configuration item into an array. */
-  protected parseHosts(config: any) {
-    const hosts = wrap(config['host']);
-    if (!hosts.length) {
-      throw new Error('InvalidArgumentException Database hosts array is empty.');
-    }
-    return hosts;
-  }
-
-  /* Create a new Closure that resolves to a PDO instance where there is no configured host. */
-  protected createPdoResolverWithoutHosts(config: any[]) {
-    return async () => {
-      const connector = await this.createConnector(config);
-      return connector.connect(config);
-    };
-  }
-
   /**
-   * Create a connector instance from the per-config driver factory.
-   *
-   * Async because `DatabaseDriver.createConnector()` may itself return a
-   * Promise. This method is only invoked from the lazy pdo resolver, which
-   * is already async, so going async here doesn't bubble out to user code.
+   * Create a lazy WrappedConnection resolver. Cluster vs single-host
+   * fallback is the driver's responsibility — the factory simply asks the
+   * driver to open a connection on demand.
    */
-  public async createConnector(config: any): Promise<ConnectorInterface> {
-    if (config['driver'] === undefined) {
-      throw new Error('InvalidArgumentException A driver must be specified.');
-    }
-    if (!config['factory']) {
-      throw new Error(
-        `InvalidArgumentException No driver factory provided for driver [${config['driver']}]. ` +
-        `Pass a "factory" produced by a driver lib (e.g. sqliteDriver() from @gradii/fedaco-sqlite-driver) on the connection config.`,
-      );
-    }
-    const driver = resolveDatabaseDriver(config['factory'], config);
-    return await driver.createConnector();
+  protected createPdoResolver(config: any): WrappedConnectionResolver {
+    return async () => {
+      const driver = resolveDatabaseDriver(config['factory'], config);
+      return await driver.createConnector(config);
+    };
   }
 
   /* Create a new connection instance. */
-  protected createConnection(driver: string, connection: Function, database: string, prefix = '', config: any = {}): Connection {
+  protected createConnection(driver: string, connection: WrappedConnectionResolver, database: string, prefix = '', config: any = {}): Connection {
     if (!config['factory']) {
       throw new Error(
         `InvalidArgumentException No driver factory provided for driver [${driver}]. ` +

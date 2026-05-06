@@ -113,6 +113,7 @@ export * from './connector/wrapped-connection';
 export * from './connector/connector';
 export * from './connector/wrapped-stmt';
 export * from './connector/connector-interface';
+export * from './connector/connect-with-hosts';
 export * from './connector/connection-factory';
 export * from './database-manager';
 export * from './events/query-executed';

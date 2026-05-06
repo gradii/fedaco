@@ -5,7 +5,13 @@
  */
 
 import type { Connection } from '../connection';
-import type { ConnectorInterface } from '../connector/connector-interface';
+import type { WrappedConnection } from '../connector/wrapped-connection';
+
+/**
+ * Lazy resolver of the underlying {@link WrappedConnection}. Connection
+ * stores this so it can re-establish the link on reconnect.
+ */
+export type WrappedConnectionResolver = () => Promise<WrappedConnection>;
 
 /**
  * Per-connection driver factory provided in `ConnectionConfig.factory`.
@@ -23,21 +29,29 @@ export interface DatabaseDriver {
   readonly name: string;
 
   /**
-   * Build a fresh connector used to open a low-level connection. May return
-   * a Promise — this is invoked from the lazy async pdo resolver, so async
-   * connector construction (e.g. dynamic native-driver import) is fine.
+   * Open a low-level wrapped connection for the given config. Must return a
+   * Promise — the underlying network/native connect is async.
+   *
+   * Drivers are responsible for handling cluster vs single-host configs:
+   * use {@link connectWithHosts} from `@gradii/fedaco` to delegate that
+   * policy. (Cluster = `config.host` is an array → try each with retry.
+   * Single host or no host → connect directly.)
    */
-  createConnector(): ConnectorInterface | Promise<ConnectorInterface>;
+  createConnector(config: any): Promise<WrappedConnection>;
 
   /**
    * Build the high-level Connection wrapper around a resolved pdo handle.
+   * Sync — `db()` / `schema()` return a Connection synchronously to user
+   * code, and the connection-factory creates the Connection object eagerly
+   * during `manager.connection()`.
    *
-   * Must be synchronous: `db()` / `schema()` return a Connection
-   * synchronously to user code, and the connection-factory creates the
-   * Connection object eagerly during `manager.connection()`.
+   * The first parameter is either an already-resolved {@link
+   * WrappedConnection} or a lazy resolver function — never an arbitrary
+   * `Function`. The lazy form lets Connection re-invoke the resolver when
+   * reconnecting.
    */
   createConnection(
-    pdo: Function,
+    pdo: WrappedConnection | WrappedConnectionResolver,
     database: string,
     prefix: string,
     config: any,

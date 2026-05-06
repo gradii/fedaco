@@ -16,13 +16,13 @@ export class SqliteConnection extends Connection {
   /* Create a new database connection instance. */
   public constructor(pdo: any, database = '', tablePrefix = '', config: any = {}) {
     super(pdo, database, tablePrefix, config);
-    const enableForeignKeyConstraints = this.getForeignKeyConstraintsConfigurationValue();
+    // const enableForeignKeyConstraints = this.getForeignKeyConstraintsConfigurationValue();
 
-    if (!isBlank(enableForeignKeyConstraints)) {
-      enableForeignKeyConstraints
-        ? this.getSchemaBuilder().enableForeignKeyConstraints()
-        : this.getSchemaBuilder().disableForeignKeyConstraints();
-    }
+    // if (!isBlank(enableForeignKeyConstraints)) {
+    //   enableForeignKeyConstraints
+    //     ? this.getSchemaBuilder().enableForeignKeyConstraints()
+    //     : this.getSchemaBuilder().disableForeignKeyConstraints();
+    // }
   }
 
   protected escapeBinary(value: string) {
