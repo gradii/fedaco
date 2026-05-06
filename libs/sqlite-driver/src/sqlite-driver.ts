@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import type { ConnectionConfig, DatabaseDriver, WrappedConnection, WrappedConnectionResolver } from '@gradii/fedaco';
+import type { ConnectionConfig, DatabaseDriver, DriverConnection, DriverConnectionResolver } from '@gradii/fedaco';
 import { connectWithHosts } from '@gradii/fedaco';
 import { SqliteConnection } from './connection/sqlite-connection';
 import { SqliteConnector } from './connector/sqlite-connector';
@@ -13,7 +13,7 @@ import { isPresent } from '@gradii/nanofn';
 export function sqliteDriver(driverConfig?: ConnectionConfig): DatabaseDriver {
   return {
     name: driverConfig?.driver ?? 'sqlite',
-    createConnector: async (config: any): Promise<WrappedConnection> => {
+    createConnector: async (config: any): Promise<DriverConnection> => {
       const conn = await connectWithHosts(config, new SqliteConnector());
 
       if (isPresent(config['foreign_key_constraints'])) {
@@ -26,7 +26,7 @@ export function sqliteDriver(driverConfig?: ConnectionConfig): DatabaseDriver {
       return conn;
     },
     createConnection: (
-      pdo: WrappedConnection | WrappedConnectionResolver,
+      pdo: DriverConnection | DriverConnectionResolver,
       database: string,
       prefix: string,
       config: any,

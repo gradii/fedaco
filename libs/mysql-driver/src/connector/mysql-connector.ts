@@ -5,11 +5,11 @@
  */
 
 import { Connector, type ConnectorInterface } from '@gradii/fedaco';
-import { MysqlWrappedConnection } from './mysql-wrapped-connection';
+import { MysqlDriverConnection } from './mysql-driver-connection';
 
 export class MysqlConnector extends Connector implements ConnectorInterface {
   /* Establish a database connection. */
-  public async connect(config: any): Promise<MysqlWrappedConnection> {
+  public async connect(config: any): Promise<MysqlDriverConnection> {
     const dsn = this.getDsn(config);
     const options = this.getOptions(config);
     const connection = await this.createConnection(dsn, config, options);
@@ -23,12 +23,12 @@ export class MysqlConnector extends Connector implements ConnectorInterface {
     return connection;
   }
 
-  async createConnection(database: string, config: any, options: any): Promise<MysqlWrappedConnection> {
+  async createConnection(database: string, config: any, options: any): Promise<MysqlDriverConnection> {
     const [username, password] = [config['username'] ?? null, config['password'] ?? null];
     // try {
     const mysql2 = await import('mysql2');
     return Promise.resolve(
-      new MysqlWrappedConnection(
+      new MysqlDriverConnection(
         mysql2.createConnection({
           host    : config['host'],
           port    : config['port'],
@@ -71,7 +71,7 @@ export class MysqlConnector extends Connector implements ConnectorInterface {
   }
 
   /* Set the timezone on the connection. */
-  protected async configureTimezone(connection: MysqlWrappedConnection, config: any) {
+  protected async configureTimezone(connection: MysqlDriverConnection, config: any) {
     if (config['timezone'] !== undefined) {
       const stmt = await connection.prepare(`set time_zone="${config['timezone']}"`);
       await stmt.execute();

@@ -7,15 +7,15 @@
 import { isPresent } from '@gradii/nanofn';
 // import { Arr } from "Illuminate/Support/Arr";
 // import { PDO } from "PDO";
-import { Connector, type ConnectorInterface, type WrappedConnection } from '@gradii/fedaco';
-import { SqlServerWrappedConnection } from './sql-server-wrapped-connection';
+import { Connector, type ConnectorInterface, type DriverConnection } from '@gradii/fedaco';
+import { SqlServerDriverConnection } from './sql-server-driver-connection';
 
 export class SqlServerConnector extends Connector implements ConnectorInterface {
   /* The PDO connection options. */
   protected options: any = {};
 
   /* Establish a database connection. */
-  public async connect(config: any[]): Promise<WrappedConnection> {
+  public async connect(config: any[]): Promise<DriverConnection> {
     const options = this.getOptions(config);
     const connection = await this.createConnection(this.getDsn(config), config, options);
 
@@ -54,10 +54,10 @@ export class SqlServerConnector extends Connector implements ConnectorInterface 
         }
       });
     });
-    return new SqlServerWrappedConnection(connection);
+    return new SqlServerDriverConnection(connection);
   }
 
-  protected async configureIsolationLevel(connection: WrappedConnection, config: any) {
+  protected async configureIsolationLevel(connection: DriverConnection, config: any) {
     if (!isPresent(config['isolation_level'])) {
       return;
     }

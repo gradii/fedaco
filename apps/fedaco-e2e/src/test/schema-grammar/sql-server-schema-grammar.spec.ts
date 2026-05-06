@@ -8,7 +8,7 @@ import {
   QueryBuilder,
   type QueryGrammar,
   type SchemaBuilder,
-  type WrappedConnection
+  type DriverConnection
 } from '@gradii/fedaco';
 import { SqlserverQueryGrammar, SqlServerSchemaGrammar } from '@gradii/fedaco-sqlserver-driver'; // noinspection DuplicatedCode
 
@@ -34,7 +34,7 @@ class Conn extends Connection implements ConnectionInterface {
     throw new Error('Method not implemented.');
   }
 
-  getPdo(): Promise<WrappedConnection> {
+  getPdo(): Promise<DriverConnection> {
     throw new Error('Method not implemented.');
   }
 

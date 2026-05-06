@@ -9,7 +9,7 @@ import {
   QueryBuilder,
   type QueryGrammar,
   type SchemaBuilder,
-  type WrappedConnection
+  type DriverConnection
 } from '@gradii/fedaco';
 import { sqliteDriver, SqliteQueryGrammar, SqliteSchemaGrammar } from '@gradii/fedaco-sqlite-driver';
 
@@ -36,7 +36,7 @@ class Conn extends Connection implements ConnectionInterface {
     throw new Error('Method not implemented.');
   }
 
-  getPdo(): Promise<WrappedConnection> {
+  getPdo(): Promise<DriverConnection> {
     throw new Error('Method not implemented.');
   }
 

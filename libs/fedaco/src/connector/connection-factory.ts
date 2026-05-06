@@ -7,7 +7,7 @@
 import { has } from '@gradii/nanofn';
 import type { Connection } from '../connection';
 import { resolveDatabaseDriver } from '../interface/database-driver';
-import type { WrappedConnectionResolver } from '../interface/database-driver';
+import type { DriverConnectionResolver } from '../interface/database-driver';
 
 export class ConnectionFactory {
   /* Establish a PDO connection based on the configuration. */
@@ -73,11 +73,11 @@ export class ConnectionFactory {
   }
 
   /**
-   * Create a lazy WrappedConnection resolver. Cluster vs single-host
+   * Create a lazy DriverConnection resolver. Cluster vs single-host
    * fallback is the driver's responsibility — the factory simply asks the
    * driver to open a connection on demand.
    */
-  protected createPdoResolver(config: any): WrappedConnectionResolver {
+  protected createPdoResolver(config: any): DriverConnectionResolver {
     return async () => {
       const driver = resolveDatabaseDriver(config['factory'], config);
       return await driver.createConnector(config);
@@ -85,7 +85,7 @@ export class ConnectionFactory {
   }
 
   /* Create a new connection instance. */
-  protected createConnection(driver: string, connection: WrappedConnectionResolver, database: string, prefix = '', config: any = {}): Connection {
+  protected createConnection(driver: string, connection: DriverConnectionResolver, database: string, prefix = '', config: any = {}): Connection {
     if (!config['factory']) {
       throw new Error(
         `InvalidArgumentException No driver factory provided for driver [${driver}]. ` +

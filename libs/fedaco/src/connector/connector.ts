@@ -4,7 +4,7 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import type { WrappedConnection } from './wrapped-connection';
+import type { DriverConnection } from './driver-connection';
 
 // import { PDOConnection } from "Doctrine/DBAL/Driver/PDOConnection";
 // import { Exception } from "Exception";
@@ -16,7 +16,7 @@ export class Connector {
   protected options: any = {};
 
   /* Create a new PDO connection. */
-  public async createConnection(dsn: string, config: any, options: any): Promise<WrappedConnection> {
+  public async createConnection(dsn: string, config: any, options: any): Promise<DriverConnection> {
     const [username, password] = [config['username'] ?? null, config['password'] ?? null];
     try {
       return this.createPdoConnection(dsn, username, password, options);

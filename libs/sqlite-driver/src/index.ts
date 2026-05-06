@@ -7,10 +7,10 @@
 export { sqliteDriver } from './sqlite-driver';
 export { SqliteConnection } from './connection/sqlite-connection';
 export { SqliteConnector } from './connector/sqlite-connector';
-export { SqliteWrappedConnection } from './connector/sqlite-wrapped-connection';
-export { SqliteWrappedStmt } from './connector/sqlite-wrapped-stmt';
-export { BetterSqliteWrappedConnection } from './connector/better-sqlite/better-sqlite-wrapped-connection';
-export { BetterSqliteWrappedStmt } from './connector/better-sqlite/better-sqlite-wrapped-stmt';
+export { SqliteDriverConnection } from './connector/sqlite-driver-connection';
+export { SqliteDriverStmt } from './connector/sqlite-driver-stmt';
+export { BetterSqliteDriverConnection } from './connector/better-sqlite/better-sqlite-driver-connection';
+export { BetterSqliteDriverStmt } from './connector/better-sqlite/better-sqlite-driver-stmt';
 export { SqliteQueryGrammar } from './query-builder/sqlite-query-grammar';
 export { SqliteProcessor } from './query-builder/sqlite-processor';
 export { SqliteQueryBuilderVisitor } from './query-builder/sqlite-query-builder-visitor';

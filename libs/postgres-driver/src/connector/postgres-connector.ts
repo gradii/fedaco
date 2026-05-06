@@ -5,7 +5,7 @@
  */
 
 import { Connector, type ConnectorInterface } from '@gradii/fedaco';
-import { PostgresWrappedConnection } from './postgres-wrapped-connection';
+import { PostgresDriverConnection } from './postgres-driver-connection';
 
 export class PostgresConnector extends Connector implements ConnectorInterface {
   /* The default PDO connection options. */
@@ -22,7 +22,7 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
     return connection;
   }
 
-  async createConnection(database: string, config: any, options: any): Promise<PostgresWrappedConnection> {
+  async createConnection(database: string, config: any, options: any): Promise<PostgresDriverConnection> {
     const [username, password] = [config['username'] ?? null, config['password'] ?? null];
     // try {
     const { Client } = await import('pg');
@@ -35,7 +35,7 @@ export class PostgresConnector extends Connector implements ConnectorInterface {
       database: config['database'],
     });
     await client.connect();
-    return new PostgresWrappedConnection(client);
+    return new PostgresDriverConnection(client);
   }
 
   /* Set the connection character set and collation. */

@@ -5,10 +5,10 @@
  */
 
 import type { Connection } from 'tedious';
-import type { WrappedConnection } from '@gradii/fedaco';
-import { SqlServerWrappedStmt } from './sql-server-wrapped-stmt';
+import type { DriverConnection } from '@gradii/fedaco';
+import { SqlServerDriverStmt } from './sql-server-driver-stmt';
 
-export class SqlServerWrappedConnection implements WrappedConnection {
+export class SqlServerDriverConnection implements DriverConnection {
   constructor(public driver: Connection) {}
 
   async execute(sql: string, bindings?: any[]): Promise<void> {
@@ -31,8 +31,8 @@ export class SqlServerWrappedConnection implements WrappedConnection {
     });
   }
 
-  async prepare(sql: string): Promise<SqlServerWrappedStmt> {
-    return new SqlServerWrappedStmt(this.driver, sql);
+  async prepare(sql: string): Promise<SqlServerDriverStmt> {
+    return new SqlServerDriverStmt(this.driver, sql);
   }
 
   async lastInsertId(): Promise<number> {

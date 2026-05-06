@@ -7,8 +7,8 @@
 export { postgresDriver } from './postgres-driver';
 export { PostgresConnection } from './connection/postgres-connection';
 export { PostgresConnector } from './connector/postgres-connector';
-export { PostgresWrappedConnection } from './connector/postgres-wrapped-connection';
-export { PostgresWrappedStmt } from './connector/postgres-wrapped-stmt';
+export { PostgresDriverConnection } from './connector/postgres-driver-connection';
+export { PostgresDriverStmt } from './connector/postgres-driver-stmt';
 export { PostgresQueryGrammar } from './query-builder/postgres-query-grammar';
 export { PostgresProcessor } from './query-builder/postgres-processor';
 export { PostgresQueryBuilderVisitor } from './query-builder/postgres-query-builder-visitor';

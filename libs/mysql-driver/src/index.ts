@@ -7,10 +7,10 @@
 export { mysqlDriver, mariadbDriver } from './mysql-driver';
 export { MysqlConnection } from './connection/mysql-connection';
 export { MysqlConnector } from './connector/mysql-connector';
-export { MysqlWrappedConnection } from './connector/mysql-wrapped-connection';
-export { MysqlWrappedStmt } from './connector/mysql-wrapped-stmt';
-export { MariadbWrappedConnection } from './connector/mariadb/mariadb-wrapped-connection';
-export { MariadbWrappedStmt } from './connector/mariadb/mariadb-wrapped-stmt';
+export { MysqlDriverConnection } from './connector/mysql-driver-connection';
+export { MysqlDriverStmt } from './connector/mysql-driver-stmt';
+export { MariadbDriverConnection } from './connector/mariadb/mariadb-driver-connection';
+export { MariadbDriverStmt } from './connector/mariadb/mariadb-driver-stmt';
 export { MysqlQueryGrammar } from './query-builder/mysql-query-grammar';
 export { MysqlProcessor } from './query-builder/mysql-processor';
 export { MysqlQueryBuilderVisitor } from './query-builder/mysql-query-builder-visitor';

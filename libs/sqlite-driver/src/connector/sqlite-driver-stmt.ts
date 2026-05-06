@@ -5,9 +5,9 @@
  */
 
 import type { RunResult, Statement } from 'sqlite3';
-import type { WrappedStmt } from '@gradii/fedaco';
+import type { DriverStmt } from '@gradii/fedaco';
 
-export class SqliteWrappedStmt implements WrappedStmt {
+export class SqliteDriverStmt implements DriverStmt {
   private _bindingValues: any[] = [];
 
   _lastInsertId: number;

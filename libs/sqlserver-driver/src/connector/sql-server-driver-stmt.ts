@@ -5,9 +5,9 @@
  */
 
 import type { Connection } from 'tedious';
-import type { WrappedStmt } from '@gradii/fedaco';
+import type { DriverStmt } from '@gradii/fedaco';
 
-export class SqlServerWrappedStmt implements WrappedStmt {
+export class SqlServerDriverStmt implements DriverStmt {
   private _bindingValues: any[] = [];
 
   _lastInsertId: number | bigint;

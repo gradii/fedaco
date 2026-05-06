@@ -4,11 +4,11 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import type { WrappedConnection } from '@gradii/fedaco';
-import { PostgresWrappedStmt } from './postgres-wrapped-stmt';
+import type { DriverConnection } from '@gradii/fedaco';
+import { PostgresDriverStmt } from './postgres-driver-stmt';
 import type { Client } from 'pg';
 
-export class PostgresWrappedConnection implements WrappedConnection {
+export class PostgresDriverConnection implements DriverConnection {
   lastError: string;
 
   constructor(public driver: Client) {
@@ -17,8 +17,8 @@ export class PostgresWrappedConnection implements WrappedConnection {
     });
   }
 
-  async prepare(sql: string): Promise<PostgresWrappedStmt> {
-    return Promise.resolve(new PostgresWrappedStmt(this.driver, sql));
+  async prepare(sql: string): Promise<PostgresDriverStmt> {
+    return Promise.resolve(new PostgresDriverStmt(this.driver, sql));
   }
 
   async exec(sql: string) {

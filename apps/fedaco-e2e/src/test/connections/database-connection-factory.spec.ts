@@ -1,5 +1,5 @@
 import { DatabaseConfig } from '@gradii/fedaco';
-import { BetterSqliteWrappedConnection, sqliteDriver } from '@gradii/fedaco-sqlite-driver';
+import { BetterSqliteDriverConnection, sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 import { mysqlDriver } from '@gradii/fedaco-mysql-driver';
 
 let db: DatabaseConfig;
@@ -37,12 +37,12 @@ describe('test database connection factory', () => {
   });
 
   it('connection can be created', async () => {
-    expect(await db.getConnection().getPdo()).toBeInstanceOf(BetterSqliteWrappedConnection);
-    expect(await db.getConnection().getReadPdo()).toBeInstanceOf(BetterSqliteWrappedConnection);
-    expect(await db.getConnection('read_write').getPdo()).toBeInstanceOf(BetterSqliteWrappedConnection);
-    expect(await db.getConnection('read_write').getReadPdo()).toBeInstanceOf(BetterSqliteWrappedConnection);
-    expect(await db.getConnection('url').getPdo()).toBeInstanceOf(BetterSqliteWrappedConnection);
-    expect(await db.getConnection('url').getReadPdo()).toBeInstanceOf(BetterSqliteWrappedConnection);
+    expect(await db.getConnection().getPdo()).toBeInstanceOf(BetterSqliteDriverConnection);
+    expect(await db.getConnection().getReadPdo()).toBeInstanceOf(BetterSqliteDriverConnection);
+    expect(await db.getConnection('read_write').getPdo()).toBeInstanceOf(BetterSqliteDriverConnection);
+    expect(await db.getConnection('read_write').getReadPdo()).toBeInstanceOf(BetterSqliteDriverConnection);
+    expect(await db.getConnection('url').getPdo()).toBeInstanceOf(BetterSqliteDriverConnection);
+    expect(await db.getConnection('url').getReadPdo()).toBeInstanceOf(BetterSqliteDriverConnection);
   });
 
   it('connection from url has proper config', () => {

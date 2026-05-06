@@ -7,8 +7,8 @@
 import type {
   ConnectionConfig,
   DatabaseDriver,
-  WrappedConnection,
-  WrappedConnectionResolver,
+  DriverConnection,
+  DriverConnectionResolver,
 } from '@gradii/fedaco';
 import { connectWithHosts } from '@gradii/fedaco';
 import { MysqlConnection } from './connection/mysql-connection';
@@ -17,10 +17,10 @@ import { MysqlConnector } from './connector/mysql-connector';
 export function mysqlDriver(driverConfig?: ConnectionConfig): DatabaseDriver {
   return {
     name: driverConfig?.driver ?? 'mysql',
-    createConnector: (config: any): Promise<WrappedConnection> =>
+    createConnector: (config: any): Promise<DriverConnection> =>
       connectWithHosts(config, new MysqlConnector()),
     createConnection: (
-      pdo: WrappedConnection | WrappedConnectionResolver,
+      pdo: DriverConnection | DriverConnectionResolver,
       database: string,
       prefix: string,
       config: any,
@@ -39,10 +39,10 @@ export function mysqlDriver(driverConfig?: ConnectionConfig): DatabaseDriver {
 export function mariadbDriver(driverConfig?: ConnectionConfig): DatabaseDriver {
   return {
     name: driverConfig?.driver ?? 'mariadb',
-    createConnector: (config: any): Promise<WrappedConnection> =>
+    createConnector: (config: any): Promise<DriverConnection> =>
       connectWithHosts(config, new MysqlConnector()),
     createConnection: (
-      pdo: WrappedConnection | WrappedConnectionResolver,
+      pdo: DriverConnection | DriverConnectionResolver,
       database: string,
       prefix: string,
       config: any,

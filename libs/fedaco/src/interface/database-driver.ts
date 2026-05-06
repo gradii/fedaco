@@ -5,13 +5,13 @@
  */
 
 import type { Connection } from '../connection';
-import type { WrappedConnection } from '../connector/wrapped-connection';
+import type { DriverConnection } from '../connector/driver-connection';
 
 /**
- * Lazy resolver of the underlying {@link WrappedConnection}. Connection
+ * Lazy resolver of the underlying {@link DriverConnection}. Connection
  * stores this so it can re-establish the link on reconnect.
  */
-export type WrappedConnectionResolver = () => Promise<WrappedConnection>;
+export type DriverConnectionResolver = () => Promise<DriverConnection>;
 
 /**
  * Per-connection driver factory provided in `ConnectionConfig.factory`.
@@ -37,7 +37,7 @@ export interface DatabaseDriver {
    * policy. (Cluster = `config.host` is an array → try each with retry.
    * Single host or no host → connect directly.)
    */
-  createConnector(config: any): Promise<WrappedConnection>;
+  createConnector(config: any): Promise<DriverConnection>;
 
   /**
    * Build the high-level Connection wrapper around a resolved pdo handle.
@@ -46,12 +46,12 @@ export interface DatabaseDriver {
    * during `manager.connection()`.
    *
    * The first parameter is either an already-resolved {@link
-   * WrappedConnection} or a lazy resolver function — never an arbitrary
+   * DriverConnection} or a lazy resolver function — never an arbitrary
    * `Function`. The lazy form lets Connection re-invoke the resolver when
    * reconnecting.
    */
   createConnection(
-    pdo: WrappedConnection | WrappedConnectionResolver,
+    pdo: DriverConnection | DriverConnectionResolver,
     database: string,
     prefix: string,
     config: any,

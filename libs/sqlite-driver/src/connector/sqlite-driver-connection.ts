@@ -5,10 +5,10 @@
  */
 
 import type { Database } from 'sqlite3';
-import type { WrappedConnection } from '@gradii/fedaco';
-import { SqliteWrappedStmt } from './sqlite-wrapped-stmt';
+import type { DriverConnection } from '@gradii/fedaco';
+import { SqliteDriverStmt } from './sqlite-driver-stmt';
 
-export class SqliteWrappedConnection implements WrappedConnection {
+export class SqliteDriverConnection implements DriverConnection {
   constructor(public driver: Database) {}
 
   execute(sql: string, bindings?: any[]): Promise<void> {
@@ -23,17 +23,17 @@ export class SqliteWrappedConnection implements WrappedConnection {
     });
   }
 
-  async prepare(sql: string): Promise<SqliteWrappedStmt> {
+  async prepare(sql: string): Promise<SqliteDriverStmt> {
     return new Promise((resolve, reject) => {
       const stmt = this.driver.prepare(sql, (err: string) => {
         if (err) {
           return reject(err);
         }
 
-        resolve(new SqliteWrappedStmt(stmt));
+        resolve(new SqliteDriverStmt(stmt));
       });
     });
-    // return new SqliteWrappedStmt(this.driver.prepare(sql));
+    // return new SqliteDriverStmt(this.driver.prepare(sql));
   }
 
   // run(sql: string, bindings: any[], callback: (err: string, rows: any[]) => void) {

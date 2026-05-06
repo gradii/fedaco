@@ -5,10 +5,10 @@
  */
 
 import type { ConnectorInterface } from './connector-interface';
-import type { WrappedConnection } from './wrapped-connection';
+import type { DriverConnection } from './driver-connection';
 
 /**
- * Establish a {@link WrappedConnection}, handling cluster vs single-host
+ * Establish a {@link DriverConnection}, handling cluster vs single-host
  * configs. Drivers implementing {@link DatabaseDriver.createConnector} should
  * delegate to this helper so the host-fallback policy stays consistent
  * across drivers.
@@ -23,7 +23,7 @@ import type { WrappedConnection } from './wrapped-connection';
 export async function connectWithHosts(
   config: any,
   connector: ConnectorInterface,
-): Promise<WrappedConnection> {
+): Promise<DriverConnection> {
   if (Array.isArray(config['host'])) {
     const hosts = [...config['host']].sort(() => 0.5 - Math.random());
     if (!hosts.length) {

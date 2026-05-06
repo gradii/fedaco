@@ -9,7 +9,7 @@ import {
   type QueryGrammar,
   raw,
   type SchemaBuilder,
-  type WrappedConnection
+  type DriverConnection
 } from '@gradii/fedaco';
 import { MysqlQueryGrammar, MysqlSchemaGrammar } from '@gradii/fedaco-mysql-driver';
 
@@ -35,7 +35,7 @@ class Conn extends Connection implements ConnectionInterface {
     throw new Error('Method not implemented.');
   }
 
-  getPdo(): Promise<WrappedConnection> {
+  getPdo(): Promise<DriverConnection> {
     throw new Error('Method not implemented.');
   }
 

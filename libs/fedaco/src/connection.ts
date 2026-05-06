@@ -7,8 +7,8 @@
 import { isArray, isBlank, isBoolean, isFunction, isInteger, isNumber, isPromise } from '@gradii/nanofn';
 import { format } from 'date-fns';
 import type { BaseGrammar } from './base-grammar';
-import type { WrappedConnection } from './connector/wrapped-connection';
-import type { WrappedStmt } from './connector/wrapped-stmt';
+import type { DriverConnection } from './connector/driver-connection';
+import type { DriverStmt } from './connector/driver-stmt';
 import { QueryExecuted } from './events/query-executed';
 import { StatementPrepared } from './events/statement-prepared';
 import { TransactionBeginning } from './events/transaction-beginning';
@@ -16,7 +16,7 @@ import { TransactionCommitted } from './events/transaction-committed';
 import { TransactionRolledBack } from './events/transaction-rolled-back';
 import type { Dispatcher } from './fedaco/mixins/has-events';
 import { get } from './helper/obj';
-import type { WrappedConnectionResolver } from './interface/database-driver';
+import type { DriverConnectionResolver } from './interface/database-driver';
 import { mixinManagesTransactions } from './manages-transactions';
 import { raw } from './query-builder/ast-factory';
 import type { ConnectionInterface } from './query-builder/connection-interface';
@@ -29,9 +29,9 @@ import { SchemaBuilder } from './schema/schema-builder';
 
 export class Connection extends mixinManagesTransactions(class {}) implements ConnectionInterface {
   /* The active PDO connection. */
-  protected pdo: WrappedConnection | WrappedConnectionResolver;
+  protected pdo: DriverConnection | DriverConnectionResolver;
   /* The active PDO connection used for reads. */
-  protected readPdo: WrappedConnection | WrappedConnectionResolver;
+  protected readPdo: DriverConnection | DriverConnectionResolver;
   /* The name of the connected database. */
   protected database: string;
 
@@ -69,7 +69,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
 
   /* Create a new database connection instance. */
   public constructor(
-    pdo: WrappedConnection | WrappedConnectionResolver,
+    pdo: DriverConnection | DriverConnectionResolver,
     database = '',
     tablePrefix = '',
     config: any = {},
@@ -169,7 +169,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
       if (this.dryRun()) {
         return [];
       }
-      const pdo: WrappedConnection = await this.getPdoForSelect(useReadPdo);
+      const pdo: DriverConnection = await this.getPdoForSelect(useReadPdo);
 
       const statement = await pdo.prepare(q);
       this.bindValues(statement, this.prepareBindings(_bindings));
@@ -185,7 +185,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   }
 
   /* Get the PDO connection to use for a select query. */
-  protected getPdoForSelect(useReadPdo = true): Promise<WrappedConnection> {
+  protected getPdoForSelect(useReadPdo = true): Promise<DriverConnection> {
     return useReadPdo ? this.getReadPdo() : this.getPdo();
   }
 
@@ -215,7 +215,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
       if (this.dryRun()) {
         return true;
       }
-      const pdo: WrappedConnection = await this.getPdo();
+      const pdo: DriverConnection = await this.getPdo();
 
       const statement = await pdo.prepare(q);
       statement.bindValues(this.prepareBindings(_bindings));
@@ -277,7 +277,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
    * @param statement
    * @param bindings
    */
-  public bindValues(statement: WrappedStmt, bindings: any[]) {
+  public bindValues(statement: DriverStmt, bindings: any[]) {
     // throw new Error('should deprecated');
     if (isArray(bindings)) {
       statement.bindValues(bindings);
@@ -396,7 +396,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   /* Disconnect from the underlying PDO connection. */
   public disconnect() {
     if (this.pdo && !isFunction(this.pdo)) {
-      (this.pdo as WrappedConnection).disconnect();
+      (this.pdo as DriverConnection).disconnect();
     }
     this.setPdo(null).setReadPdo(null);
   }
@@ -501,24 +501,24 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   }
 
   /* Get the current PDO connection. */
-  public async getPdo(): Promise<WrappedConnection> {
+  public async getPdo(): Promise<DriverConnection> {
     if (isPromise(this.pdo)) {
       throw new Error('pdo should not be promise');
     }
     if (isFunction(this.pdo)) {
       this.pdo = await this.pdo.call(this);
-      return this.pdo as WrappedConnection;
+      return this.pdo as DriverConnection;
     }
     return this.pdo;
   }
 
   /* Get the current PDO connection parameter without executing any reconnect logic. */
-  public getRawPdo(): WrappedConnection | WrappedConnectionResolver {
+  public getRawPdo(): DriverConnection | DriverConnectionResolver {
     return this.pdo;
   }
 
   /* Get the current PDO connection used for reading. */
-  public async getReadPdo(): Promise<WrappedConnection> {
+  public async getReadPdo(): Promise<DriverConnection> {
     if (this._transactions > 0) {
       return this.getPdo();
     }
@@ -537,14 +537,14 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   }
 
   /* Set the PDO connection. */
-  public setPdo(pdo?: WrappedConnection | WrappedConnectionResolver) {
+  public setPdo(pdo?: DriverConnection | DriverConnectionResolver) {
     this._transactions = 0;
     this.pdo = pdo;
     return this;
   }
 
   /* Set the PDO connection used for reading. */
-  public setReadPdo(pdo?: WrappedConnectionResolver) {
+  public setReadPdo(pdo?: DriverConnectionResolver) {
     this.readPdo = pdo;
     return this;
   }

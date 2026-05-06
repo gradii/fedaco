@@ -5,9 +5,9 @@
  */
 
 import type { Client } from 'pg';
-import type { WrappedStmt } from '@gradii/fedaco';
+import type { DriverStmt } from '@gradii/fedaco';
 
-export class PostgresWrappedStmt implements WrappedStmt {
+export class PostgresDriverStmt implements DriverStmt {
   private _bindingValues: any[] = [];
 
   _affectRows: number;

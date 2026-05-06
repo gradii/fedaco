@@ -7,8 +7,8 @@
 import type {
   ConnectionConfig,
   DatabaseDriver,
-  WrappedConnection,
-  WrappedConnectionResolver,
+  DriverConnection,
+  DriverConnectionResolver,
 } from '@gradii/fedaco';
 import { connectWithHosts } from '@gradii/fedaco';
 import { PostgresConnection } from './connection/postgres-connection';
@@ -17,10 +17,10 @@ import { PostgresConnector } from './connector/postgres-connector';
 export function postgresDriver(driverConfig?: ConnectionConfig): DatabaseDriver {
   return {
     name: driverConfig?.driver ?? 'pgsql',
-    createConnector: (config: any): Promise<WrappedConnection> =>
+    createConnector: (config: any): Promise<DriverConnection> =>
       connectWithHosts(config, new PostgresConnector()),
     createConnection: (
-      pdo: WrappedConnection | WrappedConnectionResolver,
+      pdo: DriverConnection | DriverConnectionResolver,
       database: string,
       prefix: string,
       config: any,

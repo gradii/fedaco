@@ -7,8 +7,8 @@
 import type {
   ConnectionConfig,
   DatabaseDriver,
-  WrappedConnection,
-  WrappedConnectionResolver,
+  DriverConnection,
+  DriverConnectionResolver,
 } from '@gradii/fedaco';
 import { connectWithHosts } from '@gradii/fedaco';
 import { SqlServerConnection } from './connection/sql-server-connection';
@@ -17,10 +17,10 @@ import { SqlServerConnector } from './connector/sql-server-connector';
 export function sqlserverDriver(driverConfig?: ConnectionConfig): DatabaseDriver {
   return {
     name: driverConfig?.driver ?? 'sqlsrv',
-    createConnector: (config: any): Promise<WrappedConnection> =>
+    createConnector: (config: any): Promise<DriverConnection> =>
       connectWithHosts(config, new SqlServerConnector()),
     createConnection: (
-      pdo: WrappedConnection | WrappedConnectionResolver,
+      pdo: DriverConnection | DriverConnectionResolver,
       database: string,
       prefix: string,
       config: any,

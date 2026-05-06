@@ -6,9 +6,9 @@
 
 import { isObject } from '@gradii/nanofn';
 import type { Connection, FieldPacket, QueryError } from 'mysql2';
-import type { WrappedStmt } from '@gradii/fedaco';
+import type { DriverStmt } from '@gradii/fedaco';
 
-export class MysqlWrappedStmt implements WrappedStmt {
+export class MysqlDriverStmt implements DriverStmt {
   private _bindingValues: any[] = [];
 
   _lastInsertId: number;

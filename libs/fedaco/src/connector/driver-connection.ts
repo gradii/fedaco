@@ -4,10 +4,10 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import type { WrappedStmt } from './wrapped-stmt';
+import type { DriverStmt } from './driver-stmt';
 
-export interface WrappedConnection {
-  prepare(sql: string): Promise<WrappedStmt>;
+export interface DriverConnection {
+  prepare(sql: string): Promise<DriverStmt>;
 
   execute(sql: string, bindings?: any[]): Promise<any>;
 

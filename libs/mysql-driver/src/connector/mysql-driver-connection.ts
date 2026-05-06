@@ -5,10 +5,10 @@
  */
 
 import type { Connection, RowDataPacket } from 'mysql2';
-import type { WrappedConnection } from '@gradii/fedaco';
-import { MysqlWrappedStmt } from './mysql-wrapped-stmt';
+import type { DriverConnection } from '@gradii/fedaco';
+import { MysqlDriverStmt } from './mysql-driver-stmt';
 
-export class MysqlWrappedConnection implements WrappedConnection {
+export class MysqlDriverConnection implements DriverConnection {
   lastError: string;
 
   constructor(public driver: Connection) {
@@ -17,8 +17,8 @@ export class MysqlWrappedConnection implements WrappedConnection {
     });
   }
 
-  async prepare(sql: string): Promise<MysqlWrappedStmt> {
-    return Promise.resolve(new MysqlWrappedStmt(this.driver, sql));
+  async prepare(sql: string): Promise<MysqlDriverStmt> {
+    return Promise.resolve(new MysqlDriverStmt(this.driver, sql));
   }
 
   async exec(sql: string) {

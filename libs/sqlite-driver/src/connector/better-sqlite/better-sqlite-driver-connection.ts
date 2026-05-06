@@ -5,18 +5,18 @@
  */
 
 import type { Database } from 'better-sqlite3';
-import type { WrappedConnection } from '@gradii/fedaco';
-import { BetterSqliteWrappedStmt } from './better-sqlite-wrapped-stmt';
+import type { DriverConnection } from '@gradii/fedaco';
+import { BetterSqliteDriverStmt } from './better-sqlite-driver-stmt';
 
-export class BetterSqliteWrappedConnection implements WrappedConnection {
+export class BetterSqliteDriverConnection implements DriverConnection {
   constructor(public driver: Database) {}
 
   async execute(sql: string, bindings?: any[]): Promise<void> {
     await this.driver.prepare(sql).run(bindings ? bindings : []);
   }
 
-  async prepare(sql: string): Promise<BetterSqliteWrappedStmt> {
-    return new BetterSqliteWrappedStmt(this.driver.prepare(sql));
+  async prepare(sql: string): Promise<BetterSqliteDriverStmt> {
+    return new BetterSqliteDriverStmt(this.driver.prepare(sql));
   }
 
   async lastInsertId(): Promise<number> {
