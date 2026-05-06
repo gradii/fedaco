@@ -48,7 +48,7 @@ jobs:
       - name: build
         run: pnpm nx run-many -t build
 
-      - name: test fedaco
+      - name: test
         env:
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
@@ -58,5 +58,5 @@ jobs:
           DB_COLLATION: utf8mb4_unicode_ci
           PG_PORT: 5432
         run: |
-          pnpm nx test --project fedaco
+          pnpm nx run-many -t test
           
