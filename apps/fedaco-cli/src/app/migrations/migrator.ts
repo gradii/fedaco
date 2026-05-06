@@ -231,8 +231,7 @@ export class Migrator {
     const connection = this.resolveConnection(migration.getConnection?.() ?? '');
     if (typeof connection.pretend !== 'function') return [];
     return connection.pretend(async () => {
-      const fn = (migration as any)[method];
-      if (typeof fn !== 'function') return;
+      if (typeof (migration as any)[method] !== 'function') return;
       await this.runMethod(connection, migration, method);
     });
   }
@@ -245,7 +244,8 @@ export class Migrator {
     const previous = this.resolver.getDefaultConnection();
     try {
       this.resolver.setDefaultConnection(connection.getName());
-      await (migration as any)[method]();
+      const schema = connection.getSchemaBuilder();
+      await (migration as any)[method](schema);
     } finally {
       this.resolver.setDefaultConnection(previous);
     }
