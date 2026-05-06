@@ -1,158 +1,56 @@
-# Function GetConnectionName
-### basic model hydration
+# `getConnectionName`
 
-```typescript
-let user = FedacoTestUser.initAttributes({
-  email: 'linbolen@gradii.com'
-});
-user.setConnection('second_connection');
-await user.save();
-user = FedacoTestUser.initAttributes({
-  email: 'xsilen@gradii.com'
-});
-user.setConnection('second_connection');
-await user.save();
-const models = await FedacoTestUser.useConnection(
-  'second_connection'
-).fromQuery('SELECT * FROM users WHERE email = ?', ['xsilen@gradii.com']);
+Return the name of the connection this model instance is bound to.
+
+## Signature
+
+```ts
+model.GetConnectionName(): string
 ```
 
+## Returns
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `models[0]` | instance type exactly match | `FedacoTestUser` |
-> | `models[0].email` | exactly match | `'xsilen@gradii.com'` |
-> | `models[0].getConnectionName()` | exactly match | `'second_connection'` |
-> | `models.length` | exactly match | `1` |
+A string — either the value set explicitly on the instance (via `SetConnection` / `useConnection` / `@Table({ connection })`) or `'default'` as a fallback.
 
+## Real-World Use Cases
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+### 1. Inspect the connection
 
-### basic model retrieval
+```ts
+const user = await User.useConnection('replica').find(42);
+console.log(user.GetConnectionName()); // 'replica'
+```
 
-```typescript
-const factory = new FedacoTestUser();
-await factory.NewQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await factory.NewQuery().create({
-  id: 2,
-  email: 'xsilen@gradii.com'
+### 2. Verify after attach in a transaction
+
+```ts
+await db().transaction(async (tx) => {
+  const user = await User.createQuery(tx).create({ ... });
+  expect(user.GetConnectionName()).toBe(tx.getName());
 });
 ```
 
+### 3. Conditional logic per connection
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `      await factory.NewQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
-> | `      await factory.NewQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model.email` | exactly match | `'linbolen@gradii.com'` |
-> | `model.email !== undefined` | exactly match | `true` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `friends !== undefined` | exactly match | `true` |
-> | `friends` | match | `[]` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model` | instance type exactly match | `FedacoTestUser` |
-> | `model.id` | match | `1` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model` | instance type exactly match | `FedacoTestUser` |
-> | `model.id` | match | `2` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `missing` | exactly match | `Undefined();` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `isArray(collection)` | exactly match | `true` |
-> | `collection.length` | exactly match | `0` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `isArray(collection)` | exactly match | `true` |
-> | `collection.length` | exactly match | `2` |
-```typescript
-// .cursor();
-for (const m of models) {
-  expect(m.id).toEqual(1);
-  expect(m.getConnectionName()).toBe('default');
+```ts
+function isReadOnly(model: Model) {
+  return model.GetConnectionName().endsWith('_replica');
 }
 ```
 
+### 4. Resolution order
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+`GetConnectionName` walks through possible sources in this order:
 
-### check and create methods on multi connections
+1. The instance's own `_connection` field (set by `SetConnection` or `useConnection`).
+2. `@Table({ connection })` annotation on the model class.
+3. Static `Model.connectionName` (rarely used).
+4. Falls back to `'default'`.
 
-```typescript
-await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await FedacoTestUser.useConnection('second_connection').find(
-  FedacoTestUser.useConnection('second_connection').insert({
-    id: 2,
-    email: 'tony.stark@gradii.com'
-  })
-);
-let user1 = await FedacoTestUser.useConnection('second_connection').findOrNew(
-  1
-);
-let user2 = await FedacoTestUser.useConnection('second_connection').findOrNew(
-  2
-);
-```
+It memoises into `_connection` on the first call, so subsequent reads are pure property access.
 
+## See Also
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `user2._exists` | exactly match | `true` |
-> | `user1.getConnectionName()` | exactly match | `'second_connection'` |
-> | `user2.getConnectionName()` | exactly match | `'second_connection'` |
-```typescript
-user2 = await FedacoTestUser.useConnection('second_connection').firstOrNew({
-  email: 'tony.stark@gradii.com'
-});
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `user2._exists` | exactly match | `true` |
-> | `user1.getConnectionName()` | exactly match | `'second_connection'` |
-> | `user2.getConnectionName()` | exactly match | `'second_connection'` |
-> | `await FedacoTestUser.useConnection('second_connection').count()` | match | `1` |
-```typescript
-user2 = await FedacoTestUser.useConnection('second_connection').firstOrCreate({
-  email: 'tony.stark@gradii.com'
-});
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `user2.getConnectionName()` | exactly match | `'second_connection'` |
-> | `await FedacoTestUser.useConnection('second_connection').count()` | match | `2` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+- [`setConnection`](./setConnection) — change the connection on an instance.
+- [`useConnection`](./useConnection) — query against a specific named connection.
+- [Multiple Connections](../guide/multiple-connections)

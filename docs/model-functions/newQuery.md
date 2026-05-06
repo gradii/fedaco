@@ -1,260 +1,74 @@
-# Function NewQuery
-### basic create model
+# `newQuery`
 
-```typescript
-const model = await new FedacoTestUser().NewQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
+Build a fresh query rooted at this model's table, with the model's global scopes applied. Lower-level than [`createQuery`](./createQuery) — `createQuery` is just `new this().NewQuery()`.
+
+## Signature
+
+```ts
+model.NewQuery<T>(): FedacoBuilder<T>
+model.NewModelQuery(): FedacoBuilder<this>
+model.NewQueryWithoutScopes(): FedacoBuilder<this>
+model.NewQueryWithoutScope(scope: string): FedacoBuilder<this>
+model.NewQueryWithoutRelationships(): FedacoBuilder<this>
+model.NewQueryForRestoration(ids: any | any[]): FedacoBuilder<this>
 ```
 
+## Variants
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model.email` | exactly match | `'linbolen@gradii.com'` |
+| Method                      | Global scopes | `_with` / `_withCount` |
+| --------------------------- | ------------- | ---------------------- |
+| `NewQuery`                  | applied       | included |
+| `NewModelQuery`             | not applied   | not included — bare |
+| `NewQueryWithoutScopes`     | not applied   | included |
+| `NewQueryWithoutScope(s)`   | applied except `s` | included |
+| `NewQueryWithoutRelationships` | applied    | not included |
+| `NewQueryForRestoration(id)` | not applied  | filtered to the given id(s) |
 
+## Real-World Use Cases
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+### 1. Standard query — same as `createQuery`
 
-### basic model collection retrieval
-
-```typescript
-await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await FedacoTestUser.createQuery().create({
-  id: 2,
-  email: 'xsilen@gradii.com'
-});
-const models = await new FedacoTestUser().NewQuery().oldest('id').get();
+```ts
+const writers = await new User().NewQuery().where('active', true).get();
+// equivalent to:
+const writers2 = await User.createQuery().where('active', true).get();
 ```
 
+`createQuery` exists because the static form reads better. Use `NewQuery` from inside instance methods where you already have a `this`.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `isArray(models)` | exactly match | `true` |
-> | `models[0]` | instance type exactly match | `FedacoTestUser` |
-> | `models[1]` | instance type exactly match | `FedacoTestUser` |
-> | `models[0].email` | exactly match | `'linbolen@gradii.com'` |
-> | `models[1].email` | exactly match | `'xsilen@gradii.com'` |
+### 2. Bypass global scopes
 
+If your model has a soft-delete scope or a tenant scope and you need to look at *everything*:
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### basic model retrieval
-
-```typescript
-const factory = new FedacoTestUser();
-await factory.NewQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await factory.NewQuery().create({
-  id: 2,
-  email: 'xsilen@gradii.com'
-});
+```ts
+const all = await user.NewQueryWithoutScopes().get();
 ```
 
+Or skip just one named scope:
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `      await factory.NewQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
-> | `      await factory.NewQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model.email` | exactly match | `'linbolen@gradii.com'` |
-> | `model.email !== undefined` | exactly match | `true` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `friends !== undefined` | exactly match | `true` |
-> | `friends` | match | `[]` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model` | instance type exactly match | `FedacoTestUser` |
-> | `model.id` | match | `1` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model` | instance type exactly match | `FedacoTestUser` |
-> | `model.id` | match | `2` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `missing` | exactly match | `Undefined();` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `isArray(collection)` | exactly match | `true` |
-> | `collection.length` | exactly match | `0` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `isArray(collection)` | exactly match | `true` |
-> | `collection.length` | exactly match | `2` |
-```typescript
-// .cursor();
-for (const m of models) {
-  expect(m.id).toEqual(1);
-  expect(m.getConnectionName()).toBe('default');
-}
+```ts
+const includingTrashed = await user.NewQueryWithoutScope('soft_deleting').get();
 ```
 
+### 3. Restoration workflow
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+Used by soft-delete restore — fetches by id, ignoring scopes:
 
-### fresh method on model
-
-```typescript
-const now = new Date();
-const nowSerialized = formatISO(startOfSecond(now));
-const nowWithFractionsSerialized = now.toJSON();
-// Carbon.setTestNow(now);
-const storedUser1 = await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com',
-  birthday: now
-});
-await storedUser1.NewQuery().update({
-  email: 'dev@mathieutu.ovh',
-  name: 'Mathieu TUDISCO'
-});
-const freshStoredUser1 = await storedUser1.Fresh();
-const storedUser2 = await FedacoTestUser.createQuery().create({
-  id: 2,
-  email: 'linbolen@gradii.com',
-  birthday: now
-});
-await storedUser2.NewQuery().update({
-  email: 'dev@mathieutu.ovh'
-});
-const freshStoredUser2 = await storedUser2.Fresh();
-const notStoredUser = FedacoTestUser.initAttributes({
-  id: 3,
-  email: 'linbolen@gradii.com',
-  birthday: now
-});
-const freshNotStoredUser = await notStoredUser.Fresh();
+```ts
+const trashed = await new Post().NewQueryForRestoration(postId).first();
+trashed?.restore();
 ```
 
+### 4. Bare query (no scopes, no eager loads)
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `freshStoredUser1.toArray()` | match | `({
-      'id'        : 1,
-      'name'      : 'Mathieu TUDISCO',
-      'email'     : 'dev@mathieutu.ovh',
-      'birthday'  : nowWithFractionsSerialized,
-      'created_at': nowSerialized,
-      'updated_at': nowSerialized
-    });` |
-> | `storedUser1` | instance type exactly match | `FedacoTestUser` |
-> | `storedUser2.toArray()` | match | `({
-      'id'        : 2,
-      'email'     : 'linbolen@gradii.com',
-      'birthday'  : nowWithFractionsSerialized,
-      'created_at': nowSerialized,
-      'updated_at': nowSerialized
-    });` |
-> | `freshStoredUser2.toArray()` | match | `({
-      'id'        : 2,
-      'name'      : null,
-      'email'     : 'dev@mathieutu.ovh',
-      'birthday'  : nowWithFractionsSerialized,
-      'created_at': nowSerialized,
-      'updated_at': nowSerialized
-    });` |
-> | `storedUser2` | instance type exactly match | `FedacoTestUser` |
-> | `notStoredUser.toArray()` | match | `({
-      'id'      : 3,
-      'email'   : 'linbolen@gradii.com',
-      'birthday': nowWithFractionsSerialized
-    });` |
-> | `freshNotStoredUser` | exactly match | `null` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### paginated model collection retrieval when no elements and default per page
-
-```typescript
-const models = await new FedacoTestUser().NewQuery().oldest('id').paginate();
+```ts
+// Internal — for building scope/relation queries that explicitly compose the SQL.
+const bare = user.NewModelQuery();
 ```
 
+`NewModelQuery` is the building block. Use it when writing custom relation classes or schema-builder helpers; for application code, prefer `NewQuery` / `createQuery`.
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+## See Also
 
-### paginated model collection retrieval when no elements
-
-```typescript
-// Paginator.currentPageResolver(() => {
-//   return 1;
-// });
-let models = await new FedacoTestUser().NewQuery().oldest('id').paginate(1, 2);
-```
-```typescript
-// expect(models).toInstanceOf(LengthAwarePaginator);
-// Paginator.currentPageResolver(() => {
-//   return 2;
-// });
-models = await new FedacoTestUser().NewQuery().oldest('id').paginate(2, 2);
-```
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### paginated model collection retrieval
-
-```typescript
-await new FedacoTestUser().NewQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await new FedacoTestUser().NewQuery().create({
-  id: 2,
-  email: 'xsilen@gradii.com'
-});
-await new FedacoTestUser().NewQuery().create({
-  id: 3,
-  email: 'foo@gmail.com'
-});
-// Paginator.currentPageResolver(() => {
-//   return 1;
-// });
-let models = await new FedacoTestUser().NewQuery().oldest('id').paginate(1, 2);
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `models.items[0]` | instance type exactly match | `FedacoTestUser` |
-> | `models.items[1]` | instance type exactly match | `FedacoTestUser` |
-> | `models.items[0].email` | exactly match | `'linbolen@gradii.com'` |
-> | `models.items[1].email` | exactly match | `'xsilen@gradii.com'` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `models.items.length` | exactly match | `1` |
-> | `models.items[0]` | instance type exactly match | `FedacoTestUser` |
-> | `models.items[0].email` | exactly match | `'foo@gmail.com'` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+- [`createQuery`](./createQuery) — the public static form.
+- [`with`](./with) — pre-load relations on the new query.

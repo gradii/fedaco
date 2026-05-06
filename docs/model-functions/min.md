@@ -1,26 +1,41 @@
-# Function Min
-### aggregated values of datetime field
+# `min`
 
-```typescript
-await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'test1@test.test',
-  created_at: '2021-08-10 09:21:00',
-  updated_at: new Date()
-});
-await FedacoTestUser.createQuery().create({
-  id: 2,
-  email: 'test2@test.test',
-  created_at: '2021-08-01 12:00:00',
-  updated_at: new Date()
-});
+Aggregate: `SELECT MIN(column) FROM ... WHERE ...`. Returns the smallest value of a column across matching rows.
+
+## Signature
+
+```ts
+FedacoBuilder<T>.min(column: string): Promise<number | string | Date | null>
 ```
 
+## Real-World Use Cases
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `await FedacoTestUser.createQuery().min('created_at')` | exactly match | `'2021-08-01 12:00:00'` |
+### 1. Earliest signup
 
+```ts
+const firstUserAt = await User.createQuery().min('created_at');
+```
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+### 2. Lowest price in a category
+
+```ts
+const cheapest = await Product.createQuery()
+  .where('category_id', categoryId)
+  .where('in_stock', true)
+  .min('price');
+```
+
+### 3. Returns `null` on empty result
+
+```ts
+const min = await Order.createQuery().where('user_id', userId).min('total');
+if (min === null) {
+  // user has no orders
+}
+```
+
+## See Also
+
+- [`max`](./max) — symmetric.
+- [`count`](./count) — row count.
+- [`pluck`](./pluck) — flat values for in-JS aggregation.

@@ -1,311 +1,93 @@
-# Function Count
-### basic model retrieval
+# `count`
 
-```typescript
-const factory = new FedacoTestUser();
-await factory.NewQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await factory.NewQuery().create({
-  id: 2,
-  email: 'xsilen@gradii.com'
-});
+Count rows matching the query. Issues `SELECT COUNT(*)` — no rows are hydrated, so it's cheap.
+
+## Signature
+
+```ts
+FedacoBuilder<T>.count(column?: string): Promise<number>
 ```
 
+## Parameters
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `      await factory.NewQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
-> | `      await factory.NewQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
+| Name      | Default | Description |
+| --------- | ------- | ----------- |
+| `column`  | `'*'`   | Pass a column name to count non-null values of that column. |
 
+## Real-World Use Cases
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model.email` | exactly match | `'linbolen@gradii.com'` |
-> | `model.email !== undefined` | exactly match | `true` |
+### 1. Total rows
 
+```ts
+const total = await User.createQuery().count();
+```
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `friends !== undefined` | exactly match | `true` |
-> | `friends` | match | `[]` |
+### 2. Filtered count
 
+```ts
+const verified = await User.createQuery()
+  .where('email_verified', true)
+  .count();
+```
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model` | instance type exactly match | `FedacoTestUser` |
-> | `model.id` | match | `1` |
+### 3. Count non-null values
 
+```ts
+// Users with a profile picture set
+const withAvatar = await User.createQuery().count('avatar_url');
+```
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model` | instance type exactly match | `FedacoTestUser` |
-> | `model.id` | match | `2` |
+This is `COUNT(avatar_url)`, which counts non-null values — different from `COUNT(*)`.
 
+### 4. Combined with `whereHas`
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `missing` | exactly match | `Undefined();` |
+```ts
+const writers = await User.createQuery()
+  .whereHas('posts')
+  .count();
+```
 
+### 5. Distinct counts
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `isArray(collection)` | exactly match | `true` |
-> | `collection.length` | exactly match | `0` |
+```ts
+const distinctEmails = await User.createQuery()
+  .distinct('email')
+  .count('email');
+```
 
+### 6. Compare against a threshold
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `isArray(collection)` | exactly match | `true` |
-> | `collection.length` | exactly match | `2` |
-```typescript
-// .cursor();
-for (const m of models) {
-  expect(m.id).toEqual(1);
-  expect(m.getConnectionName()).toBe('default');
+For "are there any?" prefer [`exists`](./has) — it returns a boolean and stops at the first match:
+
+```ts
+if (await User.createQuery().where('email', email).exists()) {
+  throw new Error('email already taken');
 }
 ```
 
+`exists()` is cheaper than `count() > 0` for "is there at least one" checks.
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+## Related Aggregates
 
-### check and create methods on multi connections
+The same builder exposes a few more aggregates that mirror SQL:
 
-```typescript
-await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await FedacoTestUser.useConnection('second_connection').find(
-  FedacoTestUser.useConnection('second_connection').insert({
-    id: 2,
-    email: 'tony.stark@gradii.com'
-  })
-);
-let user1 = await FedacoTestUser.useConnection('second_connection').findOrNew(
-  1
-);
-let user2 = await FedacoTestUser.useConnection('second_connection').findOrNew(
-  2
-);
+```ts
+await Order.createQuery().sum('total');     // SUM
+await Order.createQuery().avg('total');     // AVG
+await Order.createQuery().min('total');     // MIN
+await Order.createQuery().max('total');     // MAX
 ```
 
+Each compiles to one `SELECT <agg>(col)` query and returns a number.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `user2._exists` | exactly match | `true` |
-> | `user1.getConnectionName()` | exactly match | `'second_connection'` |
-> | `user2.getConnectionName()` | exactly match | `'second_connection'` |
-```typescript
-user2 = await FedacoTestUser.useConnection('second_connection').firstOrNew({
-  email: 'tony.stark@gradii.com'
-});
-```
+## Common Pitfalls
 
+- **`count()` ignores `select`, `with`, and `orderBy`.** They're stripped before compiling — only `where` / `groupBy` / `having` survive.
+- **`COUNT(column)` vs `COUNT(*)`** — they differ on null. Use `*` for total rows; pass a column for non-null counts.
+- **For pagination, use [`getCountForPagination`](./getCountForPagination)** — it preserves the right SQL shape (handles GROUP BY rows correctly).
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `user2._exists` | exactly match | `true` |
-> | `user1.getConnectionName()` | exactly match | `'second_connection'` |
-> | `user2.getConnectionName()` | exactly match | `'second_connection'` |
-> | `await FedacoTestUser.useConnection('second_connection').count()` | match | `1` |
-```typescript
-user2 = await FedacoTestUser.useConnection('second_connection').firstOrCreate({
-  email: 'tony.stark@gradii.com'
-});
-```
+## See Also
 
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `user2.getConnectionName()` | exactly match | `'second_connection'` |
-> | `await FedacoTestUser.useConnection('second_connection').count()` | match | `2` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### count for pagination with grouping and sub selects
-
-```typescript
-const user1 = await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await FedacoTestUser.createQuery().create({
-  id: 2,
-  email: 'xsilen@gradii.com'
-});
-await FedacoTestUser.createQuery().create({
-  id: 3,
-  email: 'foo@gmail.com'
-});
-await FedacoTestUser.createQuery().create({
-  id: 4,
-  email: 'foo@gmail.com'
-});
-const friendsRelation = user1.NewRelation('friends');
-await friendsRelation.create({
-  id: 5,
-  email: 'friend@gmail.com'
-});
-const query = await FedacoTestUser.createQuery()
-  .select({
-    0: 'id',
-    friends_count: await FedacoTestUser.createQuery()
-      .whereColumn('friend_id', 'user_id')
-      .count()
-  })
-  .groupBy('email')
-  .getQuery();
-```
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### multi inserts with different values
-
-```typescript
-const date = '1970-01-01';
-const result = await FedacoTestPost.createQuery().insert([
-  {
-    user_id: 1,
-    name: 'Post',
-    created_at: date,
-    updated_at: date
-  },
-  {
-    user_id: 2,
-    name: 'Post',
-    created_at: date,
-    updated_at: date
-  }
-]);
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `await FedacoTestPost.createQuery().count()` | match | `2` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### multi inserts with same values
-
-```typescript
-const date = '1970-01-01';
-const result = await FedacoTestPost.createQuery().insert([
-  {
-    user_id: 1,
-    name: 'Post',
-    created_at: date,
-    updated_at: date
-  },
-  {
-    user_id: 1,
-    name: 'Post',
-    created_at: date,
-    updated_at: date
-  }
-]);
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `await FedacoTestPost.createQuery().count()` | match | `2` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### save or fail
-
-```typescript
-const date = '1970-01-01';
-const post = FedacoTestPost.initAttributes({
-  user_id: 1,
-  name: 'Post',
-  created_at: date,
-  updated_at: date
-});
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `await FedacoTestPost.createQuery().count()` | match | `1` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### update or create on different connection
-
-```typescript
-await FedacoTestUser.createQuery().create({
-  email: 'linbolen@gradii.com'
-});
-await FedacoTestUser.useConnection('second_connection').updateOrCreate(
-  {
-    email: 'linbolen@gradii.com'
-  },
-  {
-    name: 'Taylor Otwell'
-  }
-);
-await FedacoTestUser.useConnection('second_connection').updateOrCreate(
-  {
-    email: 'tony.stark@gradii.com'
-  },
-  {
-    name: 'Mohamed Said'
-  }
-);
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `await FedacoTestUser.useConnection('second_connection').count()` | exactly match | `2` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### update or create
-
-```typescript
-const user1 = await FedacoTestUser.createQuery().create({
-  email: 'linbolen@gradii.com'
-});
-const user2 = await FedacoTestUser.createQuery().updateOrCreate(
-  {
-    email: 'linbolen@gradii.com'
-  },
-  {
-    name: 'Taylor Otwell'
-  }
-);
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `user2.email` | exactly match | `'linbolen@gradii.com'` |
-> | `user2.name` | exactly match | `'Taylor Otwell'` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `user3.name` | exactly match | `'Mohamed Said'` |
-> | `await FedacoTestUser.createQuery().count()` | exactly match | `2` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+- [`exists`](./has) / `doesntExist` — boolean existence checks.
+- [`max`](./max) / [`min`](./min) / [`sum`](./pluck) / [`avg`](./pluck) — other aggregates.
+- [`getCountForPagination`](./getCountForPagination) — used by `paginate`.

@@ -1,93 +1,102 @@
-# Function Pluck
-### pluck with column name containing a space
+# `pluck`
 
-```typescript
-await FedacoTestUserWithSpaceInColumnName.createQuery().create({
-  id: 1,
-  email_address: 'linbolen@gradii.com'
-});
-await FedacoTestUserWithSpaceInColumnName.createQuery().create({
-  id: 2,
-  email_address: 'xsilen@gradii.com'
-});
-const simple = await FedacoTestUserWithSpaceInColumnName.createQuery()
-  .oldest('id')
-  .pluck('users_with_space_in_colum_name.email_address');
-const keyed = await FedacoTestUserWithSpaceInColumnName.createQuery()
-  .oldest('id')
-  .pluck('email_address', 'id');
+Fetch the values of a single column from the result set. Hydrate-free — returns plain JS values, not models.
+
+## Signature
+
+```ts
+// Plain array of values
+FedacoBuilder<T>.pluck(column: string): Promise<any[]>
+
+// Object/map keyed by another column
+FedacoBuilder<T>.pluck(column: string, key: string): Promise<Record<string, any>>
 ```
 
+## Parameters
 
-> | Reference | Looks Like | Value                                                                     |
-> | ------ | ----- |---------------------------------------------------------------------------|
-> | `keyed` | match | ({<br/>&nbsp;&nbsp;1: 'linbolen@gradii.com',<br/>&nbsp;&nbsp;2: 'xsilen@gradii.com'<br/>}); |
+| Name     | Description |
+| -------- | ----------- |
+| `column` | The column whose values you want. |
+| `key`    | When given, the result becomes an object whose keys come from this column. |
 
+The model's accessors and casts on `column` are still applied (so a `@JsonColumn` returns parsed objects, a date column returns `Date` instances, etc).
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+## Real-World Use Cases
 
-### pluck with join
+### 1. Just the values
 
-```typescript
-const user1 = await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-const user2 = await FedacoTestUser.createQuery().create({
-  id: 2,
-  email: 'xsilen@gradii.com'
-});
-await user2.NewRelation('posts').create({
-  id: 1,
-  name: 'First post'
-});
-await user1.NewRelation('posts').create({
-  id: 2,
-  name: 'Second post'
-});
-const query = FedacoTestUser.createQuery().join(
-  'posts',
-  'users.id',
-  '=',
-  'posts.user_id'
-);
+```ts
+const emails = await User.createQuery().where('active', true).pluck('email');
+// ['ada@example.com', 'bob@example.com', ...]
 ```
 
+### 2. Map by id
 
-> | Reference | Looks Like | Value                                                                         |
-> | ------ | ----- |-------------------------------------------------------------------------------|
-> | `await query.pluck('posts.name', 'users.id')` | match | ({<br/>&nbsp;&nbsp;2: 'First post',<br/>&nbsp;&nbsp; 1: 'Second post'<br/>}); |
-> | `await query.pluck('posts.name', 'users.email AS user_email')` | match | ({<br/>&nbsp;&nbsp;'xsilen@gradii.com': 'First post',<br/>&nbsp;&nbsp; 'linbolen@gradii.com' : 'Second post'<br/>    }); |
+```ts
+const namesById = await User.createQuery().pluck('name', 'id');
+// { '1': 'Ada', '2': 'Bob', ... }
 
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### pluck
-
-```typescript
-await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await FedacoTestUser.createQuery().create({
-  id: 2,
-  email: 'xsilen@gradii.com'
-});
-const simple = await FedacoTestUser.createQuery()
-  .oldest('id')
-  .pluck('users.email');
-const keyed = await FedacoTestUser.createQuery()
-  .oldest('id')
-  .pluck('users.email', 'users.id');
+console.log(namesById['1']); // 'Ada'
 ```
 
+Useful when you need a lookup table for a small set of records.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `keyed` | match | ({1: 'linbolen@gradii.com',2: 'xsilen@gradii.com'}); |
+### 3. Filtered + ordered
 
+```ts
+const adminEmails = await User.createQuery()
+  .where('role', 'admin')
+  .orderBy('email')
+  .pluck('email');
+```
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+### 4. Casted columns
+
+```ts
+@Table({ tableName: 'users' })
+class User extends Model {
+  @JsonColumn() declare preferences: { theme: string; locale: string };
+}
+
+const allPrefs = await User.createQuery().pluck('preferences');
+// preferences[0].theme, etc — already parsed
+```
+
+### 5. Date columns
+
+```ts
+const lastLogins = await User.createQuery()
+  .where('active', true)
+  .pluck('last_login_at');
+// Date instances, not raw strings
+```
+
+### 6. Transform after plucking
+
+```ts
+const userIds = (await User.createQuery().pluck('id')) as number[];
+const placeholders = userIds.map(() => '?').join(', ');
+```
+
+## `pluck` vs `select` + `get`
+
+| Tool          | Returns                                | When |
+| ------------- | -------------------------------------- | ---- |
+| `pluck('col')` | flat array (or object) of column values | you want one column out |
+| `pluck('col', 'key')` | keyed object             | you want a quick lookup |
+| `.select('col').get()` | array of partial models  | you need the model API on the result |
+
+Pluck is faster when you don't need model methods.
+
+## Common Pitfalls
+
+- **Duplicate keys**: when you pass a `key` and that column has duplicates, later rows overwrite earlier ones. Use [`get`](./pluck) and group manually if duplicates matter.
+- **`pluck` on a JSON path** isn't supported — pluck the whole JSON column and dig in JS.
+- **For `count` / `sum` / `avg`** of plucked values, prefer the dedicated aggregate methods. They run in the database.
+
+## See Also
+
+- [`get`](./pluck) (terminal `get`) — full models or model-shaped objects.
+- [`select`](./select) — choose columns at the SQL level.
+- [`count`](./count) / [`max`](./max) / [`min`](./min) — aggregates.
+- [`first`](./first) — one row instead of many.

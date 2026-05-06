@@ -1,363 +1,110 @@
-# Function First
-### basic has many eager loading
+# `first`
 
-```typescript
-let user: FedacoTestUser = await FedacoTestUser.createQuery().create({
-  email: 'linbolen@gradii.com'
-});
-await user.NewRelation('posts').create({
-  name: 'First Post'
-});
-user = await FedacoTestUser.createQuery()
-  .with('posts')
-  .where('email', 'linbolen@gradii.com')
-  .first();
-```
-```typescript
-const post = await FedacoTestPost.createQuery()
-  .with('user')
-  .where('name', 'First Post')
-  .get();
+Run the query and return the first matching row, or `undefined` when nothing matches. Uses the model's order — if you haven't called `orderBy`, "first" is whatever the database returns first.
+
+## Signature
+
+```ts
+FedacoBuilder<T>.first(columns?: string[]): Promise<T | undefined>
+FedacoBuilder<T>.firstWhere(column, operator?, value?): Promise<T | undefined>
+FedacoBuilder<T>.firstOrFail(columns?: string[]): Promise<T>
+FedacoBuilder<T>.firstOr(callback): Promise<T>
+FedacoBuilder<T>.firstOr(columns: string[], callback): Promise<T>
 ```
 
+## Returns
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+- `first` — the model or `undefined`.
+- `firstOrFail` — the model, or throws `ModelNotFoundException`.
+- `firstOr(cb)` — the model, or whatever `cb()` returns.
 
-### basic model retrieval
+## Real-World Use Cases
 
-```typescript
-const factory = new FedacoTestUser();
-await factory.NewQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await factory.NewQuery().create({
-  id: 2,
-  email: 'xsilen@gradii.com'
-});
-```
+### 1. Lookup by criteria
 
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `      await factory.NewQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
-> | `      await factory.NewQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model.email` | exactly match | `'linbolen@gradii.com'` |
-> | `model.email !== undefined` | exactly match | `true` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `friends !== undefined` | exactly match | `true` |
-> | `friends` | match | `[]` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model` | instance type exactly match | `FedacoTestUser` |
-> | `model.id` | match | `1` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model` | instance type exactly match | `FedacoTestUser` |
-> | `model.id` | match | `2` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `missing` | exactly match | `Undefined();` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `isArray(collection)` | exactly match | `true` |
-> | `collection.length` | exactly match | `0` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `isArray(collection)` | exactly match | `true` |
-> | `collection.length` | exactly match | `2` |
-```typescript
-// .cursor();
-for (const m of models) {
-  expect(m.id).toEqual(1);
-  expect(m.getConnectionName()).toBe('default');
+```ts
+const user = await User.createQuery().where('email', email).first();
+if (!user) {
+  return null;
 }
 ```
 
+### 2. Shorthand: `firstWhere`
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+`.where(...).first(...)` collapses into one call:
 
-### basic nested self referencing has many eager loading
+```ts
+const user = await User.createQuery().firstWhere('email', email);
+```
 
-```typescript
-let user: FedacoTestUser = await FedacoTestUser.createQuery().create({
-  email: 'linbolen@gradii.com'
-});
-const post: FedacoTestPost = await user.NewRelation('posts').create({
-  name: 'First Post'
-});
-await post.NewRelation('childPosts').create({
-  name: 'Child Post',
-  user_id: user.id
-});
-user = await FedacoTestUser.createQuery()
-  .with('posts.childPosts')
-  .where('email', 'linbolen@gradii.com')
+Three-arg form for non-`=` operators:
+
+```ts
+const draft = await Post.createQuery().firstWhere('status', '=', 'draft');
+```
+
+### 3. Throw on missing — `firstOrFail`
+
+```ts
+const user = await User.createQuery()
+  .where('email', email)
+  .firstOrFail();
+```
+
+Throws `ModelNotFoundException` if no row matched.
+
+### 4. Default value — `firstOr`
+
+```ts
+const post = await Post.createQuery()
+  .where('user_id', userId)
+  .firstOr(() => ({ user_id: userId, title: 'untitled', body: '' }));
+```
+
+The fallback is invoked only when nothing matched. Pair with `firstOrCreate` if you want the fallback persisted.
+
+### 5. Order before "first"
+
+The database doesn't promise an order without `ORDER BY`:
+
+```ts
+const newest = await Post.createQuery()
+  .orderBy('created_at', 'desc')
+  .first();
+
+const oldest = await Post.createQuery()
+  .orderBy('id')
   .first();
 ```
 
+`oldest()` and `latest()` are sugar for `orderBy('created_at', 'asc' | 'desc')`.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(await user.posts).name` | exactly match | `'First Post'` |
-> | `head(await head(await user.posts).childPosts)` | exactly not match | `null` |
-> | `head(await head(await user.posts).childPosts as any[]).name` | exactly match | `'Child Post'` |
+### 6. With eager loading
 
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `(await head(posts).parentPost)` | exactly not match | `null` |
-> | `(await head(posts).parentPost).user` | exactly not match | `null` |
-> | `(await head(posts).parentPost).user.email` | exactly match | `'linbolen@gradii.com'` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### belongs to many relationship models are properly hydrated over chunked request
-
-```typescript
-const user = await FedacoTestUser.createQuery().create({
-  email: 'linbolen@gradii.com'
-});
-const friend = await user.NewRelation('friends').create({
-  email: 'xsilen@gradii.com'
-});
-const user1: FedacoTestUser = await FedacoTestUser.createQuery().first();
-await user1
-  .NewRelation('friends')
-  .chunk(2)
-  .pipe(
-    tap(({ results: friends }) => {
-      expect(friends.length).toBe(1);
-      expect(head(friends).email).toBe('xsilen@gradii.com');
-      expect(head(friends).getRelation('pivot').getAttribute('user_id')).toBe(
-        user.id
-      );
-      expect(head(friends).getRelation('pivot').getAttribute('friend_id')).toBe(
-        friend.id
-      );
-    })
-  )
-  .toPromise();
-```
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### belongs to many relationship models are properly hydrated over each request
-
-```typescript
-const user = await FedacoTestUser.createQuery().create({
-  email: 'linbolen@gradii.com'
-});
-const friend = await user.NewRelation('friends').create({
-  email: 'xsilen@gradii.com'
-});
-await (
-  await FedacoTestUser.createQuery().first()
-)
-  .NewRelation('friends')
-  .each()
-  .pipe(
-    tap(({ item: result, index }) => {
-      expect(result.email).toBe('xsilen@gradii.com');
-      expect(result.getAttribute('user_id')).toBe(user.id);
-      expect(result.getAttribute('friend_id')).toBe(friend.id);
-    })
-  )
-  .toPromise();
-```
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### eager loaded morph to relations on another database connection
-
-```typescript
-await FedacoTestPost.createQuery().create({
-  id: 1,
-  name: 'Default Connection Post',
-  user_id: 1
-});
-await FedacoTestPhoto.createQuery().create({
-  id: 1,
-  imageable_type: 'post',
-  imageable_id: 1,
-  name: 'Photo'
-});
-await FedacoTestPost.useConnection('second_connection').create({
-  id: 1,
-  name: 'Second Connection Post',
-  user_id: 1
-});
-await FedacoTestPhoto.useConnection('second_connection').create({
-  id: 1,
-  imageable_type: 'post',
-  imageable_id: 1,
-  name: 'Photo'
-});
-const defaultConnectionPost = (
-  await FedacoTestPhoto.createQuery().with('imageable').first()
-).imageable;
-const secondConnectionPost = (
-  await FedacoTestPhoto.useConnection('second_connection')
-    .with('imageable')
-    .first()
-).imageable;
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `'Second Connection Post'` | match | `secondConnectionPost.name` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### for page after id correctly paginates
-
-```typescript
-await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await FedacoTestUser.createQuery().create({
-  id: 2,
-  email: 'xsilen@gradii.com'
-});
-let results = await FedacoTestUser.createQuery().forPageAfterId(15, 1);
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `(await results.first()).id` | match | `2` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `results` | instance type exactly match | `FedacoBuilder` |
-> | `(await results.first()).id` | match | `2` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### incrementing primary keys are cast to integers by default
-
-```typescript
-await FedacoTestUser.createQuery().create({
-  email: 'linbolen@gradii.com'
-});
-const user = await FedacoTestUser.createQuery().first();
-```
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### morph map is used when fetching parent
-
-```typescript
-Relation.morphMap({
-  user: FedacoTestUser,
-  post: FedacoTestPost
-});
-const user = await FedacoTestUser.createQuery().create({
-  email: 'linbolen@gradii.com'
-});
-await user.NewRelation('photos').create({
-  name: 'Avatar 1'
-});
-const photo = await FedacoTestPhoto.createQuery().first();
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `await photo.imageable` | instance type exactly match | `FedacoTestUser` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### morph to relations across database connections
-
-```typescript
-let item = null;
-await FedacoTestItem.createQuery().create({
-  id: 1
-});
-await FedacoTestOrder.createQuery().create({
-  id: 1,
-  item_type: 'FedacoTestItem',
-  item_id: 1
-});
-try {
-  const order = await FedacoTestOrder.createQuery().first();
-  item = order.item;
-} catch (e) {
-  console.log(e);
-}
-```
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### one to many relationship
-
-```typescript
-const user = await FedacoTestUser.createQuery().create({
-  email: 'linbolen@gradii.com'
-});
-await user.NewRelation('posts').create({
-  name: 'First Post'
-});
-await user.NewRelation('posts').create({
-  name: 'Second Post'
-});
-const posts = await user.posts;
-const post2 = await user
-  .NewRelation('posts')
-  .where('name', 'Second Post')
+```ts
+const post = await Post.createQuery()
+  .with('author', 'tags')
+  .where('slug', slug)
   .first();
 ```
 
+Eager loads run after the parent SELECT — they only fetch related rows for the one parent that came back.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `posts.length` | exactly match | `2` |
-> | `posts[0]` | instance type exactly match | `FedacoTestPost` |
-> | `posts[1]` | instance type exactly match | `FedacoTestPost` |
-> | `post2` | instance type exactly match | `FedacoTestPost` |
-> | `post2.name` | exactly match | `'Second Post'` |
-> | `await post2.user` | instance type exactly match | `FedacoTestUser` |
-> | `(await post2.user).email` | exactly match | `'linbolen@gradii.com'` |
+### 7. Project specific columns
 
+```ts
+const headline = await Post.createQuery().first(['id', 'title']);
+```
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+## Common Pitfalls
+
+- **`undefined`, not `null`.** Test with `if (!post)` rather than `if (post === null)`.
+- **No implicit ordering.** Without `orderBy`, "first" is non-deterministic across page caches, indexes, replicas.
+- **Inside transactions**, use `createQuery(tx)` so `first` runs on the transaction's connection.
+
+## See Also
+
+- [`firstOrCreate`](./firstOrCreate) — find or insert.
+- [`firstOrNew`](./firstOrNew) — find or build (no save).
+- [`find`](./find) — primary-key lookup.
+- [`get`](./pluck) — return all matching rows instead of one.

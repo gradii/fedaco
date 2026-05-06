@@ -1,73 +1,61 @@
-# Function ToJson
-### fresh method on model
+# `toJSON`
 
-```typescript
-const now = new Date();
-const nowSerialized = formatISO(startOfSecond(now));
-const nowWithFractionsSerialized = now.toJSON();
-// Carbon.setTestNow(now);
-const storedUser1 = await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com',
-  birthday: now
-});
-await storedUser1.NewQuery().update({
-  email: 'dev@mathieutu.ovh',
-  name: 'Mathieu TUDISCO'
-});
-const freshStoredUser1 = await storedUser1.Fresh();
-const storedUser2 = await FedacoTestUser.createQuery().create({
-  id: 2,
-  email: 'linbolen@gradii.com',
-  birthday: now
-});
-await storedUser2.NewQuery().update({
-  email: 'dev@mathieutu.ovh'
-});
-const freshStoredUser2 = await storedUser2.Fresh();
-const notStoredUser = FedacoTestUser.initAttributes({
-  id: 3,
-  email: 'linbolen@gradii.com',
-  birthday: now
-});
-const freshNotStoredUser = await notStoredUser.Fresh();
+Return the same object as [`toArray`](./toArray). Implemented so that `JSON.stringify(model)` produces the right output without any extra wrapping.
+
+## Signature
+
+```ts
+model.toJSON(): Record<string, any>
 ```
 
+## Returns
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `freshStoredUser1.toArray()` | match | `({
-      'id'        : 1,
-      'name'      : 'Mathieu TUDISCO',
-      'email'     : 'dev@mathieutu.ovh',
-      'birthday'  : nowWithFractionsSerialized,
-      'created_at': nowSerialized,
-      'updated_at': nowSerialized
-    });` |
-> | `storedUser1` | instance type exactly match | `FedacoTestUser` |
-> | `storedUser2.toArray()` | match | `({
-      'id'        : 2,
-      'email'     : 'linbolen@gradii.com',
-      'birthday'  : nowWithFractionsSerialized,
-      'created_at': nowSerialized,
-      'updated_at': nowSerialized
-    });` |
-> | `freshStoredUser2.toArray()` | match | `({
-      'id'        : 2,
-      'name'      : null,
-      'email'     : 'dev@mathieutu.ovh',
-      'birthday'  : nowWithFractionsSerialized,
-      'created_at': nowSerialized,
-      'updated_at': nowSerialized
-    });` |
-> | `storedUser2` | instance type exactly match | `FedacoTestUser` |
-> | `notStoredUser.toArray()` | match | `({
-      'id'      : 3,
-      'email'   : 'linbolen@gradii.com',
-      'birthday': nowWithFractionsSerialized
-    });` |
-> | `freshNotStoredUser` | exactly match | `null` |
+The model converted to a plain JS object — attributes (with casts/accessors applied) plus loaded relations. Hidden fields (`_hidden`) are stripped.
 
+## Real-World Use Cases
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+### 1. `JSON.stringify` works directly
+
+```ts
+const user = await User.createQuery().with('posts').find(1);
+const json = JSON.stringify(user);
+```
+
+`JSON.stringify` calls `toJSON()` automatically, which calls `ToArray()` internally.
+
+### 2. Express / Nest / Fastify response
+
+```ts
+app.get('/users/:id', async (req, res) => {
+  const user = await User.createQuery().find(req.params.id);
+  res.json(user); // res.json calls JSON.stringify, which calls toJSON
+});
+```
+
+You don't need to do anything special — the framework's JSON serialiser picks up `toJSON()`.
+
+### 3. Custom date serialisation
+
+```ts
+@Table({ tableName: 'posts' })
+class Post extends Model {
+  @CreatedAtColumn() declare created_at: Date;
+
+  // Override per-model serialisation if you want non-ISO dates
+  serializeDate(date: Date): string {
+    return date.toISOString();
+  }
+}
+```
+
+`toJSON` runs casts and accessors, so a `Date` column is rendered through `serializeDate`.
+
+## `toJSON` vs `toArray`
+
+These are aliases in fedaco — `toJSON` calls `ToArray`. Use `toJSON` when integrating with `JSON.stringify`, use `ToArray` when you want the dictionary directly.
+
+## See Also
+
+- [`toArray`](./toArray) — same output, called more explicitly.
+- `_hidden` / `_visible` — control which fields are exposed.
+- `MakeHidden` / `MakeVisible` — per-instance overrides.

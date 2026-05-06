@@ -1,251 +1,91 @@
-# Function Has
-### has on morph to relationship
+# `has`
 
-```typescript
-await expect(async () => {
-  await FedacoTestUser.createQuery().has('imageable').get();
-}).rejects.toThrowError(
-  `the relation [imageable] can't acquired. try to define a relation like\n@HasManyColumn()\npublic readonly imageable;\n`
-);
+Filter parent rows that have at least one related row. Identical mechanism to [`whereHas`](./whereHas) — compiles to `WHERE EXISTS (...)` — but doesn't take a callback for the related-row constraints.
+
+## Signature
+
+```ts
+FedacoBuilder<T>.has(
+  relation: string,
+  operator?: string,
+  count?: number,
+): this
 ```
 
+## Parameters
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+| Name        | Description |
+| ----------- | ----------- |
+| `relation`  | Relation method name. Supports dotted paths like `'posts.comments'`. |
+| `operator`  | `>`, `>=`, `<`, `<=`, `=`, `!=`. Default `>=`. |
+| `count`     | Compared against the related-row count. Default `1`. |
 
-### has on nested self referencing belongs to many relationship with where pivot
+## Real-World Use Cases
 
-```typescript
-const user = await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-const friend = await user.NewRelation('friends').create({
-  id: 2,
-  email: 'xsilen@gradii.com'
-});
-await friend.NewRelation('friends').create({
-  id: 3,
-  email: 'foo@gmail.com'
-});
-const results = await FedacoTestUser.createQuery()
-  .has('friendsOne.friendsTwo')
+### 1. Parents that have any related row
+
+```ts
+const writers = await User.createQuery().has('posts').get();
+```
+
+Returns users with at least one post.
+
+### 2. Negation — `doesntHave`
+
+```ts
+const empty = await User.createQuery().doesntHave('posts').get();
+```
+
+### 3. Count thresholds
+
+```ts
+// Users with 5+ posts
+const prolific = await User.createQuery().has('posts', '>=', 5).get();
+
+// Users with exactly 0 likes
+const lonely = await User.createQuery().has('likes', '=', 0).get();
+```
+
+### 4. Nested paths
+
+```ts
+const users = await User.createQuery().has('posts.comments').get();
+// users → who have at least one post → which has at least one comment
+```
+
+Each segment becomes a separate `EXISTS` subquery.
+
+### 5. With eager loading and ordering
+
+```ts
+const tagged = await Post.createQuery()
+  .has('tags')
+  .with('tags')
+  .orderBy('created_at', 'desc')
+  .limit(10)
   .get();
 ```
 
+## `has` vs `whereHas`
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(results).email` | exactly match | `'linbolen@gradii.com'` |
+Use `has` when you don't need to add WHERE clauses against the related table. It's faster to type and reads more clearly. Switch to `whereHas` whenever you need to filter related rows:
 
+```ts
+// has — any related post
+.has('posts')
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### has on nested self referencing belongs to many relationship
-
-```typescript
-const user = await FedacoTestUser.createQuery().create({
-  email: 'linbolen@gradii.com'
-});
-const friend = await user.NewRelation('friends').create({
-  email: 'xsilen@gradii.com'
-});
-await friend.NewRelation('friends').create({
-  email: 'foo@gmail.com'
-});
-const results = await FedacoTestUser.createQuery().has('friends.friends').get();
+// whereHas — only related posts that are published
+.whereHas('posts', (q) => q.where('published', true))
 ```
 
+## Common Pitfalls
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(results).email` | exactly match | `'linbolen@gradii.com'` |
+- **`has` can't apply WHERE on the relation.** If you need that, use `whereHas`.
+- **Dotted relations**: each segment must be a real relation method on the corresponding model.
+- **Compares row count, not column values.** For "has at least one post with views > 1000", you need `whereHas` with a count comparison.
 
+## See Also
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### has on nested self referencing belongs to relationship
-
-```typescript
-const grandParentPost = await FedacoTestPost.createQuery().create({
-  name: 'Grandparent Post',
-  user_id: 1
-});
-const parentPost = await FedacoTestPost.createQuery().create({
-  name: 'Parent Post',
-  parent_id: grandParentPost.id,
-  user_id: 2
-});
-await FedacoTestPost.createQuery().create({
-  name: 'Child Post',
-  parent_id: parentPost.id,
-  user_id: 3
-});
-const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
-  .has('parentPost.parentPost')
-  .get();
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(results).name` | exactly match | `'Child Post'` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### has on nested self referencing has many relationship
-
-```typescript
-const grandParentPost = await FedacoTestPost.createQuery().create({
-  name: 'Grandparent Post',
-  user_id: 1
-});
-const parentPost = await FedacoTestPost.createQuery().create({
-  name: 'Parent Post',
-  parent_id: grandParentPost.id,
-  user_id: 2
-});
-await FedacoTestPost.createQuery().create({
-  name: 'Child Post',
-  parent_id: parentPost.id,
-  user_id: 3
-});
-const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
-  .has('childPosts.childPosts')
-  .get();
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(results).name` | exactly match | `'Grandparent Post'` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### has on self referencing belongs to many relationship with where pivot
-
-```typescript
-const user = await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await user.NewRelation('friends').create({
-  id: 2,
-  email: 'xsilen@gradii.com'
-});
-const results = await FedacoTestUser.createQuery().has('friendsOne').get();
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(results).email` | exactly match | `'linbolen@gradii.com'` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### has on self referencing belongs to many relationship
-
-```typescript
-const user = await FedacoTestUser.createQuery().create({
-  email: 'linbolen@gradii.com'
-});
-await user.NewRelation('friends').create({
-  email: 'xsilen@gradii.com'
-});
-```
-```typescript
-const results = await FedacoTestUser.createQuery().has('friends').get();
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(results).email` | exactly match | `'linbolen@gradii.com'` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### has on self referencing belongs to relationship
-
-```typescript
-const parentPost = await FedacoTestPost.createQuery().create({
-  name: 'Parent Post',
-  user_id: 1
-});
-await FedacoTestPost.createQuery().create({
-  name: 'Child Post',
-  parent_id: parentPost.id,
-  user_id: 2
-});
-const results = await FedacoTestPost.createQuery().has('parentPost').get();
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(results).name` | exactly match | `'Child Post'` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### has on self referencing has many relationship
-
-```typescript
-const parentPost = await FedacoTestPost.createQuery().create({
-  name: 'Parent Post',
-  user_id: 1
-});
-await FedacoTestPost.createQuery().create({
-  name: 'Child Post',
-  parent_id: parentPost.id,
-  user_id: 2
-});
-const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
-  .has('childPosts')
-  .get();
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(results).name` | exactly match | `'Parent Post'` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### has with non where bindings
-
-```typescript
-const user = await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await (
-  await user.NewRelation('posts').create({
-    name: 'Post 2'
-  })
-)
-  .NewRelation('photos')
-  .create({
-    name: 'photo.jpg'
-  });
-const query = await FedacoTestUser.createQuery().has('postWithPhotos');
-const { result: sql, bindings } = query.toSql();
-const bindingsCount = bindings.length;
-const questionMarksCount = sql.match(/\?/g)?.length || 0;
-```
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+- [`whereHas`](./whereHas) — has with related-row constraints.
+- [`with`](./with) — eager load instead of (or in addition to) filter.
+- [`getRelation`](./getRelation) — fetch a relation on one instance.

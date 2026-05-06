@@ -1,56 +1,71 @@
-# Function FindOrNew
-### check and create methods on multi connections
+# `findOrNew`
 
-```typescript
-await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await FedacoTestUser.useConnection('second_connection').find(
-  FedacoTestUser.useConnection('second_connection').insert({
-    id: 2,
-    email: 'tony.stark@gradii.com'
-  })
-);
-let user1 = await FedacoTestUser.useConnection('second_connection').findOrNew(
-  1
-);
-let user2 = await FedacoTestUser.useConnection('second_connection').findOrNew(
-  2
-);
+Find a row by primary key. If no row matches, return a **new, unsaved** instance.
+
+## Signature
+
+```ts
+FedacoBuilder<T>.findOrNew(id: any, columns?: string[]): Promise<T>
 ```
 
+## Parameters
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `user2._exists` | exactly match | `true` |
-> | `user1.getConnectionName()` | exactly match | `'second_connection'` |
-> | `user2.getConnectionName()` | exactly match | `'second_connection'` |
-```typescript
-user2 = await FedacoTestUser.useConnection('second_connection').firstOrNew({
-  email: 'tony.stark@gradii.com'
-});
+| Name      | Required | Description |
+| --------- | -------- | ----------- |
+| `id`      | ✓        | Primary-key value. |
+| `columns` | optional | Columns to select. Defaults to `['*']`. |
+
+## Returns
+
+- An existing model — `_exists === true`.
+- A new instance — `_exists === false`. **Not persisted.**
+
+## Real-World Use Cases
+
+### 1. Lookup-or-build
+
+```ts
+const user = await User.createQuery().findOrNew(req.params.id);
+if (!user._exists) {
+  user.id = req.params.id;
+  user.email = derivedEmail;
+  await user.save();
+}
 ```
 
+### 2. Build form data without inserting
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `user2._exists` | exactly match | `true` |
-> | `user1.getConnectionName()` | exactly match | `'second_connection'` |
-> | `user2.getConnectionName()` | exactly match | `'second_connection'` |
-> | `await FedacoTestUser.useConnection('second_connection').count()` | match | `1` |
-```typescript
-user2 = await FedacoTestUser.useConnection('second_connection').firstOrCreate({
-  email: 'tony.stark@gradii.com'
-});
+```ts
+const user = await User.createQuery().findOrNew(req.params.id);
+return render('user-form', { user });
+// `user` carries DB values when the row exists, or empty fields otherwise.
 ```
 
+### 3. Combined with `useConnection`
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `user2.getConnectionName()` | exactly match | `'second_connection'` |
-> | `await FedacoTestUser.useConnection('second_connection').count()` | match | `2` |
+```ts
+const user = await User.useConnection('second_connection').findOrNew(1);
+console.log(user._exists, user.GetConnectionName());
+```
 
+The new instance retains the named connection — calling `save()` later persists to that connection.
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+## `findOrNew` vs `findOrFail` vs `firstOrNew`
+
+| Method                       | Lookup         | Lookup miss → | Persists on miss? |
+| ---------------------------- | -------------- | ------------- | ----------------- |
+| [`findOrNew`](./findOrNew)   | primary key    | new instance  | ✗ |
+| [`findOrFail`](./findOrFail) | primary key    | throws        | n/a |
+| [`firstOrNew`](./firstOrNew) | attribute set  | new instance  | ✗ |
+| [`firstOrCreate`](./firstOrCreate) | attribute set | INSERT     | ✓ |
+
+## Common Pitfalls
+
+- **`_exists`, not `null`.** The result is always a model instance — branch on `_exists`, not `if (!user)`.
+- **Doesn't auto-fill the primary key.** When `_exists === false`, the instance has *no attributes*. Set them yourself before saving.
+
+## See Also
+
+- [`find`](./find) — returns `undefined` instead.
+- [`findOrFail`](./findOrFail) — throws on miss.
+- [`firstOrNew`](./firstOrNew) — same idea, attribute-based lookup.

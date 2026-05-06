@@ -1,86 +1,89 @@
-# Function Fresh
-### fresh method on model
+# `fresh`
 
-```typescript
-const now = new Date();
-const nowSerialized = formatISO(startOfSecond(now));
-const nowWithFractionsSerialized = now.toJSON();
-// Carbon.setTestNow(now);
-const storedUser1 = await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com',
-  birthday: now
-});
-await storedUser1.NewQuery().update({
-  email: 'dev@mathieutu.ovh',
-  name: 'Mathieu TUDISCO'
-});
-const freshStoredUser1 = await storedUser1.Fresh();
-const storedUser2 = await FedacoTestUser.createQuery().create({
-  id: 2,
-  email: 'linbolen@gradii.com',
-  birthday: now
-});
-await storedUser2.NewQuery().update({
-  email: 'dev@mathieutu.ovh'
-});
-const freshStoredUser2 = await storedUser2.Fresh();
-const notStoredUser = FedacoTestUser.initAttributes({
-  id: 3,
-  email: 'linbolen@gradii.com',
-  birthday: now
-});
-const freshNotStoredUser = await notStoredUser.Fresh();
+Return a **fresh, newly-loaded copy** of the current model from the database, leaving `this` untouched. Use it when other code may have updated the row and you want a snapshot.
+
+## Signature
+
+```ts
+model.Fresh(with?: string[] | string): Promise<this | undefined>
 ```
 
+## Parameters
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `freshStoredUser1.toArray()` | match | `({
-      'id'        : 1,
-      'name'      : 'Mathieu TUDISCO',
-      'email'     : 'dev@mathieutu.ovh',
-      'birthday'  : nowWithFractionsSerialized,
-      'created_at': nowSerialized,
-      'updated_at': nowSerialized
-    });` |
-> | `storedUser1` | instance type exactly match | `FedacoTestUser` |
-> | `storedUser2.toArray()` | match | `({
-      'id'        : 2,
-      'email'     : 'linbolen@gradii.com',
-      'birthday'  : nowWithFractionsSerialized,
-      'created_at': nowSerialized,
-      'updated_at': nowSerialized
-    });` |
-> | `freshStoredUser2.toArray()` | match | `({
-      'id'        : 2,
-      'name'      : null,
-      'email'     : 'dev@mathieutu.ovh',
-      'birthday'  : nowWithFractionsSerialized,
-      'created_at': nowSerialized,
-      'updated_at': nowSerialized
-    });` |
-> | `storedUser2` | instance type exactly match | `FedacoTestUser` |
-> | `notStoredUser.toArray()` | match | `({
-      'id'      : 3,
-      'email'   : 'linbolen@gradii.com',
-      'birthday': nowWithFractionsSerialized
-    });` |
-> | `freshNotStoredUser` | exactly match | `null` |
+| Name   | Description |
+| ------ | ----------- |
+| `with` | Relations to eager-load on the fresh copy. Same shape as [`with`](./with). |
 
+## Returns
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+- A new model populated from the database, or
+- `undefined` if the row no longer exists, or
+- `undefined` when called on an instance that doesn't `_exists`.
 
-### model ignored by global scope can be refreshed
+The original instance is **not** modified — for in-place reload use [`refresh`](./fresh) (`Refresh`).
 
-```typescript
-const user = await FedacoTestUserWithOmittingGlobalScope.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
+## Real-World Use Cases
+
+### 1. Snapshot before / after a write
+
+```ts
+const before = await User.createQuery().find(1);
+await Order.createQuery().create({ user_id: 1, total: 99 });
+
+const after = await before.Fresh();
+console.log(before.order_count, '→', after.order_count);
 ```
 
+### 2. Detect external mutation
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+```ts
+const post = await Post.createQuery().find(postId);
+// ... long pause, work, etc.
+const latest = await post.Fresh();
+if (latest && latest.updated_at > post.updated_at) {
+  throw new Error('post was edited by someone else');
+}
+```
+
+### 3. Reload with relations
+
+```ts
+const order = await Order.createQuery().find(1);
+const enriched = await order.Fresh(['items', 'customer']);
+// enriched.items / enriched.customer populated; original `order` unchanged
+```
+
+### 4. Refresh in place — `Refresh`
+
+When you want to mutate the instance you already have:
+
+```ts
+const post = await Post.createQuery().find(1);
+// ... time passes
+await post.Refresh();
+// post is now reloaded — same instance, latest data
+```
+
+`Refresh` reloads attributes onto `this` and re-fetches all currently-loaded relations.
+
+## `Fresh` vs `Refresh`
+
+| Method  | Returns           | Mutates `this` | Reloads relations? |
+| ------- | ----------------- | -------------- | ------------------ |
+| `Fresh` | new instance      | ✗              | only when you pass `with` arg |
+| `Refresh` | `this`          | ✓              | reloads currently-loaded relations |
+
+Use `Fresh` when you want to keep the old state for comparison. Use `Refresh` when you simply want the model up to date.
+
+## Common Pitfalls
+
+- **`undefined` on missing rows.** Don't assume the result is non-null; the row might have been deleted.
+- **Not the same as `find` on the same id**: `Fresh` runs against the same query *without scopes*, preserving things like soft-delete trash visibility from the original instance.
+- **`Refresh` is async** — always await it; failing to await leaves the instance in a stale state and the promise unhandled.
+
+## See Also
+
+- [`refresh`](./fresh) — in-place reload.
+- [`save`](./save) / [`update`](./update) — write changes.
+- [`with`](./with) — eager-load on a query.
+- [`getAttribute`](./getAttribute) — read a single attribute.

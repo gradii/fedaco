@@ -1,159 +1,92 @@
-# Function Oldest
-### basic model collection retrieval
+# `oldest`
 
-```typescript
-await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await FedacoTestUser.createQuery().create({
-  id: 2,
-  email: 'xsilen@gradii.com'
-});
-const models = await new FedacoTestUser().NewQuery().oldest('id').get();
+Add an ascending `ORDER BY` on a timestamp column. Sugar for `orderBy(column, 'asc')` — the symmetric counterpart of `latest()`.
+
+## Signature
+
+```ts
+FedacoBuilder<T>.oldest(column?: string): this
+FedacoBuilder<T>.latest(column?: string): this
 ```
 
+## Parameters
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `isArray(models)` | exactly match | `true` |
-> | `models[0]` | instance type exactly match | `FedacoTestUser` |
-> | `models[1]` | instance type exactly match | `FedacoTestUser` |
-> | `models[0].email` | exactly match | `'linbolen@gradii.com'` |
-> | `models[1].email` | exactly match | `'xsilen@gradii.com'` |
+| Name      | Default | Description |
+| --------- | ------- | ----------- |
+| `column`  | model's `created_at` column (`'created_at'` by default) | Column to order by ASC (`oldest`) or DESC (`latest`). |
 
+## Real-World Use Cases
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+### 1. First-created first
 
-### paginated model collection retrieval when no elements and default per page
+```ts
+await User.createQuery().create({ id: 1, email: 'linbolen@gradii.com' });
+await User.createQuery().create({ id: 2, email: 'xsilen@gradii.com' });
 
-```typescript
-const models = await new FedacoTestUser().NewQuery().oldest('id').paginate();
+const models = await new User().NewQuery().oldest('id').get();
+console.log(models[0].email); // 'linbolen@gradii.com'
+console.log(models[1].email); // 'xsilen@gradii.com'
 ```
 
+Equivalent to:
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### paginated model collection retrieval when no elements
-
-```typescript
-// Paginator.currentPageResolver(() => {
-//   return 1;
-// });
-let models = await new FedacoTestUser().NewQuery().oldest('id').paginate(1, 2);
-```
-```typescript
-// expect(models).toInstanceOf(LengthAwarePaginator);
-// Paginator.currentPageResolver(() => {
-//   return 2;
-// });
-models = await new FedacoTestUser().NewQuery().oldest('id').paginate(2, 2);
+```ts
+const models = await User.createQuery().orderBy('id', 'asc').get();
 ```
 
+### 2. List in registration order
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### paginated model collection retrieval
-
-```typescript
-await new FedacoTestUser().NewQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await new FedacoTestUser().NewQuery().create({
-  id: 2,
-  email: 'xsilen@gradii.com'
-});
-await new FedacoTestUser().NewQuery().create({
-  id: 3,
-  email: 'foo@gmail.com'
-});
-// Paginator.currentPageResolver(() => {
-//   return 1;
-// });
-let models = await new FedacoTestUser().NewQuery().oldest('id').paginate(1, 2);
+```ts
+const users = await User.createQuery().oldest().get();
 ```
 
+Without an argument, `oldest` orders by the model's `created_at` column.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `models.items[0]` | instance type exactly match | `FedacoTestUser` |
-> | `models.items[1]` | instance type exactly match | `FedacoTestUser` |
-> | `models.items[0].email` | exactly match | `'linbolen@gradii.com'` |
-> | `models.items[1].email` | exactly match | `'xsilen@gradii.com'` |
+### 3. Combined with `paginate`
 
+```ts
+let page = await User.createQuery().oldest('id').paginate(1, 2);
+// page.items[0].email — earliest record on page 1.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `models.items.length` | exactly match | `1` |
-> | `models.items[0]` | instance type exactly match | `FedacoTestUser` |
-> | `models.items[0].email` | exactly match | `'foo@gmail.com'` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### pluck with column name containing a space
-
-```typescript
-await FedacoTestUserWithSpaceInColumnName.createQuery().create({
-  id: 1,
-  email_address: 'linbolen@gradii.com'
-});
-await FedacoTestUserWithSpaceInColumnName.createQuery().create({
-  id: 2,
-  email_address: 'xsilen@gradii.com'
-});
-const simple = await FedacoTestUserWithSpaceInColumnName.createQuery()
-  .oldest('id')
-  .pluck('users_with_space_in_colum_name.email_address');
-const keyed = await FedacoTestUserWithSpaceInColumnName.createQuery()
-  .oldest('id')
-  .pluck('email_address', 'id');
+page = await User.createQuery().oldest('id').paginate(2, 2);
 ```
 
+The order is preserved when paginating — without it, paginated results have non-deterministic content.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `keyed` | match | `({
-      1: 'linbolen@gradii.com',
-      2: 'xsilen@gradii.com'
-    });` |
+### 4. Combined with `pluck`
 
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### pluck
-
-```typescript
-await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await FedacoTestUser.createQuery().create({
-  id: 2,
-  email: 'xsilen@gradii.com'
-});
-const simple = await FedacoTestUser.createQuery()
-  .oldest('id')
-  .pluck('users.email');
-const keyed = await FedacoTestUser.createQuery()
+```ts
+const keyed = await User.createQuery()
   .oldest('id')
   .pluck('users.email', 'users.id');
+// { 1: 'linbolen@gradii.com', 2: 'xsilen@gradii.com' }
 ```
 
+`pluck`'s second argument is the key column — combined with `oldest('id')`, the resulting object is iterated in insertion order.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `keyed` | match | `({
-      1: 'linbolen@gradii.com',
-      2: 'xsilen@gradii.com'
-    });` |
+### 5. `latest` for descending order
 
+```ts
+const newest = await Post.createQuery().latest().first();
+// equivalent to .orderBy('created_at', 'desc').first()
+```
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+## When to Skip the Sugar
+
+Use full `orderBy(...)` when:
+
+- The column isn't `created_at`-shaped — `oldest` / `latest` are deliberately about timestamps.
+- You want to combine multiple sort columns (`orderBy('priority').orderBy('created_at')`).
+- You want descending on a non-timestamp column.
+
+## Common Pitfalls
+
+- **Defaults to `created_at`.** If your model uses a different timestamp (`@CreatedAtColumn` with a custom column name), pass the column explicitly or override `GetCreatedAtColumn()` on the model.
+- **`oldest` adds an order; it doesn't replace.** Subsequent `orderBy` clauses keep stacking. Call `reorder()` first if you want to reset.
+
+## See Also
+
+- [`paginate`](./paginate) — naturally pairs with an order.
+- [`first`](./first) — "first in chosen order".
+- `latest` — descending sibling.
+- [`pluck`](./pluck) — keyed plucks rely on order.

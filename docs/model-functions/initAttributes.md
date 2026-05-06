@@ -1,151 +1,112 @@
-# Function InitAttributes
-### basic model hydration
+# `initAttributes`
 
-```typescript
-let user = FedacoTestUser.initAttributes({
-  email: 'linbolen@gradii.com'
-});
-user.setConnection('second_connection');
+Static factory: build a model instance pre-filled with attributes, **without** persisting it to the database. Useful when you want to construct a model in memory, mutate it, then call `save()` yourself.
+
+## Signature
+
+```ts
+class Model {
+  static initAttributes<T>(this: Constructor<T>, attributes?: Record<string, any>): T;
+}
+```
+
+## Parameters
+
+| Name         | Required | Description |
+| ------------ | -------- | ----------- |
+| `attributes` | optional | Object of column → value. Subject to `_fillable` whitelist. |
+
+## Returns
+
+A new model instance with `_exists = false` and the given attributes populated. `_original` is synced so the dirty-attribute tracking starts clean.
+
+## Real-World Use Cases
+
+### 1. Build-then-save with a non-default connection
+
+```ts
+let user = User.initAttributes({ email: 'linbolen@gradii.com' });
+user.SetConnection('second_connection');
 await user.save();
-user = FedacoTestUser.initAttributes({
-  email: 'xsilen@gradii.com'
-});
-user.setConnection('second_connection');
+
+user = User.initAttributes({ email: 'xsilen@gradii.com' });
+user.SetConnection('second_connection');
 await user.save();
-const models = await FedacoTestUser.useConnection(
-  'second_connection'
-).fromQuery('SELECT * FROM users WHERE email = ?', ['xsilen@gradii.com']);
+
+const models = await User.useConnection('second_connection').fromQuery(
+  'SELECT * FROM users WHERE email = ?',
+  ['xsilen@gradii.com'],
+);
+console.log(models[0].GetConnectionName()); // 'second_connection'
 ```
 
+This is the long form of `User.createQuery().create({...})` when you need to do extra work between construction and save (set the connection, attach event handlers, mutate attributes).
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `models[0]` | instance type exactly match | `FedacoTestUser` |
-> | `models[0].email` | exactly match | `'xsilen@gradii.com'` |
-> | `models[0].getConnectionName()` | exactly match | `'second_connection'` |
-> | `models.length` | exactly match | `1` |
+### 2. Pre-fill a form model
 
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### fresh method on model
-
-```typescript
-const now = new Date();
-const nowSerialized = formatISO(startOfSecond(now));
-const nowWithFractionsSerialized = now.toJSON();
-// Carbon.setTestNow(now);
-const storedUser1 = await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com',
-  birthday: now
+```ts
+const draft = User.initAttributes({
+  email: req.query.email,
+  plan: 'free',
 });
-await storedUser1.NewQuery().update({
-  email: 'dev@mathieutu.ovh',
-  name: 'Mathieu TUDISCO'
-});
-const freshStoredUser1 = await storedUser1.Fresh();
-const storedUser2 = await FedacoTestUser.createQuery().create({
-  id: 2,
-  email: 'linbolen@gradii.com',
-  birthday: now
-});
-await storedUser2.NewQuery().update({
-  email: 'dev@mathieutu.ovh'
-});
-const freshStoredUser2 = await storedUser2.Fresh();
-const notStoredUser = FedacoTestUser.initAttributes({
-  id: 3,
-  email: 'linbolen@gradii.com',
-  birthday: now
-});
-const freshNotStoredUser = await notStoredUser.Fresh();
+return render('signup', { draft });
 ```
 
+The instance carries default values and a `_exists === false` flag — useful for "is this a new record?" branching in templates.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `freshStoredUser1.toArray()` | match | `({
-      'id'        : 1,
-      'name'      : 'Mathieu TUDISCO',
-      'email'     : 'dev@mathieutu.ovh',
-      'birthday'  : nowWithFractionsSerialized,
-      'created_at': nowSerialized,
-      'updated_at': nowSerialized
-    });` |
-> | `storedUser1` | instance type exactly match | `FedacoTestUser` |
-> | `storedUser2.toArray()` | match | `({
-      'id'        : 2,
-      'email'     : 'linbolen@gradii.com',
-      'birthday'  : nowWithFractionsSerialized,
-      'created_at': nowSerialized,
-      'updated_at': nowSerialized
-    });` |
-> | `freshStoredUser2.toArray()` | match | `({
-      'id'        : 2,
-      'name'      : null,
-      'email'     : 'dev@mathieutu.ovh',
-      'birthday'  : nowWithFractionsSerialized,
-      'created_at': nowSerialized,
-      'updated_at': nowSerialized
-    });` |
-> | `storedUser2` | instance type exactly match | `FedacoTestUser` |
-> | `notStoredUser.toArray()` | match | `({
-      'id'      : 3,
-      'email'   : 'linbolen@gradii.com',
-      'birthday': nowWithFractionsSerialized
-    });` |
-> | `freshNotStoredUser` | exactly match | `null` |
+### 3. Pre-construct then `saveOrFail` — duplicate-entry assertion
 
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### save or fail with duplicated entry
-
-```typescript
+```ts
 const date = '1970-01-01';
-await FedacoTestPost.createQuery().create({
+await Post.createQuery().create({
   id: 1,
   user_id: 1,
   name: 'Post',
   created_at: date,
-  updated_at: date
+  updated_at: date,
 });
-const post = FedacoTestPost.initAttributes({
+
+const dup = Post.initAttributes({
   id: 1,
   user_id: 1,
   name: 'Post',
   created_at: date,
-  updated_at: date
+  updated_at: date,
 });
-await expect(async () => {
-  await post.saveOrFail();
-}).rejects.toThrowError('SQLSTATE[23000]:');
+
+await expect(dup.saveOrFail()).rejects.toThrowError('SQLSTATE[23000]:');
 ```
 
+`initAttributes` doesn't persist — the second `Post` only hits the database when you save it.
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+### 4. Compose with `setRawAttributes`
 
-### save or fail
+`initAttributes` runs through `Fill` (mass-assignment guards apply). For internal hydration that bypasses guards (e.g. database loaders), use `setRawAttributes` directly:
 
-```typescript
-const date = '1970-01-01';
-const post = FedacoTestPost.initAttributes({
-  user_id: 1,
-  name: 'Post',
-  created_at: date,
-  updated_at: date
-});
+```ts
+const u = new User();
+u.setRawAttributes({ id: 42, email: 'ada@example.com' }, /* sync */ true);
+u._exists = true; // mark as loaded
 ```
 
+## `initAttributes` vs `new Model()` vs `create`
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `await FedacoTestPost.createQuery().count()` | match | `1` |
+| Tool                              | Persists? | Mass-assigns | When |
+| --------------------------------- | --------- | ------------ | ---- |
+| `Class.initAttributes({...})`     | ✗         | ✓ (uses `Fill`) | Construct + later save. |
+| `new Class().Fill({...})`         | ✗         | ✓ | Same — older API style. |
+| `Class.createQuery().create({...})` | ✓       | ✓ | One-shot insert + return. |
+| `Class.initAttributes(...).SetRawAttributes(...)` | ✗ | ✗ | Hydration from a DB row. |
 
+## Common Pitfalls
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+- **`MassAssignmentException`**: keys not in `_fillable` throw. Use `forceFill` if you really need to bypass.
+- **`_exists` is `false` until you `save()`.** Calling `Update`/`Delete` immediately after `initAttributes` won't write anything (those methods early-return when `_exists` is false).
+- **Static method, not constructor.** `initAttributes` is a class-level factory — call `User.initAttributes(...)`, not `new User().initAttributes(...)`.
+
+## See Also
+
+- [`fillable`](./fillable) — the mass-assignment whitelist.
+- [`save`](./save) / [`saveOrFail`](./saveOrFail) — persist after construction.
+- [`create`](./create) — combined construct + save.
+- [`setRawAttributes`](./setRawAttributes) — bypass mass-assignment for internal hydration.

@@ -1,74 +1,95 @@
-# Function SetRawAttributes
-### timestamps using custom date format
+# `setRawAttributes`
 
-```typescript
-const model = new FedacoTestUser();
+Bulk-load attributes onto a model **without** going through the cast/accessor pipeline or mass-assignment guards. Used internally by hydration (`NewFromBuilder`) and date-handling tests.
+
+## Signature
+
+```ts
+model.setRawAttributes(attributes: Record<string, any>, sync?: boolean): this
+```
+
+## Parameters
+
+| Name         | Default | Description |
+| ------------ | ------- | ----------- |
+| `attributes` | —       | Object of column → raw value. Stored verbatim in `_attributes`. |
+| `sync`       | `false` | When `true`, also copies the new attributes into `_original` so dirty tracking starts clean (the model is treated as freshly loaded). |
+
+## Real-World Use Cases
+
+### 1. Hydration from a raw row
+
+When you fetch a row by hand (raw SQL, an external cache), you can build a model from it:
+
+```ts
+const row = { id: 1, email: 'ada@example.com', created_at: '2026-05-07 10:00:00' };
+const user = new User();
+user.setRawAttributes(row, /* sync */ true);
+user._exists = true;
+```
+
+`setRawAttributes(row, true)` means "this is the canonical state from the database — don't treat any of it as dirty."
+
+### 2. Test setup for date formats
+
+```ts
+const model = new User();
 model.setDateFormat('yyyy-MM-dd HH:mm:ss.SSSS');
 model.setRawAttributes({
-  created_at: '2017-11-14 08:23:19.0000',
-  updated_at: '2017-11-14 08:23:19.7348'
+  created_at: '2026-05-07 10:23:19.0000',
+  updated_at: '2026-05-07 10:23:19.7348',
 });
+
+model.fromDateTime(model.GetAttribute('updated_at'));
+// '2026-05-07 10:23:19.734800'
 ```
 
+This is the canonical pattern in fedaco's test suite — load attributes raw, then assert what `fromDateTime` produces with a custom format.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model.fromDateTime(model.getAttribute('updated_at'))` | exactly match | `'2017-11-14 08:23:19.734800'` |
+### 3. Custom date-serialised model
 
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### timestamps using default sql server date format
-
-```typescript
-const model = new FedacoTestUser();
-model.setDateFormat('yyyy-MM-dd HH:mm:ss.SSS');
-model.setRawAttributes({
-  created_at: '2017-11-14 08:23:19.000',
-  updated_at: '2017-11-14 08:23:19.734'
-});
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model.fromDateTime(model.getAttribute('updated_at'))` | exactly match | `'2017-11-14 08:23:19.734'` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### timestamps using old sql server date format
-
-```typescript
-const model = new FedacoTestUser();
-model.setDateFormat('yyyy-MM-dd HH:mm:ss.000');
-model.setRawAttributes({
-  created_at: '2017-11-14 08:23:19.000'
-});
-```
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### to array includes custom formatted timestamps
-
-```typescript
-const model = new FedacoTestUserWithCustomDateSerialization();
+```ts
+const model = new UserWithCustomDateSerialization();
 model.setRawAttributes({
   created_at: '2012-12-04',
-  updated_at: '2012-12-05'
+  updated_at: '2012-12-05',
 });
-const array = model.toArray();
+
+const arr = model.toArray();
+console.log(arr['updated_at']); // '05-12-12' — driven by serializeDate() override
 ```
 
+`setRawAttributes` doesn't run `serializeDate` — that runs when `toArray` reads back through accessors.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `array['updated_at']` | exactly match | `'05-12-12'` |
+### 4. Restore from a snapshot
 
+```ts
+const snapshot = JSON.parse(redis.get(`user:${id}`)!);
+const user = new User();
+user.setRawAttributes(snapshot, true);
+```
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+Faster than hitting the database when you have a known-good cached row.
+
+## `setRawAttributes` vs `Fill` vs `forceFill`
+
+| Method               | Mass-assignment guard | Casts/accessors | Marks attributes dirty |
+| -------------------- | --------------------- | --------------- | ---------------------- |
+| `Fill(...)`          | ✓ (uses `_fillable`)  | ✓               | ✓ |
+| `ForceFill(...)`     | ✗                     | ✓               | ✓ |
+| `setRawAttributes`   | ✗                     | ✗               | depends on `sync` arg |
+
+Use `setRawAttributes` only when you control the input — never on user-supplied data.
+
+## Common Pitfalls
+
+- **Doesn't run `_fillable` checks.** Untrusted input here can write to any column. Mass-assignment guards exist for a reason — bypass them deliberately.
+- **No casts**: a `JsonColumn` written via `setRawAttributes` keeps the raw string; `getAttribute` will still try to parse it on read, but `getRawOriginal` returns the verbatim value.
+- **Forgetting `sync = true`** when restoring loaded state means every attribute is considered dirty — the next `save()` will UPDATE every column.
+
+## See Also
+
+- [`getAttribute`](./getAttribute) — read with casts/accessors.
+- [`fillable`](./fillable) / `forceFill` — guarded mass-assignment.
+- [`save`](./save) — what the dirty-tracking interacts with.
+- [`fresh`](./fresh) — reload from the database instead.

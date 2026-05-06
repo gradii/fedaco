@@ -1,201 +1,98 @@
-# Function Find
-### basic model retrieval
+# `find`
 
-```typescript
-const factory = new FedacoTestUser();
-await factory.NewQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await factory.NewQuery().create({
-  id: 2,
-  email: 'xsilen@gradii.com'
-});
+Fetch a single model (or many) by primary key. Returns `undefined` when no match — use [`findOrFail`](./findOrFail) to throw instead.
+
+## Signature
+
+```ts
+FedacoBuilder<T>.find(id: string | number, columns?: string[]): Promise<T | undefined>
+FedacoBuilder<T>.find(ids: any[], columns?: string[]): Promise<T[]>
 ```
 
+## Parameters
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `      await factory.NewQuery().where('email', 'linbolen@gradii.com').doesntExist()` | exactly match | `false` |
-> | `      await factory.NewQuery().where('email', 'mohamed@laravel.com').doesntExist()` | exactly match | `true` |
+| Name      | Required | Description |
+| --------- | -------- | ----------- |
+| `id`      | ✓        | A primary-key value (scalar) or an array of primary-key values. |
+| `columns` | optional | Columns to select. Defaults to `['*']`. Useful for trimming wide tables. |
 
+The behaviour switches based on whether `id` is an array:
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model.email` | exactly match | `'linbolen@gradii.com'` |
-> | `model.email !== undefined` | exactly match | `true` |
+- **Scalar** → returns one model or `undefined`.
+- **Array**  → returns an array of models (only the ones that matched).
 
+## Real-World Use Cases
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `friends !== undefined` | exactly match | `true` |
-> | `friends` | match | `[]` |
+### 1. Fetch by id
 
+```ts
+const user = await User.createQuery().find(42);
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model` | instance type exactly match | `FedacoTestUser` |
-> | `model.id` | match | `1` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `model` | instance type exactly match | `FedacoTestUser` |
-> | `model.id` | match | `2` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `missing` | exactly match | `Undefined();` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `isArray(collection)` | exactly match | `true` |
-> | `collection.length` | exactly match | `0` |
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `isArray(collection)` | exactly match | `true` |
-> | `collection.length` | exactly match | `2` |
-```typescript
-// .cursor();
-for (const m of models) {
-  expect(m.id).toEqual(1);
-  expect(m.getConnectionName()).toBe('default');
+if (!user) {
+  throw new NotFoundError('user 42 not found');
 }
 ```
 
+### 2. Project specific columns
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+When you only need a couple of columns, trim the SELECT:
 
-### belongs to many custom pivot
-
-```typescript
-const john = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-  id: 1,
-  name: 'John Doe',
-  email: 'johndoe@example.com'
-});
-const jane = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-  id: 2,
-  name: 'Jane Doe',
-  email: 'janedoe@example.com'
-});
-const jack = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-  id: 3,
-  name: 'Jack Doe',
-  email: 'jackdoe@example.com'
-});
-const jule = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-  id: 4,
-  name: 'Jule Doe',
-  email: 'juledoe@example.com'
-});
-await FedacoTestFriendLevel.createQuery().create({
-  id: 1,
-  level: 'acquaintance'
-});
-await FedacoTestFriendLevel.createQuery().create({
-  id: 2,
-  level: 'friend'
-});
-await FedacoTestFriendLevel.createQuery().create({
-  id: 3,
-  level: 'bff'
-});
-await john.NewRelation('friends').attach(jane, {
-  friend_level_id: 1
-});
-await john.NewRelation('friends').attach(jack, {
-  friend_level_id: 2
-});
-await john.NewRelation('friends').attach(jule, {
-  friend_level_id: 3
-});
-const johnWithFriends = await FedacoTestUserWithCustomFriendPivot.createQuery()
-  .with('friends')
-  .find(1);
+```ts
+const user = await User.createQuery().find(42, ['id', 'email']);
 ```
 
+The other columns aren't loaded, so `user.name` would be `undefined`. Use this for hot paths where you control the access pattern.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `await (await johnWithFriends.friends.find(it => it.id === 3).getAttribute(      'pivot').level).level` | exactly match | `'friend'` |
-> | `(await johnWithFriends.friends.find(it => it.id === 4).getAttribute(      'pivot').friend).name` | exactly match | `'Jule Doe'` |
+### 3. Bulk fetch by ids
 
+```ts
+const userIds = [1, 2, 3, 99];
+const users = await User.createQuery().find(userIds);
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### check and create methods on multi connections
-
-```typescript
-await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-await FedacoTestUser.useConnection('second_connection').find(
-  FedacoTestUser.useConnection('second_connection').insert({
-    id: 2,
-    email: 'tony.stark@gradii.com'
-  })
-);
-let user1 = await FedacoTestUser.useConnection('second_connection').findOrNew(
-  1
-);
-let user2 = await FedacoTestUser.useConnection('second_connection').findOrNew(
-  2
-);
+// Returns existing users only — `99` is skipped if it doesn't exist.
+console.log(users.length); // ≤ 4
 ```
 
+The order is **not guaranteed** to match the input ids. If you need ordering, sort after the fact:
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `user2._exists` | exactly match | `true` |
-> | `user1.getConnectionName()` | exactly match | `'second_connection'` |
-> | `user2.getConnectionName()` | exactly match | `'second_connection'` |
-```typescript
-user2 = await FedacoTestUser.useConnection('second_connection').firstOrNew({
-  email: 'tony.stark@gradii.com'
+```ts
+const byId = new Map(users.map((u) => [u.id, u]));
+const ordered = userIds.map((id) => byId.get(id)).filter(Boolean);
+```
+
+### 4. Inside a transaction
+
+```ts
+await db().transaction(async (tx) => {
+  const user = await User.createQuery(tx).find(42);
+  if (!user) return;
+
+  user.balance -= 10;
+  await user.save();
 });
 ```
 
+### 5. Eager-loaded relations
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `user2._exists` | exactly match | `true` |
-> | `user1.getConnectionName()` | exactly match | `'second_connection'` |
-> | `user2.getConnectionName()` | exactly match | `'second_connection'` |
-> | `await FedacoTestUser.useConnection('second_connection').count()` | match | `1` |
-```typescript
-user2 = await FedacoTestUser.useConnection('second_connection').firstOrCreate({
-  email: 'tony.stark@gradii.com'
-});
+`find` composes with [`with`](./with):
+
+```ts
+const user = await User.createQuery().with('posts', 'profile').find(42);
+console.log(user.posts.length);
 ```
 
+### 6. Across a non-default connection
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `user2.getConnectionName()` | exactly match | `'second_connection'` |
-> | `await FedacoTestUser.useConnection('second_connection').count()` | match | `2` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### is after retrieving the same model
-
-```typescript
-const saved = await FedacoTestUser.createQuery().create({
-  id: 1,
-  email: 'linbolen@gradii.com'
-});
-const retrieved = await FedacoTestUser.createQuery().find(1);
+```ts
+const replicaUser = await User.useConnection('replica').find(42);
+console.log(replicaUser.getConnectionName()); // 'replica'
 ```
 
+## See Also
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+- [`findOrFail`](./findOrFail) — throw `ModelNotFoundException` instead of returning `undefined`.
+- [`findOrNew`](./findOrNew) — return a fresh, unsaved instance when no row exists.
+- [`first`](./first) — first row matching arbitrary criteria.
+- [`where`](./where) — build the criteria for non-key lookups.
+- [`createQuery`](./createQuery) — entry point for the builder.
+- [`useConnection`](./useConnection) — query against a non-default connection.

@@ -1,175 +1,121 @@
-# Function WhereHas
-### where has on nested self referencing belongs to many relationship
+# `whereHas`
 
-```typescript
-const user = await FedacoTestUser.createQuery().create({
-  email: 'linbolen@gradii.com'
-});
-const friend = await user.NewRelation('friends').create({
-  email: 'xsilen@gradii.com'
-});
-await friend.NewRelation('friends').create({
-  email: 'foo@gmail.com'
-});
-const results: FedacoTestUser[] = await FedacoTestUser.createQuery()
-  .whereHas('friends.friends', (query) => {
-    query.where('email', 'foo@gmail.com');
+Filter parent rows by the existence of related rows that match a callback. Compiles to `WHERE EXISTS (SELECT ...)` against the related table — no join, no eager-load.
+
+## Signature
+
+```ts
+FedacoBuilder<T>.whereHas(
+  relation: string,
+  callback?: (q: FedacoBuilder<R>) => void,
+  operator?: string,
+  count?: number,
+): this
+```
+
+## Parameters
+
+| Name        | Description |
+| ----------- | ----------- |
+| `relation`  | Name of the relation method on the model. |
+| `callback`  | Constraints applied to the related query. Pass nothing for "any related row exists". |
+| `operator`  | Comparison operator on the count: `>`, `>=`, `<`, `<=`, `=`, `!=`. Default `>=`. |
+| `count`     | Threshold for the count comparison. Default `1`. |
+
+## Real-World Use Cases
+
+### 1. Parents with at least one matching child
+
+```ts
+const usersWithPublishedPosts = await User.createQuery()
+  .whereHas('posts', (q) => {
+    q.where('published', true);
   })
   .get();
 ```
 
+Compiles to roughly:
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(results).email` | exactly match | `'linbolen@gradii.com'` |
+```sql
+SELECT * FROM users WHERE EXISTS (
+  SELECT * FROM posts WHERE posts.user_id = users.id AND published = ?
+)
+```
 
+### 2. Existence without constraints
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+```ts
+const writers = await User.createQuery().whereHas('posts').get();
+```
 
-### where has on nested self referencing belongs to relationship
+Equivalent to [`has('posts')`](./has) — `whereHas` with no callback degenerates to plain existence.
 
-```typescript
-const grandParentPost = await FedacoTestPost.createQuery().create({
-  name: 'Grandparent Post',
-  user_id: 1
-});
-const parentPost = await FedacoTestPost.createQuery().create({
-  name: 'Parent Post',
-  parent_id: grandParentPost.id,
-  user_id: 2
-});
-await FedacoTestPost.createQuery().create({
-  name: 'Child Post',
-  parent_id: parentPost.id,
-  user_id: 3
-});
-const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
-  .whereHas('parentPost.parentPost', (query) => {
-    query.where('name', 'Grandparent Post');
+### 3. Count comparisons
+
+```ts
+// Users who wrote 5+ posts
+const prolific = await User.createQuery()
+  .whereHas('posts', (q) => q.where('published', true), '>=', 5)
+  .get();
+```
+
+### 4. Nested whereHas across two levels
+
+```ts
+const users = await User.createQuery()
+  .whereHas('posts', (q) => {
+    q.whereHas('comments', (cq) => {
+      cq.where('flagged', true);
+    });
   })
   .get();
 ```
 
+Each level fires its own `EXISTS` subquery.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(results).name` | exactly match | `'Child Post'` |
+### 5. Excluding parents — `whereDoesntHave`
 
+The negation:
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### where has on nested self referencing has many relationship
-
-```typescript
-const grandParentPost = await FedacoTestPost.createQuery().create({
-  name: 'Grandparent Post',
-  user_id: 1
-});
-const parentPost = await FedacoTestPost.createQuery().create({
-  name: 'Parent Post',
-  parent_id: grandParentPost.id,
-  user_id: 2
-});
-await FedacoTestPost.createQuery().create({
-  name: 'Child Post',
-  parent_id: parentPost.id,
-  user_id: 3
-});
-const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
-  .whereHas('childPosts.childPosts', (query) => {
-    query.where('name', 'Child Post');
-  })
+```ts
+const usersWithoutPosts = await User.createQuery()
+  .whereDoesntHave('posts')
   .get();
 ```
 
+### 6. Combined with eager loading
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(results).name` | exactly match | `'Grandparent Post'` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### where has on self referencing belongs to many relationship
-
-```typescript
-const user = await FedacoTestUser.createQuery().create({
-  email: 'linbolen@gradii.com'
-});
-await user.NewRelation('friends').create({
-  email: 'xsilen@gradii.com'
-});
-const results: FedacoTestUser[] = await FedacoTestUser.createQuery()
-  .whereHas('friends', (query) => {
-    query.where('email', 'xsilen@gradii.com');
-  })
+```ts
+const users = await User.createQuery()
+  .whereHas('posts', (q) => q.where('published', true))
+  .with('posts')        // eager-load *all* posts (including drafts)
   .get();
 ```
 
+The constraint in `whereHas` filters parents; it doesn't restrict which posts get loaded by `with`. To load only published posts, constrain inside `with`:
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(results).email` | exactly match | `'linbolen@gradii.com'` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### where has on self referencing belongs to relationship
-
-```typescript
-const parentPost = await FedacoTestPost.createQuery().create({
-  name: 'Parent Post',
-  user_id: 1
-});
-await FedacoTestPost.createQuery().create({
-  name: 'Child Post',
-  parent_id: parentPost.id,
-  user_id: 2
-});
-const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
-  .whereHas('parentPost', (query) => {
-    query.where('name', 'Parent Post');
-  })
-  .get();
+```ts
+.with('posts', (q) => q.where('published', true))
 ```
 
+## `whereHas` vs `has` vs `with`
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(results).name` | exactly match | `'Child Post'` |
+| Tool             | Effect on parents | Effect on relation rows |
+| ---------------- | ----------------- | ----------------------- |
+| [`with`](./with)         | none — all parents returned     | loads them onto each parent |
+| [`has`](./has)           | filters parents to those with related rows | none — no rows hydrated |
+| [`whereHas`](./whereHas) | filters with custom constraints | none |
+| `with` + `whereHas`      | filters parents *and* loads relation | both — independent constraint sets |
 
+## Common Pitfalls
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+- **Constraints inside `whereHas` don't affect what `with` loads.** They're separate concerns — keep both if you need both.
+- **`whereHas` runs subqueries; large datasets may benefit from a join + group instead.** For polymorphic or deep nesting, profile before assuming `whereHas` is fastest.
+- **Dotted relation names (`'posts.comments'`)** — supported, each segment becomes its own `EXISTS`.
 
-### where has on self referencing has many relationship
+## See Also
 
-```typescript
-const parentPost = await FedacoTestPost.createQuery().create({
-  name: 'Parent Post',
-  user_id: 1
-});
-await FedacoTestPost.createQuery().create({
-  name: 'Child Post',
-  parent_id: parentPost.id,
-  user_id: 2
-});
-const results: FedacoTestPost[] = await FedacoTestPost.createQuery()
-  .whereHas('childPosts', (query) => {
-    query.where('name', 'Child Post');
-  })
-  .get();
-```
-
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(results).name` | exactly match | `'Parent Post'` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+- [`has`](./has) — existence-only variant (no callback).
+- [`with`](./with) — eager-load relation rows.
+- [`getRelation`](./getRelation) — load one relation lazily on a single instance.
+- Relationships docs ([Defining Relationships](../relationships/defining-relationships/relation-one-to-one)).

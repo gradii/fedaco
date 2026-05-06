@@ -1,165 +1,119 @@
-# Function With
-### basic has many eager loading
+# `with`
 
-```typescript
-let user: FedacoTestUser = await FedacoTestUser.createQuery().create({
-  email: 'linbolen@gradii.com'
-});
-await user.NewRelation('posts').create({
-  name: 'First Post'
-});
-user = await FedacoTestUser.createQuery()
-  .with('posts')
-  .where('email', 'linbolen@gradii.com')
-  .first();
+Eager-load related models alongside the query. Avoids the N+1 query problem — instead of one SELECT per parent + one per relation per row, fedaco issues one SELECT for the parents and one batched SELECT per declared relation.
+
+## Signature
+
+```ts
+FedacoBuilder<T>.with(relation: string): this
+FedacoBuilder<T>.with(relation: string, callback: (q) => void): this
+FedacoBuilder<T>.with(...relations: string[]): this
+FedacoBuilder<T>.with(relations: { [name: string]: (q) => void }): this
 ```
-```typescript
-const post = await FedacoTestPost.createQuery()
-  .with('user')
-  .where('name', 'First Post')
+
+## Parameters
+
+| Name        | Description |
+| ----------- | ----------- |
+| `relation`  | Name of a method on the model that returns a `Relation` (`HasOne`, `HasMany`, `BelongsTo`, `BelongsToMany`, polymorphic, …). |
+| `callback`  | Function that receives the relation's query builder — apply scopes, additional `where`, `select`, ordering. |
+
+Pass dotted names like `'posts.comments'` to eager-load nested relations.
+
+## Real-World Use Cases
+
+### 1. Single relation
+
+```ts
+const users = await User.createQuery().with('posts').get();
+
+for (const u of users) {
+  console.log(u.name, u.posts.length); // posts already loaded
+}
+```
+
+A second `SELECT * FROM posts WHERE user_id IN (?, ?, ?, ...)` runs once for the whole set.
+
+### 2. Multiple relations
+
+```ts
+const users = await User.createQuery().with('posts', 'profile', 'team').get();
+```
+
+Or as an array:
+
+```ts
+await User.createQuery().with(['posts', 'profile']).get();
+```
+
+### 3. Constrain a relation while loading
+
+```ts
+const users = await User.createQuery()
+  .with('posts', (q) => {
+    q.where('published', true).orderBy('created_at', 'desc').limit(5);
+  })
+  .get();
+
+// users[i].posts contains only the latest 5 published posts per user.
+```
+
+### 4. Nested eager loading
+
+```ts
+const users = await User.createQuery()
+  .with('posts.comments.author')
   .get();
 ```
 
+Each level fires one batched query — three extra round trips total, regardless of row count.
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+### 5. Mixed simple + constrained
 
-### basic nested self referencing has many eager loading
-
-```typescript
-let user: FedacoTestUser = await FedacoTestUser.createQuery().create({
-  email: 'linbolen@gradii.com'
-});
-const post: FedacoTestPost = await user.NewRelation('posts').create({
-  name: 'First Post'
-});
-await post.NewRelation('childPosts').create({
-  name: 'Child Post',
-  user_id: user.id
-});
-user = await FedacoTestUser.createQuery()
-  .with('posts.childPosts')
-  .where('email', 'linbolen@gradii.com')
-  .first();
+```ts
+const users = await User.createQuery()
+  .with({
+    profile: () => {},                       // unconstrained
+    posts: (q) => q.where('draft', false),   // constrained
+  })
+  .get();
 ```
 
+### 6. Eager-load only specific columns
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `head(await user.posts).name` | exactly match | `'First Post'` |
-> | `head(await head(await user.posts).childPosts)` | exactly not match | `null` |
-> | `head(await head(await user.posts).childPosts as any[]).name` | exactly match | `'Child Post'` |
+Use the `relation:col1,col2` shorthand inside a string:
 
-
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `(await head(posts).parentPost)` | exactly not match | `null` |
-> | `(await head(posts).parentPost).user` | exactly not match | `null` |
-> | `(await head(posts).parentPost).user.email` | exactly match | `'linbolen@gradii.com'` |
-
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### belongs to many custom pivot
-
-```typescript
-const john = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-  id: 1,
-  name: 'John Doe',
-  email: 'johndoe@example.com'
-});
-const jane = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-  id: 2,
-  name: 'Jane Doe',
-  email: 'janedoe@example.com'
-});
-const jack = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-  id: 3,
-  name: 'Jack Doe',
-  email: 'jackdoe@example.com'
-});
-const jule = await FedacoTestUserWithCustomFriendPivot.createQuery().create({
-  id: 4,
-  name: 'Jule Doe',
-  email: 'juledoe@example.com'
-});
-await FedacoTestFriendLevel.createQuery().create({
-  id: 1,
-  level: 'acquaintance'
-});
-await FedacoTestFriendLevel.createQuery().create({
-  id: 2,
-  level: 'friend'
-});
-await FedacoTestFriendLevel.createQuery().create({
-  id: 3,
-  level: 'bff'
-});
-await john.NewRelation('friends').attach(jane, {
-  friend_level_id: 1
-});
-await john.NewRelation('friends').attach(jack, {
-  friend_level_id: 2
-});
-await john.NewRelation('friends').attach(jule, {
-  friend_level_id: 3
-});
-const johnWithFriends = await FedacoTestUserWithCustomFriendPivot.createQuery()
-  .with('friends')
-  .find(1);
+```ts
+await User.createQuery().with('posts:id,user_id,title').get();
 ```
 
+The foreign key (`user_id`) is required so the relation can match — fedaco won't add it for you.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `await (await johnWithFriends.friends.find(it => it.id === 3).getAttribute(      'pivot').level).level` | exactly match | `'friend'` |
-> | `(await johnWithFriends.friends.find(it => it.id === 4).getAttribute(      'pivot').friend).name` | exactly match | `'Jule Doe'` |
+### 7. Prevent eager loading
 
-
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
-
-### eager loaded morph to relations on another database connection
-
-```typescript
-await FedacoTestPost.createQuery().create({
-  id: 1,
-  name: 'Default Connection Post',
-  user_id: 1
-});
-await FedacoTestPhoto.createQuery().create({
-  id: 1,
-  imageable_type: 'post',
-  imageable_id: 1,
-  name: 'Photo'
-});
-await FedacoTestPost.useConnection('second_connection').create({
-  id: 1,
-  name: 'Second Connection Post',
-  user_id: 1
-});
-await FedacoTestPhoto.useConnection('second_connection').create({
-  id: 1,
-  imageable_type: 'post',
-  imageable_id: 1,
-  name: 'Photo'
-});
-const defaultConnectionPost = (
-  await FedacoTestPhoto.createQuery().with('imageable').first()
-).imageable;
-const secondConnectionPost = (
-  await FedacoTestPhoto.useConnection('second_connection')
-    .with('imageable')
-    .first()
-).imageable;
+```ts
+await Post.createQuery().without('author').get();
 ```
 
+Drops a `with` set earlier in the chain or by a global scope.
 
-> | Reference | Looks Like | Value |
-> | ------ | ----- | ----- |
-> | `'Second Connection Post'` | match | `secondConnectionPost.name` |
+### 8. Replace the eager-load list
 
+```ts
+await User.createQuery().withOnly('posts').get();
+```
 
-----
-see also [prerequisites](./../database-fedaco-integration/prerequisite)
+Resets `_eagerLoad` and adds only `posts`.
+
+## Common Pitfalls
+
+- **Names match the method, not the foreign key.** If your model defines `posts(): HasMany`, use `with('posts')`, not `with('user_posts')`.
+- **Ordering inside `with`** orders the *relation* rows, not the parents. Use the outer `.orderBy(...)` for parent ordering.
+- **Selecting columns** must include the foreign key, otherwise the matcher can't pair children to parents.
+
+## See Also
+
+- [`whereHas`](./whereHas) — *filter* parents by a relation, in addition to or instead of loading.
+- [`has`](./has) — filter parents that have at least one related row.
+- [`getRelation`](./getRelation) — fetch a relation lazily on a single instance.
+- Relationships docs ([Defining Relationships](../relationships/defining-relationships/relation-one-to-one)).
