@@ -18,7 +18,6 @@ module.exports = composePlugins(
     target: 'node',
   }),
   (config) => {
-    const previousExternals = config.externals;
     config.externals = (data, callback) => {
       const request = data && data.request;
       if (typeof request === 'string') {
@@ -28,15 +27,19 @@ module.exports = composePlugins(
           }
         }
       }
-      if (typeof previousExternals === 'function') {
-        return previousExternals(data, callback);
-      }
       callback();
     };
 
     config.optimization = {
       ...(config.optimization || {}),
       minimize: false,
+      splitChunks: false,
+      runtimeChunk: false,
+    };
+
+    config.output = {
+      ...(config.output || {}),
+      asyncChunks: false,
     };
 
     config.plugins = [
@@ -53,7 +56,15 @@ module.exports = composePlugins(
         resourceRegExp:
           /^(class-validator|class-transformer|@fastify\/static|@nestjs\/(microservices|websockets|platform-express))$/,
       }),
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^prettier$/,
+      }),
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^@fig\/complete-commander$/,
+      }),
     ];
+
+    config.devtool = 'source-map';
 
     return config;
   }

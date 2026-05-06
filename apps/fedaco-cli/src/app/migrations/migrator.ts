@@ -1,15 +1,13 @@
 import { existsSync, readdirSync, statSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { basename, extname, isAbsolute, resolve } from 'node:path';
 
 import { isBlank, uniq } from '@gradii/nanofn';
 
 import type { Connection, ConnectionResolverInterface } from '@gradii/fedaco';
 
+import { jitiRequire } from '../jiti-loader';
 import { Migration } from './migration';
 import type { MigrationRepositoryInterface } from './migration-repository-interface';
-
-const dynamicRequire = createRequire(process.cwd() + '/');
 
 export type MigrationOptions = {
   pretend?: boolean;
@@ -23,35 +21,7 @@ export type MigrationLoader = (file: string) => any;
 
 const MIGRATION_FILE_EXTENSIONS = ['.js', '.cjs', '.mjs', '.ts', '.mts', '.cts'];
 
-let cachedJiti: ((file: string) => any) | null | undefined;
-
-function getJitiLoader(): (file: string) => any {
-  if (cachedJiti === undefined) {
-    try {
-      const createJiti = dynamicRequire('jiti');
-      const factory =
-        typeof createJiti === 'function'
-          ? createJiti
-          : createJiti?.default ?? createJiti?.createJiti;
-      const jiti = factory(process.cwd(), {
-        interopDefault: true,
-        cache: false,
-        requireCache: false,
-      });
-      cachedJiti = (f: string) => jiti(f);
-    } catch {
-      cachedJiti = null;
-    }
-  }
-  if (!cachedJiti) {
-    throw new Error(
-      `fedaco: "jiti" is required to load migrations. Install it: pnpm add jiti`
-    );
-  }
-  return cachedJiti;
-}
-
-const defaultLoader: MigrationLoader = (file) => getJitiLoader()(file);
+const defaultLoader: MigrationLoader = (file) => jitiRequire(file);
 
 export class Migrator {
   protected static requiredPathCache = new Map<string, any>();

@@ -1,16 +1,14 @@
 import { existsSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { isAbsolute, resolve } from 'node:path';
 
 import type { FedacoCliOptions } from '../app.module';
+import { jitiRequire } from '../jiti-loader';
 
 const DEFAULT_CONFIG_FILES = [
   'fedaco.config.js',
   'fedaco.config.cjs',
   'fedaco.config.json',
 ];
-
-const dynamicRequire = createRequire(process.cwd() + '/');
 
 export function loadFedacoConfig(): FedacoCliOptions {
   const argv = process.argv.slice(2);
@@ -26,7 +24,7 @@ export function loadFedacoConfig(): FedacoCliOptions {
     );
   }
 
-  const loaded = dynamicRequire(file);
+  const loaded = jitiRequire(file);
   const config = loaded && loaded.default ? loaded.default : loaded;
 
   if (!config || !config.connections) {

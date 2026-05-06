@@ -1,12 +1,9 @@
-import { createRequire } from 'node:module';
-
 import { Inject, Injectable } from '@nestjs/common';
 import { DatabaseConfig } from '@gradii/fedaco';
 
 import { MIGRATOR_OPTIONS } from './fedaco-cli.constants';
+import { jitiRequire } from './jiti-loader';
 import { DatabaseMigrationRepository, Migrator } from './migrations';
-
-const dynamicRequire = createRequire(process.cwd() + '/');
 
 export interface MigratorOptions {
   connections: Record<string, any>;
@@ -97,30 +94,6 @@ export class MigratorService {
   }
 }
 
-let cachedJiti: ((file: string) => any) | null | undefined;
-
 function loadMigrationFile(file: string): any {
-  if (cachedJiti === undefined) {
-    try {
-      const createJiti = dynamicRequire('jiti');
-      const factory =
-        typeof createJiti === 'function'
-          ? createJiti
-          : createJiti?.default ?? createJiti?.createJiti;
-      const jiti = factory(process.cwd(), {
-        interopDefault: true,
-        cache: false,
-        requireCache: false,
-      });
-      cachedJiti = (f: string) => jiti(f);
-    } catch {
-      cachedJiti = null;
-    }
-  }
-  if (!cachedJiti) {
-    throw new Error(
-      `fedaco: "jiti" is required to load migrations. Install it in your project: pnpm add jiti`
-    );
-  }
-  return cachedJiti(file);
+  return jitiRequire(file);
 }
