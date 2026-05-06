@@ -48,7 +48,7 @@ describe('database query builder test', () => {
 
     getConfig(name: string): any {}
 
-    getPdo(): any {}
+    getDriverConnection(): any {}
 
     getSchemaBuilder(): SchemaBuilder {
       return undefined;
@@ -4012,7 +4012,7 @@ describe('database query builder test', () => {
     expect(builder.getBindings()).toStrictEqual(['baz']);
   });
 
-  it('test select with lock uses write pdo', () => {
+  it('test select with lock uses write driverConnection', () => {
     builder = getMySqlBuilder();
     builder.select('*').from('foo').where('bar', '=', 'baz').lock();
     expect(builder.toSql()).toBe('SELECT * FROM `foo` WHERE `bar` = ? for update');

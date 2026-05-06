@@ -16,7 +16,7 @@ export class SqlServerProcessor extends Processor {
     if (connection.getConfig('odbc') === true) {
       id = await this.processInsertGetIdForOdbc(connection);
     } else {
-      // id = await connection.getPdo().lastInsertId();
+      // id = await connection.getDriverConnection().lastInsertId();
     }
     return isNumber(id) ? /* cast type int */ id : id;
   }

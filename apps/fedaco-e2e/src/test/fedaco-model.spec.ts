@@ -86,7 +86,7 @@ class Conn implements ConnectionInterface {
     throw new Error('Method not implemented.');
   }
 
-  getPdo() {
+  getDriverConnection() {
     throw new Error('Method not implemented.');
   }
 
@@ -430,8 +430,8 @@ describe('test database fedaco model', () => {
     expect(model.id).toEqual(21);
   });
 
-  // it('find method use write pdo', () => {
-  //   new FedacoModelFindWithWritePdoStub().newQuery().onWriteConnection().find(1);
+  // it('find method use write driverConnection', () => {
+  //   new FedacoModelFindWithWriteDriverConnectionStub().newQuery().onWriteConnection().find(1);
   // });
 
   // it('destroy method calls query builder correctly', () => {
@@ -2838,10 +2838,10 @@ export class FedacoModelSaveStub extends Model {
 //   protected keyType: any = 'string';
 // }
 //
-export class FedacoModelFindWithWritePdoStub extends Model {
+export class FedacoModelFindWithWriteDriverConnectionStub extends Model {
   // public newQuery() {
   //   // let mock = m.mock(Builder);
-  //   // mock.shouldReceive('useWritePdo').once().andReturnSelf();
+  //   // mock.shouldReceive('useWriteDriverConnection').once().andReturnSelf();
   //   // mock.shouldReceive('find').once()._with(1).andReturn('foo');
   //   // return mock;
   // }

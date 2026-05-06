@@ -33,7 +33,7 @@ export interface ConnectionInterface extends ManagesTransactions {
 
   table(table: Function | QueryBuilder | string, as?: string): QueryBuilder;
 
-  getPdo(): any;
+  getDriverConnection(): any;
 
   recordsHaveBeenModified(): any;
 

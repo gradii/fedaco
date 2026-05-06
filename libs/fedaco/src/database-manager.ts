@@ -77,7 +77,7 @@ export class DatabaseManager implements ConnectionResolverInterface {
 
   /* Prepare the database connection instance. */
   protected configure(connection: Connection, type: string) {
-    // var connection = this.setPdoForType(connection, type).setReadWriteType(type);
+    // var connection = this.setDriverConnectionForType(connection, type).setReadWriteType(type);
     // if (this.app.bound("events")) {
     //     connection.setEventDispatcher(this.app["events"]);
     // }
@@ -89,12 +89,12 @@ export class DatabaseManager implements ConnectionResolverInterface {
   }
 
   /* Prepare the read / write mode for database connection instance. */
-  protected setPdoForType(connection: Connection, type: string | null = null) {
+  protected setDriverConnectionForType(connection: Connection, type: string | null = null) {
     // if (type === "read") {
-    //     connection.setPdo(connection.getReadPdo());
+    //     connection.setDriverConnection(connection.getReadDriverConnection());
     // }
     // else if (type === "write") {
-    //     connection.setReadPdo(connection.getPdo());
+    //     connection.setReadDriverConnection(connection.getDriverConnection());
     // }
     // return connection;
   }
@@ -127,7 +127,7 @@ export class DatabaseManager implements ConnectionResolverInterface {
     // if (!(this.connections[name] !== undefined)) {
     //     return this.connection(name);
     // }
-    // return this.refreshPdoConnections(name);
+    // return this.refreshDriverConnectionConnections(name);
   }
 
   /* Set the default database connection for the callback execution. */
@@ -139,11 +139,11 @@ export class DatabaseManager implements ConnectionResolverInterface {
     // });
   }
 
-  /* Refresh the PDO connections on a given connection. */
-  protected refreshPdoConnections(name: string) {
+  /* Refresh the driver connection connections on a given connection. */
+  protected refreshDriverConnectionConnections(name: string) {
     // const [database, type] = this.parseConnectionName(name);
     // var fresh = this.configure(this.makeConnection(database), type);
-    // return this.connections[name].setPdo(fresh.getRawPdo()).setReadPdo(fresh.getRawReadPdo());
+    // return this.connections[name].setDriverConnection(fresh.getRawDriverConnection()).setReadDriverConnection(fresh.getRawReadDriverConnection());
   }
 
   /* Get the default connection name. */
@@ -164,7 +164,7 @@ export class DatabaseManager implements ConnectionResolverInterface {
 
   /* Get all of the drivers that are actually available. */
   public availableDrivers() {
-    // return array_intersect(this.supportedDrivers(), str_replace("dblib", "sqlsrv", PDO.getAvailableDrivers()));
+    // return array_intersect(this.supportedDrivers(), str_replace("dblib", "sqlsrv", driver connection.getAvailableDrivers()));
   }
 
   /* Register an extension connection resolver. */

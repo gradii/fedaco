@@ -20,14 +20,14 @@ export function sqlserverDriver(driverConfig?: ConnectionConfig): DatabaseDriver
     createConnector: (config: any): Promise<DriverConnection> =>
       connectWithHosts(config, new SqlServerConnector()),
     createConnection: (
-      pdo: DriverConnection | DriverConnectionResolver,
+      driverConnection: DriverConnection | DriverConnectionResolver,
       database: string,
       prefix: string,
       config: any,
     ) => {
       const mergedConfig = { ...config, ...driverConfig };
       return new SqlServerConnection(
-        pdo,
+        driverConnection,
         driverConfig?.database ?? database,
         driverConfig?.prefix ?? prefix,
         mergedConfig,

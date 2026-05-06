@@ -38,7 +38,7 @@ export class MysqlConnection extends Connection {
       }
     }
     return this._isMaria;
-    // return (await this.getPdo()).getAttribute('ATTR_SERVER_VERSION').includes('MariaDB');
+    // return (await this.getDriverConnection()).getAttribute('ATTR_SERVER_VERSION').includes('MariaDB');
   }
 
   public async getServerVersion(): Promise<string> {

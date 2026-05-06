@@ -29,10 +29,10 @@ import type { SchemaGrammar } from './schema/grammar/schema-grammar';
 import { SchemaBuilder } from './schema/schema-builder';
 
 export class Connection extends mixinManagesTransactions(class {}) implements ConnectionInterface {
-  /* The active PDO connection. */
-  protected pdo: DriverConnection | DriverConnectionResolver;
-  /* The active PDO connection used for reads. */
-  protected readPdo: DriverConnection | DriverConnectionResolver;
+  /* The active driver connection. */
+  protected driverConnection: DriverConnection | DriverConnectionResolver;
+  /* The active driver connection used for reads. */
+  protected readDriverConnection: DriverConnection | DriverConnectionResolver;
   /* The name of the connected database. */
   protected database: string;
 
@@ -57,7 +57,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   protected fetchMode = -1;
   /* Indicates if changes have been made to the database. */
   protected recordsModified = false;
-  /* Indicates if the connection should use the "write" PDO connection. */
+  /* Indicates if the connection should use the "write" driver connection. */
   protected readOnWriteConnection = false;
   /* All of the queries run against the connection. */
   protected queryLog: any[] = [];
@@ -69,7 +69,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
    * Pool manager backing isolated transactions. Populated by the
    * connection-factory when `ConnectionConfig.pool` is set and the driver
    * supplies `createPoolManager`. When absent, isolated transactions fall
-   * back to opening a one-shot PDO via `driver.createConnector`.
+   * back to opening a one-shot driver connection via `driver.createConnector`.
    */
   protected _poolManager?: ConnectionPoolManager;
   /* The instance of Doctrine connection. */
@@ -77,23 +77,23 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
 
   /* Create a new database connection instance. */
   public constructor(
-    pdo: DriverConnection | DriverConnectionResolver,
+    driverConnection: DriverConnection | DriverConnectionResolver,
     database = '',
     tablePrefix = '',
     config: any = {},
   ) {
     super();
-    this.pdo = pdo;
+    this.driverConnection = driverConnection;
     this.database = database;
     this.tablePrefix = tablePrefix;
     this.config = config;
     this.useDefaultQueryGrammar();
     this.useDefaultPostProcessor();
 
-    if (isFunction(pdo)) {
+    if (isFunction(driverConnection)) {
       this.reconnector = () => {
-        this.pdo = pdo;
-        return this.getPdo();
+        this.driverConnection = driverConnection;
+        return this.getDriverConnection();
       };
     }
   }
@@ -147,13 +147,13 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   }
 
   /* Run a select statement and return a single result. */
-  public async selectOne(query: string, bindings: any[] = [], useReadPdo = true) {
-    const records = await this.select(query, bindings, useReadPdo);
+  public async selectOne(query: string, bindings: any[] = [], useReadDriverConnection = true) {
+    const records = await this.select(query, bindings, useReadDriverConnection);
     return records.shift();
   }
 
-  public async scalar(query: string, bindings: any[] = [], useReadPdo = true) {
-    const record = await this.selectOne(query, bindings, useReadPdo);
+  public async scalar(query: string, bindings: any[] = [], useReadDriverConnection = true) {
+    const record = await this.selectOne(query, bindings, useReadDriverConnection);
 
     if (isBlank(record)) {
       return null;
@@ -172,29 +172,29 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   }
 
   /* Run a select statement against the database. */
-  public async select(query: string, bindings: any[] = [], useReadPdo = true) {
+  public async select(query: string, bindings: any[] = [], useReadDriverConnection = true) {
     return await this.run(query, bindings, async (q: string, _bindings: any[]) => {
       if (this.dryRun()) {
         return [];
       }
-      const pdo: DriverConnection = await this.getPdoForSelect(useReadPdo);
+      const driverConnection: DriverConnection = await this.getDriverConnectionForSelect(useReadDriverConnection);
 
-      const statement = await pdo.prepare(q);
+      const statement = await driverConnection.prepare(q);
       this.bindValues(statement, this.prepareBindings(_bindings));
       return await statement.fetchAll();
     });
   }
 
-  /* Configure the PDO prepared statement. */
+  /* Configure the driver connection prepared statement. */
   protected prepared(statement: any) {
     statement.setFetchMode(this.fetchMode);
     this.event(new StatementPrepared(this, statement));
     return statement;
   }
 
-  /* Get the PDO connection to use for a select query. */
-  protected getPdoForSelect(useReadPdo = true): Promise<DriverConnection> {
-    return useReadPdo ? this.getReadPdo() : this.getPdo();
+  /* Get the driver connection to use for a select query. */
+  protected getDriverConnectionForSelect(useReadDriverConnection = true): Promise<DriverConnection> {
+    return useReadDriverConnection ? this.getReadDriverConnection() : this.getDriverConnection();
   }
 
   /* Run an insert statement against the database. */
@@ -204,7 +204,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
 
   public async insertGetId(query: string, bindings: any[] = [], sequence?: string) {
     await this.statement(query, bindings);
-    return await (await this.getPdo()).lastInsertId();
+    return await (await this.getDriverConnection()).lastInsertId();
   }
 
   /* Run an update statement against the database. */
@@ -223,9 +223,9 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
       if (this.dryRun()) {
         return true;
       }
-      const pdo: DriverConnection = await this.getPdo();
+      const driverConnection: DriverConnection = await this.getDriverConnection();
 
-      const statement = await pdo.prepare(q);
+      const statement = await driverConnection.prepare(q);
       statement.bindValues(this.prepareBindings(_bindings));
       this.recordsHaveBeenModified();
       return await statement.execute();
@@ -238,8 +238,8 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
       if (this.dryRun()) {
         return 0;
       }
-      const pdo = await this.getPdo();
-      const statement = await pdo.prepare(q);
+      const driverConnection = await this.getDriverConnection();
+      const statement = await driverConnection.prepare(q);
       this.bindValues(statement, this.prepareBindings(_bindings));
       await statement.execute();
       const count = statement.affectCount();
@@ -248,13 +248,13 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
     });
   }
 
-  // /*Run a raw, unprepared query against the PDO connection.*/
+  // /*Run a raw, unprepared query against the driver connection.*/
   // public async unprepared(query: string) {
   //   return this.run(query, [], async (q: string) => {
   //     if (this.dryRun()) {
   //       return true;
   //     }
-  //     const change = (await this.getPdo()).exec(q) !== false;
+  //     const change = (await this.getDriverConnection()).exec(q) !== false;
   //     this.recordsHaveBeenModified(change);
   //     return change;
   //   });
@@ -294,7 +294,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
     }
     // for (const [key, value] of Object.entries(bindings)) {
     //   statement.bindValue(isString(key) ? key : key + 1, value,
-    //     /*is_int(value) ? PDO.PARAM_INT : PDO.PARAM_STR*/);
+    //     /*is_int(value) ? driver connection.PARAM_INT : driver connection.PARAM_STR*/);
     // }
   }
 
@@ -376,7 +376,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   protected causedByLostConnection(message: string): boolean {
     if (
       [
-        'lost connection', // pdo
+        'lost connection', // driverConnection
         "Can't add new command when connection is in closed state", // mysql2 driver
       ].find((it) => message.includes(it))
     ) {
@@ -394,23 +394,23 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
     throw new Error('LogicException Lost connection and no reconnector available.');
   }
 
-  /* Reconnect to the database if a PDO connection is missing. */
+  /* Reconnect to the database if a driver connection is missing. */
   async _reconnectIfMissingConnection() {
-    if (isBlank(this.pdo)) {
+    if (isBlank(this.driverConnection)) {
       await this.reconnect();
     }
   }
 
-  /* Disconnect from the underlying PDO connection and tear down the pool. */
+  /* Disconnect from the underlying driver connection and tear down the pool. */
   public async disconnect(): Promise<void> {
-    if (this.pdo && !isFunction(this.pdo)) {
+    if (this.driverConnection && !isFunction(this.driverConnection)) {
       try {
-        await (this.pdo as DriverConnection).disconnect();
+        await (this.driverConnection as DriverConnection).disconnect();
       } catch {
         /* ignore — best-effort close */
       }
     }
-    this.setPdo(null).setReadPdo(null);
+    this.setDriverConnection(null).setReadDriverConnection(null);
 
     // Tear down the pool last so in-flight isolated transactions have a
     // chance to release their connections before the pool is destroyed.
@@ -529,58 +529,58 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
     this.recordsModified = false;
   }
 
-  /* Indicate that the connection should use the write PDO connection for reads. */
+  /* Indicate that the connection should use the write driver connection for reads. */
   public useWriteConnectionWhenReading(value = true) {
     this.readOnWriteConnection = value;
     return this;
   }
 
-  /* Get the current PDO connection. */
-  public async getPdo(): Promise<DriverConnection> {
-    if (isPromise(this.pdo)) {
-      throw new Error('pdo should not be promise');
+  /* Get the current driver connection. */
+  public async getDriverConnection(): Promise<DriverConnection> {
+    if (isPromise(this.driverConnection)) {
+      throw new Error('driverConnection should not be promise');
     }
-    if (isFunction(this.pdo)) {
-      this.pdo = await this.pdo.call(this);
-      return this.pdo as DriverConnection;
+    if (isFunction(this.driverConnection)) {
+      this.driverConnection = await this.driverConnection.call(this);
+      return this.driverConnection as DriverConnection;
     }
-    return this.pdo;
+    return this.driverConnection;
   }
 
-  /* Get the current PDO connection parameter without executing any reconnect logic. */
-  public getRawPdo(): DriverConnection | DriverConnectionResolver {
-    return this.pdo;
+  /* Get the current driver connection parameter without executing any reconnect logic. */
+  public getRawDriverConnection(): DriverConnection | DriverConnectionResolver {
+    return this.driverConnection;
   }
 
-  /* Get the current PDO connection used for reading. */
-  public async getReadPdo(): Promise<DriverConnection> {
+  /* Get the current driver connection used for reading. */
+  public async getReadDriverConnection(): Promise<DriverConnection> {
     if (this._transactions > 0) {
-      return this.getPdo();
+      return this.getDriverConnection();
     }
     if (this.readOnWriteConnection || (this.recordsModified && this.getConfig('sticky'))) {
-      return this.getPdo();
+      return this.getDriverConnection();
     }
-    if (isFunction(this.readPdo)) {
-      return (this.readPdo = await this.readPdo.call(this));
+    if (isFunction(this.readDriverConnection)) {
+      return (this.readDriverConnection = await this.readDriverConnection.call(this));
     }
-    return this.readPdo || this.getPdo();
+    return this.readDriverConnection || this.getDriverConnection();
   }
 
-  /* Get the current read PDO connection parameter without executing any reconnect logic. */
-  public getRawReadPdo() {
-    return this.readPdo;
+  /* Get the current read driver connection parameter without executing any reconnect logic. */
+  public getRawReadDriverConnection() {
+    return this.readDriverConnection;
   }
 
-  /* Set the PDO connection. */
-  public setPdo(pdo?: DriverConnection | DriverConnectionResolver) {
+  /* Set the driver connection. */
+  public setDriverConnection(driverConnection?: DriverConnection | DriverConnectionResolver) {
     this._transactions = 0;
-    this.pdo = pdo;
+    this.driverConnection = driverConnection;
     return this;
   }
 
-  /* Set the PDO connection used for reading. */
-  public setReadPdo(pdo?: DriverConnectionResolver) {
-    this.readPdo = pdo;
+  /* Set the driver connection used for reading. */
+  public setReadDriverConnection(driverConnection?: DriverConnectionResolver) {
+    this.readDriverConnection = driverConnection;
     return this;
   }
 
@@ -605,7 +605,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
     return get(this.config, option);
   }
 
-  /* Get the PDO driver name. */
+  /* Get the driver connection driver name. */
   public getDriverName() {
     return this.getConfig('driver');
   }
@@ -725,7 +725,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   }
 
   public async getServerVersion(): Promise<string> {
-    return await (await this.getPdo()).execute('select version() as version');
+    return await (await this.getDriverConnection()).execute('select version() as version');
   }
 
   causedByConcurrencyError(e: Error) {

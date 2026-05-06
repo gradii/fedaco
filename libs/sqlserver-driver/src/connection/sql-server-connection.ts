@@ -18,13 +18,13 @@ export class SqlServerConnection extends Connection {
       if (this.getDriverName() === 'sqlsrv') {
         return await super.transaction(callback);
       }
-      // await (this.getPdo()).exec('BEGIN TRAN');
+      // await (this.getDriverConnection()).exec('BEGIN TRAN');
       let result;
       try {
         result = await callback(this);
-        // this.getPdo().exec('COMMIT TRAN');
+        // this.getDriverConnection().exec('COMMIT TRAN');
       } catch (e) {
-        // this.getPdo().exec('ROLLBACK TRAN');
+        // this.getDriverConnection().exec('ROLLBACK TRAN');
         throw e;
       }
       return result;

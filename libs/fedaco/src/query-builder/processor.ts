@@ -20,7 +20,7 @@ export class Processor implements ProcessorInterface {
     sequence: string | null = null,
   ): Promise<any> {
     await query.getConnection().insert(sql, values);
-    const id = await (await query.getConnection().getPdo()).lastInsertId();
+    const id = await (await query.getConnection().getDriverConnection()).lastInsertId();
     // return isNumber(id) ? /*cast type int*/ id : id;
     return id;
   }

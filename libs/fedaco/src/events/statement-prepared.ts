@@ -9,7 +9,7 @@ import type { Connection } from '../connection';
 export class StatementPrepared {
   /* The database connection instance. */
   public connection: Connection;
-  /* The PDO statement. */
+  /* The driver connection statement. */
   public statement: any;
 
   /* Create a new event instance. */

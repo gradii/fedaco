@@ -238,7 +238,7 @@ describe('test database connector', () => {
   //
   //   it('get dsn', () => {
   //     extract(config, EXTR_SKIP);
-  //     const availableDrivers = PDO.getAvailableDrivers();
+  //     const availableDrivers = driver connection.getAvailableDrivers();
   //     if (availableDrivers.includes('odbc') && (config['odbc'] ?? null) === true) {
   //       return config['odbc_datasource_name'] !== undefined ? 'odbc:' + config['odbc_datasource_name'] : '';
   //     }

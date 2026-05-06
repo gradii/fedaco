@@ -4,7 +4,7 @@ import { mysqlDriver } from '@gradii/fedaco-mysql-driver';
 
 let db: DatabaseConfig;
 
-class PDO {}
+class DriverConnectionStub {}
 
 describe('test database connection factory', () => {
   beforeEach(() => {
@@ -38,12 +38,12 @@ describe('test database connection factory', () => {
   });
 
   it('connection can be created', async () => {
-    expect(await db.getConnection().getPdo()).toBeInstanceOf(BetterSqliteDriverConnection);
-    expect(await db.getConnection().getReadPdo()).toBeInstanceOf(BetterSqliteDriverConnection);
-    expect(await db.getConnection('read_write').getPdo()).toBeInstanceOf(BetterSqliteDriverConnection);
-    expect(await db.getConnection('read_write').getReadPdo()).toBeInstanceOf(BetterSqliteDriverConnection);
-    expect(await db.getConnection('url').getPdo()).toBeInstanceOf(BetterSqliteDriverConnection);
-    expect(await db.getConnection('url').getReadPdo()).toBeInstanceOf(BetterSqliteDriverConnection);
+    expect(await db.getConnection().getDriverConnection()).toBeInstanceOf(BetterSqliteDriverConnection);
+    expect(await db.getConnection().getReadDriverConnection()).toBeInstanceOf(BetterSqliteDriverConnection);
+    expect(await db.getConnection('read_write').getDriverConnection()).toBeInstanceOf(BetterSqliteDriverConnection);
+    expect(await db.getConnection('read_write').getReadDriverConnection()).toBeInstanceOf(BetterSqliteDriverConnection);
+    expect(await db.getConnection('url').getDriverConnection()).toBeInstanceOf(BetterSqliteDriverConnection);
+    expect(await db.getConnection('url').getReadDriverConnection()).toBeInstanceOf(BetterSqliteDriverConnection);
   });
 
   it('connection from url has proper config', () => {
@@ -83,17 +83,17 @@ describe('test database connection factory', () => {
   it('single connection not created until needed', () => {
     const connection = db.getConnection();
     // @ts-ignore
-    expect(connection.pdo).not.toBeInstanceOf(PDO);
+    expect(connection.driverConnection).not.toBeInstanceOf(DriverConnectionStub);
     // @ts-ignore
-    expect(connection.readPdo).not.toBeInstanceOf(PDO);
+    expect(connection.readDriverConnection).not.toBeInstanceOf(DriverConnectionStub);
   });
 
   it('read write connections not created until needed', () => {
     const connection = db.getConnection('read_write');
     // @ts-ignore
-    expect(connection.pdo).not.toBeInstanceOf(PDO);
+    expect(connection.driverConnection).not.toBeInstanceOf(DriverConnectionStub);
     // @ts-ignore
-    expect(connection.readPdo).not.toBeInstanceOf(PDO);
+    expect(connection.readDriverConnection).not.toBeInstanceOf(DriverConnectionStub);
   });
 
   it('sqlite foreign key constraints', async () => {

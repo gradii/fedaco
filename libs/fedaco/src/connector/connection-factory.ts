@@ -10,7 +10,7 @@ import { resolveDatabaseDriver } from '../interface/database-driver';
 import type { DriverConnectionResolver } from './driver-connection';
 
 export class ConnectionFactory {
-  /* Establish a PDO connection based on the configuration. */
+  /* Establish a driver connection based on the configuration. */
   public make(config: any, name: string | null = null): Connection {
     config = this.parseConfig(config, name);
     if (config['read'] !== undefined) {
@@ -32,8 +32,8 @@ export class ConnectionFactory {
 
   /* Create a single database connection instance. */
   protected createSingleConnection(config: any): Connection {
-    const pdo = this.createPdoResolver(config);
-    const connection = this.createConnection(config['driver'], pdo, config['database'], config['prefix'], config);
+    const driverConnection = this.createDriverConnectionResolver(config);
+    const connection = this.createConnection(config['driver'], driverConnection, config['database'], config['prefix'], config);
 
     // Initialize pool if configured
     if (config.pool) {
@@ -50,32 +50,32 @@ export class ConnectionFactory {
     if (typeof driver.createPoolManager !== 'function') {
       // Driver doesn't support pooling — silently no-op so that pool config
       // on a non-pooling driver doesn't break startup. Isolated transactions
-      // will fall back to opening a one-shot PDO via createConnector.
+      // will fall back to opening a one-shot driver connection via createConnector.
       return;
     }
 
     // Build the pool's create-connection resolver. Each pool acquire calls
     // it to produce a fresh, independent DriverConnection — same shape as
-    // the lazy resolver wired up in createPdoResolver, but evaluated per
+    // the lazy resolver wired up in createDriverConnectionResolver, but evaluated per
     // acquire rather than once.
-    const pdoResolver: DriverConnectionResolver = async () => {
+    const driverConnectionResolver: DriverConnectionResolver = async () => {
       const d = resolveDatabaseDriver(config['factory'], config);
       return d.createConnector(config);
     };
 
-    const poolManager = driver.createPoolManager(pdoResolver, config.pool);
+    const poolManager = driver.createPoolManager(driverConnectionResolver, config.pool);
     connection.setPoolManager(poolManager);
   }
 
   /* Create a read / write database connection instance. */
   protected createReadWriteConnection(config: any[]): Connection {
     const connection = this.createSingleConnection(this.getWriteConfig(config));
-    return connection.setReadPdo(this.createReadPdo(config));
+    return connection.setReadDriverConnection(this.createReadDriverConnection(config));
   }
 
-  /* Create a new PDO resolver for reading. */
-  protected createReadPdo(config: any[]) {
-    return this.createPdoResolver(this.getReadConfig(config));
+  /* Create a new driver connection resolver for reading. */
+  protected createReadDriverConnection(config: any[]) {
+    return this.createDriverConnectionResolver(this.getReadConfig(config));
   }
 
   /* Get the read configuration for a read / write connection. */
@@ -108,7 +108,7 @@ export class ConnectionFactory {
    * fallback is the driver's responsibility — the factory simply asks the
    * driver to open a connection on demand.
    */
-  protected createPdoResolver(config: any): DriverConnectionResolver {
+  protected createDriverConnectionResolver(config: any): DriverConnectionResolver {
     return async () => {
       const driver = resolveDatabaseDriver(config['factory'], config);
       return await driver.createConnector(config);

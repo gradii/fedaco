@@ -52,7 +52,7 @@ class Conn implements ConnectionInterface {
 
   getConfig(name: string): any {}
 
-  getPdo(): any {}
+  getDriverConnection(): any {}
 
   getSchemaBuilder(): SchemaBuilder {
     throw new Error('not implemented');

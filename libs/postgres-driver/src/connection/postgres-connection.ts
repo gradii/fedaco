@@ -17,11 +17,11 @@ export class PostgresConnection extends Connection {
   // public bindValues(statement: any, bindings: any[]) {
   //   for (const [key, value] of Object.entries(bindings)) {
   //     // if (isNumber(value)) {
-  //     //   const pdoParam = PDO.PARAM_INT;
+  //     //   const pdoParam = driver connection.PARAM_INT;
   //     // } else if (is_resource(value)) {
-  //     //   const pdoParam = PDO.PARAM_LOB;
+  //     //   const pdoParam = driver connection.PARAM_LOB;
   //     // } else {
-  //     //   const pdoParam = PDO.PARAM_STR;
+  //     //   const pdoParam = driver connection.PARAM_STR;
   //     // }
   //     statement.bindValue(isString(key) ? key : key + 1, value, -1);
   //   }

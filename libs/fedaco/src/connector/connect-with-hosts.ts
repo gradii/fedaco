@@ -15,10 +15,10 @@ import type { DriverConnection } from './driver-connection';
  *
  * - **Cluster** (`config.host` is an array): shuffle the hosts and try each
  *   one in turn, returning the first successful connection. Mirrors what
- *   `ConnectionFactory.createPdoResolverWithHosts` used to do.
+ *   `ConnectionFactory.createDriverConnectionResolverWithHosts` used to do.
  * - **Single host** (`config.host` is a string, or no `host` field at all):
  *   connect directly without any retry logic, like
- *   `createPdoResolverWithoutHosts`.
+ *   `createDriverConnectionResolverWithoutHosts`.
  */
 export async function connectWithHosts(
   config: any,

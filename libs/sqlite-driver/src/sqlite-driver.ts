@@ -26,14 +26,14 @@ export function sqliteDriver(driverConfig?: ConnectionConfig): DatabaseDriver {
       return conn;
     },
     createConnection: (
-      pdo: DriverConnection | DriverConnectionResolver,
+      driverConnection: DriverConnection | DriverConnectionResolver,
       database: string,
       prefix: string,
       config: any,
     ) => {
       const mergedConfig = { ...config, ...driverConfig };
       return new SqliteConnection(
-        pdo,
+        driverConnection,
         driverConfig?.database ?? database,
         driverConfig?.prefix ?? prefix,
         mergedConfig,

@@ -36,7 +36,7 @@ class Conn extends Connection implements ConnectionInterface {
     throw new Error('Method not implemented.');
   }
 
-  getPdo(): Promise<DriverConnection> {
+  getDriverConnection(): Promise<DriverConnection> {
     throw new Error('Method not implemented.');
   }
 

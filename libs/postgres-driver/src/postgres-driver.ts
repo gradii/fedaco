@@ -20,7 +20,7 @@ export function postgresDriver(driverConfig?: ConnectionConfig): DatabaseDriver 
     createConnector: (config: any): Promise<DriverConnection> =>
       connectWithHosts(config, new PostgresConnector()),
     createConnection: (
-      pdo: DriverConnection | DriverConnectionResolver,
+      driverConnection: DriverConnection | DriverConnectionResolver,
       database: string,
       prefix: string,
       config: any,
@@ -28,13 +28,13 @@ export function postgresDriver(driverConfig?: ConnectionConfig): DatabaseDriver 
       // Driver-param config has priority over the per-call connection config.
       const mergedConfig = { ...config, ...driverConfig };
       return new PostgresConnection(
-        pdo,
+        driverConnection,
         driverConfig?.database ?? database,
         driverConfig?.prefix ?? prefix,
         mergedConfig,
       );
     },
-    createPoolManager: (pdoResolver, poolConfig) =>
-      new DefaultConnectionPoolManager(pdoResolver, poolConfig),
+    createPoolManager: (driverConnectionResolver, poolConfig) =>
+      new DefaultConnectionPoolManager(driverConnectionResolver, poolConfig),
   };
 }

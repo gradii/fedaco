@@ -8,7 +8,7 @@ import { Connector, type ConnectorInterface } from '@gradii/fedaco';
 import { PostgresDriverConnection } from './postgres-driver-connection';
 
 export class PostgresConnector extends Connector implements ConnectorInterface {
-  /* The default PDO connection options. */
+  /* The default driver connection options. */
   protected options: any = {};
 
   /* Establish a database connection. */

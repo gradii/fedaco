@@ -38,20 +38,20 @@ describe('test database connection', () => {
 //     })).toBe('foo');
 //   });
 //
-//   it('select properly calls pdo', () => {
-//     const pdo      = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
+//   it('select properly calls driverConnection', () => {
+//     const driverConnection      = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
 //       ['prepare']).getMock();
-//     const writePdo = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
+//     const writeDriverConnection = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
 //       ['prepare']).getMock();
-//     writePdo.expects(this.never()).method('prepare');
+//     writeDriverConnection.expects(this.never()).method('prepare');
 //     const statement = this.getMockBuilder('PDOStatement').setMethods(
 //       ['execute', 'fetchAll', 'bindValue']).getMock();
 //     statement.expects(this.once()).method('bindValue')._with('foo', 'bar', 2);
 //     statement.expects(this.once()).method('execute');
 //     statement.expects(this.once()).method('fetchAll').willReturn(['boom']);
-//     pdo.expects(this.once()).method('prepare')._with('foo').willReturn(statement);
-//     const mock = getMockConnection(['prepareBindings'], writePdo);
-//     mock.setReadPdo(pdo);
+//     driverConnection.expects(this.once()).method('prepare')._with('foo').willReturn(statement);
+//     const mock = getMockConnection(['prepareBindings'], writeDriverConnection);
+//     mock.setReadDriverConnection(driverConnection);
 //     mock.expects(this.once()).method('prepareBindings')._with(this.equalTo({
 //       'foo': 'bar'
 //     })).willReturn({
@@ -93,15 +93,15 @@ describe('test database connection', () => {
 //     expect(results).toBe('baz');
 //   });
 //
-//   it('statement properly calls pdo', () => {
-//     const pdo       = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
+//   it('statement properly calls driverConnection', () => {
+//     const driverConnection       = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
 //       ['prepare']).getMock();
 //     const statement = this.getMockBuilder('PDOStatement').setMethods(
 //       ['execute', 'bindValue']).getMock();
 //     statement.expects(this.once()).method('bindValue')._with(1, 'bar', 2);
 //     statement.expects(this.once()).method('execute').willReturn('foo');
-//     pdo.expects(this.once()).method('prepare')._with(this.equalTo('foo')).willReturn(statement);
-//     const mock = getMockConnection(['prepareBindings'], pdo);
+//     driverConnection.expects(this.once()).method('prepare')._with(this.equalTo('foo')).willReturn(statement);
+//     const mock = getMockConnection(['prepareBindings'], driverConnection);
 //     mock.expects(this.once()).method('prepareBindings')._with(this.equalTo(['bar'])).willReturn(
 //       ['bar']);
 //     const results = mock.statement('foo', ['bar']);
@@ -112,16 +112,16 @@ describe('test database connection', () => {
 //     expect(isNumber(log[0]['time'])).toBeTruthy();
 //   });
 //
-//   it('affecting statement properly calls pdo', () => {
-//     const pdo       = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
+//   it('affecting statement properly calls driverConnection', () => {
+//     const driverConnection       = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
 //       ['prepare']).getMock();
 //     const statement = this.getMockBuilder('PDOStatement').setMethods(
 //       ['execute', 'rowCount', 'bindValue']).getMock();
 //     statement.expects(this.once()).method('bindValue')._with('foo', 'bar', 2);
 //     statement.expects(this.once()).method('execute');
 //     statement.expects(this.once()).method('rowCount').willReturn(['boom']);
-//     pdo.expects(this.once()).method('prepare')._with('foo').willReturn(statement);
-//     const mock = getMockConnection(['prepareBindings'], pdo);
+//     driverConnection.expects(this.once()).method('prepare')._with('foo').willReturn(statement);
+//     const mock = getMockConnection(['prepareBindings'], driverConnection);
 //     mock.expects(this.once()).method('prepareBindings')._with(this.equalTo({
 //       'foo': 'bar'
 //     })).willReturn({
@@ -140,9 +140,9 @@ describe('test database connection', () => {
 //   });
 //
 //   it('transaction level not incremented on transaction exception', () => {
-//     const pdo = this.createMock(DatabaseConnectionTestMockPDO);
-//     pdo.expects(this.once()).method('beginTransaction').will(this.throwException(new Exception()));
-//     const connection = getMockConnection([], pdo);
+//     const driverConnection = this.createMock(DatabaseConnectionTestMockPDO);
+//     driverConnection.expects(this.once()).method('beginTransaction').will(this.throwException(new Exception()));
+//     const connection = getMockConnection([], driverConnection);
 //     try {
 //       connection.beginTransaction();
 //     } catch (e: Exception) {
@@ -151,10 +151,10 @@ describe('test database connection', () => {
 //   });
 //
 //   it('begin transaction method retries on failure', () => {
-//     const pdo = this.createMock(DatabaseConnectionTestMockPDO);
-//     pdo.expects(this.at(0)).method('beginTransaction').will(
+//     const driverConnection = this.createMock(DatabaseConnectionTestMockPDO);
+//     driverConnection.expects(this.at(0)).method('beginTransaction').will(
 //       this.throwException(new ErrorException('server has gone away')));
-//     const connection = getMockConnection(['reconnect'], pdo);
+//     const connection = getMockConnection(['reconnect'], driverConnection);
 //     connection.expects(this.once()).method('reconnect');
 //     connection.beginTransaction();
 //     expect(connection.transactionLevel()).toEqual(1);
@@ -163,8 +163,8 @@ describe('test database connection', () => {
 //   it('begin transaction method reconnects missing connection', () => {
 //     const connection = getMockConnection();
 //     connection.setReconnector(connection => {
-//       const pdo = this.createMock(DatabaseConnectionTestMockPDO);
-//       connection.setPdo(pdo);
+//       const driverConnection = this.createMock(DatabaseConnectionTestMockPDO);
+//       connection.setDriverConnection(driverConnection);
 //     });
 //     connection.disconnect();
 //     connection.beginTransaction();
@@ -172,10 +172,10 @@ describe('test database connection', () => {
 //   });
 //
 //   it('begin transaction method never retries if within transaction', () => {
-//     const pdo = this.createMock(DatabaseConnectionTestMockPDO);
-//     pdo.expects(this.once()).method('beginTransaction');
-//     pdo.expects(this.once()).method('exec').will(this.throwException(new Exception()));
-//     const connection   = getMockConnection(['reconnect'], pdo);
+//     const driverConnection = this.createMock(DatabaseConnectionTestMockPDO);
+//     driverConnection.expects(this.once()).method('beginTransaction');
+//     driverConnection.expects(this.once()).method('exec').will(this.throwException(new Exception()));
+//     const connection   = getMockConnection(['reconnect'], driverConnection);
 //     const queryGrammar = this.createMock(Grammar);
 //     queryGrammar.expects(this.once()).method('supportsSavepoints').willReturn(true);
 //     connection.setQueryGrammar(queryGrammar);
@@ -189,18 +189,18 @@ describe('test database connection', () => {
 //     }
 //   });
 //
-//   it('swap pdo with open transaction resets transaction level', () => {
-//     const pdo = this.createMock(DatabaseConnectionTestMockPDO);
-//     pdo.expects(this.once()).method('beginTransaction').willReturn(true);
-//     const connection = getMockConnection([], pdo);
+//   it('swap driverConnection with open transaction resets transaction level', () => {
+//     const driverConnection = this.createMock(DatabaseConnectionTestMockPDO);
+//     driverConnection.expects(this.once()).method('beginTransaction').willReturn(true);
+//     const connection = getMockConnection([], driverConnection);
 //     connection.beginTransaction();
 //     connection.disconnect();
 //     expect(connection.transactionLevel()).toEqual(0);
 //   });
 //
 //   it('began transaction fires events if set', () => {
-//     const pdo        = this.createMock(DatabaseConnectionTestMockPDO);
-//     const connection = getMockConnection(['getName'], pdo);
+//     const driverConnection        = this.createMock(DatabaseConnectionTestMockPDO);
+//     const connection = getMockConnection(['getName'], driverConnection);
 //     connection.expects(this.any()).method('getName').willReturn('name');
 //     connection.setEventDispatcher(events = m.mock(Dispatcher));
 //     events.shouldReceive('dispatch').once()._with(m.type(TransactionBeginning));
@@ -208,8 +208,8 @@ describe('test database connection', () => {
 //   });
 //
 //   it('committed fires events if set', () => {
-//     const pdo        = this.createMock(DatabaseConnectionTestMockPDO);
-//     const connection = getMockConnection(['getName'], pdo);
+//     const driverConnection        = this.createMock(DatabaseConnectionTestMockPDO);
+//     const connection = getMockConnection(['getName'], driverConnection);
 //     connection.expects(this.any()).method('getName').willReturn('name');
 //     connection.setEventDispatcher(events = m.mock(Dispatcher));
 //     events.shouldReceive('dispatch').once()._with(m.type(TransactionCommitted));
@@ -217,8 +217,8 @@ describe('test database connection', () => {
 //   });
 //
 //   it('roll backed fires events if set', () => {
-//     const pdo        = this.createMock(DatabaseConnectionTestMockPDO);
-//     const connection = getMockConnection(['getName'], pdo);
+//     const driverConnection        = this.createMock(DatabaseConnectionTestMockPDO);
+//     const connection = getMockConnection(['getName'], driverConnection);
 //     connection.expects(this.any()).method('getName').willReturn('name');
 //     connection.beginTransaction();
 //     connection.setEventDispatcher(events = m.mock(Dispatcher));
@@ -227,8 +227,8 @@ describe('test database connection', () => {
 //   });
 //
 //   it('redundant roll back fires no event', () => {
-//     const pdo        = this.createMock(DatabaseConnectionTestMockPDO);
-//     const connection = getMockConnection(['getName'], pdo);
+//     const driverConnection        = this.createMock(DatabaseConnectionTestMockPDO);
+//     const connection = getMockConnection(['getName'], driverConnection);
 //     connection.expects(this.any()).method('getName').willReturn('name');
 //     connection.setEventDispatcher(events = m.mock(Dispatcher));
 //     events.shouldNotReceive('dispatch');
@@ -236,11 +236,11 @@ describe('test database connection', () => {
 //   });
 //
 //   it('transaction method runs successfully', () => {
-//     const pdo  = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
+//     const driverConnection  = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
 //       ['beginTransaction', 'commit']).getMock();
-//     const mock = getMockConnection([], pdo);
-//     pdo.expects(this.once()).method('beginTransaction');
-//     pdo.expects(this.once()).method('commit');
+//     const mock = getMockConnection([], driverConnection);
+//     driverConnection.expects(this.once()).method('beginTransaction');
+//     driverConnection.expects(this.once()).method('commit');
 //     const result = mock.transaction(db => {
 //       return db;
 //     });
@@ -250,13 +250,13 @@ describe('test database connection', () => {
 //   it('transaction retries on serialization failure', () => {
 //     this.expectException(PDOException);
 //     this.expectExceptionMessage('Serialization failure');
-//     const pdo  = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
+//     const driverConnection  = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
 //       ['beginTransaction', 'commit', 'rollBack']).getMock();
-//     const mock = getMockConnection([], pdo);
-//     pdo.expects(this.exactly(3)).method('commit').will(this.throwException(
+//     const mock = getMockConnection([], driverConnection);
+//     driverConnection.expects(this.exactly(3)).method('commit').will(this.throwException(
 //       new DatabaseConnectionTestMockPDOException('Serialization failure', '40001')));
-//     pdo.expects(this.exactly(3)).method('beginTransaction');
-//     pdo.expects(this.never()).method('rollBack');
+//     driverConnection.expects(this.exactly(3)).method('beginTransaction');
+//     driverConnection.expects(this.never()).method('rollBack');
 //     mock.transaction(() => {
 //     }, 3);
 //   });
@@ -264,24 +264,24 @@ describe('test database connection', () => {
 //   it('transaction method retries on deadlock', () => {
 //     this.expectException(QueryException);
 //     this.expectExceptionMessage('Deadlock found when trying to get lock (SQL: )');
-//     const pdo  = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
+//     const driverConnection  = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
 //       ['beginTransaction', 'commit', 'rollBack']).getMock();
-//     const mock = getMockConnection([], pdo);
-//     pdo.expects(this.exactly(3)).method('beginTransaction');
-//     pdo.expects(this.exactly(3)).method('rollBack');
-//     pdo.expects(this.never()).method('commit');
+//     const mock = getMockConnection([], driverConnection);
+//     driverConnection.expects(this.exactly(3)).method('beginTransaction');
+//     driverConnection.expects(this.exactly(3)).method('rollBack');
+//     driverConnection.expects(this.never()).method('commit');
 //     mock.transaction(() => {
 //       throw new QueryException('', [], new Exception('Deadlock found when trying to get lock'));
 //     }, 3);
 //   });
 //
 //   it('transaction method rollsback and throws', () => {
-//     const pdo  = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
+//     const driverConnection  = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
 //       ['beginTransaction', 'commit', 'rollBack']).getMock();
-//     const mock = getMockConnection([], pdo);
-//     pdo.expects(this.once()).method('beginTransaction');
-//     pdo.expects(this.once()).method('rollBack');
-//     pdo.expects(this.never()).method('commit');
+//     const mock = getMockConnection([], driverConnection);
+//     driverConnection.expects(this.once()).method('beginTransaction');
+//     driverConnection.expects(this.once()).method('rollBack');
+//     driverConnection.expects(this.never()).method('commit');
 //     try {
 //       mock.transaction(() => {
 //         throw new Exception('foo');
@@ -291,26 +291,26 @@ describe('test database connection', () => {
 //     }
 //   });
 //
-//   it('on lost connection pdo is not swapped within a transaction', () => {
+//   it('on lost connection driverConnection is not swapped within a transaction', () => {
 //     this.expectException(QueryException);
 //     this.expectExceptionMessage('server has gone away (SQL: foo)');
-//     const pdo = m.mock(PDO);
-//     pdo.shouldReceive('beginTransaction').once();
+//     const driverConnection = m.mock(driver connection);
+//     driverConnection.shouldReceive('beginTransaction').once();
 //     const statement = m.mock(PDOStatement);
-//     pdo.shouldReceive('prepare').once().andReturn(statement);
+//     driverConnection.shouldReceive('prepare').once().andReturn(statement);
 //     statement.shouldReceive('execute').once().andThrow(new PDOException('server has gone away'));
-//     const connection = new Connection(pdo);
+//     const connection = new Connection(driverConnection);
 //     connection.beginTransaction();
 //     connection.statement('foo');
 //   });
 //
-//   it('on lost connection pdo is swapped outside transaction', () => {
-//     const pdo       = m.mock(PDO);
+//   it('on lost connection driverConnection is swapped outside transaction', () => {
+//     const driverConnection       = m.mock(driver connection);
 //     const statement = m.mock(PDOStatement);
 //     statement.shouldReceive('execute').once().andThrow(new PDOException('server has gone away'));
 //     statement.shouldReceive('execute').once().andReturn('result');
-//     pdo.shouldReceive('prepare').twice().andReturn(statement);
-//     const connection = new Connection(pdo);
+//     driverConnection.shouldReceive('prepare').twice().andReturn(statement);
+//     const connection = new Connection(driverConnection);
 //     const called     = false;
 //     connection.setReconnector(connection => {
 //       const called = true;
@@ -322,8 +322,8 @@ describe('test database connection', () => {
 //   it('run method retries on failure', () => {
 //     const method = new ReflectionClass(Connection).getMethod('run');
 //     method.setAccessible(true);
-//     const pdo  = this.createMock(DatabaseConnectionTestMockPDO);
-//     const mock = getMockConnection(['tryAgainIfCausedByLostConnection'], pdo);
+//     const driverConnection  = this.createMock(DatabaseConnectionTestMockPDO);
+//     const mock = getMockConnection(['tryAgainIfCausedByLostConnection'], driverConnection);
 //     mock.expects(this.once()).method('tryAgainIfCausedByLostConnection');
 //     method.invokeArgs(mock, [
 //       '', [], () => {
@@ -337,10 +337,10 @@ describe('test database connection', () => {
 //     this.expectExceptionMessage('(SQL: ) (SQL: )');
 //     const method = new ReflectionClass(Connection).getMethod('run');
 //     method.setAccessible(true);
-//     const pdo  = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
+//     const driverConnection  = this.getMockBuilder(DatabaseConnectionTestMockPDO).setMethods(
 //       ['beginTransaction']).getMock();
-//     const mock = getMockConnection(['tryAgainIfCausedByLostConnection'], pdo);
-//     pdo.expects(this.once()).method('beginTransaction');
+//     const mock = getMockConnection(['tryAgainIfCausedByLostConnection'], driverConnection);
+//     driverConnection.expects(this.once()).method('beginTransaction');
 //     mock.expects(this.never()).method('tryAgainIfCausedByLostConnection');
 //     mock.beginTransaction();
 //     method.invokeArgs(mock, [
@@ -400,12 +400,12 @@ describe('test database connection', () => {
 //   });
 //
 //   it('get mock connection', () => {
-//     const pdo        = pdo || new DatabaseConnectionTestMockPDO();
+//     const driverConnection        = driverConnection || new DatabaseConnectionTestMockPDO();
 //     const defaults   = [
 //       'getDefaultQueryGrammar', 'getDefaultPostProcessor', 'getDefaultSchemaGrammar'
 //     ];
 //     const connection = this.getMockBuilder(Connection).setMethods(
-//       [...defaults, ...methods]).setConstructorArgs([pdo]).getMock();
+//       [...defaults, ...methods]).setConstructorArgs([driverConnection]).getMock();
 //     connection.enableQueryLog();
 //     return connection;
 //   });

@@ -39,7 +39,7 @@ export interface DatabaseDriver {
   createConnector(config: any): Promise<DriverConnection>;
 
   /**
-   * Build the high-level Connection wrapper around a resolved pdo handle.
+   * Build the high-level Connection wrapper around a resolved driverConnection handle.
    * Sync — `db()` / `schema()` return a Connection synchronously to user
    * code, and the connection-factory creates the Connection object eagerly
    * during `manager.connection()`.
@@ -50,7 +50,7 @@ export interface DatabaseDriver {
    * reconnecting.
    */
   createConnection(
-    pdo: DriverConnection | DriverConnectionResolver,
+    driverConnection: DriverConnection | DriverConnectionResolver,
     database: string,
     prefix: string,
     config: any,
@@ -66,10 +66,10 @@ export interface DatabaseDriver {
    * "how to open a connection" from raw config. Drivers that can't pool
    * (e.g. SQLite, where each connection has its own `:memory:` database)
    * omit this method; isolated transactions then fall back to opening a
-   * one-shot pdo via `createConnector`.
+   * one-shot driverConnection via `createConnector`.
    */
   createPoolManager?(
-    pdoResolver: DriverConnectionResolver,
+    driverConnectionResolver: DriverConnectionResolver,
     poolConfig: ConnectionPoolConfig,
   ): ConnectionPoolManager;
 }
@@ -81,7 +81,7 @@ export interface DatabaseDriver {
  * the connection config.
  *
  * Sync only: the factory is consumed by the sync `createConnection` path,
- * so an async factory would fail there. (The async pdo resolver path also
+ * so an async factory would fail there. (The async driverConnection resolver path also
  * uses this factory, so keeping a single sync contract avoids "works here
  * but not there" surprises.)
  */

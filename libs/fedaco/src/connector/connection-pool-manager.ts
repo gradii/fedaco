@@ -78,9 +78,10 @@ export class DefaultConnectionPoolManager implements ConnectionPoolManager {
   private active: Set<DriverConnection> = new Set();
   private waiters: Array<{
     resolve: (c: DriverConnection) => void;
-    reject: (e: Error) => void;
-    timer: ReturnType<typeof setTimeout>;
+    reject : (e: Error) => void;
+    timer  : ReturnType<typeof setTimeout>;
   }> = [];
+
   private idleTimers: Map<DriverConnection, ReturnType<typeof setTimeout>> = new Map();
   private destroyed = false;
 
@@ -131,9 +132,7 @@ export class DefaultConnectionPoolManager implements ConnectionPoolManager {
         if (idx >= 0) {
           this.waiters.splice(idx, 1);
         }
-        reject(
-          new Error(`Connection pool acquire timeout after ${this.acquireTimeoutMs}ms`),
-        );
+        reject(new Error(`Connection pool acquire timeout after ${this.acquireTimeoutMs}ms`));
       }, this.acquireTimeoutMs);
       if (typeof timer.unref === 'function') timer.unref();
       this.waiters.push({ resolve, reject, timer });
@@ -210,8 +209,8 @@ export class DefaultConnectionPoolManager implements ConnectionPoolManager {
 
   getPoolSize(): { total: number; idle: number; active: number } {
     return {
-      total: this.idle.length + this.active.size,
-      idle: this.idle.length,
+      total : this.idle.length + this.active.size,
+      idle  : this.idle.length,
       active: this.active.size,
     };
   }

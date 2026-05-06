@@ -84,7 +84,7 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
       callback: (tx: Connection) => Promise<any>,
       options: TransactionOptions,
     ): Promise<any> {
-      // Resolve the driver so we can wrap the dedicated PDO in a fresh
+      // Resolve the driver so we can wrap the dedicated driver connection in a fresh
       // Connection of the correct subclass (MysqlConnection, PostgresConnection,
       // etc) — same code path the connection-factory uses for the primary
       // connection. No subclass-specific cloning logic needed here.
@@ -92,16 +92,16 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
       const driver = resolveDatabaseDriver(config['factory'], config);
       const poolManager = this._getPoolManager();
 
-      // Acquire a dedicated PDO. Use the pool when configured; otherwise open
+      // Acquire a dedicated driver connection. Use the pool when configured; otherwise open
       // a one-shot connection via the driver's connector. The fallback path
       // means drivers without pool support (eg SQLite) can still run isolated
       // transactions — at the cost of paying the connect handshake each call.
-      const dedicatedPdo = poolManager
+      const dedicatedDriverConnection = poolManager
         ? await poolManager.acquire()
         : await driver.createConnector(config);
 
       const isolatedConn = driver.createConnection(
-        dedicatedPdo,
+        dedicatedDriverConnection,
         this.getDatabaseName(),
         this.getTablePrefix(),
         config,
@@ -109,7 +109,7 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
 
       try {
         if (options.isolationLevel) {
-          await this._setIsolationLevelOnPdo(dedicatedPdo, options.isolationLevel);
+          await this._setIsolationLevelOnDriverConnection(dedicatedDriverConnection, options.isolationLevel);
         }
 
         await isolatedConn.beginTransaction();
@@ -136,12 +136,12 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
         }
       } finally {
         if (poolManager) {
-          await poolManager.release(dedicatedPdo);
+          await poolManager.release(dedicatedDriverConnection);
         } else {
           // Standalone connection from the createConnector fallback — close
           // it so we don't leak a socket/file handle per isolated transaction.
           try {
-            await dedicatedPdo.disconnect();
+            await dedicatedDriverConnection.disconnect();
           } catch {
             /* ignore */
           }
@@ -171,10 +171,10 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
       }
     }
 
-    /* Set the transaction isolation level on a PDO. */
-    private async _setIsolationLevelOnPdo(
+    /* Set the transaction isolation level on a driver connection. */
+    private async _setIsolationLevelOnDriverConnection(
       this: Connection & this,
-      pdo: DriverConnection,
+      driverConnection: DriverConnection,
       level: IsolationLevel,
     ): Promise<void> {
       const driver = this.getDriverName();
@@ -206,7 +206,7 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
           throw new Error(`Isolation level not supported for driver: ${driver}`);
       }
 
-      await pdo.execute(sql, []);
+      await driverConnection.execute(sql, []);
     }
 
     /* Execute a regular transaction on the same connection (existing behavior). */
@@ -238,7 +238,7 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
 
         try {
           if (this._transactions == 1) {
-            await (await this.getPdo()).commit();
+            await (await this.getDriverConnection()).commit();
           }
           this._transactions = Math.max(0, this._transactions - 1);
           if (this._transactions == 0) {
@@ -335,7 +335,7 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
       if (this._transactions == 0) {
         await this._reconnectIfMissingConnection();
         try {
-          await (await this.getPdo()).beginTransaction();
+          await (await this.getDriverConnection()).beginTransaction();
         } catch (e: any) {
           await this.handleBeginTransactionException(e);
         }
@@ -346,7 +346,7 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
 
     /* Create a save point within the database. */
     protected async _createSavepoint(this: Connection & this) {
-      await (await this.getPdo()).execute(this._queryGrammar.compileSavepoint('trans' + (this._transactions + 1)));
+      await (await this.getDriverConnection()).execute(this._queryGrammar.compileSavepoint('trans' + (this._transactions + 1)));
     }
 
     /* Handle an exception from a transaction beginning. */
@@ -354,7 +354,7 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
       // @ts-ignore
       if (this.causedByLostConnection(e)) {
         this.reconnect();
-        await (await this.getPdo()).beginTransaction();
+        await (await this.getDriverConnection()).beginTransaction();
       } else {
         throw e;
       }
@@ -363,7 +363,7 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
     /* Commit the active database transaction. */
     public async commit(this: Connection & this) {
       if (this._transactions == 1) {
-        await (await this.getPdo()).commit();
+        await (await this.getDriverConnection()).commit();
       }
       this._transactions = Math.max(0, this._transactions - 1);
       if (this._transactions == 0) {
@@ -413,9 +413,9 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
     /* Perform a rollback within the database. */
     protected async performRollBack(this: Connection & this, toLevel: number): Promise<void> {
       if (toLevel == 0) {
-        await (await this.getPdo()).rollBack();
+        await (await this.getDriverConnection()).rollBack();
       } else if (this._queryGrammar.supportsSavepoints()) {
-        await (await this.getPdo()).execute(this._queryGrammar.compileSavepointRollBack('trans' + (toLevel + 1)));
+        await (await this.getDriverConnection()).execute(this._queryGrammar.compileSavepointRollBack('trans' + (toLevel + 1)));
       }
     }
 

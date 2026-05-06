@@ -6,12 +6,12 @@
 
 import { isPresent } from '@gradii/nanofn';
 // import { Arr } from "Illuminate/Support/Arr";
-// import { PDO } from "PDO";
+// import { driver connection } from "driver connection";
 import { Connector, type ConnectorInterface, type DriverConnection } from '@gradii/fedaco';
 import { SqlServerDriverConnection } from './sql-server-driver-connection';
 
 export class SqlServerConnector extends Connector implements ConnectorInterface {
-  /* The PDO connection options. */
+  /* The driver connection options. */
   protected options: any = {};
 
   /* Establish a database connection. */
@@ -164,8 +164,8 @@ export class SqlServerConnector extends Connector implements ConnectorInterface 
   //   return config['host'] + separator + config['port'];
   // }
   //
-  // /*Get the available PDO drivers.*/
+  // /*Get the available driver connection drivers.*/
   // protected getAvailableDrivers() {
-  //   return PDO.getAvailableDrivers();
+  //   return driver connection.getAvailableDrivers();
   // }
 }

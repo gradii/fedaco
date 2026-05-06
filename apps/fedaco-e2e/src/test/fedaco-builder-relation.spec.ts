@@ -53,7 +53,7 @@ describe('fedaco builder relation', () => {
 
     getConfig(name: string): any {}
 
-    getPdo(): any {}
+    getDriverConnection(): any {}
 
     getSchemaBuilder(): SchemaBuilder {
       return undefined;

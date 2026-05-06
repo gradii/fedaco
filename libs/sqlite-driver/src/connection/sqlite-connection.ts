@@ -14,8 +14,8 @@ import { SqliteSchemaState } from '../schema/sqlite-schema-state';
 
 export class SqliteConnection extends Connection {
   /* Create a new database connection instance. */
-  public constructor(pdo: any, database = '', tablePrefix = '', config: any = {}) {
-    super(pdo, database, tablePrefix, config);
+  public constructor(driverConnection: any, database = '', tablePrefix = '', config: any = {}) {
+    super(driverConnection, database, tablePrefix, config);
     // const enableForeignKeyConstraints = this.getForeignKeyConstraintsConfigurationValue();
 
     // if (!isBlank(enableForeignKeyConstraints)) {
