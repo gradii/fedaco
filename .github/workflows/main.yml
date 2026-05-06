@@ -44,7 +44,10 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        
+
+      - name: build
+        run: pnpm nx run-many -t build
+
       - name: test fedaco
         env:
           DB_HOST: 127.0.0.1

@@ -4,8 +4,8 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { Table } from '../../src/annotation/table/table';
-import { Model } from '../../src/fedaco/model';
+import { Table } from '@gradii/fedaco';
+import { Model } from '@gradii/fedaco';
 
 @Table({
   tableName: 'fedaco_model_namespaced_models',

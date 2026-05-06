@@ -4,9 +4,9 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { type FedacoBuilder } from '../../src/fedaco/fedaco-builder';
-import { mixinSoftDeletes } from '../../src/fedaco/mixins/soft-deletes';
-import { Model } from '../../src/fedaco/model';
+import { type FedacoBuilder } from '@gradii/fedaco';
+import { mixinSoftDeletes } from '@gradii/fedaco';
+import { Model } from '@gradii/fedaco';
 
 export interface FedacoBuilderTestNestedStub extends Model {}
 

@@ -3,8 +3,8 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-import { Column } from '../../src/annotation/column/column';
-import { Model } from '../../src/fedaco/model';
+import { Column } from '@gradii/fedaco';
+import { Model } from '@gradii/fedaco';
 
 export class BasicModel extends Model {
   @Column({

@@ -4,10 +4,10 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { Column } from '../../src/annotation/column/column';
-import { HasManyColumn } from '../../src/annotation/relation-column/has-many.relation-column';
-import { Table } from '../../src/annotation/table/table';
-import { Model } from '../../src/fedaco/model';
+import { Column } from '@gradii/fedaco';
+import { HasManyColumn } from '@gradii/fedaco';
+import { Table } from '@gradii/fedaco';
+import { Model } from '@gradii/fedaco';
 
 @Table({
   tableName: 'article_model',

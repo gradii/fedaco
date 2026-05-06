@@ -3,12 +3,12 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-import { Table } from '../../src/annotation/table/table';
-import { BelongsToManyColumn } from '../../src/annotation/relation-column/belongs-to-many.relation-column';
-import { BelongsToColumn } from '../../src/annotation/relation-column/belongs-to.relation-column';
-import { HasManyColumn } from '../../src/annotation/relation-column/has-many.relation-column';
-import { HasOneColumn } from '../../src/annotation/relation-column/has-one.relation-column';
-import { Model } from '../../src/fedaco/model';
+import { Table } from '@gradii/fedaco';
+import { BelongsToManyColumn } from '@gradii/fedaco';
+import { BelongsToColumn } from '@gradii/fedaco';
+import { HasManyColumn } from '@gradii/fedaco';
+import { HasOneColumn } from '@gradii/fedaco';
+import { Model } from '@gradii/fedaco';
 
 export class FedacoBuilderTestModelFarRelatedStub extends Model {}
 

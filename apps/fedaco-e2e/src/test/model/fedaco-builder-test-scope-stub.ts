@@ -3,10 +3,10 @@
  *
  * Use of this source code is governed by an MIT-style license
  */
-import { Scope } from '../../src/annotation/scope';
-import { FedacoBuilder } from '../../src/fedaco/fedaco-builder';
-import { Model } from '../../src/fedaco/model';
-import { Table } from '../../src/annotation/table/table';
+import { Scope } from '../../../../../libs/fedaco/src/annotation/scope';
+import { FedacoBuilder } from '@gradii/fedaco';
+import { Model } from '@gradii/fedaco';
+import { Table } from '@gradii/fedaco';
 
 @Table({
   tableName: 'fedaco_builder_test_scope_stub',

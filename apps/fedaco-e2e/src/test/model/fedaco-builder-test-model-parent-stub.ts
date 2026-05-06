@@ -4,13 +4,13 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import { BelongsToManyColumn } from '../../src/annotation/relation-column/belongs-to-many.relation-column';
-import { BelongsToColumn } from '../../src/annotation/relation-column/belongs-to.relation-column';
-import { HasManyColumn } from '../../src/annotation/relation-column/has-many.relation-column';
-import { Table } from '../../src/annotation/table/table';
-import { Model } from '../../src/fedaco/model';
-import { Relation } from '../../src/fedaco/relations/relation';
-import { forwardRef } from '../../src/query-builder/forward-ref';
+import { BelongsToManyColumn } from '@gradii/fedaco';
+import { BelongsToColumn } from '@gradii/fedaco';
+import { HasManyColumn } from '@gradii/fedaco';
+import { Table } from '@gradii/fedaco';
+import { Model } from '@gradii/fedaco';
+import { Relation } from '@gradii/fedaco';
+import { forwardRef } from '@gradii/fedaco';
 
 @Table({
   tableName    : 'fedaco_builder_test_model_close_related_stubs',
