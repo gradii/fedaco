@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 
 import { Inject, Injectable } from '@nestjs/common';
+import * as fedaco from '@gradii/fedaco';
 
 import { MIGRATOR_OPTIONS } from './fedaco-cli.constants';
 
@@ -94,14 +95,7 @@ export class MigratorService {
 }
 
 function loadUserFedaco(): any {
-  try {
-    return dynamicRequire('@gradii/fedaco');
-  } catch {
-    throw new Error(
-      `fedaco: could not resolve "@gradii/fedaco" from ${process.cwd()}.\n` +
-        `Install it in your project: pnpm add @gradii/fedaco`
-    );
-  }
+  return fedaco;
 }
 
 let cachedJiti: ((file: string) => any) | null | undefined;

@@ -13,10 +13,6 @@ const NATIVE_DEPS = [
   'oracledb',
 ];
 
-const SHARED_DEPS = [
-  '@gradii/fedaco',
-];
-
 module.exports = composePlugins(
   withNx({
     target: 'node',
@@ -27,11 +23,6 @@ module.exports = composePlugins(
       const request = data && data.request;
       if (typeof request === 'string') {
         for (const dep of NATIVE_DEPS) {
-          if (request === dep || request.startsWith(`${dep}/`)) {
-            return callback(null, `commonjs ${request}`);
-          }
-        }
-        for (const dep of SHARED_DEPS) {
           if (request === dep || request.startsWith(`${dep}/`)) {
             return callback(null, `commonjs ${request}`);
           }
