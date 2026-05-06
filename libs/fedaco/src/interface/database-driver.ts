@@ -6,13 +6,11 @@
 
 import type { Connection } from '../connection';
 import type { ConnectionPoolConfig, ConnectionPoolManager } from '../connector/connection-pool-manager';
-import type { DriverConnection } from '../connector/driver-connection';
+import type { DriverConnection, DriverConnectionResolver } from '../connector/driver-connection';
 
-/**
- * Lazy resolver of the underlying {@link DriverConnection}. Connection
- * stores this so it can re-establish the link on reconnect.
- */
-export type DriverConnectionResolver = () => Promise<DriverConnection>;
+// Re-export for backwards compatibility — DriverConnectionResolver lives next
+// to DriverConnection now so the pool manager can import it without a cycle.
+export type { DriverConnectionResolver } from '../connector/driver-connection';
 
 /**
  * Per-connection driver factory provided in `ConnectionConfig.factory`.
@@ -60,13 +58,20 @@ export interface DatabaseDriver {
 
   /**
    * Optional pool-manager factory. When `ConnectionConfig.pool` is set, the
-   * connection-factory invokes this once per connection to obtain a pool
-   * manager for isolated transactions.
+   * connection-factory invokes this with a fresh-connection resolver and
+   * the user's pool config; the returned manager backs isolated transactions.
    *
-   * Drivers that don't support pooling (e.g. SQLite) should omit this.
-   * Isolated transactions on those drivers throw a clear error.
+   * The signature mirrors `createConnection` — both consume a
+   * {@link DriverConnectionResolver} so drivers don't have to re-derive
+   * "how to open a connection" from raw config. Drivers that can't pool
+   * (e.g. SQLite, where each connection has its own `:memory:` database)
+   * omit this method; isolated transactions then fall back to opening a
+   * one-shot pdo via `createConnector`.
    */
-  createPoolManager?(config: any, poolConfig: ConnectionPoolConfig): ConnectionPoolManager;
+  createPoolManager?(
+    pdoResolver: DriverConnectionResolver,
+    poolConfig: ConnectionPoolConfig,
+  ): ConnectionPoolManager;
 }
 
 /**

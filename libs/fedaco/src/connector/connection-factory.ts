@@ -7,7 +7,7 @@
 import { has } from '@gradii/nanofn';
 import type { Connection } from '../connection';
 import { resolveDatabaseDriver } from '../interface/database-driver';
-import type { DriverConnectionResolver } from '../interface/database-driver';
+import type { DriverConnectionResolver } from './driver-connection';
 
 export class ConnectionFactory {
   /* Establish a PDO connection based on the configuration. */
@@ -54,7 +54,16 @@ export class ConnectionFactory {
       return;
     }
 
-    const poolManager = driver.createPoolManager(config, config.pool);
+    // Build the pool's create-connection resolver. Each pool acquire calls
+    // it to produce a fresh, independent DriverConnection — same shape as
+    // the lazy resolver wired up in createPdoResolver, but evaluated per
+    // acquire rather than once.
+    const pdoResolver: DriverConnectionResolver = async () => {
+      const d = resolveDatabaseDriver(config['factory'], config);
+      return d.createConnector(config);
+    };
+
+    const poolManager = driver.createPoolManager(pdoResolver, config.pool);
     connection.setPoolManager(poolManager);
   }
 

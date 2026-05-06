@@ -25,3 +25,16 @@ export interface DriverConnection {
 
   disconnect(): Promise<void>;
 }
+
+/**
+ * Lazy resolver of a {@link DriverConnection}. Used in two places:
+ *
+ *  - `Connection` stores one so it can re-establish the link on reconnect.
+ *  - `ConnectionPoolManager` calls one to populate the pool — each invocation
+ *    must yield a fresh, independent connection.
+ *
+ * Lives here (not on `database-driver.ts`) so both `Connection` and the pool
+ * manager can import it without dragging in the full `DatabaseDriver`
+ * surface, which would create a module cycle.
+ */
+export type DriverConnectionResolver = () => Promise<DriverConnection>;

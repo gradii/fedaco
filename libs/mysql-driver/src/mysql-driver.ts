@@ -10,10 +10,9 @@ import type {
   DriverConnection,
   DriverConnectionResolver,
 } from '@gradii/fedaco';
-import { connectWithHosts } from '@gradii/fedaco';
+import { connectWithHosts, DefaultConnectionPoolManager } from '@gradii/fedaco';
 import { MysqlConnection } from './connection/mysql-connection';
 import { MysqlConnector } from './connector/mysql-connector';
-import { MysqlPoolManager } from './connector/mysql-pool-manager';
 
 export function mysqlDriver(driverConfig?: ConnectionConfig): DatabaseDriver {
   return {
@@ -34,7 +33,8 @@ export function mysqlDriver(driverConfig?: ConnectionConfig): DatabaseDriver {
         mergedConfig,
       );
     },
-    createPoolManager: (config, poolConfig) => new MysqlPoolManager(config, poolConfig),
+    createPoolManager: (pdoResolver, poolConfig) =>
+      new DefaultConnectionPoolManager(pdoResolver, poolConfig),
   };
 }
 
@@ -57,6 +57,7 @@ export function mariadbDriver(driverConfig?: ConnectionConfig): DatabaseDriver {
         mergedConfig,
       );
     },
-    createPoolManager: (config, poolConfig) => new MysqlPoolManager(config, poolConfig),
+    createPoolManager: (pdoResolver, poolConfig) =>
+      new DefaultConnectionPoolManager(pdoResolver, poolConfig),
   };
 }
