@@ -1,0 +1,13 @@
+/**
+ * Migration: {{ name }} — create {{ table }}
+ */
+export const up = async (schema) => {
+  await schema.create('{{ table }}', (table) => {
+    table.increments('id');
+    table.timestamps();
+  });
+};
+
+export const down = async (schema) => {
+  await schema.drop('{{ table }}');
+};

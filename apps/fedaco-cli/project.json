@@ -1,0 +1,85 @@
+{
+  "name": "fedaco-cli",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/fedaco-cli/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/fedaco-cli",
+        "outputFileName": "fedaco.js",
+        "main": "apps/fedaco-cli/src/main.ts",
+        "tsConfig": "apps/fedaco-cli/tsconfig.app.json",
+        "assets": [
+          "apps/fedaco-cli/src/assets",
+          {
+            "input": "apps/fedaco-cli/src/app/migrations/stubs",
+            "glob": "**/*",
+            "output": "stubs"
+          }
+        ],
+        "webpackConfig": "apps/fedaco-cli/webpack.config.js",
+        "externalDependencies": "none",
+        "generatePackageJson": false,
+        "extractLicenses": false,
+        "optimization": false,
+        "sourceMap": false
+      },
+      "configurations": {
+        "development": {
+          "optimization": false,
+          "sourceMap": true
+        },
+        "production": {
+          "optimization": true,
+          "sourceMap": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "fedaco-cli:build",
+        "args": ["migrate:status"]
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "fedaco-cli:build:development"
+        },
+        "production": {
+          "buildTarget": "fedaco-cli:build:production"
+        }
+      }
+    },
+    "install-bin": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build", "fedaco:build"],
+      "outputs": ["{workspaceRoot}/dist/libs/fedaco/bin/fedaco.js"],
+      "options": {
+        "parallel": false,
+        "commands": [
+          "mkdir -p dist/libs/fedaco/bin",
+          "cp dist/apps/fedaco-cli/fedaco.js dist/libs/fedaco/bin/fedaco.js",
+          "chmod +x dist/libs/fedaco/bin/fedaco.js"
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/fedaco-cli/jest.config.ts"
+      }
+    }
+  }
+}
