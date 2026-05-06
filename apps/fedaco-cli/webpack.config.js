@@ -22,11 +22,6 @@ module.exports = composePlugins(
     target: 'node',
   }),
   (config) => {
-    config.output = {
-      ...config.output,
-      filename: 'fedaco.js',
-    };
-
     const previousExternals = config.externals;
     config.externals = (data, callback) => {
       const request = data && data.request;

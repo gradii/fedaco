@@ -13,6 +13,7 @@
         "target": "node",
         "compiler": "tsc",
         "outputPath": "dist/apps/fedaco-cli",
+        "outputFileName": "fedaco.js",
         "main": "apps/fedaco-cli/src/main.ts",
         "tsConfig": "apps/fedaco-cli/tsconfig.app.json",
         "assets": ["apps/fedaco-cli/src/assets"],
