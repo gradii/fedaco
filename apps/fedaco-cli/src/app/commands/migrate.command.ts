@@ -1,6 +1,7 @@
 import { Command, CommandRunner, Option } from 'nest-commander';
 
 import type { MigratorService } from '../migrator.service';
+import { Inject } from '@nestjs/common';
 
 interface MigrateOptions {
   path?: string;
@@ -13,7 +14,7 @@ interface MigrateOptions {
   description: 'Run the pending migrations',
 })
 export class MigrateCommand extends CommandRunner {
-  constructor(private readonly migrator: MigratorService) {
+  constructor(@Inject() private readonly migrator: MigratorService) {
     super();
   }
 

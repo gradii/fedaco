@@ -1,6 +1,7 @@
 import { Command, CommandRunner, Option } from 'nest-commander';
 
 import type { MigratorService } from '../migrator.service';
+import { Inject } from '@nestjs/common';
 
 interface RefreshOptions {
   path?: string;
@@ -13,7 +14,7 @@ interface RefreshOptions {
   description: 'Reset and re-run all migrations',
 })
 export class MigrateRefreshCommand extends CommandRunner {
-  constructor(private readonly migrator: MigratorService) {
+  constructor(@Inject() private readonly migrator: MigratorService) {
     super();
   }
 

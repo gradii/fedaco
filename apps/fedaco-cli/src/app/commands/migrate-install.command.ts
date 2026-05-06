@@ -1,13 +1,14 @@
 import { Command, CommandRunner } from 'nest-commander';
 
 import type { MigratorService } from '../migrator.service';
+import { Inject } from '@nestjs/common';
 
 @Command({
   name: 'migrate:install',
   description: 'Create the migration repository table',
 })
 export class MigrateInstallCommand extends CommandRunner {
-  constructor(private readonly migrator: MigratorService) {
+  constructor(@Inject() private readonly migrator: MigratorService) {
     super();
   }
 

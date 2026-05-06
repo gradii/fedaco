@@ -1,6 +1,7 @@
 import { Command, CommandRunner, Option } from 'nest-commander';
 
 import type { MigratorService } from '../migrator.service';
+import { Inject } from '@nestjs/common';
 
 interface FreshOptions {
   path?: string;
@@ -13,7 +14,7 @@ interface FreshOptions {
   description: 'Drop all tables and re-run all migrations',
 })
 export class MigrateFreshCommand extends CommandRunner {
-  constructor(private readonly migrator: MigratorService) {
+  constructor(@Inject() private readonly migrator: MigratorService) {
     super();
   }
 
@@ -27,9 +28,7 @@ export class MigrateFreshCommand extends CommandRunner {
       process.stdout.write('Dropped all tables.\n');
     } else {
       await this.migrator.deleteRepository();
-      process.stdout.write(
-        'Schema builder does not support dropAllTables; only migration table dropped.\n'
-      );
+      process.stdout.write('Schema builder does not support dropAllTables; only migration table dropped.\n');
     }
 
     await this.migrator.ensureRepositoryExists();
