@@ -1,3 +1,4 @@
+import { mysqlDriver } from '@gradii/fedaco-mysql-driver';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { AppController } from './app.controller';
@@ -14,6 +15,7 @@ describe('AppController', () => {
         FedacoModule.forRoot({
           'default': {
             driver: 'mysql',
+            factory: mysqlDriver(),
             database: 'test',
             username: 'root',
             password: '123456'

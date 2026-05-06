@@ -1,3 +1,4 @@
+import { sqliteDriver } from '@gradii/fedaco-sqlite-driver';
 import { FedacoModule } from '@gradii/nest-fedaco';
 import { Module } from '@nestjs/common';
 
@@ -8,6 +9,7 @@ import { AppController } from './app.controller';
     FedacoModule.forRoot({
       'default': {
         driver  : 'sqlite',
+        factory : sqliteDriver(),
         database: './tmp/example-nest-startkit.sqlite'
       }
     })

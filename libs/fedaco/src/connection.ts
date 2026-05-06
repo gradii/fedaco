@@ -7,7 +7,6 @@
 import { isArray, isBlank, isBoolean, isFunction, isInteger, isNumber, isPromise } from '@gradii/nanofn';
 import { format } from 'date-fns';
 import type { BaseGrammar } from './base-grammar';
-import { type SqliteWrappedConnection } from './connector/sqlite/sqlite-wrapped-connection';
 import type { WrappedConnection } from './connector/wrapped-connection';
 import type { WrappedStmt } from './connector/wrapped-stmt';
 import { QueryExecuted } from './events/query-executed';
@@ -166,7 +165,7 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
       if (this.dryRun()) {
         return [];
       }
-      const pdo: SqliteWrappedConnection = await this.getPdoForSelect(useReadPdo);
+      const pdo: WrappedConnection = await this.getPdoForSelect(useReadPdo);
 
       const statement = await pdo.prepare(q);
       this.bindValues(statement, this.prepareBindings(_bindings));

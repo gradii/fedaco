@@ -6,25 +6,10 @@
 
 import { has } from '@gradii/nanofn';
 import { Connection } from '../connection';
-import { MysqlConnection } from '../connection/mysql-connection';
-import { PostgresConnection } from '../connection/postgres-connection';
-import { SqlServerConnection } from '../connection/sql-server-connection';
-import { SqliteConnection } from '../connection/sqlite-connection';
 import { wrap } from '../helper/arr';
-import { MysqlConnector } from './mysql/mysql-connector';
-import { PostgresConnector } from './postgres/postgres-connector';
-import { SqliteConnector } from './sqlite/sqlite-connector';
-import { SqlServerConnector } from './sqlserver/sql-server-connector';
+import type { ConnectorInterface } from './connector-interface';
 
 export class ConnectionFactory {
-  /* The IoC container instance. */
-  // protected container: Container;
-
-  // /*Create a new connection factory instance.*/
-  // public constructor(container: Container) {
-  //   this.container = container;
-  // }
-
   /* Establish a PDO connection based on the configuration. */
   public make(config: any, name: string | null = null) {
     config = this.parseConfig(config, name);
@@ -124,45 +109,32 @@ export class ConnectionFactory {
     };
   }
 
-  /* Create a connector instance based on the configuration. */
-  public createConnector(config: any) {
-    if (!(config['driver'] !== undefined)) {
+  /* Create a connector instance from the per-config driver factory. */
+  public createConnector(config: any): ConnectorInterface {
+    if (config['driver'] === undefined) {
       throw new Error('InvalidArgumentException A driver must be specified.');
     }
-    // if (this.container.bound(key = '"db.connector.{Config[\'driver\']}"')) {
-    //   return this.container.make(key);
-    // }
-    switch (config['driver']) {
-      case 'mysql':
-        return new MysqlConnector();
-      case 'pgsql':
-        return new PostgresConnector();
-      case 'sqlite':
-        return new SqliteConnector();
-      case 'sqlsrv':
-        return new SqlServerConnector();
+    if (!config['factory']) {
+      throw new Error(
+        `InvalidArgumentException No driver factory provided for driver [${config['driver']}]. ` +
+        `Pass a "factory" produced by a driver lib (e.g. sqliteDriver() from @gradii/fedaco-sqlite-driver) on the connection config.`,
+      );
     }
-    throw new Error(`InvalidArgumentException Unsupported driver [${config['driver']}].`);
+    return config['factory'].createConnector();
   }
 
   /* Create a new connection instance. */
-  protected createConnection(driver: string, connection: Function, database: string, prefix = '', config: any[] = []) {
+  protected createConnection(driver: string, connection: Function, database: string, prefix = '', config: any = {}) {
     const resolver = Connection.getResolver(driver);
     if (resolver) {
       return resolver(connection, database, prefix, config);
     }
-    switch (driver) {
-      case 'mysql':
-        return new MysqlConnection(connection, database, prefix, config);
-      case 'mariadb':
-        return new MysqlConnection(connection, database, prefix, config);
-      case 'pgsql':
-        return new PostgresConnection(connection, database, prefix, config);
-      case 'sqlite':
-        return new SqliteConnection(connection, database, prefix, config);
-      case 'sqlsrv':
-        return new SqlServerConnection(connection, database, prefix, config);
+    if (!config['factory']) {
+      throw new Error(
+        `InvalidArgumentException No driver factory provided for driver [${driver}]. ` +
+        `Pass a "factory" produced by a driver lib (e.g. sqliteDriver() from @gradii/fedaco-sqlite-driver) on the connection config.`,
+      );
     }
-    throw new Error(`InvalidArgumentException "Unsupported driver [${driver}]."`);
+    return config['factory'].createConnection(connection, database, prefix, config);
   }
 }

@@ -34,7 +34,11 @@
     "baseUrl": ".",
     "paths": {
       "@gradii/fedaco": ["libs/fedaco/src/index.ts"],
-      "@gradii/nest-fedaco": ["libs/nest-fedaco/src/index.ts"]
+      "@gradii/nest-fedaco": ["libs/nest-fedaco/src/index.ts"],
+      "@gradii/fedaco-sqlite-driver": ["libs/sqlite-driver/src/index.ts"],
+      "@gradii/fedaco-mysql-driver": ["libs/mysql-driver/src/index.ts"],
+      "@gradii/fedaco-postgres-driver": ["libs/postgres-driver/src/index.ts"],
+      "@gradii/fedaco-sqlserver-driver": ["libs/sqlserver-driver/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

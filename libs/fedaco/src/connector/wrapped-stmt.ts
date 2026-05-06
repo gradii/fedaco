@@ -11,5 +11,7 @@ export interface WrappedStmt {
 
   execute(bindings?: any[]): Promise<any>;
 
+  fetchAll(bindings?: any[]): Promise<any>;
+
   affectCount(): number;
 }

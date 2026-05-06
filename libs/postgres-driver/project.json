@@ -1,0 +1,32 @@
+{
+  "name": "postgres-driver",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/postgres-driver/src",
+  "projectType": "library",
+  "release": {
+    "version": {
+      "currentVersionResolver": "git-tag",
+      "preserveLocalDependencyProtocols": false,
+      "manifestRootsToUpdate": ["dist/{projectRoot}"]
+    }
+  },
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/postgres-driver",
+        "tsConfig": "libs/postgres-driver/tsconfig.lib.json",
+        "packageJson": "libs/postgres-driver/package.json",
+        "main": "libs/postgres-driver/src/index.ts",
+        "assets": ["libs/postgres-driver/*.md"]
+      }
+    },
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "dist/{projectRoot}"
+      }
+    }
+  }
+}

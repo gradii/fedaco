@@ -1,0 +1,19 @@
+{
+  "name": "@gradii/fedaco-mysql-driver",
+  "version": "2.1.0-beta.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gradii/fedaco.git"
+  },
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "peerDependencies": {
+    "@gradii/fedaco": "^2.1.0-beta.1",
+    "mysql2": "^3.0.0"
+  }
+}

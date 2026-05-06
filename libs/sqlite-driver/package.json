@@ -1,0 +1,24 @@
+{
+  "name": "@gradii/fedaco-sqlite-driver",
+  "version": "2.1.0-beta.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gradii/fedaco.git"
+  },
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "peerDependencies": {
+    "@gradii/fedaco": "^2.1.0-beta.1",
+    "better-sqlite3": "^11.0.0",
+    "sqlite3": "^5.1.0"
+  },
+  "peerDependenciesMeta": {
+    "better-sqlite3": { "optional": true },
+    "sqlite3": { "optional": true }
+  }
+}
