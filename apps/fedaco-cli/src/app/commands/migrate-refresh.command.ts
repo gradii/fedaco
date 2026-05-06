@@ -1,21 +1,45 @@
-import { Injectable } from '@nestjs/common';
+import { Command, CommandRunner, Option } from 'nest-commander';
 
-import type { FedacoCommand, ParsedArgs } from '../command-runner.service';
 import { MigratorService } from '../migrator.service';
-import { MigrateCommand } from './migrate.command';
-import { MigrateResetCommand } from './migrate-reset.command';
 
-@Injectable()
-export class MigrateRefreshCommand implements FedacoCommand {
-  constructor(
-    private readonly migrator: MigratorService,
-    private readonly reset: MigrateResetCommand,
-    private readonly migrate: MigrateCommand
-  ) {}
+interface RefreshOptions {
+  path?: string;
+  pretend?: boolean;
+  step?: number;
+}
 
-  async run(args: ParsedArgs): Promise<number> {
-    const resetCode = await this.reset.run(args);
-    if (resetCode !== 0) return resetCode;
-    return this.migrate.run(args);
+@Command({
+  name: 'migrate:refresh',
+  description: 'Reset and re-run all migrations',
+})
+export class MigrateRefreshCommand extends CommandRunner {
+  constructor(private readonly migrator: MigratorService) {
+    super();
+  }
+
+  async run(_inputs: string[], options: RefreshOptions = {}): Promise<void> {
+    await this.migrator.onInit();
+    await this.migrator.ensureRepositoryExists();
+    const path = options.path ?? this.migrator.getOptions().migrationsPath;
+    await this.migrator.getMigrator().reset(path, !!options.pretend);
+    await this.migrator.getMigrator().run(path, {
+      pretend: !!options.pretend,
+      step: options.step ?? false,
+    });
+  }
+
+  @Option({ flags: '--path <path>', description: 'Path to migration files' })
+  parsePath(value: string): string {
+    return value;
+  }
+
+  @Option({ flags: '--pretend', description: 'Show queries without running' })
+  parsePretend(): boolean {
+    return true;
+  }
+
+  @Option({ flags: '--step [step]', description: 'Step count or flag' })
+  parseStep(value: string): number {
+    return parseInt(value, 10);
   }
 }

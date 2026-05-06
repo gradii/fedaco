@@ -22,12 +22,14 @@ export class MigratorService {
   private resolver: any;
   private repository: any;
   private migrator: any;
+  private initialized = false;
 
   constructor(
     @Inject(MIGRATOR_OPTIONS) private readonly options: MigratorOptions
   ) {}
 
   async onInit(): Promise<void> {
+    if (this.initialized) return;
     this.fedaco = { DatabaseConfig, DatabaseMigrationRepository, Migrator };
 
     this.databaseConfig = new DatabaseConfig();
@@ -48,6 +50,7 @@ export class MigratorService {
     this.migrator.setConnection(this.options.defaultConnection);
     this.migrator.path(this.options.migrationsPath);
     this.migrator.setLoader((file: string) => loadMigrationFile(file));
+    this.initialized = true;
   }
 
   async shutdown(): Promise<void> {

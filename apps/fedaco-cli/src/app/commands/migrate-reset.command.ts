@@ -1,16 +1,35 @@
-import { Injectable } from '@nestjs/common';
+import { Command, CommandRunner, Option } from 'nest-commander';
 
-import type { FedacoCommand, ParsedArgs } from '../command-runner.service';
 import { MigratorService } from '../migrator.service';
 
-@Injectable()
-export class MigrateResetCommand implements FedacoCommand {
-  constructor(private readonly migrator: MigratorService) {}
+interface ResetOptions {
+  path?: string;
+  pretend?: boolean;
+}
 
-  async run(args: ParsedArgs): Promise<number> {
+@Command({
+  name: 'migrate:reset',
+  description: 'Rollback all database migrations',
+})
+export class MigrateResetCommand extends CommandRunner {
+  constructor(private readonly migrator: MigratorService) {
+    super();
+  }
+
+  async run(_inputs: string[], options: ResetOptions = {}): Promise<void> {
+    await this.migrator.onInit();
     await this.migrator.ensureRepositoryExists();
-    const path = (args.flags.path as string) ?? this.migrator.getOptions().migrationsPath;
-    await this.migrator.getMigrator().reset(path, !!args.flags.pretend);
-    return 0;
+    const path = options.path ?? this.migrator.getOptions().migrationsPath;
+    await this.migrator.getMigrator().reset(path, !!options.pretend);
+  }
+
+  @Option({ flags: '--path <path>', description: 'Path to migration files' })
+  parsePath(value: string): string {
+    return value;
+  }
+
+  @Option({ flags: '--pretend', description: 'Show queries without running' })
+  parsePretend(): boolean {
+    return true;
   }
 }

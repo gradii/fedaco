@@ -1,0 +1,14 @@
+/**
+ * Migration: {{ name }} — update {{ table }}
+ */
+export const up = async (schema) => {
+  await schema.table('{{ table }}', (table) => {
+    // table.string('column_name');
+  });
+};
+
+export const down = async (schema) => {
+  await schema.table('{{ table }}', (table) => {
+    // table.dropColumn('column_name');
+  });
+};

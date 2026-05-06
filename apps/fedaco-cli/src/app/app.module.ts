@@ -1,9 +1,9 @@
 import { DynamicModule, Module } from '@nestjs/common';
 
-import { CommandRunnerService } from './command-runner.service';
 import { MigrateCommand } from './commands/migrate.command';
 import { MigrateFreshCommand } from './commands/migrate-fresh.command';
 import { MigrateInstallCommand } from './commands/migrate-install.command';
+import { MigrateMakeCommand } from './commands/migrate-make.command';
 import { MigrateRefreshCommand } from './commands/migrate-refresh.command';
 import { MigrateResetCommand } from './commands/migrate-reset.command';
 import { MigrateRollbackCommand } from './commands/migrate-rollback.command';
@@ -34,9 +34,9 @@ export class AppModule {
           },
         },
         MigratorService,
-        CommandRunnerService,
         MigrateCommand,
         MigrateInstallCommand,
+        MigrateMakeCommand,
         MigrateRollbackCommand,
         MigrateResetCommand,
         MigrateRefreshCommand,

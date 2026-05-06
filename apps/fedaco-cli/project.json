@@ -16,7 +16,14 @@
         "outputFileName": "fedaco.js",
         "main": "apps/fedaco-cli/src/main.ts",
         "tsConfig": "apps/fedaco-cli/tsconfig.app.json",
-        "assets": ["apps/fedaco-cli/src/assets"],
+        "assets": [
+          "apps/fedaco-cli/src/assets",
+          {
+            "input": "apps/fedaco-cli/src/app/migrations/stubs",
+            "glob": "**/*",
+            "output": "stubs"
+          }
+        ],
         "webpackConfig": "apps/fedaco-cli/webpack.config.js",
         "externalDependencies": "none",
         "generatePackageJson": false,

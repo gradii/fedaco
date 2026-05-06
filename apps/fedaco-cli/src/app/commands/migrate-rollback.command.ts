@@ -1,22 +1,51 @@
-import { Injectable } from '@nestjs/common';
+import { Command, CommandRunner, Option } from 'nest-commander';
 
-import type { FedacoCommand, ParsedArgs } from '../command-runner.service';
 import { MigratorService } from '../migrator.service';
 
-@Injectable()
-export class MigrateRollbackCommand implements FedacoCommand {
-  constructor(private readonly migrator: MigratorService) {}
+interface RollbackOptions {
+  path?: string;
+  pretend?: boolean;
+  step?: number;
+  batch?: number;
+}
 
-  async run(args: ParsedArgs): Promise<number> {
+@Command({
+  name: 'migrate:rollback',
+  description: 'Rollback the last database migration',
+})
+export class MigrateRollbackCommand extends CommandRunner {
+  constructor(private readonly migrator: MigratorService) {
+    super();
+  }
+
+  async run(_inputs: string[], options: RollbackOptions = {}): Promise<void> {
+    await this.migrator.onInit();
     await this.migrator.ensureRepositoryExists();
-    const path = (args.flags.path as string) ?? this.migrator.getOptions().migrationsPath;
-    const stepArg = args.flags.step;
-    const batchArg = args.flags.batch;
+    const path = options.path ?? this.migrator.getOptions().migrationsPath;
     await this.migrator.getMigrator().rollback(path, {
-      pretend: !!args.flags.pretend,
-      step: typeof stepArg === 'string' ? parseInt(stepArg, 10) : 0,
-      batch: typeof batchArg === 'string' ? parseInt(batchArg, 10) : 0,
+      pretend: !!options.pretend,
+      step: options.step ?? 0,
+      batch: options.batch ?? 0,
     });
-    return 0;
+  }
+
+  @Option({ flags: '--path <path>', description: 'Path to migration files' })
+  parsePath(value: string): string {
+    return value;
+  }
+
+  @Option({ flags: '--pretend', description: 'Show queries without running' })
+  parsePretend(): boolean {
+    return true;
+  }
+
+  @Option({ flags: '--step <step>', description: 'Number of migrations to rollback' })
+  parseStep(value: string): number {
+    return parseInt(value, 10);
+  }
+
+  @Option({ flags: '--batch <batch>', description: 'Rollback a specific batch' })
+  parseBatch(value: string): number {
+    return parseInt(value, 10);
   }
 }

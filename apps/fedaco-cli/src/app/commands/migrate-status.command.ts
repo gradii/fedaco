@@ -1,23 +1,32 @@
-import { Injectable } from '@nestjs/common';
+import { Command, CommandRunner, Option } from 'nest-commander';
 
-import type { FedacoCommand, ParsedArgs } from '../command-runner.service';
 import { MigratorService } from '../migrator.service';
 
-@Injectable()
-export class MigrateStatusCommand implements FedacoCommand {
-  constructor(private readonly migrator: MigratorService) {}
+interface StatusOptions {
+  path?: string;
+}
 
-  async run(args: ParsedArgs): Promise<number> {
+@Command({
+  name: 'migrate:status',
+  description: 'Show the status of each migration',
+})
+export class MigrateStatusCommand extends CommandRunner {
+  constructor(private readonly migrator: MigratorService) {
+    super();
+  }
+
+  async run(_inputs: string[], options: StatusOptions = {}): Promise<void> {
+    await this.migrator.onInit();
     const repo = this.migrator.getRepository();
     if (!(await repo.repositoryExists())) {
       process.stdout.write(
         'Migration table does not exist. Run "fedaco migrate:install" first.\n'
       );
-      return 0;
+      return;
     }
 
     const m = this.migrator.getMigrator();
-    const path = (args.flags.path as string) ?? this.migrator.getOptions().migrationsPath;
+    const path = options.path ?? this.migrator.getOptions().migrationsPath;
     const files: string[] = m.getMigrationFiles(path);
     const ran = new Set<string>(await repo.getRan());
 
@@ -33,6 +42,10 @@ export class MigrateStatusCommand implements FedacoCommand {
         process.stdout.write(`Missing  | ${name} (no file)\n`);
       }
     }
-    return 0;
+  }
+
+  @Option({ flags: '--path <path>', description: 'Path to migration files' })
+  parsePath(value: string): string {
+    return value;
   }
 }
