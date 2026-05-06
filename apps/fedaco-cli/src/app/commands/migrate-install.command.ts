@@ -1,6 +1,6 @@
 import { Command, CommandRunner } from 'nest-commander';
 
-import { MigratorService } from '../migrator.service';
+import type { MigratorService } from '../migrator.service';
 
 @Command({
   name: 'migrate:install',

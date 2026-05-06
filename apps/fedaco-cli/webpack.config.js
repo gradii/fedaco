@@ -1,4 +1,5 @@
 const { composePlugins, withNx } = require('@nx/webpack');
+
 const webpack = require(require.resolve('webpack', {
   paths: [require.resolve('@nx/webpack/package.json')],
 }));

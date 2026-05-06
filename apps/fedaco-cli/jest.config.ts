@@ -1,4 +1,4 @@
-/* eslint-disable */
+ 
 export default {
   displayName: 'fedaco-cli',
   preset: '../../jest.preset.js',

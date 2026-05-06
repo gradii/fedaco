@@ -1,6 +1,6 @@
 import { Command, CommandRunner, Option } from 'nest-commander';
 
-import { MigratorService } from '../migrator.service';
+import type { MigratorService } from '../migrator.service';
 
 interface ResetOptions {
   path?: string;

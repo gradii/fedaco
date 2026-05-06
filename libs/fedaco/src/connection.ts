@@ -65,8 +65,6 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   protected _dryRun = false;
   /* The instance of Doctrine connection. */
   // protected doctrineConnection: DbalConnection;
-  /* The connection resolvers. */
-  protected static resolvers: any = {};
 
   /* Create a new database connection instance. */
   public constructor(pdo: Function, database = '', tablePrefix = '', config: any = {}) {
@@ -707,15 +705,5 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
       'WSREP detected deadlock/conflict and aborted the transaction. Try restarting the transaction',
     ];
     return msgs.find((it) => e.message.includes(it));
-  }
-
-  /* Register a connection resolver. */
-  public static resolverFor(driver: string, callback: Function) {
-    Connection.resolvers[driver] = callback;
-  }
-
-  /* Get the connection resolver for the given driver. */
-  public static getResolver(driver: string) {
-    return Connection.resolvers[driver] ?? null;
   }
 }

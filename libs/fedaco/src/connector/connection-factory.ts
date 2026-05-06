@@ -5,13 +5,14 @@
  */
 
 import { has } from '@gradii/nanofn';
-import { Connection } from '../connection';
+import type { Connection } from '../connection';
 import { wrap } from '../helper/arr';
+import { resolveDatabaseDriver } from '../interface/database-driver';
 import type { ConnectorInterface } from './connector-interface';
 
 export class ConnectionFactory {
   /* Establish a PDO connection based on the configuration. */
-  public make(config: any, name: string | null = null) {
+  public make(config: any, name: string | null = null): Connection {
     config = this.parseConfig(config, name);
     if (config['read'] !== undefined) {
       return this.createReadWriteConnection(config);
@@ -31,13 +32,13 @@ export class ConnectionFactory {
   }
 
   /* Create a single database connection instance. */
-  protected createSingleConnection(config: any) {
+  protected createSingleConnection(config: any): Connection {
     const pdo = this.createPdoResolver(config);
     return this.createConnection(config['driver'], pdo, config['database'], config['prefix'], config);
   }
 
   /* Create a read / write database connection instance. */
-  protected createReadWriteConnection(config: any[]) {
+  protected createReadWriteConnection(config: any[]): Connection {
     const connection = this.createSingleConnection(this.getWriteConfig(config));
     return connection.setReadPdo(this.createReadPdo(config));
   }
@@ -79,12 +80,13 @@ export class ConnectionFactory {
 
   /* Create a new Closure that resolves to a PDO instance with a specific host or an array of hosts. */
   protected createPdoResolverWithHosts(config: any) {
-    return () => {
+    return async () => {
       const hosts = this.parseHosts(config).sort(() => 0.5 - Math.random());
       for (const [key, host] of Object.entries(hosts)) {
         config['host'] = host;
         try {
-          return this.createConnector(config).connect(config);
+          const connector = await this.createConnector(config);
+          return connector.connect(config);
         } catch (e) {
           continue;
         }
@@ -105,12 +107,19 @@ export class ConnectionFactory {
   /* Create a new Closure that resolves to a PDO instance where there is no configured host. */
   protected createPdoResolverWithoutHosts(config: any[]) {
     return async () => {
-      return this.createConnector(config).connect(config);
+      const connector = await this.createConnector(config);
+      return connector.connect(config);
     };
   }
 
-  /* Create a connector instance from the per-config driver factory. */
-  public createConnector(config: any): ConnectorInterface {
+  /**
+   * Create a connector instance from the per-config driver factory.
+   *
+   * Async because `DatabaseDriver.createConnector()` may itself return a
+   * Promise. This method is only invoked from the lazy pdo resolver, which
+   * is already async, so going async here doesn't bubble out to user code.
+   */
+  public async createConnector(config: any): Promise<ConnectorInterface> {
     if (config['driver'] === undefined) {
       throw new Error('InvalidArgumentException A driver must be specified.');
     }
@@ -120,21 +129,19 @@ export class ConnectionFactory {
         `Pass a "factory" produced by a driver lib (e.g. sqliteDriver() from @gradii/fedaco-sqlite-driver) on the connection config.`,
       );
     }
-    return config['factory'].createConnector();
+    const driver = resolveDatabaseDriver(config['factory'], config);
+    return await driver.createConnector();
   }
 
   /* Create a new connection instance. */
-  protected createConnection(driver: string, connection: Function, database: string, prefix = '', config: any = {}) {
-    const resolver = Connection.getResolver(driver);
-    if (resolver) {
-      return resolver(connection, database, prefix, config);
-    }
+  protected createConnection(driver: string, connection: Function, database: string, prefix = '', config: any = {}): Connection {
     if (!config['factory']) {
       throw new Error(
         `InvalidArgumentException No driver factory provided for driver [${driver}]. ` +
         `Pass a "factory" produced by a driver lib (e.g. sqliteDriver() from @gradii/fedaco-sqlite-driver) on the connection config.`,
       );
     }
-    return config['factory'].createConnection(connection, database, prefix, config);
+    const resolvedDriver = resolveDatabaseDriver(config['factory'], config);
+    return resolvedDriver.createConnection(connection, database, prefix, config);
   }
 }

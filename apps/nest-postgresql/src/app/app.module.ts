@@ -9,7 +9,7 @@ import { AppController } from './app.controller';
     FedacoModule.forRoot({
       'default': {
         driver: 'pgsql',
-        factory: postgresDriver(),
+        factory: (config) => postgresDriver(config),
         database: 'nest-postgresql',
         port: 5432
       }

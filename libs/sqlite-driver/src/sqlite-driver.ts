@@ -4,15 +4,22 @@
  * Use of this source code is governed by an MIT-style license
  */
 
-import type { DatabaseDriver } from '@gradii/fedaco';
+import type { ConnectionConfig, DatabaseDriver } from '@gradii/fedaco';
 import { SqliteConnection } from './connection/sqlite-connection';
 import { SqliteConnector } from './connector/sqlite-connector';
 
-export function sqliteDriver(): DatabaseDriver {
+export function sqliteDriver(driverConfig?: ConnectionConfig): DatabaseDriver {
   return {
-    name            : 'sqlite',
-    createConnector : () => new SqliteConnector(),
-    createConnection: (pdo, database, prefix, config) =>
-      new SqliteConnection(pdo, database, prefix, config),
+    name: driverConfig?.driver ?? 'sqlite',
+    createConnector: () => new SqliteConnector(),
+    createConnection: (pdo, database, prefix, config) => {
+      const mergedConfig = { ...config, ...driverConfig };
+      return new SqliteConnection(
+        pdo,
+        driverConfig?.database ?? database,
+        driverConfig?.prefix ?? prefix,
+        mergedConfig,
+      );
+    },
   };
 }
