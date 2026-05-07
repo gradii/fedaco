@@ -134,17 +134,31 @@ export function mixinManagesTransactions<T extends Constructor<any>>(base: T): M
           }
           throw e;
         }
-      } finally {
-        if (poolManager) {
+      } catch (outerError) {
+        // If the connection itself is dead, discard it so it's never reused.
+        // @ts-ignore — protected method accessed via mixin `this` type
+        if (poolManager && this.causedByLostConnection((outerError as Error).message || String(outerError))) {
+          await poolManager.discard(dedicatedDriverConnection);
+        } else if (poolManager) {
           await poolManager.release(dedicatedDriverConnection);
         } else {
-          // Standalone connection from the createConnector fallback — close
-          // it so we don't leak a socket/file handle per isolated transaction.
           try {
             await dedicatedDriverConnection.disconnect();
           } catch {
             /* ignore */
           }
+        }
+        throw outerError;
+      }
+
+      // Happy path — transaction committed successfully; return connection to pool.
+      if (poolManager) {
+        await poolManager.release(dedicatedDriverConnection);
+      } else {
+        try {
+          await dedicatedDriverConnection.disconnect();
+        } catch {
+          /* ignore */
         }
       }
     }

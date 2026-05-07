@@ -28,6 +28,79 @@ import { QueryException } from './query-exception';
 import type { SchemaGrammar } from './schema/grammar/schema-grammar';
 import { SchemaBuilder } from './schema/schema-builder';
 
+/**
+ * Lowercase substrings that indicate a broken / lost database connection.
+ * Sourced from the actual Node.js drivers used by this project:
+ *   - mysql2   (mysql2/lib)
+ *   - pg / pg-pool
+ *   - tedious  (SQL Server)
+ *   - better-sqlite3 / sqlite3
+ *   - common Node.js socket errors
+ */
+const LOST_CONNECTION_MESSAGES: readonly string[] = [
+  // --- mysql2 ---
+  'connection lost: the server closed the connection',
+  "can't add new command when connection is in closed state",
+  "can't write in closed state",
+  'connect etimedout',
+  'packets out of order',
+  'pool is closed.',
+  'no connections available.',
+
+  // --- pg / pg-pool ---
+  'connection terminated',
+  'connection terminated unexpectedly',
+  'connection terminated due to connection timeout',
+  'client has encountered a connection error and is not queryable',
+  'client was closed and is not queryable',
+  'timeout expired',
+  'timeout exceeded when trying to connect',
+  'cannot use a pool after calling end on the pool',
+
+  // --- tedious (SQL Server) ---
+  'connection lost -',
+  'failed to connect to',
+  'socket hang up',
+  'connection closed before request completed.',
+  'unable to process incoming packet',
+  'unexpected end of message stream',
+  'unexpected end of data',
+  'the operation was aborted due to timeout',
+  'the operation was aborted',
+
+  // --- better-sqlite3 / sqlite3 ---
+  'the database connection is not open',
+  'database is not open',
+  'database is closing',
+  'database handle is closed',
+  'database is closed',
+
+  // --- common Node.js socket / TLS errors ---
+  'econnreset',
+  'econnrefused',
+  'epipe',
+  'etimedout',
+  'enotfound',
+  'ehostunreach',
+  'enetunreach',
+  'ssl routines',
+  'reset by peer',
+  'broken pipe',
+  'no route to host',
+  'network is unreachable',
+  'connection refused',
+  'connection timed out',
+
+  // --- generic / cross-driver ---
+  'server has gone away',
+  'lost connection',
+  'is dead or not enabled',
+  'decryption failed or bad record mac',
+  'server closed the connection unexpectedly',
+  'ssl connection has been closed unexpectedly',
+  'communication link failure',
+];
+
 export class Connection extends mixinManagesTransactions(class {}) implements ConnectionInterface {
   /* The active driver connection. */
   protected driverConnection: DriverConnection | DriverConnectionResolver;
@@ -374,15 +447,8 @@ export class Connection extends mixinManagesTransactions(class {}) implements Co
   }
 
   protected causedByLostConnection(message: string): boolean {
-    if (
-      [
-        'lost connection', // driverConnection
-        "Can't add new command when connection is in closed state", // mysql2 driver
-      ].find((it) => message.includes(it))
-    ) {
-      return true;
-    }
-    return false;
+    const msg = message.toLowerCase();
+    return LOST_CONNECTION_MESSAGES.some((pattern) => msg.includes(pattern));
   }
 
   /* Reconnect to the database. */

@@ -54,7 +54,7 @@ describe('DefaultConnectionPoolManager', () => {
     expect(count()).toBe(1);
 
     await pool.release(c1);
-    expect(pool.getPoolSize()).toEqual({ total: 1, idle: 1, active: 0 });
+    expect(pool.getPoolSize()).toEqual({ total: 1, idle: 1, active: 0, pending: 0 });
 
     const c2 = await pool.acquire();
     expect(c2).toBe(c1);
@@ -74,7 +74,7 @@ describe('DefaultConnectionPoolManager', () => {
     const a = await pool.acquire();
     const b = await pool.acquire();
     expect(count()).toBe(2);
-    expect(pool.getPoolSize()).toEqual({ total: 2, idle: 0, active: 2 });
+    expect(pool.getPoolSize()).toEqual({ total: 2, idle: 0, active: 2, pending: 0 });
 
     // Third acquire must queue — pool is at capacity.
     let resolved = false;
@@ -93,7 +93,7 @@ describe('DefaultConnectionPoolManager', () => {
     const c = await pending;
     expect(c).toBe(a);
     expect(count()).toBe(2);
-    expect(pool.getPoolSize()).toEqual({ total: 2, idle: 0, active: 2 });
+    expect(pool.getPoolSize()).toEqual({ total: 2, idle: 0, active: 2, pending: 0 });
 
     await pool.release(b);
     await pool.release(c);
@@ -156,13 +156,13 @@ describe('DefaultConnectionPoolManager', () => {
 
     const a = (await pool.acquire()) as DriverConnection & { closed: boolean };
     await pool.release(a);
-    expect(pool.getPoolSize()).toEqual({ total: 1, idle: 1, active: 0 });
+    expect(pool.getPoolSize()).toEqual({ total: 1, idle: 1, active: 0, pending: 0 });
 
     // Wait long enough for the idle timer to fire.
     await new Promise((r) => setTimeout(r, 60));
 
     expect(a.closed).toBe(true);
-    expect(pool.getPoolSize()).toEqual({ total: 0, idle: 0, active: 0 });
+    expect(pool.getPoolSize()).toEqual({ total: 0, idle: 0, active: 0, pending: 0 });
 
     await pool.destroy();
   });

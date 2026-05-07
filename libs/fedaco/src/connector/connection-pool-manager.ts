@@ -42,6 +42,15 @@ export interface ConnectionPoolManager {
   release(connection: DriverConnection): Promise<void>;
 
   /**
+   * Discard a broken/dead connection instead of releasing it back
+   * into the pool. The connection is disconnected and pool capacity
+   * is freed for a new connection.
+   *
+   * @param connection The connection to discard
+   */
+  discard(connection: DriverConnection): Promise<void>;
+
+  /**
    * Destroy the pool and close all connections.
    */
   destroy(): Promise<void>;
@@ -49,9 +58,9 @@ export interface ConnectionPoolManager {
   /**
    * Get current pool statistics.
    *
-   * @returns Object containing total, idle, and active connection counts
+   * @returns Object containing total, idle, active, and pending connection counts
    */
-  getPoolSize(): { total: number; idle: number; active: number };
+  getPoolSize(): { total: number; idle: number; active: number; pending: number };
 }
 
 /**
@@ -67,6 +76,8 @@ export interface ConnectionPoolManager {
  *   - `release()` hands the connection straight to the longest-waiting
  *     queued caller, otherwise parks it in the idle list with an
  *     `idleTimeout` after which the connection is closed.
+ *   - `discard()` removes a broken connection from the pool and frees
+ *     capacity so that queued waiters can be serviced.
  *   - `destroy()` rejects pending waiters and closes every connection
  *     (idle + active).
  *
@@ -76,6 +87,11 @@ export interface ConnectionPoolManager {
 export class DefaultConnectionPoolManager implements ConnectionPoolManager {
   private idle: DriverConnection[] = [];
   private active: Set<DriverConnection> = new Set();
+
+  // Track connections currently being resolved to prevent exceeding `max`
+  // during concurrent `acquire()` calls.
+  private pendingCreations = 0;
+
   private waiters: Array<{
     resolve: (c: DriverConnection) => void;
     reject : (e: Error) => void;
@@ -86,6 +102,7 @@ export class DefaultConnectionPoolManager implements ConnectionPoolManager {
   private destroyed = false;
 
   private readonly max: number;
+  private readonly min: number;
   private readonly acquireTimeoutMs: number;
   private readonly idleTimeoutMs: number;
 
@@ -94,8 +111,11 @@ export class DefaultConnectionPoolManager implements ConnectionPoolManager {
     config: ConnectionPoolConfig = {},
   ) {
     this.max = config.max ?? 10;
+    this.min = config.min ?? 0;
     this.acquireTimeoutMs = config.acquireTimeout ?? 30_000;
     this.idleTimeoutMs = config.idleTimeout ?? 30_000;
+
+    this._initializeMinConnections();
   }
 
   async acquire(): Promise<DriverConnection> {
@@ -110,20 +130,28 @@ export class DefaultConnectionPoolManager implements ConnectionPoolManager {
       return idleConn;
     }
 
-    if (this.active.size < this.max) {
-      const conn = await this.resolver();
-      // The resolver completed — but if destroy() ran concurrently we should
-      // close this stray connection and refuse the acquire.
-      if (this.destroyed) {
-        try {
-          await conn.disconnect();
-        } catch {
-          /* ignore */
+    // Include pendingCreations in the capacity check to prevent race conditions
+    // where concurrent acquire() calls each see capacity and overshoot `max`.
+    if (this.active.size + this.pendingCreations < this.max) {
+      this.pendingCreations++;
+
+      try {
+        const conn = await this.resolver();
+
+        if (this.destroyed) {
+          try {
+            await conn.disconnect();
+          } catch {
+            /* ignore */
+          }
+          throw new Error('Connection pool has been destroyed');
         }
-        throw new Error('Connection pool has been destroyed');
+
+        this.active.add(conn);
+        return conn;
+      } finally {
+        this.pendingCreations--;
       }
-      this.active.add(conn);
-      return conn;
     }
 
     return new Promise<DriverConnection>((resolve, reject) => {
@@ -134,6 +162,7 @@ export class DefaultConnectionPoolManager implements ConnectionPoolManager {
         }
         reject(new Error(`Connection pool acquire timeout after ${this.acquireTimeoutMs}ms`));
       }, this.acquireTimeoutMs);
+
       if (typeof timer.unref === 'function') timer.unref();
       this.waiters.push({ resolve, reject, timer });
     });
@@ -141,7 +170,6 @@ export class DefaultConnectionPoolManager implements ConnectionPoolManager {
 
   async release(connection: DriverConnection): Promise<void> {
     if (!this.active.has(connection)) {
-      // Released twice or never acquired here — nothing to do.
       return;
     }
     this.active.delete(connection);
@@ -149,9 +177,7 @@ export class DefaultConnectionPoolManager implements ConnectionPoolManager {
     if (this.destroyed) {
       try {
         await connection.disconnect();
-      } catch {
-        /* ignore */
-      }
+      } catch { /* ignore */ }
       return;
     }
 
@@ -164,20 +190,26 @@ export class DefaultConnectionPoolManager implements ConnectionPoolManager {
     }
 
     this.idle.push(connection);
-    if (this.idleTimeoutMs > 0) {
-      const timer = setTimeout(() => {
-        const idx = this.idle.indexOf(connection);
-        if (idx >= 0) {
-          this.idle.splice(idx, 1);
-          this.idleTimers.delete(connection);
-          connection.disconnect().catch(() => {
-            /* ignore */
-          });
-        }
-      }, this.idleTimeoutMs);
-      if (typeof timer.unref === 'function') timer.unref();
-      this.idleTimers.set(connection, timer);
+    this._startIdleTimer(connection);
+  }
+
+  async discard(connection: DriverConnection): Promise<void> {
+    this.active.delete(connection);
+
+    const idleIdx = this.idle.indexOf(connection);
+    if (idleIdx >= 0) {
+      this.idle.splice(idleIdx, 1);
+      this._cancelIdleTimer(connection);
     }
+
+    try {
+      await connection.disconnect();
+    } catch {
+      /* ignore — connection is likely already dead */
+    }
+
+    // Discarding frees capacity; try to service queued waiters.
+    this._pumpWaiters();
   }
 
   async destroy(): Promise<void> {
@@ -198,6 +230,7 @@ export class DefaultConnectionPoolManager implements ConnectionPoolManager {
     const all = [...this.idle, ...this.active];
     this.idle = [];
     this.active.clear();
+
     await Promise.all(
       all.map((c) =>
         c.disconnect().catch(() => {
@@ -207,19 +240,88 @@ export class DefaultConnectionPoolManager implements ConnectionPoolManager {
     );
   }
 
-  getPoolSize(): { total: number; idle: number; active: number } {
+  getPoolSize(): { total: number; idle: number; active: number; pending: number } {
     return {
-      total : this.idle.length + this.active.size,
-      idle  : this.idle.length,
-      active: this.active.size,
+      total  : this.idle.length + this.active.size + this.pendingCreations,
+      idle   : this.idle.length,
+      active : this.active.size,
+      pending: this.pendingCreations,
     };
   }
+
+  // --- Private Helpers ---
 
   private _cancelIdleTimer(conn: DriverConnection): void {
     const timer = this.idleTimers.get(conn);
     if (timer) {
       clearTimeout(timer);
       this.idleTimers.delete(conn);
+    }
+  }
+
+  private _startIdleTimer(connection: DriverConnection): void {
+    if (this.idleTimeoutMs <= 0) return;
+
+    const timer = setTimeout(() => {
+      const idx = this.idle.indexOf(connection);
+      if (idx >= 0) {
+        this.idle.splice(idx, 1);
+        this.idleTimers.delete(connection);
+        connection.disconnect().catch(() => {
+          /* ignore */
+        });
+      }
+    }, this.idleTimeoutMs);
+
+    if (typeof timer.unref === 'function') timer.unref();
+    this.idleTimers.set(connection, timer);
+  }
+
+  private _initializeMinConnections(): void {
+    for (let i = 0; i < this.min; i++) {
+      this.pendingCreations++;
+      this.resolver()
+        .then((conn) => {
+          if (this.destroyed) {
+            conn.disconnect().catch(() => {});
+          } else {
+            this.idle.push(conn);
+            this._startIdleTimer(conn);
+          }
+        })
+        .catch(() => {
+          /* ignore initial connection errors for background min-pool fill */
+        })
+        .finally(() => {
+          this.pendingCreations--;
+        });
+    }
+  }
+
+  private _pumpWaiters(): void {
+    if (this.waiters.length > 0 && this.active.size + this.pendingCreations < this.max) {
+      const waiter = this.waiters.shift();
+      if (!waiter) return;
+      clearTimeout(waiter.timer);
+
+      this.pendingCreations++;
+      this.resolver()
+        .then((conn) => {
+          if (this.destroyed) {
+            conn.disconnect().catch(() => {});
+            waiter.reject(new Error('Connection pool has been destroyed'));
+          } else {
+            this.active.add(conn);
+            waiter.resolve(conn);
+          }
+        })
+        .catch((err) => {
+          waiter.reject(err);
+        })
+        .finally(() => {
+          this.pendingCreations--;
+          this._pumpWaiters();
+        });
     }
   }
 }
