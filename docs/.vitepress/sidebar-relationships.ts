@@ -1,12 +1,12 @@
-import { DefaultTheme } from 'vitepress';
+import type { DefaultTheme } from 'vitepress';
 
 export function sidebarRelationships(): DefaultTheme.SidebarItem[] {
   return [
     {text: 'Query Relationships', link: '/query-relationships',},
     {text: 'Aggregating Related Models', link: '/aggregating-related-models'},
     {text: 'Eager Loading', link: '/eager-loading'},
-    {text: 'Inserting and Updating Related Models', link: 'inserting-and-updating-related-models'},
-    {text: 'Touching Parent Timestamps', link: 'touching-parent-timestamps'},
+    {text: 'Inserting and Updating Related Models', link: '/inserting-and-updating-related-models'},
+    {text: 'Touching Parent Timestamps', link: '/touching-parent-timestamps'},
     {
       text     : 'Defining Relationships',
       base     : '/relationships/defining-relationships',
