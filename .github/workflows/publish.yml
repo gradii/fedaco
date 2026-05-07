@@ -45,15 +45,32 @@ jobs:
       - name: Bundle fedaco CLI into fedaco package
         run: pnpm build:cli
 
-      - name: Compute npm dist-tag
+      - name: Derive version and dist-tag from git tag
         id: dist_tag
         run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           case "${GITHUB_REF_NAME}" in
             *-alpha*) echo "tag=alpha" >> "$GITHUB_OUTPUT" ;;
             *-beta*)  echo "tag=beta"  >> "$GITHUB_OUTPUT" ;;
             *-rc*)    echo "tag=rc"    >> "$GITHUB_OUTPUT" ;;
             *)        echo "tag=latest" >> "$GITHUB_OUTPUT" ;;
           esac
+
+      - name: Stamp version into dist package.json files
+        run: |
+          VERSION="${{ steps.dist_tag.outputs.version }}"
+          for pkg in \
+            dist/libs/fedaco/package.json \
+            dist/libs/mysql-driver/package.json \
+            dist/libs/nest-fedaco/package.json \
+            dist/libs/postgres-driver/package.json \
+            dist/libs/sqlite-driver/package.json \
+            dist/libs/sqlserver-driver/package.json
+          do
+            jq --arg v "$VERSION" '.version = $v' "$pkg" > tmp.json && mv tmp.json "$pkg"
+            echo "  → $(jq -r '.name + "@" + .version' "$pkg")"
+          done
 
       - name: Publish @gradii/fedaco
         working-directory: dist/libs/fedaco
