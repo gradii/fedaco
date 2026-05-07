@@ -14,6 +14,11 @@ const NATIVE_DEPS = [
   'oracledb',
 ];
 
+// Packages that should be required at runtime from the consumer's node_modules
+// rather than bundled into the CLI. @gradii/fedaco is the main library — keeping
+// it external avoids duplicating it in the CLI bundle.
+const EXTERNAL_PKGS = ['@gradii/fedaco'];
+
 module.exports = composePlugins(
   withNx({
     target: 'node',
@@ -27,13 +32,18 @@ module.exports = composePlugins(
             return callback(null, `commonjs ${request}`);
           }
         }
+        for (const dep of EXTERNAL_PKGS) {
+          if (request === dep || request.startsWith(`${dep}/`)) {
+            return callback(null, `commonjs ${request}`);
+          }
+        }
       }
       callback();
     };
 
     config.optimization = {
       ...(config.optimization || {}),
-      minimize: false,
+      minimize: true,
       splitChunks: false,
       runtimeChunk: false,
     };
@@ -49,19 +59,6 @@ module.exports = composePlugins(
         banner: '#!/usr/bin/env node',
         raw: true,
         entryOnly: true,
-      }),
-      new webpack.IgnorePlugin({
-        resourceRegExp: /^@nestjs\/(microservices|websockets|platform-express)/,
-      }),
-      new webpack.IgnorePlugin({
-        resourceRegExp:
-          /^(class-validator|class-transformer|@fastify\/static|@nestjs\/(microservices|websockets|platform-express))$/,
-      }),
-      new webpack.IgnorePlugin({
-        resourceRegExp: /^prettier$/,
-      }),
-      new webpack.IgnorePlugin({
-        resourceRegExp: /^@fig\/complete-commander$/,
       }),
     ];
 

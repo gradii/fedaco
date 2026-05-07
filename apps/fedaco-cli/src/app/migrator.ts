@@ -1,7 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
 import { DatabaseConfig } from '@gradii/fedaco';
 
-import { MIGRATOR_OPTIONS } from './fedaco-cli.constants';
 import { jitiRequire } from './jiti-loader';
 import { DatabaseMigrationRepository, Migrator } from './migrations';
 
@@ -12,22 +10,17 @@ export interface MigratorOptions {
   migrationsTable: string;
 }
 
-@Injectable()
 export class MigratorService {
-  private fedaco: any;
   private databaseConfig: any;
   private resolver: any;
   private repository: any;
   private migrator: any;
   private initialized = false;
 
-  constructor(
-    @Inject(MIGRATOR_OPTIONS) private readonly options: MigratorOptions
-  ) {}
+  constructor(private readonly options: MigratorOptions) {}
 
   async onInit(): Promise<void> {
     if (this.initialized) return;
-    this.fedaco = { DatabaseConfig, DatabaseMigrationRepository, Migrator };
 
     this.databaseConfig = new DatabaseConfig();
     for (const [name, cfg] of Object.entries(this.options.connections)) {
@@ -46,7 +39,7 @@ export class MigratorService {
     this.migrator = new Migrator(this.repository, this.resolver);
     this.migrator.setConnection(this.options.defaultConnection);
     this.migrator.path(this.options.migrationsPath);
-    this.migrator.setLoader((file: string) => loadMigrationFile(file));
+    this.migrator.setLoader((file: string) => jitiRequire(file));
     this.initialized = true;
   }
 
@@ -92,8 +85,4 @@ export class MigratorService {
   getConnection() {
     return this.resolver.connection(this.options.defaultConnection);
   }
-}
-
-function loadMigrationFile(file: string): any {
-  return jitiRequire(file);
 }

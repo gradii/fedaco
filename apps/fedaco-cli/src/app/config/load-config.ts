@@ -2,8 +2,14 @@ import { createInterface } from 'node:readline';
 import { existsSync, writeFileSync } from 'node:fs';
 import { isAbsolute, resolve } from 'node:path';
 
-import type { FedacoCliOptions } from '../app.module';
 import { jitiRequire } from '../jiti-loader';
+
+export interface FedacoCliOptions {
+  connections: Record<string, any>;
+  defaultConnection?: string;
+  migrationsPath?: string;
+  migrationsTable?: string;
+}
 
 const DEFAULT_CONFIG_FILES = [
   'fedaco.config.js',

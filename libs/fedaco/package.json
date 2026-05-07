@@ -10,8 +10,8 @@
     "fedaco": "./bin/fedaco.js"
   },
   "dependencies": {
-    "@gradii/annotation": "^3.0.2",
-    "@gradii/nanofn": "^3.1.1",
+    "@gradii/annotation": "^3.1.0",
+    "@gradii/nanofn": "^3.1.2",
     "date-fns": "^4.1.0",
     "decimal.js": "^10.6.0",
     "rxjs": "^7.8.1",

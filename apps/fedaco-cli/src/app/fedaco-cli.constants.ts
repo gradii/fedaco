@@ -1,1 +1,0 @@
-export const MIGRATOR_OPTIONS = Symbol('FEDACO_CLI_MIGRATOR_OPTIONS');
