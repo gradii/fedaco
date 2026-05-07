@@ -68,7 +68,13 @@ jobs:
             dist/libs/sqlite-driver/package.json \
             dist/libs/sqlserver-driver/package.json
           do
-            jq --arg v "$VERSION" '.version = $v' "$pkg" > tmp.json && mv tmp.json "$pkg"
+            jq --arg v "$VERSION" '
+              .version = $v
+              | if (.peerDependencies // {}) | has("@gradii/fedaco")
+                then .peerDependencies["@gradii/fedaco"] = "^\($v)"
+                else .
+                end
+            ' "$pkg" > tmp.json && mv tmp.json "$pkg"
             echo "  → $(jq -r '.name + "@" + .version' "$pkg")"
           done
 

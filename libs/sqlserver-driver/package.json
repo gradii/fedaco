@@ -1,6 +1,6 @@
 {
   "name": "@gradii/fedaco-sqlserver-driver",
-  "version": "2.1.0-beta.1",
+  "version": "0.0.0",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -13,7 +13,7 @@
     "tslib": "^2.3.0"
   },
   "peerDependencies": {
-    "@gradii/fedaco": "^2.1.0-beta.1",
+    "@gradii/fedaco": "^0.0.0",
     "tedious": "^18.0.0"
   }
 }
