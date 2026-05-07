@@ -1,7 +1,21 @@
-# sqlserver-driver
+# @gradii/fedaco-sqlserver-driver
 
-This library was generated with [Nx](https://nx.dev).
+SQL Server driver for [Fedaco ORM](https://www.npmjs.com/package/@gradii/fedaco). Provides SQL Server connectivity using [tedious](https://www.npmjs.com/package/tedious).
 
-## Building
+## Installation
 
-Run `nx build sqlserver-driver` to build the library.
+```bash
+npm install @gradii/fedaco @gradii/fedaco-sqlserver-driver tedious
+# or
+pnpm add @gradii/fedaco @gradii/fedaco-sqlserver-driver tedious
+# or
+yarn add @gradii/fedaco @gradii/fedaco-sqlserver-driver tedious
+```
+
+## Documentation
+
+[https://gradii.github.io/fedaco/](https://gradii.github.io/fedaco/)
+
+## License
+
+MIT

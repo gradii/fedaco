@@ -1,7 +1,21 @@
-# postgres-driver
+# @gradii/fedaco-postgres-driver
 
-This library was generated with [Nx](https://nx.dev).
+PostgreSQL driver for [Fedaco ORM](https://www.npmjs.com/package/@gradii/fedaco). Provides PostgreSQL connectivity using [pg](https://www.npmjs.com/package/pg).
 
-## Building
+## Installation
 
-Run `nx build postgres-driver` to build the library.
+```bash
+npm install @gradii/fedaco @gradii/fedaco-postgres-driver pg
+# or
+pnpm add @gradii/fedaco @gradii/fedaco-postgres-driver pg
+# or
+yarn add @gradii/fedaco @gradii/fedaco-postgres-driver pg
+```
+
+## Documentation
+
+[https://gradii.github.io/fedaco/](https://gradii.github.io/fedaco/)
+
+## License
+
+MIT

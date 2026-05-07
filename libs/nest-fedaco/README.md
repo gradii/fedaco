@@ -1,11 +1,21 @@
-# nest-fedaco
+# @gradii/nest-fedaco
 
-This library was generated with [Nx](https://nx.dev).
+[NestJS](https://nestjs.com/) module for [Fedaco ORM](https://www.npmjs.com/package/@gradii/fedaco). Integrates Fedaco into NestJS applications with dependency injection support.
 
-## Building
+## Installation
 
-Run `nx build nest-fedaco` to build the library.
+```bash
+npm install @gradii/fedaco @gradii/nest-fedaco
+# or
+pnpm add @gradii/fedaco @gradii/nest-fedaco
+# or
+yarn add @gradii/fedaco @gradii/nest-fedaco
+```
 
-## Running unit tests
+## Documentation
 
-Run `nx test nest-fedaco` to execute the unit tests via [Jest](https://jestjs.io).
+[https://gradii.github.io/fedaco/](https://gradii.github.io/fedaco/)
+
+## License
+
+MIT

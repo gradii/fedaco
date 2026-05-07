@@ -1,11 +1,21 @@
-# midway-fedaco
+# @gradii/midway-fedaco
 
-This library was generated with [Nx](https://nx.dev).
+[Midway](https://midwayjs.org/) module for [Fedaco ORM](https://www.npmjs.com/package/@gradii/fedaco). Integrates Fedaco into Midway applications with dependency injection support.
 
-## Building
+## Installation
 
-Run `nx build midway-fedaco` to build the library.
+```bash
+npm install @gradii/fedaco @gradii/midway-fedaco
+# or
+pnpm add @gradii/fedaco @gradii/midway-fedaco
+# or
+yarn add @gradii/fedaco @gradii/midway-fedaco
+```
 
-## Running unit tests
+## Documentation
 
-Run `nx test midway-fedaco` to execute the unit tests via [Jest](https://jestjs.io).
+[https://gradii.github.io/fedaco/](https://gradii.github.io/fedaco/)
+
+## License
+
+MIT
