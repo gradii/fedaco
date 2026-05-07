@@ -1,0 +1,92 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Build and publish to npm
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build libraries
+        run: >-
+          pnpm nx run-many -t build
+          --projects=fedaco,mysql-driver,nest-fedaco,postgres-driver,sqlite-driver,sqlserver-driver
+
+      # Builds fedaco-cli and copies the bundled fedaco.js into
+      # dist/libs/fedaco/bin/fedaco.js so the package's `bin` entry resolves.
+      - name: Bundle fedaco CLI into fedaco package
+        run: pnpm build:cli
+
+      - name: Compute npm dist-tag
+        id: dist_tag
+        run: |
+          case "${GITHUB_REF_NAME}" in
+            *-alpha*) echo "tag=alpha" >> "$GITHUB_OUTPUT" ;;
+            *-beta*)  echo "tag=beta"  >> "$GITHUB_OUTPUT" ;;
+            *-rc*)    echo "tag=rc"    >> "$GITHUB_OUTPUT" ;;
+            *)        echo "tag=latest" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Publish @gradii/fedaco
+        working-directory: dist/libs/fedaco
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --provenance --tag ${{ steps.dist_tag.outputs.tag }}
+
+      - name: Publish @gradii/fedaco-mysql-driver
+        working-directory: dist/libs/mysql-driver
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --provenance --tag ${{ steps.dist_tag.outputs.tag }}
+
+      - name: Publish @gradii/nest-fedaco
+        working-directory: dist/libs/nest-fedaco
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --provenance --tag ${{ steps.dist_tag.outputs.tag }}
+
+      - name: Publish @gradii/fedaco-postgres-driver
+        working-directory: dist/libs/postgres-driver
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --provenance --tag ${{ steps.dist_tag.outputs.tag }}
+
+      - name: Publish @gradii/fedaco-sqlite-driver
+        working-directory: dist/libs/sqlite-driver
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --provenance --tag ${{ steps.dist_tag.outputs.tag }}
+
+      - name: Publish @gradii/fedaco-sqlserver-driver
+        working-directory: dist/libs/sqlserver-driver
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --provenance --tag ${{ steps.dist_tag.outputs.tag }}
