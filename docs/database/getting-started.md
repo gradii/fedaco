@@ -12,7 +12,6 @@ Fedaco uses `DatabaseConfig` to register connections, then exposes them through:
 ## Single Connection
 
 ```ts
-import 'reflect-metadata';
 import { DatabaseConfig } from '@gradii/fedaco';
 import { betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
 

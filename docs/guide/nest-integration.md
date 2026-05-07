@@ -11,15 +11,15 @@ Install Nest, Fedaco core, the Nest module, and **one driver package per databas
 ::: code-group
 
 ```sh [npm]
-npm install @gradii/fedaco @gradii/nest-fedaco @gradii/fedaco-sqlite-driver reflect-metadata
+npm install @gradii/fedaco @gradii/nest-fedaco @gradii/fedaco-sqlite-driver
 ```
 
 ```sh [yarn]
-yarn add @gradii/fedaco @gradii/nest-fedaco @gradii/fedaco-sqlite-driver reflect-metadata
+yarn add @gradii/fedaco @gradii/nest-fedaco @gradii/fedaco-sqlite-driver
 ```
 
 ```sh [pnpm]
-pnpm add @gradii/fedaco @gradii/nest-fedaco @gradii/fedaco-sqlite-driver reflect-metadata
+pnpm add @gradii/fedaco @gradii/nest-fedaco @gradii/fedaco-sqlite-driver
 ```
 
 :::
@@ -34,7 +34,7 @@ For other databases swap the driver package:
 | PostgreSQL        | `@gradii/fedaco-postgres-driver`    |
 | SQL Server        | `@gradii/fedaco-sqlserver-driver`   |
 
-You also need `experimentalDecorators` and `emitDecoratorMetadata` enabled in `tsconfig.json`, and `import 'reflect-metadata'` once at app startup. NestJS projects already have this set up.
+You also need `experimentalDecorators` and `emitDecoratorMetadata` enabled in `tsconfig.json`. NestJS projects already have this set up.
 
 ## Register `FedacoModule`
 

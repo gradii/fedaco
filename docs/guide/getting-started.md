@@ -7,7 +7,6 @@ This guide takes you from install to working CRUD with Fedaco in TypeScript.
 
 - [Node.js](https://nodejs.org/) 18+
 - TypeScript project with `experimentalDecorators` and `emitDecoratorMetadata` enabled
-- `reflect-metadata` imported once at app startup
 
 ## Install Packages
 
@@ -16,15 +15,15 @@ Install Fedaco and one database driver package. The driver is required at runtim
 ::: code-group
 
 ```sh [npm]
-npm install @gradii/fedaco @gradii/fedaco-sqlite-driver better-sqlite3 reflect-metadata
+npm install @gradii/fedaco @gradii/fedaco-sqlite-driver better-sqlite3
 ```
 
 ```sh [yarn]
-yarn add @gradii/fedaco @gradii/fedaco-sqlite-driver better-sqlite3 reflect-metadata
+yarn add @gradii/fedaco @gradii/fedaco-sqlite-driver better-sqlite3
 ```
 
 ```sh [pnpm]
-pnpm add @gradii/fedaco @gradii/fedaco-sqlite-driver better-sqlite3 reflect-metadata
+pnpm add @gradii/fedaco @gradii/fedaco-sqlite-driver better-sqlite3
 ```
 
 :::
@@ -34,7 +33,6 @@ pnpm add @gradii/fedaco @gradii/fedaco-sqlite-driver better-sqlite3 reflect-meta
 Create one file (for example `src/db.ts`) and initialize the connection:
 
 ```ts
-import 'reflect-metadata';
 import { DatabaseConfig } from '@gradii/fedaco';
 import { betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
