@@ -16,11 +16,11 @@ const DEFAULT_CONFIG_FILES = [
   'fedaco.config.mjs',
   'fedaco.config.mts',
   'fedaco.config.cjs',
-  'fedaco.config.json',
 ];
 
 const CONFIG_TEMPLATES: Record<string, string> = {
-  'fedaco.config.js': `/** @type {import('@gradii/fedaco-cli').FedacoCliOptions} */
+  'fedaco.config.js': `const { betterSqliteDriver } = require('@gradii/fedaco-sqlite-driver');
+
 module.exports = {
   defaultConnection: 'default',
   migrationsPath: './database/migrations',
@@ -28,25 +28,13 @@ module.exports = {
   connections: {
     default: {
       driver: 'sqlite',
+      factory: betterSqliteDriver(),
       database: './database/database.sqlite',
     },
   },
 };
 `,
-  'fedaco.config.mjs': `/** @type {import('@gradii/fedaco-cli').FedacoCliOptions} */
-export default {
-  defaultConnection: 'default',
-  migrationsPath: './database/migrations',
-  migrationsTable: 'migrations',
-  connections: {
-    default: {
-      driver: 'sqlite',
-      database: './database/database.sqlite',
-    },
-  },
-};
-`,
-  'fedaco.config.mts': `import type { FedacoCliOptions } from '@gradii/fedaco-cli';
+  'fedaco.config.mjs': `import { betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
 
 export default {
   defaultConnection: 'default',
@@ -55,10 +43,26 @@ export default {
   connections: {
     default: {
       driver: 'sqlite',
+      factory: betterSqliteDriver(),
       database: './database/database.sqlite',
     },
   },
-} satisfies FedacoCliOptions;
+};
+`,
+  'fedaco.config.mts': `import { betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
+
+export default {
+  defaultConnection: 'default',
+  migrationsPath: './database/migrations',
+  migrationsTable: 'migrations',
+  connections: {
+    default: {
+      driver: 'sqlite',
+      factory: betterSqliteDriver(),
+      database: './database/database.sqlite',
+    },
+  },
+};
 `,
 };
 
