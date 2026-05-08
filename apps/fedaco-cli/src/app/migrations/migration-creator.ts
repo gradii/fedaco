@@ -5,23 +5,64 @@ import { isBlank } from '@gradii/nanofn';
 
 export type PostCreateHook = (table: string | null, path: string) => void;
 
-const DEFAULT_STUB_DIR = resolve(__dirname, 'stubs');
+const BUILTIN_STUBS: Record<string, string> = {
+  'migration.stub': `\
+/**
+ * Migration: {{ name }}
+ */
+export const up = async (schema) => {
+  // schema.create('table_name', (table) => {
+  //   table.increments('id');
+  //   table.timestamps();
+  // });
+};
+
+export const down = async (schema) => {
+  // schema.drop('table_name');
+};
+`,
+  'migration.create.stub': `\
+/**
+ * Migration: {{ name }} — create {{ table }}
+ */
+export const up = async (schema) => {
+  await schema.create('{{ table }}', (table) => {
+    table.increments('id');
+    table.timestamps();
+  });
+};
+
+export const down = async (schema) => {
+  await schema.drop('{{ table }}');
+};
+`,
+  'migration.update.stub': `\
+/**
+ * Migration: {{ name }} — update {{ table }}
+ */
+export const up = async (schema) => {
+  await schema.table('{{ table }}', (table) => {
+    // table.string('column_name');
+  });
+};
+
+export const down = async (schema) => {
+  await schema.table('{{ table }}', (table) => {
+    // table.dropColumn('column_name');
+  });
+};
+`,
+};
 
 export class MigrationCreator {
   /* The custom app stubs directory. */
   customStubPath: string | null;
   /* The registered post create hooks. */
   postCreate: PostCreateHook[] = [];
-  /* The directory containing the built-in stubs. */
-  builtinStubPath: string;
 
   /* Create a new migration creator instance. */
-  public constructor(
-    customStubPath: string | null = null,
-    builtinStubPath: string = DEFAULT_STUB_DIR
-  ) {
+  public constructor(customStubPath: string | null = null) {
     this.customStubPath = customStubPath;
-    this.builtinStubPath = builtinStubPath;
   }
 
   /* Create a new migration at the given path. */
@@ -75,13 +116,17 @@ export class MigrationCreator {
     } else {
       stubName = 'migration.update.stub';
     }
-    const customPath = this.customStubPath
-      ? resolve(this.customStubPath, stubName)
-      : null;
-    const builtinPath = resolve(this.builtinStubPath, stubName);
-    const path =
-      customPath && existsSync(customPath) ? customPath : builtinPath;
-    return readFileSync(path, 'utf-8');
+    if (this.customStubPath) {
+      const customPath = resolve(this.customStubPath, stubName);
+      if (existsSync(customPath)) {
+        return readFileSync(customPath, 'utf-8');
+      }
+    }
+    const builtin = BUILTIN_STUBS[stubName];
+    if (!builtin) {
+      throw new Error(`Unknown migration stub: ${stubName}`);
+    }
+    return builtin;
   }
 
   /* Populate the place-holders in the migration stub. */
@@ -124,7 +169,7 @@ export class MigrationCreator {
   }
 
   /* Get the path to the stubs. */
-  public stubPath(): string {
-    return this.builtinStubPath;
+  public stubPath(): string | null {
+    return this.customStubPath;
   }
 }
