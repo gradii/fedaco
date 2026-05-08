@@ -8,12 +8,14 @@ interface RunOptions {
   pretend?: boolean;
   step?: string;
   batch?: string;
+  connection?: string;
 }
 
 interface MakeOptions {
   path?: string;
   table?: string;
   create?: string | boolean;
+  connection?: string;
 }
 
 function toInt(value: string | undefined): number | undefined {
@@ -32,8 +34,10 @@ export function registerCommands(
     .option('--path <path>', 'Path to migration files')
     .option('--pretend', 'Show queries without running')
     .option('--step [step]', 'Step count or flag')
+    .option('--connection <name>', 'The database connection to use')
     .action(async (options: RunOptions) => {
       await migrator.onInit();
+      if (options.connection) migrator.setConnection(options.connection);
       await migrator.ensureRepositoryExists();
       const path = options.path ?? migrator.getOptions().migrationsPath;
       await migrator.getMigrator().run(path, {
@@ -45,8 +49,10 @@ export function registerCommands(
   program
     .command('migrate:install')
     .description('Create the migration repository table')
-    .action(async () => {
+    .option('--connection <name>', 'The database connection to use')
+    .action(async (options: RunOptions) => {
       await migrator.onInit();
+      if (options.connection) migrator.setConnection(options.connection);
       const repo = migrator.getRepository();
       if (await repo.repositoryExists()) {
         process.stdout.write('Migration table already exists.\n');
@@ -83,8 +89,10 @@ export function registerCommands(
     .option('--pretend', 'Show queries without running')
     .option('--step <step>', 'Number of migrations to rollback')
     .option('--batch <batch>', 'Rollback a specific batch')
+    .option('--connection <name>', 'The database connection to use')
     .action(async (options: RunOptions) => {
       await migrator.onInit();
+      if (options.connection) migrator.setConnection(options.connection);
       await migrator.ensureRepositoryExists();
       const path = options.path ?? migrator.getOptions().migrationsPath;
       await migrator.getMigrator().rollback(path, {
@@ -99,8 +107,10 @@ export function registerCommands(
     .description('Rollback all database migrations')
     .option('--path <path>', 'Path to migration files')
     .option('--pretend', 'Show queries without running')
+    .option('--connection <name>', 'The database connection to use')
     .action(async (options: RunOptions) => {
       await migrator.onInit();
+      if (options.connection) migrator.setConnection(options.connection);
       await migrator.ensureRepositoryExists();
       const path = options.path ?? migrator.getOptions().migrationsPath;
       await migrator.getMigrator().reset(path, !!options.pretend);
@@ -112,8 +122,10 @@ export function registerCommands(
     .option('--path <path>', 'Path to migration files')
     .option('--pretend', 'Show queries without running')
     .option('--step [step]', 'Step count or flag')
+    .option('--connection <name>', 'The database connection to use')
     .action(async (options: RunOptions) => {
       await migrator.onInit();
+      if (options.connection) migrator.setConnection(options.connection);
       await migrator.ensureRepositoryExists();
       const path = options.path ?? migrator.getOptions().migrationsPath;
       await migrator.getMigrator().reset(path, !!options.pretend);
@@ -129,8 +141,10 @@ export function registerCommands(
     .option('--path <path>', 'Path to migration files')
     .option('--pretend', 'Show queries without running')
     .option('--step [step]', 'Step count or flag')
+    .option('--connection <name>', 'The database connection to use')
     .action(async (options: RunOptions) => {
       await migrator.onInit();
+      if (options.connection) migrator.setConnection(options.connection);
       const connection = migrator.getConnection();
       const schema = connection.getSchemaBuilder();
 
@@ -156,8 +170,10 @@ export function registerCommands(
     .command('migrate:status')
     .description('Show the status of each migration')
     .option('--path <path>', 'Path to migration files')
+    .option('--connection <name>', 'The database connection to use')
     .action(async (options: RunOptions) => {
       await migrator.onInit();
+      if (options.connection) migrator.setConnection(options.connection);
       const repo = migrator.getRepository();
       if (!(await repo.repositoryExists())) {
         process.stdout.write(

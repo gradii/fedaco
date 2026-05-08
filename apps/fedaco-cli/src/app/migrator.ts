@@ -16,8 +16,11 @@ export class MigratorService {
   private repository: any;
   private migrator: any;
   private initialized = false;
+  private activeConnection: string;
 
-  constructor(private readonly options: MigratorOptions) {}
+  constructor(private readonly options: MigratorOptions) {
+    this.activeConnection = options.defaultConnection;
+  }
 
   async onInit(): Promise<void> {
     if (this.initialized) return;
@@ -83,6 +86,17 @@ export class MigratorService {
   }
 
   getConnection() {
-    return this.resolver.connection(this.options.defaultConnection);
+    return this.resolver.connection(this.activeConnection);
+  }
+
+  setConnection(name: string): void {
+    if (!this.options.connections[name]) {
+      throw new Error(
+        `Connection "${name}" is not defined in config. Available: ${Object.keys(this.options.connections).join(', ')}`
+      );
+    }
+    this.activeConnection = name;
+    this.repository.setSource(name);
+    this.migrator.setConnection(name);
   }
 }

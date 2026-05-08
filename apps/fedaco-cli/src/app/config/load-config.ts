@@ -20,6 +20,9 @@ const DEFAULT_CONFIG_FILES = [
 
 const CONFIG_TEMPLATES: Record<string, string> = {
   'fedaco.config.js': `const { betterSqliteDriver } = require('@gradii/fedaco-sqlite-driver');
+// const { mysqlDriver } = require('@gradii/fedaco-mysql-driver');
+// const { mariadbDriver } = require('@gradii/fedaco-mysql-driver');
+// const { postgresDriver } = require('@gradii/fedaco-postgres-driver');
 
 module.exports = {
   defaultConnection: 'default',
@@ -31,10 +34,40 @@ module.exports = {
       factory: betterSqliteDriver(),
       database: './database/database.sqlite',
     },
+    // mysql: {
+    //   driver: 'mysql',
+    //   factory: mysqlDriver(),
+    //   host: '127.0.0.1',
+    //   port: 3306,
+    //   database: 'my_database',
+    //   username: 'root',
+    //   password: '',
+    // },
+    // postgres: {
+    //   driver: 'pgsql',
+    //   factory: postgresDriver(),
+    //   host: '127.0.0.1',
+    //   port: 5432,
+    //   database: 'my_database',
+    //   username: 'postgres',
+    //   password: '',
+    // },
+    // mariadb: {
+    //   driver: 'mariadb',
+    //   factory: mariadbDriver(),
+    //   host: '127.0.0.1',
+    //   port: 3306,
+    //   database: 'my_database',
+    //   username: 'root',
+    //   password: '',
+    // },
   },
 };
 `,
   'fedaco.config.mjs': `import { betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
+// import { mysqlDriver } from '@gradii/fedaco-mysql-driver';
+// import { mariadbDriver } from '@gradii/fedaco-mysql-driver';
+// import { postgresDriver } from '@gradii/fedaco-postgres-driver';
 
 export default {
   defaultConnection: 'default',
@@ -46,10 +79,40 @@ export default {
       factory: betterSqliteDriver(),
       database: './database/database.sqlite',
     },
+    // mysql: {
+    //   driver: 'mysql',
+    //   factory: mysqlDriver(),
+    //   host: '127.0.0.1',
+    //   port: 3306,
+    //   database: 'my_database',
+    //   username: 'root',
+    //   password: '',
+    // },
+    // postgres: {
+    //   driver: 'pgsql',
+    //   factory: postgresDriver(),
+    //   host: '127.0.0.1',
+    //   port: 5432,
+    //   database: 'my_database',
+    //   username: 'postgres',
+    //   password: '',
+    // },
+    // mariadb: {
+    //   driver: 'mariadb',
+    //   factory: mariadbDriver(),
+    //   host: '127.0.0.1',
+    //   port: 3306,
+    //   database: 'my_database',
+    //   username: 'root',
+    //   password: '',
+    // },
   },
 };
 `,
   'fedaco.config.mts': `import { betterSqliteDriver } from '@gradii/fedaco-sqlite-driver';
+// import { mysqlDriver } from '@gradii/fedaco-mysql-driver';
+// import { mariadbDriver } from '@gradii/fedaco-mysql-driver';
+// import { postgresDriver } from '@gradii/fedaco-postgres-driver';
 
 export default {
   defaultConnection: 'default',
@@ -61,6 +124,33 @@ export default {
       factory: betterSqliteDriver(),
       database: './database/database.sqlite',
     },
+    // mysql: {
+    //   driver: 'mysql',
+    //   factory: mysqlDriver(),
+    //   host: '127.0.0.1',
+    //   port: 3306,
+    //   database: 'my_database',
+    //   username: 'root',
+    //   password: '',
+    // },
+    // postgres: {
+    //   driver: 'pgsql',
+    //   factory: postgresDriver(),
+    //   host: '127.0.0.1',
+    //   port: 5432,
+    //   database: 'my_database',
+    //   username: 'postgres',
+    //   password: '',
+    // },
+    // mariadb: {
+    //   driver: 'mariadb',
+    //   factory: mariadbDriver(),
+    //   host: '127.0.0.1',
+    //   port: 3306,
+    //   database: 'my_database',
+    //   username: 'root',
+    //   password: '',
+    // },
   },
 };
 `,

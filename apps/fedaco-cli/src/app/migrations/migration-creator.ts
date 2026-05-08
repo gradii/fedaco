@@ -11,14 +11,14 @@ const BUILTIN_STUBS: Record<string, string> = {
  * Migration: {{ name }}
  */
 export const up = async (schema) => {
-  // schema.create('table_name', (table) => {
+  // await schema.create('table_name', (table) => {
   //   table.increments('id');
   //   table.timestamps();
   // });
 };
 
 export const down = async (schema) => {
-  // schema.drop('table_name');
+  // await schema.drop('table_name');
 };
 `,
   'migration.create.stub': `\
