@@ -466,6 +466,71 @@ describe('fedaco builder', () => {
     expect(decodedPrev.pointsToNextItems).toBe(false);
   });
 
+  it('cursor paginate backwards reverses order and items', async () => {
+    builder = getBuilder();
+    builder.setModel(getModel());
+    // After flipping ASC -> DESC, the underlying query produces rows in
+    // descending order. We mock pageSize+1 = 4 rows to also signal "more".
+    // @ts-ignore
+    jest.spyOn(builder, 'get').mockResolvedValue([
+      { id: 80 } as any,
+      { id: 70 } as any,
+      { id: 60 } as any,
+      { id: 50 } as any, // overflow row
+    ]);
+    builder.orderBy('id', 'asc');
+    const orderEl = builder.getQuery()._orders[0] as any;
+
+    const { Cursor } = require('@gradii/fedaco');
+    const backward = new Cursor({ id: 100 }, false).encode();
+    const page = await builder.cursorPaginate(3, ['*'], 'cursor', backward);
+
+    // Direction flip is in-place on the order element.
+    expect((orderEl.direction ?? orderEl._direction)).toBe('desc');
+    // Items are reversed back to the originally-requested ascending order.
+    expect(page.items.map((i: any) => i.id)).toEqual([60, 70, 80]);
+    expect(page.hasMorePages).toBe(true);
+    // Going further "back" requires another previousCursor (smallest id).
+    const prev = Cursor.fromEncoded(page.previousPageCursor());
+    expect(prev.parameters).toEqual({ id: 60 });
+    expect(prev.pointsToNextItems).toBe(false);
+    // Going "forward" again should snap to the largest id with pointsToNext.
+    const next = Cursor.fromEncoded(page.nextPageCursor());
+    expect(next.parameters).toEqual({ id: 80 });
+    expect(next.pointsToNextItems).toBe(true);
+  });
+
+  it('cursor paginate resolves SELECT alias back to original column in WHERE', async () => {
+    builder = getBuilder();
+    builder.setModel(getModel());
+    // `created_at` is selected as `created` and the user orders by the alias.
+    builder.select('users.created_at as created').orderBy('created', 'asc');
+    // `_resolveColumnForCursor` is the helper that backs alias resolution in
+    // cursorPaginate's keyset predicate; it should map the alias back to the
+    // original column expression so the WHERE clause references a real column.
+    expect((builder as any)._resolveColumnForCursor('created')).toBe('created_at');
+    // Sanity: unaliased columns pass through unchanged.
+    expect((builder as any)._resolveColumnForCursor('id')).toBe('id');
+  });
+
+  it('cursor paginate applies keyset to each union sub-builder', async () => {
+    builder = getBuilder();
+    builder.setModel(getModel());
+    const unionBuilder = builder.getQuery().newQuery();
+    const spyUnionWhere = jest.spyOn(unionBuilder, 'where');
+    builder.getQuery()._unions.push({ expression: unionBuilder, all: false } as any);
+
+    // @ts-ignore
+    jest.spyOn(builder, 'get').mockResolvedValue([]);
+    builder.orderBy('id', 'asc');
+
+    const { Cursor } = require('@gradii/fedaco');
+    const encoded = new Cursor({ id: 30 }, true).encode();
+    await builder.cursorPaginate(3, ['*'], 'cursor', encoded);
+
+    expect(spyUnionWhere).toHaveBeenCalled();
+  });
+
   it('qualify column', () => {
     let spy1, spy2, spy3, result;
     builder = getBuilder();

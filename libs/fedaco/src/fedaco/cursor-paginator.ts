@@ -7,8 +7,18 @@
 import { Cursor } from './cursor';
 
 export interface CursorOrderColumn {
-  /** Unqualified attribute name on the model, e.g. `id` (used to read item values). */
+  /**
+   * Unqualified attribute name on the model — used to read the value from a
+   * result row when building a cursor, and as the cursor's parameter key.
+   */
   column: string;
+  /**
+   * Column expression to use inside keyset WHERE predicates. Differs from
+   * `column` when the user `SELECT col AS alias` and `orderBy('alias')`: the
+   * WHERE must reference the original `col`, while the cursor key stays
+   * `alias` (because that is the key returned by the DB on each row).
+   */
+  whereColumn: string;
   /** Direction taken into account when building keyset predicates. */
   direction: 'asc' | 'desc';
 }

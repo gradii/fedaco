@@ -1148,7 +1148,9 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
    * `CursorPaginator` exposes `nextPageCursor()` / `previousPageCursor()`
    * which yield the encoded string to round-trip through `?cursor=…`.
    *
-   * If no orderBy is set, the model's primary key is used.
+   * If no orderBy is set, the model's primary key is used. The keyset
+   * predicate is applied to each `UNION` arm so multi-source result sets
+   * stay coherent.
    */
   public async cursorPaginate(
     pageSize?: number,
@@ -1163,26 +1165,15 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     const orderColumns = this._ensureOrderForCursorPagination(shouldReverse);
 
     if (resolvedCursor !== null && orderColumns.length > 0) {
-      this.where((query: FedacoBuilder<T>) => {
-        for (let i = 0; i < orderColumns.length; i++) {
-          const { column, direction } = orderColumns[i];
-          const cursorValue = resolvedCursor.parameter(column);
-          if (cursorValue === null) {
-            continue;
-          }
-          // Each iteration adds an OR-branch that matches all preceding
-          // columns exactly and compares the current column strictly.
-          // Direction is already reversed by _ensureOrderForCursorPagination
-          // when paginating backwards, so we always use '>'.
-          const op = direction === 'asc' ? '>' : '<';
-          query.orWhere((sub: FedacoBuilder<T>) => {
-            for (let j = 0; j < i; j++) {
-              sub.where(orderColumns[j].column, '=', resolvedCursor.parameter(orderColumns[j].column));
-            }
-            sub.where(column, op, cursorValue);
-          });
+      this._addCursorConditions(this, resolvedCursor, orderColumns);
+      // Each union arm is an independent SELECT that needs its own keyset
+      // filter; without it those rows would bypass cursor scoping.
+      for (const fragment of this._query._unions ?? []) {
+        const sub = (fragment as any)?.expression;
+        if (sub && typeof sub.where === 'function') {
+          this._addCursorConditions(sub, resolvedCursor, orderColumns);
         }
-      });
+      }
     }
 
     this.take(pageSize + 1);
@@ -1192,7 +1183,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
       items.pop();
     }
     // When paginating backwards we fetched in reverse direction; flip back so
-    // callers always see ascending-by-order results.
+    // callers always see items in the originally-requested order.
     if (shouldReverse) {
       items.reverse();
     }
@@ -1201,16 +1192,54 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   }
 
   /**
+   * Apply the keyset predicate for `cursor` to `target` (either this builder
+   * or a union sub-builder). Builds an OR-chain of AND-chains:
+   *   col1 > c1
+   *   OR (col1 = c1 AND col2 > c2)
+   *   OR (col1 = c1 AND col2 = c2 AND col3 > c3)
+   * with the comparison direction inverted for `desc` orders.
+   */
+  protected _addCursorConditions(
+    target: { where: (cb: (q: any) => void) => any },
+    cursor: Cursor,
+    orderColumns: CursorOrderColumn[],
+  ): void {
+    target.where((query: any) => {
+      for (let i = 0; i < orderColumns.length; i++) {
+        const { column, whereColumn, direction } = orderColumns[i];
+        const cursorValue = cursor.parameter(column);
+        if (cursorValue === null) {
+          continue;
+        }
+        const op = direction === 'asc' ? '>' : '<';
+        query.orWhere((sub: any) => {
+          for (let j = 0; j < i; j++) {
+            sub.where(orderColumns[j].whereColumn, '=', cursor.parameter(orderColumns[j].column));
+          }
+          sub.where(whereColumn, op, cursorValue);
+        });
+      }
+    });
+  }
+
+  /**
    * Ensure the underlying query has an `orderBy` and return the (possibly
-   * reversed) order columns as `{column, direction}` tuples. Falls back to
-   * the model's primary key when no order has been set.
+   * reversed) order columns as `{column, whereColumn, direction}` tuples.
+   * Falls back to the model's primary key when no order has been set.
+   *
+   * When the query has UNIONs, ordering lives on `_unionOrders` (applied
+   * outside the UNION); otherwise it lives on `_orders`. We mutate whichever
+   * is in use so the underlying SELECT actually executes in the desired
+   * direction.
    */
   protected _ensureOrderForCursorPagination(shouldReverse = false): CursorOrderColumn[] {
     if (this._query._orders.length === 0 && this._query._unionOrders.length === 0) {
       this._enforceOrderBy();
     }
+    const orderField: '_orders' | '_unionOrders' =
+      this._query._unionOrders.length > 0 ? '_unionOrders' : '_orders';
     if (shouldReverse) {
-      this._query._orders = this._query._orders.map((order: any) => {
+      this._query[orderField] = this._query[orderField].map((order: any) => {
         // Order AST nodes may either carry a public `direction` or `_direction`
         // depending on construction site; flip whichever exists.
         if (order && typeof order === 'object') {
@@ -1223,13 +1252,63 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
         return order;
       });
     }
-    return this._query._orders
+    return this._query[orderField]
       .map((order: any) => {
         const column = this._extractOrderColumnName(order?.column ?? order?._column);
+        if (column === null) {
+          return null;
+        }
         const direction = (order?.direction ?? order?._direction ?? 'asc').toLowerCase() === 'desc' ? 'desc' : 'asc';
-        return column === null ? null : ({ column, direction } as CursorOrderColumn);
+        return {
+          column,
+          whereColumn: this._resolveColumnForCursor(column),
+          direction,
+        } as CursorOrderColumn;
       })
       .filter((x): x is CursorOrderColumn => x !== null);
+  }
+
+  /**
+   * Resolve a cursor column name back to the original column expression when
+   * SELECT has aliased it. Returns `name` unchanged if no matching alias is
+   * found, or if the SELECT side uses something we can't statically extract
+   * (raw expressions, subqueries, etc).
+   *
+   * Example: `select('users.created_at as date').orderBy('date')` should
+   * compare against `users.created_at` in the WHERE clause, not against
+   * `date` (which isn't a real column).
+   *
+   * Supports both shapes used by the query parser:
+   *   - `ColumnReferenceExpression { expression, fieldAliasIdentificationVariable }`
+   *     (produced by `select('col as alias')`)
+   *   - `AsExpression { name, as }` (used internally by some constructions)
+   */
+  protected _resolveColumnForCursor(name: string): string {
+    const cols: any[] = this._query._columns ?? [];
+    for (const col of cols) {
+      if (!col || typeof col !== 'object') {
+        continue;
+      }
+      // ColumnReferenceExpression
+      const refAlias = col.fieldAliasIdentificationVariable;
+      const refAliasName = typeof refAlias?.name === 'string' ? refAlias.name : null;
+      if (refAliasName === name && col.expression) {
+        const original = this._extractOrderColumnName(col.expression);
+        if (original !== null) {
+          return original;
+        }
+      }
+      // AsExpression
+      const asAlias = col.as;
+      const asAliasName = typeof asAlias?.name === 'string' ? asAlias.name : null;
+      if (asAliasName === name && col.name) {
+        const original = this._extractOrderColumnName(col.name);
+        if (original !== null) {
+          return original;
+        }
+      }
+    }
+    return name;
   }
 
   /**
