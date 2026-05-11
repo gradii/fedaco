@@ -54,6 +54,7 @@ export default [
             'ExportAllDeclaration',
             'TSInterfaceBody',
             'ClassBody',
+            'TSTypeLiteral *',
           ],
         },
       ],

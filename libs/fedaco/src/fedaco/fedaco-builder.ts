@@ -27,7 +27,7 @@ import type { QueryBuilder } from '../query-builder/query-builder';
 import type { SqlNode } from '../query/sql-node';
 import { BaseModel } from './base-model';
 import { Cursor } from './cursor';
-import { CursorPaginator, type CursorOrderColumn } from './cursor-paginator';
+import { type CursorOrderColumn, CursorPaginator } from './cursor-paginator';
 import type { FedacoBuilderCallBack, RelationCallBack } from './fedaco-types';
 import type { ForwardCallToQueryBuilder, ForwardCallToQueryBuilderCtor } from './mixins/forward-call-to-query-builder';
 import { mixinForwardCallToQueryBuilder } from './mixins/forward-call-to-query-builder';
@@ -231,10 +231,10 @@ export interface FedacoBuilder<T extends Model = Model>
     pageSize?: number,
     columns?: any[],
   ): Promise<{
-    items   : any[];
-    total   : number;
+    items: any[];
+    total: number;
     pageSize: number;
-    page    : number;
+    page: number;
   }>;
 
   /* Paginate the given query into a simple paginator. */
@@ -1236,8 +1236,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     if (this._query._orders.length === 0 && this._query._unionOrders.length === 0) {
       this._enforceOrderBy();
     }
-    const orderField: '_orders' | '_unionOrders' =
-      this._query._unionOrders.length > 0 ? '_unionOrders' : '_orders';
+    const orderField: '_orders' | '_unionOrders' = this._query._unionOrders.length > 0 ? '_unionOrders' : '_orders';
     if (shouldReverse) {
       this._query[orderField] = this._query[orderField].map((order: any) => {
         // Order AST nodes may either carry a public `direction` or `_direction`
@@ -1406,7 +1405,9 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     const grammar: any = (this._query as any)._grammar;
     for (const [column, amount] of Object.entries(columns)) {
       if (typeof amount !== 'number') {
-        throw new Error(`InvalidArgumentException Non-numeric value passed as increment amount for column: '${column}'.`);
+        throw new Error(
+          `InvalidArgumentException Non-numeric value passed as increment amount for column: '${column}'.`,
+        );
       }
       const wrapped = grammar.wrap(column);
       updates[column] = raw(`${wrapped} + ${amount}`);
@@ -1420,7 +1421,9 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     const grammar: any = (this._query as any)._grammar;
     for (const [column, amount] of Object.entries(columns)) {
       if (typeof amount !== 'number') {
-        throw new Error(`InvalidArgumentException Non-numeric value passed as decrement amount for column: '${column}'.`);
+        throw new Error(
+          `InvalidArgumentException Non-numeric value passed as decrement amount for column: '${column}'.`,
+        );
       }
       const wrapped = grammar.wrap(column);
       updates[column] = raw(`${wrapped} - ${amount}`);
@@ -1585,8 +1588,8 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     const whereGroup = this.getQuery().forNestedWhere();
     whereGroup._wheres = whereSlice;
     return {
-      type   : 'Nested',
-      query  : whereGroup,
+      type: 'Nested',
+      query: whereGroup,
       boolean: conjunction,
     };
   }
@@ -1664,11 +1667,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   }
 
   /* Add default attributes for new model instances and (optionally) as where conditions. */
-  public withAttributes(
-    attributes: Record<string, any> | string,
-    value: any = null,
-    asConditions = true,
-  ): this {
+  public withAttributes(attributes: Record<string, any> | string, value: any = null, asConditions = true): this {
     const attrs: Record<string, any> = isString(attributes) ? { [attributes]: value } : attributes;
     if (asConditions) {
       for (const [column, val] of Object.entries(attrs)) {
