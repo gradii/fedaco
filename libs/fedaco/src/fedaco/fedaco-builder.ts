@@ -19,6 +19,7 @@ import {
 import type { Connection } from '../connection';
 import { wrap } from '../helper/arr';
 import type { Constructor } from '../helper/constructor';
+import { raw } from '../query-builder/ast-factory';
 import type { BuildQueries, BuildQueriesCtor } from '../query-builder/mixins/build-query';
 import { mixinBuildQueries } from '../query-builder/mixins/build-query';
 import type { QueryBuilder } from '../query-builder/query-builder';
@@ -96,6 +97,19 @@ export interface FedacoBuilder<T extends Model = Model>
   /* Add an "or where" clause to the query. */
   orWhere(column: FedacoBuilderCallBack | any[] | string | SqlNode, operator?: any, value?: any): this;
 
+  /**
+   * Add a basic "where not" clause to the query.
+   */
+  whereNot(
+    column: FedacoBuilderCallBack | string | any[] | SqlNode | any,
+    operator?: any,
+    value?: any,
+    conjunction?: 'and' | 'or',
+  ): this;
+
+  /* Add an "or where not" clause to the query. */
+  orWhereNot(column: FedacoBuilderCallBack | any[] | string | SqlNode, operator?: any, value?: any): this;
+
   /* Add an "order by" clause for a timestamp to the query. */
   latest(column?: string): this;
 
@@ -104,6 +118,18 @@ export interface FedacoBuilder<T extends Model = Model>
 
   /* Create a collection of models from plain arrays. */
   hydrate(items: any[]): T[];
+
+  /* Insert new records into the database via the model's fill/cast pipeline. */
+  fillAndInsert(values: Record<string, any>[]): Promise<any>;
+
+  /* Insert new records, ignoring duplicates, via the model's fill/cast pipeline. */
+  fillAndInsertOrIgnore(values: Record<string, any>[]): Promise<any>;
+
+  /* Insert and return the new id, via the model's fill/cast pipeline. */
+  fillAndInsertGetId(values: Record<string, any>): Promise<any>;
+
+  /* Resolve fill/cast pipeline for a set of rows, returning the prepared rows. */
+  fillForInsert(values: Record<string, any>[]): Record<string, any>[];
 
   /* Create a collection of models from a raw query. */
   fromQuery(query: string, bindings?: any[]): Promise<T[]>;
@@ -143,8 +169,29 @@ export interface FedacoBuilder<T extends Model = Model>
   /* Execute the query and get the first result or call a callback. */
   firstOr(columns?: FedacoBuilderCallBack | any[], callback?: FedacoBuilderCallBack | null): Promise<T>;
 
+  /* Find a model by its primary key or call a callback. */
+  findOr(id: any, columns?: any[] | FedacoBuilderCallBack, callback?: FedacoBuilderCallBack | null): Promise<T>;
+
+  /* Find a model by its primary key, expecting exactly one match. */
+  findSole(id: any, columns?: any[]): Promise<T>;
+
+  /* Create the record matching the attributes, or read the matching record. */
+  createOrFirst(attributes: any, values?: any): Promise<T>;
+
+  /* Increment the column matching the attributes, or create a new record. */
+  incrementOrCreate(attributes: any, column?: string, defaultValue?: number, step?: number, extra?: any): Promise<T>;
+
   /* Get a single column's value from the first result of a query. */
   value<K extends keyof T>(column: K): Promise<T[K] | void>;
+
+  /* Execute the query and get the first result if it's the sole matching record. */
+  sole(columns?: any[] | string): Promise<T>;
+
+  /* Get a single column's value from the first result, expecting exactly one match. */
+  soleValue<K extends keyof T>(column: K): Promise<T[K]>;
+
+  /* Get a single column's value from the first result of a query, or throw. */
+  valueOrFail<K extends keyof T>(column: K): Promise<T[K]>;
 
   /**
    * Execute the query as a "select" statement.
@@ -194,14 +241,40 @@ export interface FedacoBuilder<T extends Model = Model>
     columns?: any[],
   ): Promise<{ items: any[]; pageSize: number; page: number }>;
 
+  /* Iterate the query results, yielding one model at a time. */
+  cursor(columns?: any[] | string): AsyncGenerator<T>;
+
+  /* Paginate the given query into a cursor paginator. */
+  cursorPaginate(
+    pageSize?: number,
+    columns?: any[],
+    cursorName?: string,
+    cursor?: Record<string, any> | null,
+  ): Promise<{
+    items: T[];
+    pageSize: number;
+    hasMore: boolean;
+    nextCursor: Record<string, any> | null;
+    previousCursor: Record<string, any> | null;
+  }>;
+
   /* Save a new model and return the instance. */
   create(attributes?: Record<string, any>): Promise<T>;
+
+  /* Save a new model without firing any model events and return the instance. */
+  createQuietly(attributes?: Record<string, any>): Promise<T>;
 
   /* Save a new model and return the instance. Allow mass-assignment. */
   forceCreate(attributes: Record<string, any>): Promise<T>;
 
+  /* Save a new model without firing any events and allow mass-assignment. */
+  forceCreateQuietly(attributes?: Record<string, any>): Promise<T>;
+
   /* Update records in the database. */
   update(values: any): Promise<any>;
+
+  /* Update the column's updated_at timestamp on records matched by the query. */
+  touch(column?: string): Promise<any>;
 
   /* Insert new records or update the existing ones. */
   upsert(values: any[] | any, uniqueBy: any[] | string, update?: any[] | any): Promise<any>;
@@ -211,6 +284,12 @@ export interface FedacoBuilder<T extends Model = Model>
 
   /* Decrement a column's value by a given amount. */
   decrement(column: string, amount?: number, extra?: any): Promise<any>;
+
+  /* Increment each of the given columns by a given amount. */
+  incrementEach(columns: Record<string, number>, extra?: any): Promise<any>;
+
+  /* Decrement each of the given columns by a given amount. */
+  decrementEach(columns: Record<string, number>, extra?: any): Promise<any>;
 
   /* Add the "updated at" column to an array of values. */
   _addUpdatedAtColumn(values: any): Record<string, any>;
@@ -296,6 +375,12 @@ export interface FedacoBuilder<T extends Model = Model>
   /* Prevent the specified relations from being eager loaded. */
   without(relations: any): this;
 
+  /* Alias of without() — remove the given relations from the eager-load set. */
+  withoutEagerLoad(relations: any): this;
+
+  /* Clear all eager-loaded relations. */
+  withoutEagerLoads(): this;
+
   /* Set the relationships that should be eager loaded while removing any previously added eager loading specifications. */
   withOnly(relations: any): this;
 
@@ -315,6 +400,15 @@ export interface FedacoBuilder<T extends Model = Model>
 
   /* Apply query-time casts to the model instance. */
   withCasts(casts: any): this;
+
+  /* Register a callback to be invoked after the query is run. */
+  afterQuery(callback: (result: any) => any): this;
+
+  /* Invoke registered after-query callbacks against the given result. */
+  applyAfterQueryCallbacks(result: any): any;
+
+  /* Add default attributes to new model instances and (optionally) as where conditions. */
+  withAttributes(attributes: Record<string, any> | string, value?: any, asConditions?: boolean): this;
 
   /* Get the underlying query builder instance. */
   getQuery(): QueryBuilder;
@@ -345,6 +439,12 @@ export interface FedacoBuilder<T extends Model = Model>
 
   /* Qualify the given columns with the model's table. */
   qualifyColumns(columns: any[]): string[];
+
+  /* Clone the Eloquent query builder. */
+  clone(): FedacoBuilder<T>;
+
+  /* Register a closure to be invoked when the builder is cloned. */
+  onClone(callback: (builder: FedacoBuilder<T>) => void): this;
 }
 
 export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttributes(
@@ -375,6 +475,12 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   protected _scopes: any = {};
   /* Removed global scopes. */
   protected _removedScopes: any[] = [];
+  /* The callbacks to be invoked on the builder clone. */
+  protected _onCloneCallbacks: Array<(builder: FedacoBuilder<any>) => void> = [];
+  /* Attributes to be applied to new model instances created via this builder. */
+  protected _pendingAttributes: Record<string, any> = {};
+  /* Callbacks run after a query result is produced. */
+  protected _afterQueryCallbacks: Array<(result: any) => any> = [];
 
   public constructor(protected _query: QueryBuilder) {
     super();
@@ -502,6 +608,37 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     return this.where(column, operator, value, 'or');
   }
 
+  /* Add a basic "where not" clause to the query. */
+  public whereNot(
+    column: FedacoBuilderCallBack | string | any[] | SqlNode | any,
+    operator: any = null,
+    value: any = null,
+    conjunction: 'and' | 'or' = 'and',
+  ): this {
+    if (arguments.length === 2) {
+      value = operator;
+      operator = '=';
+    }
+    if (isFunction(column) && isBlank(operator)) {
+      const query = this._model.NewQueryWithoutRelationships();
+      column(query);
+      this._query.addNestedWhereQuery(query.getQuery(), conjunction === 'or' ? 'or not' : 'and not');
+    } else {
+      this._query.where(column as any[] | any, operator, value, conjunction === 'or' ? 'or not' : 'and not');
+    }
+    return this;
+  }
+
+  /* Add an "or where not" clause to the query. */
+  public orWhereNot(
+    column: FedacoBuilderCallBack | any[] | string | SqlNode,
+    operator: any = null,
+    value: any = null,
+  ): this {
+    [value, operator] = this._query._prepareValueAndOperator(value, operator, arguments.length === 2);
+    return this.whereNot(column, operator, value, 'or');
+  }
+
   /* Add an "order by" clause for a timestamp to the query. */
   public latest(column?: string): this {
     if (isBlank(column)) {
@@ -537,6 +674,46 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   /* Create a collection of models from a raw query. */
   public async fromQuery(query: string, bindings: any[] = []): Promise<T[]> {
     return this.hydrate(await this._query.getConnection().select(query, bindings));
+  }
+
+  /* Insert new records into the database, running attributes through the model's fill/cast pipeline. */
+  public async fillAndInsert(values: Record<string, any>[]): Promise<any> {
+    return this.insert(this.fillForInsert(values));
+  }
+
+  /* Insert new records (or ignore on duplicate) via the model's fill/cast pipeline. */
+  public async fillAndInsertOrIgnore(values: Record<string, any>[]): Promise<any> {
+    return this.insertOrIgnore(this.fillForInsert(values));
+  }
+
+  /* Insert a new record via the model's fill/cast pipeline and return its id. */
+  public async fillAndInsertGetId(values: Record<string, any>): Promise<any> {
+    return this.insertGetId(this.fillForInsert([values])[0]);
+  }
+
+  /* Run a set of rows through the model's fill/cast pipeline for insertion. */
+  public fillForInsert(values: Record<string, any>[]): Record<string, any>[] {
+    if (!values.length) {
+      return values;
+    }
+    const usesTimestamps = this._model.UsesTimestamps();
+    const timestamp = usesTimestamps ? this._model.FreshTimestampString() : null;
+    const createdAtColumn = usesTimestamps ? this._model.GetCreatedAtColumn() : null;
+    const updatedAtColumn = usesTimestamps ? this._model.GetUpdatedAtColumn() : null;
+
+    return values.map((row) => {
+      const instance = this.newModelInstance().Fill(row) as T;
+      const attributes = instance.GetAttributes();
+      if (usesTimestamps) {
+        if (createdAtColumn && !(createdAtColumn in attributes)) {
+          attributes[createdAtColumn] = timestamp;
+        }
+        if (updatedAtColumn && !(updatedAtColumn in attributes)) {
+          attributes[updatedAtColumn] = timestamp;
+        }
+      }
+      return attributes;
+    });
   }
 
   public find(id: any, columns: any[]): Promise<T>;
@@ -588,6 +765,28 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     return this.newModelInstance();
   }
 
+  /* Find a model by its primary key or call a callback. */
+  public async findOr(
+    id: any,
+    columns: any[] | FedacoBuilderCallBack = ['*'],
+    callback: FedacoBuilderCallBack | null = null,
+  ): Promise<T> {
+    if (isFunction(columns)) {
+      callback = columns;
+      columns = ['*'];
+    }
+    const model = await this.find(id, columns as any[]);
+    if (!isBlank(model)) {
+      return model as T;
+    }
+    return callback();
+  }
+
+  /* Find a model by its primary key, expecting exactly one match. */
+  public async findSole(id: any, columns: any[] = ['*']): Promise<T> {
+    return this.whereKey(id).sole(columns);
+  }
+
   /* Get the first record matching the attributes or instantiate it. */
   public async firstOrNew(attributes: any, values: any = {}): Promise<T> {
     const instance = (await this.where(attributes).first()) as T;
@@ -606,6 +805,43 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     instance = this.newModelInstance({ ...attributes, ...values });
     await instance.Save();
     return instance;
+  }
+
+  /* Attempt to create a record matching the attributes; on unique-constraint failure read the existing one. */
+  public async createOrFirst(attributes: any, values: any = {}): Promise<T> {
+    try {
+      return await this.withSavepointIfNeeded(() => this.create({ ...attributes, ...values }));
+    } catch (e) {
+      const instance = (await this.where(attributes).first()) as T;
+      if (!isBlank(instance)) {
+        return instance;
+      }
+      throw e;
+    }
+  }
+
+  /* Increment the value of an existing record, or create a new one when missing. */
+  public async incrementOrCreate(
+    attributes: any,
+    column = 'count',
+    defaultValue = 1,
+    step = 1,
+    extra: any = {},
+  ): Promise<T> {
+    const instance = await this.firstOrCreate(attributes, { ...extra, [column]: defaultValue });
+    if (!(instance as any)._wasRecentlyCreated) {
+      (instance as any)[column] = ((instance as any)[column] ?? 0) + step;
+      for (const [k, v] of Object.entries(extra)) {
+        (instance as any)[k] = v;
+      }
+      await instance.Save();
+    }
+    return instance;
+  }
+
+  /* Run the given callback inside a savepoint if a transaction is active. */
+  protected async withSavepointIfNeeded<R>(scope: () => Promise<R>): Promise<R> {
+    return scope();
   }
 
   /* Create or update a record matching the attributes, and fill it with values. */
@@ -650,6 +886,30 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   //   }
   // }
 
+  /* Execute the query and get the first result if it's the sole matching record. */
+  public async sole(columns: any[] | string = ['*']): Promise<T> {
+    const result = await this.take(2).get(columns);
+    if (result.length === 0) {
+      throw new Error(`ModelNotFoundException No query results for model [${this._model.constructor.name}].`);
+    }
+    if (result.length > 1) {
+      throw new Error(`MultipleRecordsFoundException ${result.length} records were found.`);
+    }
+    return result[0];
+  }
+
+  /* Get a single column's value from the first result, expecting exactly one match. */
+  public async soleValue<K extends keyof T>(column: K): Promise<T[K]> {
+    const model = await this.sole([column as string]);
+    return (model as any)[column];
+  }
+
+  /* Get a single column's value from the first result of a query, or throw. */
+  public async valueOrFail<K extends keyof T>(column: K): Promise<T[K]> {
+    const result = (await this.firstOrFail([column as string])) as T;
+    return result[column];
+  }
+
   /* Get a single column's value from the first result of a query. */
   public async value<K extends keyof T>(column: K): Promise<T[K] | void> {
     const result: T = (await this.first([column])) as T;
@@ -668,7 +928,24 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
       models = await builder.eagerLoadRelations(models);
     }
     // @ts-ignore
-    return models;
+    return builder.applyAfterQueryCallbacks(models);
+  }
+
+  /* Register a callback to be invoked after the query is run. */
+  public afterQuery(callback: (result: any) => any): this {
+    this._afterQueryCallbacks.push(callback);
+    return this;
+  }
+
+  /* Invoke registered after-query callbacks against the given result. */
+  public applyAfterQueryCallbacks(result: any): any {
+    for (const callback of this._afterQueryCallbacks) {
+      const next = callback(result);
+      if (next !== undefined) {
+        result = next;
+      }
+    }
+    return result;
   }
 
   /* Get the hydrated models without eager loading. */
@@ -745,6 +1022,14 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   //     return this.newModelInstance().newFromBuilder(record);
   //   });
   // }
+
+  /* Iterate the query results as an async generator. */
+  public async *cursor(columns: any[] | string = ['*']): AsyncGenerator<T> {
+    const models = await this.get(columns);
+    for (const model of models) {
+      yield model;
+    }
+  }
 
   /* Add a generic "order by" clause if the query doesn't already have one. */
   _enforceOrderBy() {
@@ -831,6 +1116,73 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   //   }
   //   return collect(this._query.orders);
   // }
+
+  /* Paginate the query using cursor (keyset) pagination over the existing order. */
+  public async cursorPaginate(
+    pageSize?: number,
+    columns: any[] = ['*'],
+    cursorName = 'cursor',
+    cursor: Record<string, any> | null = null,
+  ): Promise<{
+    items: T[];
+    pageSize: number;
+    hasMore: boolean;
+    nextCursor: Record<string, any> | null;
+    previousCursor: Record<string, any> | null;
+  }> {
+    pageSize = pageSize || this._model.GetPerPage();
+    this._enforceOrderBy();
+
+    const orders = this._query._orders.length ? this._query._orders : [];
+    const orderColumns: Array<{ column: string; direction: string }> = orders.map((o: any) => ({
+      column: o.column ?? o._column,
+      direction: (o.direction ?? o._direction ?? 'asc').toLowerCase(),
+    }));
+
+    if (cursor && orderColumns.length > 0) {
+      this.where((query: FedacoBuilder<T>) => {
+        for (let i = 0; i < orderColumns.length; i++) {
+          const { column, direction } = orderColumns[i];
+          const cursorValue = cursor[column];
+          if (cursorValue === undefined) {
+            continue;
+          }
+          query.orWhere((sub: FedacoBuilder<T>) => {
+            for (let j = 0; j < i; j++) {
+              sub.where(orderColumns[j].column, '=', cursor[orderColumns[j].column]);
+            }
+            sub.where(column, direction === 'asc' ? '>' : '<', cursorValue);
+          });
+        }
+      });
+    }
+
+    this.take(pageSize + 1);
+    const items = await this.get(columns);
+    const hasMore = items.length > pageSize;
+    if (hasMore) {
+      items.pop();
+    }
+
+    const buildCursor = (model: T | undefined): Record<string, any> | null => {
+      if (!model || orderColumns.length === 0) {
+        return null;
+      }
+      const result: Record<string, any> = {};
+      for (const { column } of orderColumns) {
+        result[column] = (model as any)[column];
+      }
+      return result;
+    };
+
+    return {
+      items,
+      pageSize,
+      hasMore,
+      nextCursor: hasMore ? buildCursor(items[items.length - 1]) : null,
+      previousCursor: cursor ? buildCursor(items[0]) : null,
+    };
+  }
   /* Save a new model and return the instance. */
   public async create(attributes?: Record<string, any>): Promise<T> {
     const instance = this.newModelInstance(attributes);
@@ -838,11 +1190,21 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     return instance;
   }
 
+  /* Save a new model and return the instance without firing events. */
+  public async createQuietly(attributes: Record<string, any> = {}): Promise<T> {
+    return (this._model.constructor as typeof Model).withoutEvents(() => this.create(attributes));
+  }
+
   /* Save a new model and return the instance. Allow mass-assignment. */
   public async forceCreate(attributes: Record<string, any>) {
     return (this._model.constructor as typeof Model).unguarded(() => {
       return this.newModelInstance().NewQuery().create(attributes);
     });
+  }
+
+  /* Save a new model and return the instance without firing events. Allow mass-assignment. */
+  public async forceCreateQuietly(attributes: Record<string, any> = {}): Promise<T> {
+    return (this._model.constructor as typeof Model).withoutEvents(() => this.forceCreate(attributes));
   }
 
   /* Update records in the database. */
@@ -880,6 +1242,46 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   /* Decrement a column's value by a given amount. */
   public decrement(column: string, amount = 1, extra: any = {}): Promise<any> {
     return this.toBase().decrement(column, amount, this._addUpdatedAtColumn(extra));
+  }
+
+  /* Increment each of the given columns by a given amount. */
+  public async incrementEach(columns: Record<string, number>, extra: any = {}): Promise<any> {
+    const updates: Record<string, any> = {};
+    const grammar: any = (this._query as any)._grammar;
+    for (const [column, amount] of Object.entries(columns)) {
+      if (typeof amount !== 'number') {
+        throw new Error(`InvalidArgumentException Non-numeric value passed as increment amount for column: '${column}'.`);
+      }
+      const wrapped = grammar.wrap(column);
+      updates[column] = raw(`${wrapped} + ${amount}`);
+    }
+    return this.toBase().update({ ...this._addUpdatedAtColumn(extra), ...updates });
+  }
+
+  /* Decrement each of the given columns by a given amount. */
+  public async decrementEach(columns: Record<string, number>, extra: any = {}): Promise<any> {
+    const updates: Record<string, any> = {};
+    const grammar: any = (this._query as any)._grammar;
+    for (const [column, amount] of Object.entries(columns)) {
+      if (typeof amount !== 'number') {
+        throw new Error(`InvalidArgumentException Non-numeric value passed as decrement amount for column: '${column}'.`);
+      }
+      const wrapped = grammar.wrap(column);
+      updates[column] = raw(`${wrapped} - ${amount}`);
+    }
+    return this.toBase().update({ ...this._addUpdatedAtColumn(extra), ...updates });
+  }
+
+  /* Update the column's updated_at timestamp. */
+  public async touch(column?: string): Promise<any> {
+    const time = this._model.FreshTimestampString();
+    if (column) {
+      return this.toBase().update({ [column]: time });
+    }
+    if (!this._model.UsesTimestamps() || isBlank(this._model.GetUpdatedAtColumn())) {
+      return false;
+    }
+    return this.toBase().update({ [this._model.GetUpdatedAtColumn()]: time });
   }
 
   /* Add the "updated at" column to an array of values. */
@@ -1081,6 +1483,17 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     return this;
   }
 
+  /* Remove the given relations from the eager-load set (alias of without). */
+  public withoutEagerLoad(relations: any): this {
+    return this.without(relations);
+  }
+
+  /* Clear all eager-loaded relations. */
+  public withoutEagerLoads(): this {
+    this._eagerLoad = {};
+    return this;
+  }
+
   /* Set the relationships that should be eager loaded while removing any previously added eager loading specifications. */
   public withOnly(relations: any): this {
     this._eagerLoad = {};
@@ -1089,7 +1502,25 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
 
   /* Create a new instance of the model being queried. */
   public newModelInstance(attributes?: Record<string, any>): T {
-    return this._model.NewInstance(attributes).SetConnection(this._query.getConnection().getName());
+    return this._model
+      .NewInstance({ ...this._pendingAttributes, ...attributes })
+      .SetConnection(this._query.getConnection().getName());
+  }
+
+  /* Add default attributes for new model instances and (optionally) as where conditions. */
+  public withAttributes(
+    attributes: Record<string, any> | string,
+    value: any = null,
+    asConditions = true,
+  ): this {
+    const attrs: Record<string, any> = isString(attributes) ? { [attributes]: value } : attributes;
+    if (asConditions) {
+      for (const [column, val] of Object.entries(attrs)) {
+        this.where(this.qualifyColumn(column), '=', val);
+      }
+    }
+    this._pendingAttributes = { ...this._pendingAttributes, ...attrs };
+    return this;
   }
 
   /* Parse a list of relations into individuals. */
@@ -1302,7 +1733,19 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     builder._scopes = { ...this._scopes };
     builder._model = this._model;
     builder._eagerLoad = { ...this._eagerLoad };
+    builder._onCloneCallbacks = [...this._onCloneCallbacks];
+    builder._pendingAttributes = { ...this._pendingAttributes };
+    builder._afterQueryCallbacks = [...this._afterQueryCallbacks];
+    for (const callback of this._onCloneCallbacks) {
+      callback(builder);
+    }
     return builder;
+  }
+
+  /* Register a closure to be invoked on the clone. */
+  public onClone(callback: (builder: FedacoBuilder<T>) => void): this {
+    this._onCloneCallbacks.push(callback);
+    return this;
   }
 
   [FedacoBuilderSymbol] = true;

@@ -731,7 +731,7 @@ export class QueryBuilderVisitor implements SqlVisitor {
   }
 
   visitNotExpression(node: NotExpression): string {
-    return `not ${node.expression.accept(this)}`;
+    return `NOT ${node.expression.accept(this)}`;
   }
 
   visitIndexBy(node: IndexBy): string {

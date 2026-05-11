@@ -636,6 +636,10 @@ export function mixinForwardCallToQueryBuilder<T extends Constructor<any>>(base:
       return this.#forwardCallToQueryBuilder('whereNull', args);
     }
 
+    orWhereNot(...args: any[]) {
+      return this.#forwardCallToQueryBuilder('orWhereNot', args);
+    }
+
     addNestedWhereQuery(...args: any[]) {
       return this.#forwardCallToQueryBuilder('addNestedWhereQuery', args);
     }

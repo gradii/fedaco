@@ -790,6 +790,23 @@ describe('database query builder test', () => {
     expect(builder.getBindings()).toStrictEqual([1, 'foo']);
   });
 
+  it('test basic where nots', () => {
+    builder = getBuilder();
+    builder.select('*').from('users').whereNot('email', '=', 'foo');
+    expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE NOT `email` = ?');
+    expect(builder.getBindings()).toStrictEqual(['foo']);
+
+    builder = getBuilder();
+    builder.select('*').from('users').where('id', '=', 1).whereNot('email', '=', 'foo');
+    expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? AND NOT `email` = ?');
+    expect(builder.getBindings()).toStrictEqual([1, 'foo']);
+
+    builder = getBuilder();
+    builder.select('*').from('users').where('id', '=', 1).orWhereNot('email', '=', 'foo');
+    expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? OR NOT `email` = ?');
+    expect(builder.getBindings()).toStrictEqual([1, 'foo']);
+  });
+
   it('test raw wheres', () => {
     builder = getBuilder();
     builder.select('*').from('users').whereRaw('id = ? or email = ?', [1, 'foo']);
@@ -4552,7 +4569,7 @@ describe('database query builder test', () => {
     builder = getMySqlBuilder();
     builder.select('*').from('users').whereJsonDoesntContain('options->languages', ['en']);
     expect(builder.toSql()).toBe(
-      'SELECT * FROM `users` WHERE not json_contains(json_extract(`options`, "$.languages"), ?)',
+      'SELECT * FROM `users` WHERE NOT json_contains(json_extract(`options`, "$.languages"), ?)',
     );
     expect(builder.getBindings()).toStrictEqual(['["en"]']);
     builder = getMySqlBuilder();
@@ -4562,7 +4579,7 @@ describe('database query builder test', () => {
       .where('id', '=', 1)
       .orWhereJsonDoesntContain('options->languages', raw('\'["en\\"]\''));
     expect(builder.toSql()).toBe(
-      'SELECT * FROM `users` WHERE `id` = ? OR not json_contains(json_extract(`options`, "$.languages"), \'["en\\"]\')',
+      'SELECT * FROM `users` WHERE `id` = ? OR NOT json_contains(json_extract(`options`, "$.languages"), \'["en\\"]\')',
     );
     expect(builder.getBindings()).toStrictEqual([1]);
   });
@@ -4570,7 +4587,7 @@ describe('database query builder test', () => {
   it('test where json doesnt contain postgres', () => {
     builder = getPostgresBuilder();
     builder.select('*').from('users').whereJsonDoesntContain('options->languages', ['en']);
-    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE not ("options"->"languages")::jsonb @> $1');
+    expect(builder.toSql()).toBe('SELECT * FROM "users" WHERE NOT ("options"->"languages")::jsonb @> $1');
     expect(builder.getBindings()).toStrictEqual(['["en"]']);
     builder = getPostgresBuilder();
     builder
@@ -4579,7 +4596,7 @@ describe('database query builder test', () => {
       .where('id', '=', 1)
       .orWhereJsonDoesntContain('options->languages', raw('\'["en\\"]\''));
     expect(builder.toSql()).toBe(
-      'SELECT * FROM "users" WHERE "id" = $1 OR not ("options"->"languages")::jsonb @> \'["en\\"]\'',
+      'SELECT * FROM "users" WHERE "id" = $1 OR NOT ("options"->"languages")::jsonb @> \'["en\\"]\'',
     );
     expect(builder.getBindings()).toStrictEqual([1]);
   });
@@ -4595,13 +4612,13 @@ describe('database query builder test', () => {
     builder = getSqlServerBuilder();
     builder.select('*').from('users').whereJsonDoesntContain('options->languages', 'en');
     expect(builder.toSql()).toBe(
-      'SELECT * FROM [users] WHERE not ? in (select [value] from openjson([options], "$.languages"))',
+      'SELECT * FROM [users] WHERE NOT ? in (select [value] from openjson([options], "$.languages"))',
     );
     expect(builder.getBindings()).toStrictEqual(['en']);
     builder = getSqlServerBuilder();
     builder.select('*').from('users').where('id', '=', 1).orWhereJsonDoesntContain('options->languages', raw("'en'"));
     expect(builder.toSql()).toBe(
-      'SELECT * FROM [users] WHERE [id] = ? OR not \'en\' in (select [value] from openjson([options], "$.languages"))',
+      'SELECT * FROM [users] WHERE [id] = ? OR NOT \'en\' in (select [value] from openjson([options], "$.languages"))',
     );
     expect(builder.getBindings()).toStrictEqual([1]);
   });

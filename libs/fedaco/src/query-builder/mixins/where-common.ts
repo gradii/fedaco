@@ -12,6 +12,7 @@ import { BindingVariable } from '../../query/ast/binding-variable';
 import { BinaryExpression } from '../../query/ast/expression/binary-expression';
 import { ComparisonPredicateExpression } from '../../query/ast/expression/comparison-predicate-expression';
 import type { Expression } from '../../query/ast/expression/expression';
+import { NotExpression } from '../../query/ast/expression/not-expression';
 import { RawBindingExpression } from '../../query/ast/expression/raw-binding-expression';
 import { RawExpression } from '../../query/ast/expression/raw-expression';
 import { NestedPredicateExpression } from '../../query/ast/fragment/expression/nested-predicate-expression';
@@ -25,7 +26,7 @@ export interface QueryBuilderWhereCommon {
    */
   addNestedWhereQuery(query: QueryBuilder, conjunction: 'and' | 'or' | string): this;
 
-  addWhere(where: SqlNode, conjunction?: 'and' | 'or' | 'andX' | 'orX'): this;
+  addWhere(where: SqlNode, conjunction?: 'and' | 'or' | 'and not' | 'or not' | 'andX' | 'orX'): this;
 
   /**
    * Create a new query instance for nested where condition.
@@ -45,6 +46,8 @@ export interface QueryBuilderWhereCommon {
   orWhereColumn(first: string | any[], operator?: string, second?: string): this;
 
   orWhereRaw(sql: string, bindings?: any[]): this;
+
+  orWhereNot(column: ((q: this) => void) | string | any[], operator?: any, value?: any): this;
 
   where(where: any[][]): this;
 
@@ -78,7 +81,7 @@ export interface QueryBuilderWhereCommon {
     left: ((q: this) => void) | string | any[],
     operator: string,
     right: ((q: this) => void) | RawExpression | boolean | string | number | Array<string | number>,
-    conjunction: 'and' | 'or' | string,
+    conjunction: 'and' | 'or' | 'and not' | 'or not' | string,
   ): this;
 
   whereColumn(first: any[], conjunction?: string): this;
@@ -90,6 +93,13 @@ export interface QueryBuilderWhereCommon {
   whereColumn(first: string | any[] | Expression | RawBindingExpression, operator?: string, second?: string, conjunction?: string): this;
 
   whereNested(callback: (query?: QueryBuilder) => void, conjunction?: 'and' | 'or' | string): this;
+
+  whereNot(
+    column: ((q: this) => void) | string | any[],
+    operator?: any,
+    value?: any,
+    conjunction?: 'and' | 'or',
+  ): this;
 
   whereRaw(sql: string, bindings?: any[], conjunction?: 'and' | 'or'): this;
 }
@@ -131,15 +141,20 @@ export function mixinWhereCommon<T extends Constructor<any>>(base: T): WhereComm
       return this;
     }
 
-    addWhere(where: SqlNode, conjunction: 'and' | 'or' | 'andX' | 'orX' | string) {
+    addWhere(where: SqlNode, conjunction: 'and' | 'or' | 'and not' | 'or not' | 'andX' | 'orX' | string) {
+      let conj = conjunction;
+      if (conjunction === 'and not' || conjunction === 'or not') {
+        where = new NotExpression(where as Expression);
+        conj = conjunction === 'and not' ? 'and' : 'or';
+      }
       if (this._wheres.length > 0) {
-        if (conjunction === 'and' || conjunction === 'or') {
+        if (conj === 'and' || conj === 'or') {
           const left = this._wheres.pop();
-          this._wheres.push(new BinaryExpression(left, conjunction, where));
-        } else if (conjunction === 'andX' || conjunction === 'orX') {
+          this._wheres.push(new BinaryExpression(left, conj, where));
+        } else if (conj === 'andX' || conj === 'orX') {
           throw new Error('not implement');
         } else {
-          throw new Error(`conjunction error should be one of 'and' | 'or' | 'andX' | 'orX'`);
+          throw new Error(`conjunction error should be one of 'and' | 'or' | 'and not' | 'or not' | 'andX' | 'orX'`);
         }
       } else {
         this._wheres.push(where);
@@ -184,7 +199,7 @@ export function mixinWhereCommon<T extends Constructor<any>>(base: T): WhereComm
       column: any[] | object | Function | any,
       operator?: string,
       value?: any,
-      conjunction: 'and' | 'or' = 'and',
+      conjunction: 'and' | 'or' | 'and not' | 'or not' | string = 'and',
     ) {
       if ((isArray(column) || isObject(column)) && !(column instanceof RawExpression)) {
         return this._addArrayOfWheres(column, conjunction);
@@ -212,6 +227,41 @@ export function mixinWhereCommon<T extends Constructor<any>>(base: T): WhereComm
         throw new Error('not implement yet');
       }
 
+      return this;
+    }
+
+    /**
+     * Add a basic "where not" clause to the query.
+     */
+    public whereNot(
+      this: QueryBuilder & _Self,
+      column: any[] | object | Function | any,
+      operator?: any,
+      value?: any,
+      conjunction: 'and' | 'or' = 'and',
+    ) {
+      if ((isArray(column) || isObject(column)) && !(column instanceof RawExpression)) {
+        this.whereNested((query) => {
+          (query as QueryBuilder & _Self).where(column, operator, value, conjunction);
+        }, conjunction === 'or' ? 'or not' : 'and not');
+        return this;
+      }
+      [value, operator] = this._prepareValueAndOperator(value, operator, arguments.length === 2);
+      this.where(column, operator, value, conjunction === 'or' ? 'or not' : 'and not');
+      return this;
+    }
+
+    /**
+     * Add an "or where not" clause to the query.
+     */
+    public orWhereNot(
+      this: QueryBuilder & _Self,
+      column: any[] | object | Function | any,
+      operator?: any,
+      value?: any,
+    ) {
+      [value, operator] = this._prepareValueAndOperator(value, operator, arguments.length === 2);
+      this.whereNot(column, operator, value, 'or');
       return this;
     }
 
