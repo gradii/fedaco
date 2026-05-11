@@ -624,7 +624,7 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
       column(query);
       this._query.addNestedWhereQuery(query.getQuery(), conjunction === 'or' ? 'or not' : 'and not');
     } else {
-      this._query.where(column as any[] | any, operator, value, conjunction === 'or' ? 'or not' : 'and not');
+      this._query.whereNot(column as any[] | any, operator, value, conjunction);
     }
     return this;
   }

@@ -6,6 +6,7 @@ import {
   Processor,
   QueryBuilder,
   raw,
+  FedacoBuilder,
   type SchemaBuilder
 } from '@gradii/fedaco';
 import { MysqlProcessor, MysqlQueryGrammar } from '@gradii/fedaco-mysql-driver';
@@ -805,6 +806,24 @@ describe('database query builder test', () => {
     builder.select('*').from('users').where('id', '=', 1).orWhereNot('email', '=', 'foo');
     expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE `id` = ? OR NOT `email` = ?');
     expect(builder.getBindings()).toStrictEqual([1, 'foo']);
+
+    builder = getBuilder();
+    builder.select('*').from('users').whereNot([['id', '=', 1], ['email', '=', 'foo']]);
+    expect(builder.toSql()).toBe('SELECT * FROM `users` WHERE NOT ((`id` = ? AND `email` = ?))');
+    expect(builder.getBindings()).toStrictEqual([1, 'foo']);
+  });
+
+  it('test fedacobuilder where nots with array', () => {
+    const builder = getMySqlBuilder();
+    const fedacoBuilder = new FedacoBuilder(builder);
+    fedacoBuilder.whereNot([['id', '=', 1], ['email', '=', 'foo']]);
+    expect(fedacoBuilder.getQuery().toSql()).toBe('SELECT * WHERE NOT ((`id` = ? AND `email` = ?))');
+    expect(fedacoBuilder.getQuery().getBindings()).toStrictEqual([1, 'foo']);
+
+    const fedacoBuilder2 = new FedacoBuilder(getMySqlBuilder());
+    fedacoBuilder2.whereNot({ id: 1, email: 'foo' });
+    expect(fedacoBuilder2.getQuery().toSql()).toBe('SELECT * WHERE NOT ((`id` = ? AND `email` = ?))');
+    expect(fedacoBuilder2.getQuery().getBindings()).toStrictEqual([1, 'foo']);
   });
 
   it('test raw wheres', () => {
