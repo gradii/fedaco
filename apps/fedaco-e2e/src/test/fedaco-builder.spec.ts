@@ -393,6 +393,79 @@ describe('fedaco builder', () => {
     expect(result).toBe('bar');
   });
 
+  it('cursor returns an Observable that streams models', (done) => {
+    builder = getBuilder();
+    builder.setModel(getModel());
+    // Mock chunk() to emit a single page so cursor() can stream from it.
+    // @ts-ignore
+    jest.spyOn(builder, 'chunk').mockReturnValue(
+      new (require('rxjs').Observable)((sub: any) => {
+        sub.next({ results: [{ id: 1 }, { id: 2 }, { id: 3 }], page: 1 });
+        sub.complete();
+      }),
+    );
+    const observed: any[] = [];
+    builder.cursor().subscribe({
+      next: (m) => observed.push(m),
+      complete: () => {
+        expect(observed).toEqual([{ id: 1 }, { id: 2 }, { id: 3 }]);
+        done();
+      },
+      error: done,
+    });
+  });
+
+  it('cursor paginate first page exposes encoded next cursor', async () => {
+    builder = getBuilder();
+    builder.setModel(getModel());
+    // Mock get() so we don't hit a DB. Return pageSize+1 to signal hasMore.
+    // @ts-ignore
+    jest.spyOn(builder, 'get').mockResolvedValue([
+      { id: 10 } as any,
+      { id: 20 } as any,
+      { id: 30 } as any,
+      { id: 40 } as any, // overflow row that signals "more pages"
+    ]);
+    builder.orderBy('id', 'asc');
+
+    const page = await builder.cursorPaginate(3);
+    expect(page.items.map((i: any) => i.id)).toEqual([10, 20, 30]);
+    expect(page.hasMorePages).toBe(true);
+    expect(page.onFirstPage).toBe(true);
+    const next = page.nextPageCursor();
+    expect(typeof next).toBe('string');
+    const decoded = require('@gradii/fedaco').Cursor.fromEncoded(next);
+    expect(decoded.parameters).toEqual({ id: 30 });
+    expect(decoded.pointsToNextItems).toBe(true);
+  });
+
+  it('cursor paginate decodes incoming cursor and applies keyset where', async () => {
+    builder = getBuilder();
+    builder.setModel(getModel());
+    // Mock get() to return only the page we'd expect after the cursor filters.
+    // @ts-ignore
+    jest.spyOn(builder, 'get').mockResolvedValue([{ id: 40 } as any, { id: 50 } as any]);
+    const spyWhere = jest.spyOn(builder, 'where');
+    builder.orderBy('id', 'asc');
+
+    const { Cursor } = require('@gradii/fedaco');
+    const encoded = new Cursor({ id: 30 }, true).encode();
+    const page = await builder.cursorPaginate(3, ['*'], 'cursor', encoded);
+    expect(page.items.map((i: any) => i.id)).toEqual([40, 50]);
+    expect(page.hasMorePages).toBe(false);
+    // Matching Laravel: when forward-paginating with no overflow, nextCursor
+    // still points at the last item so consumers can recheck for fresh rows.
+    const next = page.nextPageCursor();
+    expect(typeof next).toBe('string');
+    // A keyset where(callback) should have been registered.
+    expect(spyWhere).toHaveBeenCalled();
+    // Previous cursor should encode the first item.
+    const prev = page.previousPageCursor();
+    const decodedPrev = Cursor.fromEncoded(prev);
+    expect(decodedPrev.parameters).toEqual({ id: 40 });
+    expect(decodedPrev.pointsToNextItems).toBe(false);
+  });
+
   it('qualify column', () => {
     let spy1, spy2, spy3, result;
     builder = getBuilder();

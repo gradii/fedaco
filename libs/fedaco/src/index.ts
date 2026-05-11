@@ -10,6 +10,8 @@ export * from './base-grammar';
 export * from './define/collection';
 export * from './fedaco/model-helper-global';
 export * from './fedaco/fedaco-builder';
+export * from './fedaco/cursor';
+export * from './fedaco/cursor-paginator';
 export * from './fedaco/fedaco-types';
 export * from './fedaco/fedaco-event-manage';
 export * from './fedaco/model-meta-data';

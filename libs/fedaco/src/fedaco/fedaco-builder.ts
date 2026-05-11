@@ -16,6 +16,7 @@ import {
   pascalCase,
   pluck,
 } from '@gradii/nanofn';
+import { Observable } from 'rxjs';
 import type { Connection } from '../connection';
 import { wrap } from '../helper/arr';
 import type { Constructor } from '../helper/constructor';
@@ -25,6 +26,8 @@ import { mixinBuildQueries } from '../query-builder/mixins/build-query';
 import type { QueryBuilder } from '../query-builder/query-builder';
 import type { SqlNode } from '../query/sql-node';
 import { BaseModel } from './base-model';
+import { Cursor } from './cursor';
+import { CursorPaginator, type CursorOrderColumn } from './cursor-paginator';
 import type { FedacoBuilderCallBack, RelationCallBack } from './fedaco-types';
 import type { ForwardCallToQueryBuilder, ForwardCallToQueryBuilderCtor } from './mixins/forward-call-to-query-builder';
 import { mixinForwardCallToQueryBuilder } from './mixins/forward-call-to-query-builder';
@@ -241,22 +244,16 @@ export interface FedacoBuilder<T extends Model = Model>
     columns?: any[],
   ): Promise<{ items: any[]; pageSize: number; page: number }>;
 
-  /* Iterate the query results, yielding one model at a time. */
-  cursor(columns?: any[] | string): AsyncGenerator<T>;
+  /* Stream the query results model-by-model as an RxJS Observable. */
+  cursor(columns?: any[] | string, chunkSize?: number): Observable<T>;
 
-  /* Paginate the given query into a cursor paginator. */
+  /* Paginate the given query into a cursor paginator with an encoded cursor. */
   cursorPaginate(
     pageSize?: number,
     columns?: any[],
     cursorName?: string,
-    cursor?: Record<string, any> | null,
-  ): Promise<{
-    items: T[];
-    pageSize: number;
-    hasMore: boolean;
-    nextCursor: Record<string, any> | null;
-    previousCursor: Record<string, any> | null;
-  }>;
+    cursor?: Cursor | string | null,
+  ): Promise<CursorPaginator<T>>;
 
   /* Save a new model and return the instance. */
   create(attributes?: Record<string, any>): Promise<T>;
@@ -1023,12 +1020,37 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   //   });
   // }
 
-  /* Iterate the query results as an async generator. */
-  public async *cursor(columns: any[] | string = ['*']): AsyncGenerator<T> {
-    const models = await this.get(columns);
-    for (const model of models) {
-      yield model;
-    }
+  /**
+   * Stream the query results one model at a time as an RxJS Observable.
+   *
+   * Internally pulls rows in chunks (default 1000) using `chunk()` and emits
+   * each hydrated model. Unsubscribing aborts further fetching.
+   */
+  public cursor(columns: any[] | string = ['*'], chunkSize = 1000): Observable<T> {
+    return new Observable<T>((subscriber) => {
+      // chunk() on FedacoBuilder hydrates each page to model instances via get().
+      // We don't propagate `columns` to chunk() because chunk's signature is
+      // (count, concurrent). If callers need column projection on a streamed
+      // cursor, they should call .select(cols) before cursor().
+      const colsArray = Array.isArray(columns) ? columns : [columns];
+      const wantsAll = colsArray.length === 1 && colsArray[0] === '*';
+      if (!wantsAll) {
+        this.select(colsArray);
+      }
+      const sub = this.chunk(chunkSize).subscribe({
+        next: ({ results }: { results: T[]; page: number }) => {
+          for (const model of results) {
+            if (subscriber.closed) {
+              return;
+            }
+            subscriber.next(model);
+          }
+        },
+        error: (err) => subscriber.error(err),
+        complete: () => subscriber.complete(),
+      });
+      return () => sub.unsubscribe();
+    });
   }
 
   /* Add a generic "order by" clause if the query doesn't already have one. */
@@ -1117,41 +1139,47 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
   //   return collect(this._query.orders);
   // }
 
-  /* Paginate the query using cursor (keyset) pagination over the existing order. */
+  /**
+   * Paginate the query using keyset (cursor) pagination over the existing order.
+   *
+   * The `cursor` argument is either a `Cursor` instance, an encoded base64url
+   * string (as returned by `CursorPaginator.nextPageCursor()` /
+   * `previousPageCursor()`), or null for the first page. The returned
+   * `CursorPaginator` exposes `nextPageCursor()` / `previousPageCursor()`
+   * which yield the encoded string to round-trip through `?cursor=…`.
+   *
+   * If no orderBy is set, the model's primary key is used.
+   */
   public async cursorPaginate(
     pageSize?: number,
     columns: any[] = ['*'],
     cursorName = 'cursor',
-    cursor: Record<string, any> | null = null,
-  ): Promise<{
-    items: T[];
-    pageSize: number;
-    hasMore: boolean;
-    nextCursor: Record<string, any> | null;
-    previousCursor: Record<string, any> | null;
-  }> {
+    cursor: Cursor | string | null = null,
+  ): Promise<CursorPaginator<T>> {
     pageSize = pageSize || this._model.GetPerPage();
-    this._enforceOrderBy();
+    const resolvedCursor = Cursor.fromEncoded(cursor);
+    const shouldReverse = resolvedCursor?.pointsToPreviousItems() ?? false;
 
-    const orders = this._query._orders.length ? this._query._orders : [];
-    const orderColumns: Array<{ column: string; direction: string }> = orders.map((o: any) => ({
-      column: o.column ?? o._column,
-      direction: (o.direction ?? o._direction ?? 'asc').toLowerCase(),
-    }));
+    const orderColumns = this._ensureOrderForCursorPagination(shouldReverse);
 
-    if (cursor && orderColumns.length > 0) {
+    if (resolvedCursor !== null && orderColumns.length > 0) {
       this.where((query: FedacoBuilder<T>) => {
         for (let i = 0; i < orderColumns.length; i++) {
           const { column, direction } = orderColumns[i];
-          const cursorValue = cursor[column];
-          if (cursorValue === undefined) {
+          const cursorValue = resolvedCursor.parameter(column);
+          if (cursorValue === null) {
             continue;
           }
+          // Each iteration adds an OR-branch that matches all preceding
+          // columns exactly and compares the current column strictly.
+          // Direction is already reversed by _ensureOrderForCursorPagination
+          // when paginating backwards, so we always use '>'.
+          const op = direction === 'asc' ? '>' : '<';
           query.orWhere((sub: FedacoBuilder<T>) => {
             for (let j = 0; j < i; j++) {
-              sub.where(orderColumns[j].column, '=', cursor[orderColumns[j].column]);
+              sub.where(orderColumns[j].column, '=', resolvedCursor.parameter(orderColumns[j].column));
             }
-            sub.where(column, direction === 'asc' ? '>' : '<', cursorValue);
+            sub.where(column, op, cursorValue);
           });
         }
       });
@@ -1163,25 +1191,74 @@ export class FedacoBuilder<T extends Model = Model> extends mixinGuardsAttribute
     if (hasMore) {
       items.pop();
     }
+    // When paginating backwards we fetched in reverse direction; flip back so
+    // callers always see ascending-by-order results.
+    if (shouldReverse) {
+      items.reverse();
+    }
 
-    const buildCursor = (model: T | undefined): Record<string, any> | null => {
-      if (!model || orderColumns.length === 0) {
+    return new CursorPaginator<T>(items, pageSize, resolvedCursor, cursorName, orderColumns, hasMore);
+  }
+
+  /**
+   * Ensure the underlying query has an `orderBy` and return the (possibly
+   * reversed) order columns as `{column, direction}` tuples. Falls back to
+   * the model's primary key when no order has been set.
+   */
+  protected _ensureOrderForCursorPagination(shouldReverse = false): CursorOrderColumn[] {
+    if (this._query._orders.length === 0 && this._query._unionOrders.length === 0) {
+      this._enforceOrderBy();
+    }
+    if (shouldReverse) {
+      this._query._orders = this._query._orders.map((order: any) => {
+        // Order AST nodes may either carry a public `direction` or `_direction`
+        // depending on construction site; flip whichever exists.
+        if (order && typeof order === 'object') {
+          if ('direction' in order) {
+            order.direction = order.direction === 'asc' ? 'desc' : 'asc';
+          } else if ('_direction' in order) {
+            order._direction = order._direction === 'asc' ? 'desc' : 'asc';
+          }
+        }
+        return order;
+      });
+    }
+    return this._query._orders
+      .map((order: any) => {
+        const column = this._extractOrderColumnName(order?.column ?? order?._column);
+        const direction = (order?.direction ?? order?._direction ?? 'asc').toLowerCase() === 'desc' ? 'desc' : 'asc';
+        return column === null ? null : ({ column, direction } as CursorOrderColumn);
+      })
+      .filter((x): x is CursorOrderColumn => x !== null);
+  }
+
+  /**
+   * Extract the unqualified column name from an orderBy AST node. Only handles
+   * the common `PathExpression([Identifier(table?), Identifier(column)])` shape
+   * produced by `orderBy('col')` / `orderBy('table.col')`; returns null for
+   * raw expressions, subqueries, etc. (which can't drive cursor pagination).
+   */
+  protected _extractOrderColumnName(node: any): string | null {
+    if (!node) {
+      return null;
+    }
+    const idents: any[] | undefined = node.identifiers;
+    if (!Array.isArray(idents) || idents.length === 0) {
+      return null;
+    }
+    const last = idents[idents.length - 1];
+    const name = last?.name;
+    if (typeof name === 'string') {
+      return name;
+    }
+    if (typeof name === 'function') {
+      try {
+        return String(name());
+      } catch {
         return null;
       }
-      const result: Record<string, any> = {};
-      for (const { column } of orderColumns) {
-        result[column] = (model as any)[column];
-      }
-      return result;
-    };
-
-    return {
-      items,
-      pageSize,
-      hasMore,
-      nextCursor: hasMore ? buildCursor(items[items.length - 1]) : null,
-      previousCursor: cursor ? buildCursor(items[0]) : null,
-    };
+    }
+    return null;
   }
   /* Save a new model and return the instance. */
   public async create(attributes?: Record<string, any>): Promise<T> {
