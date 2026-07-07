@@ -1,0 +1,16 @@
+main:
+  push:
+    docs:
+      name: Docs
+      docker:
+        image: node:20
+        volumes:
+          - /root/.pnpm-store:copy-on-write
+      stages:
+        - name: Install dependencies
+          script: |
+            corepack enable
+            corepack prepare pnpm@10.24.0 --activate
+            pnpm install --frozen-lockfile
+        - name: Build VitePress site
+          script: pnpm run docs:build

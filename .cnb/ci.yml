@@ -1,0 +1,113 @@
+main:
+  push:
+    ci-node-20:
+      name: CI / Node 20
+      services:
+        - docker
+      docker:
+        image: node:20
+        volumes:
+          - /root/.pnpm-store:copy-on-write
+      env:
+        NX_DAEMON: "false"
+        NX_ISOLATE_PLUGINS: "false"
+        DB_HOST: 127.0.0.1
+        DB_PORT: "3306"
+        DB_USER: root
+        DB_PASSWORD: "123456"
+        DB_DATABASE: fedaco_test
+        DB_COLLATION: utf8mb4_unicode_ci
+        PG_HOST: 127.0.0.1
+        PG_PORT: "5432"
+        PG_USER: root
+        PG_PASSWORD: "123456"
+        PG_DATABASE: fedaco_test
+      stages:
+        - name: Install dependencies
+          script: |
+            corepack enable
+            corepack prepare pnpm@10.24.0 --activate
+            pnpm install --frozen-lockfile
+        - name: Start databases
+          script: |
+            docker run -d --name fedaco-mysql \
+              -e MARIADB_ALLOW_EMPTY_PASSWORD=yes \
+              -e MARIADB_ROOT_PASSWORD=123456 \
+              -e MARIADB_DATABASE=fedaco_test \
+              -p 3306:3306 \
+              mariadb:lts
+            docker run -d --name fedaco-postgresql \
+              -e POSTGRES_DB=fedaco_test \
+              -e POSTGRES_USER=root \
+              -e POSTGRES_PASSWORD=123456 \
+              -p 5432:5432 \
+              postgres:14
+            for i in $(seq 1 60); do
+              docker exec fedaco-mysql healthcheck.sh --connect --innodb_initialized \
+                && docker exec fedaco-postgresql pg_isready -U root -d fedaco_test \
+                && exit 0
+              sleep 2
+            done
+            docker logs fedaco-mysql
+            docker logs fedaco-postgresql
+            exit 1
+        - name: Build
+          script: pnpm nx run-many -t build
+        - name: Test
+          script: pnpm nx run-many -t test
+
+    ci-node-22:
+      name: CI / Node 22
+      services:
+        - docker
+      docker:
+        image: node:22
+        volumes:
+          - /root/.pnpm-store:copy-on-write
+      env:
+        NX_DAEMON: "false"
+        NX_ISOLATE_PLUGINS: "false"
+        DB_HOST: 127.0.0.1
+        DB_PORT: "3306"
+        DB_USER: root
+        DB_PASSWORD: "123456"
+        DB_DATABASE: fedaco_test
+        DB_COLLATION: utf8mb4_unicode_ci
+        PG_HOST: 127.0.0.1
+        PG_PORT: "5432"
+        PG_USER: root
+        PG_PASSWORD: "123456"
+        PG_DATABASE: fedaco_test
+      stages:
+        - name: Install dependencies
+          script: |
+            corepack enable
+            corepack prepare pnpm@10.24.0 --activate
+            pnpm install --frozen-lockfile
+        - name: Start databases
+          script: |
+            docker run -d --name fedaco-mysql \
+              -e MARIADB_ALLOW_EMPTY_PASSWORD=yes \
+              -e MARIADB_ROOT_PASSWORD=123456 \
+              -e MARIADB_DATABASE=fedaco_test \
+              -p 3306:3306 \
+              mariadb:lts
+            docker run -d --name fedaco-postgresql \
+              -e POSTGRES_DB=fedaco_test \
+              -e POSTGRES_USER=root \
+              -e POSTGRES_PASSWORD=123456 \
+              -p 5432:5432 \
+              postgres:14
+            for i in $(seq 1 60); do
+              docker exec fedaco-mysql healthcheck.sh --connect --innodb_initialized \
+                && docker exec fedaco-postgresql pg_isready -U root -d fedaco_test \
+                && exit 0
+              sleep 2
+            done
+            docker logs fedaco-mysql
+            docker logs fedaco-postgresql
+            exit 1
+        - name: Build
+          script: pnpm nx run-many -t build
+        - name: Test
+          script: pnpm nx run-many -t test

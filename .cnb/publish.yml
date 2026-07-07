@@ -1,0 +1,77 @@
+"v*":
+  tag_push:
+    publish-npm:
+      name: Publish npm packages
+      docker:
+        image: node:20
+        volumes:
+          - /root/.pnpm-store:copy-on-write
+      env:
+        NX_DAEMON: "false"
+        NX_ISOLATE_PLUGINS: "false"
+      stages:
+        - name: Install dependencies
+          script: |
+            corepack enable
+            corepack prepare pnpm@10.24.0 --activate
+            pnpm install --frozen-lockfile
+        - name: Build libraries
+          script: |
+            pnpm nx run-many -t build \
+              --projects=fedaco,mysql-driver,nest-fedaco,postgres-driver,sqlite-driver,sqlserver-driver
+        - name: Bundle fedaco CLI into fedaco package
+          script: pnpm build:cli
+        - name: Derive version and dist-tag
+          script: |
+            VERSION="${CNB_BRANCH#v}"
+            case "$CNB_BRANCH" in
+              *-alpha*) NPM_DIST_TAG=alpha ;;
+              *-beta*)  NPM_DIST_TAG=beta ;;
+              *-rc*)    NPM_DIST_TAG=rc ;;
+              *)        NPM_DIST_TAG=latest ;;
+            esac
+            echo "version=$VERSION"
+            echo "dist-tag=$NPM_DIST_TAG"
+            {
+              echo "VERSION=$VERSION"
+              echo "NPM_DIST_TAG=$NPM_DIST_TAG"
+            } > .release-env
+        - name: Stamp version into dist package.json files
+          script: |
+            . ./.release-env
+            for pkg in \
+              dist/libs/fedaco/package.json \
+              dist/libs/mysql-driver/package.json \
+              dist/libs/nest-fedaco/package.json \
+              dist/libs/postgres-driver/package.json \
+              dist/libs/sqlite-driver/package.json \
+              dist/libs/sqlserver-driver/package.json
+            do
+              node -e '
+                const fs = require("fs");
+                const [pkgPath, version] = process.argv.slice(1);
+                const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+                pkg.version = version;
+                if (pkg.peerDependencies && pkg.peerDependencies["@gradii/fedaco"]) {
+                  pkg.peerDependencies["@gradii/fedaco"] = `^${version}`;
+                }
+                fs.writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
+                console.log(`  -> ${pkg.name}@${pkg.version}`);
+              ' "$pkg" "$VERSION"
+            done
+        - name: Publish packages
+          script: |
+            . ./.release-env
+            : "${NPM_TOKEN:?NPM_TOKEN must be configured in CNB secrets or environment}"
+            printf '//registry.npmjs.org/:_authToken=%s\n' "$NPM_TOKEN" > ~/.npmrc
+            for pkg in \
+              dist/libs/fedaco \
+              dist/libs/mysql-driver \
+              dist/libs/nest-fedaco \
+              dist/libs/postgres-driver \
+              dist/libs/sqlite-driver \
+              dist/libs/sqlserver-driver
+            do
+              echo "Publishing $pkg with tag $NPM_DIST_TAG"
+              (cd "$pkg" && npm publish --access public --tag "$NPM_DIST_TAG")
+            done

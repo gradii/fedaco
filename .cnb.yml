@@ -1,0 +1,4 @@
+include:
+  - ".cnb/ci.yml"
+  - ".cnb/docs.yml"
+  - ".cnb/publish.yml"
