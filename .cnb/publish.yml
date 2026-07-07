@@ -2,6 +2,8 @@
   tag_push:
     publish-npm:
       name: Publish npm packages
+      # Import release secrets as environment variables.
+      imports: https://cnb.cool/gradii/secret/-/blob/main/gradii/release-envs.yml
       docker:
         image: node:20
         volumes:
