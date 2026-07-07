@@ -9,6 +9,7 @@
       env:
         NX_DAEMON: "false"
         NX_ISOLATE_PLUGINS: "false"
+        CNB_NPM_REGISTRY: "https://npm.cnb.cool/gradii/npm/-/packages/"
       stages:
         - name: Install dependencies
           script: |
@@ -21,21 +22,11 @@
               --projects=fedaco,mysql-driver,nest-fedaco,postgres-driver,sqlite-driver,sqlserver-driver
         - name: Bundle fedaco CLI into fedaco package
           script: pnpm build:cli
-        - name: Derive version and dist-tag
+        - name: Derive version
           script: |
             VERSION="${CNB_BRANCH#v}"
-            case "$CNB_BRANCH" in
-              *-alpha*) NPM_DIST_TAG=alpha ;;
-              *-beta*)  NPM_DIST_TAG=beta ;;
-              *-rc*)    NPM_DIST_TAG=rc ;;
-              *)        NPM_DIST_TAG=latest ;;
-            esac
             echo "version=$VERSION"
-            echo "dist-tag=$NPM_DIST_TAG"
-            {
-              echo "VERSION=$VERSION"
-              echo "NPM_DIST_TAG=$NPM_DIST_TAG"
-            } > .release-env
+            echo "VERSION=$VERSION" > .release-env
         - name: Stamp version into dist package.json files
           script: |
             . ./.release-env
@@ -59,19 +50,57 @@
                 console.log(`  -> ${pkg.name}@${pkg.version}`);
               ' "$pkg" "$VERSION"
             done
-        - name: Publish packages
-          script: |
-            . ./.release-env
-            : "${NPM_TOKEN:?NPM_TOKEN must be configured in CNB secrets or environment}"
-            printf '//registry.npmjs.org/:_authToken=%s\n' "$NPM_TOKEN" > ~/.npmrc
-            for pkg in \
-              dist/libs/fedaco \
-              dist/libs/mysql-driver \
-              dist/libs/nest-fedaco \
-              dist/libs/postgres-driver \
-              dist/libs/sqlite-driver \
-              dist/libs/sqlserver-driver
-            do
-              echo "Publishing $pkg with tag $NPM_DIST_TAG"
-              (cd "$pkg" && npm publish --access public --tag "$NPM_DIST_TAG")
-            done
+        - name: Publish @gradii/fedaco
+          image: tencentcom/npm
+          settings:
+            username: $CNB_TOKEN_USER_NAME
+            token: $CNB_TOKEN
+            email: $CNB_COMMITTER_EMAIL
+            registry: $CNB_NPM_REGISTRY
+            folder: dist/libs/fedaco
+            fail_on_version_conflict: true
+        - name: Publish @gradii/fedaco-mysql-driver
+          image: tencentcom/npm
+          settings:
+            username: $CNB_TOKEN_USER_NAME
+            token: $CNB_TOKEN
+            email: $CNB_COMMITTER_EMAIL
+            registry: $CNB_NPM_REGISTRY
+            folder: dist/libs/mysql-driver
+            fail_on_version_conflict: true
+        - name: Publish @gradii/nest-fedaco
+          image: tencentcom/npm
+          settings:
+            username: $CNB_TOKEN_USER_NAME
+            token: $CNB_TOKEN
+            email: $CNB_COMMITTER_EMAIL
+            registry: $CNB_NPM_REGISTRY
+            folder: dist/libs/nest-fedaco
+            fail_on_version_conflict: true
+        - name: Publish @gradii/fedaco-postgres-driver
+          image: tencentcom/npm
+          settings:
+            username: $CNB_TOKEN_USER_NAME
+            token: $CNB_TOKEN
+            email: $CNB_COMMITTER_EMAIL
+            registry: $CNB_NPM_REGISTRY
+            folder: dist/libs/postgres-driver
+            fail_on_version_conflict: true
+        - name: Publish @gradii/fedaco-sqlite-driver
+          image: tencentcom/npm
+          settings:
+            username: $CNB_TOKEN_USER_NAME
+            token: $CNB_TOKEN
+            email: $CNB_COMMITTER_EMAIL
+            registry: $CNB_NPM_REGISTRY
+            folder: dist/libs/sqlite-driver
+            fail_on_version_conflict: true
+        - name: Publish @gradii/fedaco-sqlserver-driver
+          image: tencentcom/npm
+          settings:
+            username: $CNB_TOKEN_USER_NAME
+            token: $CNB_TOKEN
+            email: $CNB_COMMITTER_EMAIL
+            registry: $CNB_NPM_REGISTRY
+            folder: dist/libs/sqlserver-driver
+            fail_on_version_conflict: true
